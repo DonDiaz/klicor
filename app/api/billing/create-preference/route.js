@@ -14,7 +14,8 @@ export async function POST(request) {
     const preference = await createPreference({ user, annualPrice: settings.annualPrice });
     return NextResponse.json({
       preferenceId: preference.id,
-      initPoint: preference.sandbox_init_point || preference.init_point,
+      initPoint: preference.init_point || preference.sandbox_init_point || "",
+      sandboxInitPoint: preference.sandbox_init_point || "",
       publicKey: process.env.MERCADOPAGO_PUBLIC_KEY || "",
     });
   } catch (error) {
