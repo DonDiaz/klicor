@@ -27,7 +27,7 @@ export function LandingView({ user, preview = false }) {
   };
   const buttonStyle = {
     background: `linear-gradient(135deg, ${hexToRgba(accent, opacity)}, ${hexToRgba(accent, Math.max(opacity - 0.12, 0.2))})`,
-    color: "#ffffff",
+    color: text,
     border: `1px solid ${hexToRgba(accent, Math.min(opacity + 0.05, 1))}`,
     boxShadow: `0 14px 30px ${hexToRgba(accent, 0.28)}`,
   };

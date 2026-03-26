@@ -230,6 +230,7 @@ export function ProfileForm({ token, profile, onSaved, canEdit }) {
 
   const publicUrl = form.username ? `${origin}/${form.username}` : "";
   const selectedPhotoLabel = photo ? photo.name : profile?.photo ? "Imagen actual cargada" : "Aún no has elegido imagen";
+  const usernameChanged = Boolean(profile?.username) && form.username.trim() && form.username.trim() !== profile.username;
 
   return (
     <div className="editor-layout">
@@ -240,10 +241,19 @@ export function ProfileForm({ token, profile, onSaved, canEdit }) {
             <input className="input" value={form.businessName} onChange={(e) => setForm({ ...form, businessName: e.target.value })} disabled={!canEdit} required />
           </div>
           <div>
-            <label className="label">Usuario público</label>
+            <label className="label">Nombre de usuario público</label>
             <input className="input" value={form.username} onChange={(e) => setForm({ ...form, username: e.target.value })} disabled={!canEdit} required />
+            <p className="muted" style={{ marginTop: ".45rem", marginBottom: 0 }}>
+              Este nombre define tu URL pública y el QR. Ejemplo: <strong>/tu-usuario</strong>
+            </p>
           </div>
         </div>
+
+        {usernameChanged ? (
+          <p className="notice notice-danger">
+            Si cambias el nombre de usuario público, tu link actual y tu QR actual dejarán de funcionar. Se regenerarán con el nuevo nombre.
+          </p>
+        ) : null}
 
         <div className="form-grid">
           <div>
