@@ -1,21 +1,19 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { Download, ExternalLink, Eye, ImagePlus, Palette, Plus, RefreshCw, Trash2, UploadCloud } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Download, ExternalLink, ImagePlus, Plus, RefreshCw, Trash2, UploadCloud } from "lucide-react";
 import { apiFetch } from "@/lib/client-api";
 import { LINK_CATALOG, LINK_CATALOG_MAP } from "@/lib/link-catalog";
-import { LandingView } from "@/components/landing-view";
 
-const THEME_PRESETS = [
-  { id: "sunrise", name: "Amanecer", accent: "#f97316", surface: "#fff7ed", titleText: "#1c1917", buttonText: "#ffffff", mode: "light" },
-  { id: "ocean", name: "Océano", accent: "#0f766e", surface: "#ecfeff", titleText: "#0f172a", buttonText: "#ecfeff", mode: "light" },
-  { id: "berry", name: "Berry", accent: "#be185d", surface: "#fff1f2", titleText: "#3f0d22", buttonText: "#fff1f2", mode: "light" },
-  { id: "night", name: "Noche", accent: "#6366f1", surface: "#111827", titleText: "#f9fafb", buttonText: "#ffffff", mode: "dark" },
-  { id: "forest", name: "Bosque", accent: "#166534", surface: "#f0fdf4", titleText: "#14532d", buttonText: "#f0fdf4", mode: "light" },
-  { id: "gold", name: "Oro", accent: "#ca8a04", surface: "#fefce8", titleText: "#713f12", buttonText: "#fff7ed", mode: "light" },
-  { id: "coral", name: "Coral", accent: "#ea580c", surface: "#fff7ed", titleText: "#7c2d12", buttonText: "#fff7ed", mode: "light" },
-  { id: "midnight", name: "Medianoche", accent: "#0f172a", surface: "#020617", titleText: "#e2e8f0", buttonText: "#f8fafc", mode: "dark" },
-];
+const FIXED_THEME = {
+  accent: "#5B21B6",
+  surface: "#FFFFFF",
+  text: "#0B1020",
+  titleText: "#0B1020",
+  buttonText: "#FFFFFF",
+  buttonOpacity: 1,
+  mode: "light",
+};
 
 function normalizeLinks(profile) {
   if (Array.isArray(profile?.profileLinks) && profile.profileLinks.length) {
@@ -40,105 +38,24 @@ function normalizeLinks(profile) {
     }));
 }
 
-function normalizeLinkUrl(item) {
-  const raw = String(item.value || "").trim();
-  if (!raw) return "";
-
-  const meta = LINK_CATALOG_MAP[item.type];
-  if (meta?.kind === "phone") {
-    const digits = raw.replace(/\D/g, "");
-    const message = (item.message || "Hola, quiero información").trim();
-    return digits ? `https://wa.me/${digits}?text=${encodeURIComponent(message)}` : "";
-  }
-
-  return /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
-}
-
-function ColorField({ label, value, onChange, presets = [] }) {
-  return (
-    <div className="color-card">
-      <div className="color-card-top">
-        <div>
-          <label className="label">{label}</label>
-          <strong>{value}</strong>
-        </div>
-        <label className="color-chip" style={{ "--swatch": value }}>
-          <input type="color" value={value} onChange={onChange} />
-          <span />
-        </label>
-      </div>
-      {presets.length ? (
-        <div className="color-swatches">
-          {presets.map((preset) => (
-            <button
-              key={`${label}-${preset}`}
-              className="swatch-button"
-              style={{ "--swatch": preset }}
-              type="button"
-              onClick={() => onChange({ target: { value: preset } })}
-            />
-          ))}
-        </div>
-      ) : null}
-    </div>
-  );
-}
-
 export function ProfileForm({ token, profile, onSaved, canEdit }) {
   const [form, setForm] = useState({
     businessName: profile?.businessName || "",
     username: profile?.username || "",
-    accent: profile?.settings?.accent || "#f97316",
-    surface: profile?.settings?.surface || "#fff7ed",
-    titleText: profile?.settings?.titleText || profile?.settings?.text || "#1c1917",
-    buttonText: profile?.settings?.buttonText || "#ffffff",
-    buttonOpacity: profile?.settings?.buttonOpacity ?? 0.92,
-    mode: profile?.settings?.mode || "light",
   });
   const [profileLinks, setProfileLinks] = useState(normalizeLinks(profile));
   const [photo, setPhoto] = useState(null);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
-  const [origin, setOrigin] = useState("");
   const [selectedType, setSelectedType] = useState("whatsapp");
-
-  useEffect(() => {
-    setOrigin(window.location.origin);
-  }, []);
 
   useEffect(() => {
     setForm({
       businessName: profile?.businessName || "",
       username: profile?.username || "",
-      accent: profile?.settings?.accent || "#f97316",
-      surface: profile?.settings?.surface || "#fff7ed",
-      titleText: profile?.settings?.titleText || profile?.settings?.text || "#1c1917",
-      buttonText: profile?.settings?.buttonText || "#ffffff",
-      buttonOpacity: profile?.settings?.buttonOpacity ?? 0.92,
-      mode: profile?.settings?.mode || "light",
     });
     setProfileLinks(normalizeLinks(profile));
   }, [profile]);
-
-  const previewUser = useMemo(() => ({
-    businessName: form.businessName || "Tu negocio",
-    username: form.username || "tu-usuario",
-    photo: profile?.photo || "",
-    settings: {
-      accent: form.accent,
-      surface: form.surface,
-      titleText: form.titleText,
-      buttonText: form.buttonText,
-      buttonOpacity: form.buttonOpacity,
-      mode: form.mode,
-    },
-    profileLinks: profileLinks
-      .filter((item) => item.value?.trim())
-      .map((item) => ({
-        ...item,
-        url: normalizeLinkUrl(item),
-      })),
-  }), [form, profile?.photo, profileLinks]);
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -151,9 +68,12 @@ export function ProfileForm({ token, profile, onSaved, canEdit }) {
     setMessage("");
     try {
       const body = new FormData();
-      Object.entries(form).forEach(([key, value]) => body.append(key, String(value)));
+      body.append("businessName", form.businessName);
+      body.append("username", form.username);
       body.append("profileLinks", JSON.stringify(profileLinks));
+      Object.entries(FIXED_THEME).forEach(([key, value]) => body.append(key, String(value)));
       if (photo) body.append("photo", photo);
+
       const data = await apiFetch("/api/profile", {
         method: "POST",
         token,
@@ -186,7 +106,7 @@ export function ProfileForm({ token, profile, onSaved, canEdit }) {
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = `${profile?.username || "bioimpulso"}-qr.png`;
+      link.download = `${profile?.username || "linka"}-qr.png`;
       document.body.appendChild(link);
       link.click();
       link.remove();
@@ -225,227 +145,137 @@ export function ProfileForm({ token, profile, onSaved, canEdit }) {
     setProfileLinks((current) => current.filter((item) => item.id !== id));
   }
 
-  function applyPreset(preset) {
-    setForm((current) => ({
-      ...current,
-      accent: preset.accent,
-      surface: preset.surface,
-      titleText: preset.titleText,
-      buttonText: preset.buttonText,
-      mode: preset.mode,
-    }));
-  }
-
-  const publicUrl = form.username ? `${origin}/${form.username}` : "";
   const selectedPhotoLabel = photo ? photo.name : profile?.photo ? "Imagen actual cargada" : "Aún no has elegido imagen";
   const usernameChanged = Boolean(profile?.username) && form.username.trim() && form.username.trim() !== profile.username;
 
   return (
-    <div className="editor-layout">
-      <form className="stack" onSubmit={handleSubmit}>
-        <div className="form-grid">
+    <form className="section-stack" onSubmit={handleSubmit}>
+      <section className="dashboard-section panel">
+        <div className="dashboard-section-head">
+          <div>
+            <h2 className="section-title">Perfil</h2>
+            <p className="section-copy">Actualiza el nombre del negocio, tu enlace público y la imagen principal.</p>
+          </div>
+        </div>
+
+        <div className="profile-grid">
           <div>
             <label className="label">Nombre del negocio</label>
             <input className="input" value={form.businessName} onChange={(e) => setForm({ ...form, businessName: e.target.value })} disabled={!canEdit} required />
           </div>
           <div>
-            <label className="label">Nombre de usuario público</label>
+            <label className="label">Username</label>
             <input className="input" value={form.username} onChange={(e) => setForm({ ...form, username: e.target.value })} disabled={!canEdit} required />
-            <p className="muted" style={{ marginTop: ".45rem", marginBottom: 0 }}>
-              Este nombre define tu URL pública y el QR. Ejemplo: <strong>/tu-usuario</strong>
-            </p>
+            <p className="muted" style={{ marginTop: ".45rem" }}>Este valor crea tu URL pública y tu código QR.</p>
           </div>
         </div>
 
         {usernameChanged ? (
-          <p className="notice notice-danger">
-            Si cambias el nombre de usuario público, tu link actual y tu QR actual dejarán de funcionar. Se regenerarán con el nuevo nombre.
-          </p>
+          <div className="notice notice-danger">
+            <span>Si cambias el username, tu link actual y tu QR actual dejan de funcionar y se reemplazan por la nueva versión.</span>
+          </div>
         ) : null}
 
-        <div className="form-grid">
+        <div className="upload-inline">
+          <label className="label">Imagen del negocio</label>
+          <label className={`upload-card ${!canEdit ? "upload-card-disabled" : ""}`}>
+            <input
+              className="upload-input"
+              type="file"
+              accept="image/png,image/jpeg,image/webp"
+              onChange={(e) => setPhoto(e.target.files?.[0] || null)}
+              disabled={!canEdit}
+            />
+            <span className="upload-icon">
+              {photo || profile?.photo ? <ImagePlus size={20} /> : <UploadCloud size={20} />}
+            </span>
+            <span className="upload-copy">
+              <strong>{photo ? "Cambiar imagen" : "Subir imagen"}</strong>
+              <span>{selectedPhotoLabel}</span>
+              <small>PNG, JPG o WEBP hasta 2 MB</small>
+            </span>
+          </label>
+        </div>
+      </section>
+
+      <section className="dashboard-section panel">
+        <div className="dashboard-section-head">
           <div>
-            <label className="label">Imagen del negocio</label>
-            <label className={`upload-card ${!canEdit ? "upload-card-disabled" : ""}`}>
-              <input
-                className="upload-input"
-                type="file"
-                accept="image/png,image/jpeg,image/webp"
-                onChange={(e) => setPhoto(e.target.files?.[0] || null)}
-                disabled={!canEdit}
-              />
-              <span className="upload-icon">
-                {photo || profile?.photo ? <ImagePlus size={20} /> : <UploadCloud size={20} />}
-              </span>
-              <span className="upload-copy">
-                <strong>{photo ? "Cambiar imagen" : "Subir imagen"}</strong>
-                <span>{selectedPhotoLabel}</span>
-                <small>PNG, JPG o WEBP hasta 2 MB</small>
-              </span>
-            </label>
+            <h2 className="section-title">Enlaces</h2>
+            <p className="section-copy">Agrega, edita y ordena la presencia digital de tu negocio en un solo lugar.</p>
           </div>
         </div>
 
-        <section className="panel stack">
-          <div className="topbar" style={{ marginBottom: 0 }}>
-            <div>
-              <h3 style={{ marginBottom: ".2rem" }}>Estilo visual</h3>
-              <p className="muted">Usa un preset como base y luego ajusta colores y opacidad si quieres afinar el diseño.</p>
-            </div>
-            <span className="pill"><Palette size={16} /> Personaliza</span>
-          </div>
-
-          <div className="preset-grid">
-            {THEME_PRESETS.map((preset) => (
-              <button
-                key={preset.id}
-                className="preset-card"
-                type="button"
-                onClick={() => applyPreset(preset)}
-                disabled={!canEdit}
-              >
-                <span className="preset-swatches">
-                  <i style={{ background: preset.accent }} />
-                  <i style={{ background: preset.surface }} />
-                  <i style={{ background: preset.titleText }} />
-                </span>
-                <strong>{preset.name}</strong>
-              </button>
+        <div className="link-toolbar">
+          <select className="select" value={selectedType} onChange={(e) => setSelectedType(e.target.value)} disabled={!canEdit}>
+            {LINK_CATALOG.map((item) => (
+              <option key={item.type} value={item.type}>{item.label}</option>
             ))}
-          </div>
+          </select>
+          <button className="btn btn-secondary" type="button" onClick={addLink} disabled={!canEdit}>
+            <Plus size={16} /> Agregar enlace
+          </button>
+        </div>
 
-          <div className="form-grid color-grid">
-            <ColorField
-              label="Color principal"
-              value={form.accent}
-              onChange={(e) => setForm({ ...form, accent: e.target.value })}
-              presets={["#f97316", "#0f766e", "#2563eb", "#be185d", "#7c3aed"]}
-            />
-            <ColorField
-              label="Color de fondo"
-              value={form.surface}
-              onChange={(e) => setForm({ ...form, surface: e.target.value })}
-              presets={["#fff7ed", "#eff6ff", "#fdf2f8", "#ecfeff", "#111827"]}
-            />
-          </div>
-
-          <div className="form-grid color-grid">
-            <ColorField
-              label="Color del nombre y usuario"
-              value={form.titleText}
-              onChange={(e) => setForm({ ...form, titleText: e.target.value })}
-              presets={["#1c1917", "#0f172a", "#3f0d22", "#f9fafb", "#334155"]}
-            />
-            <ColorField
-              label="Color del texto en botones"
-              value={form.buttonText}
-              onChange={(e) => setForm({ ...form, buttonText: e.target.value })}
-              presets={["#ffffff", "#f9fafb", "#1c1917", "#0f172a", "#fde68a"]}
-            />
-          </div>
-
-          <div className="form-grid color-grid">
-            <div className="opacity-card">
-              <div>
-                <label className="label">Opacidad de botones</label>
-                <strong>{Math.round(Number(form.buttonOpacity) * 100)}%</strong>
-              </div>
-              <input
-                className="opacity-slider"
-                type="range"
-                min="0.2"
-                max="1"
-                step="0.05"
-                value={form.buttonOpacity}
-                onChange={(e) => setForm({ ...form, buttonOpacity: Number(e.target.value) })}
-                disabled={!canEdit}
-              />
-              <p className="muted" style={{ margin: 0 }}>Controla qué tan sólidos o suaves se ven los botones de la landing.</p>
-            </div>
-          </div>
-        </section>
-
-        <section className="panel stack">
-          <div className="topbar" style={{ marginBottom: 0 }}>
-            <div>
-              <h3 style={{ marginBottom: ".2rem" }}>Tus links</h3>
-              <p className="muted">Agrega todos los enlaces que quieras. Cada botón mostrará el icono real de su plataforma.</p>
-            </div>
-          </div>
-
-          <div className="link-toolbar">
-            <select className="select" value={selectedType} onChange={(e) => setSelectedType(e.target.value)} disabled={!canEdit}>
-              {LINK_CATALOG.map((item) => (
-                <option key={item.type} value={item.type}>{item.label}</option>
-              ))}
-            </select>
-            <button className="btn btn-secondary" type="button" onClick={addLink} disabled={!canEdit}>
-              <Plus size={16} /> Agregar link
-            </button>
-          </div>
-
-          <div className="stack">
-            {profileLinks.map((item) => {
-              const meta = LINK_CATALOG_MAP[item.type] || LINK_CATALOG_MAP.website;
-              return (
-                <div className="link-row" key={item.id}>
-                  <div className="link-row-main">
-                    <label className="label">Etiqueta</label>
-                    <input className="input" value={item.label} onChange={(e) => updateLink(item.id, "label", e.target.value)} disabled={!canEdit} />
-                  </div>
-                  <div className="link-row-value">
-                    <label className="label">{meta.kind === "phone" ? "Número" : "URL"}</label>
-                    <input className="input" value={item.value} placeholder={meta.placeholder} onChange={(e) => updateLink(item.id, "value", e.target.value)} disabled={!canEdit} />
-                  </div>
-                  <button className="btn btn-secondary link-remove" type="button" onClick={() => removeLink(item.id)} disabled={!canEdit}>
-                    <Trash2 size={16} />
-                  </button>
-                  {item.type === "whatsapp" ? (
-                    <div className="link-row-message">
-                      <label className="label">Mensaje inicial</label>
-                      <input
-                        className="input"
-                        value={item.message || ""}
-                        placeholder="Hola, quiero información"
-                        onChange={(e) => updateLink(item.id, "message", e.target.value)}
-                        disabled={!canEdit}
-                      />
-                    </div>
-                  ) : null}
+        <div className="stack">
+          {profileLinks.length ? profileLinks.map((item) => {
+            const meta = LINK_CATALOG_MAP[item.type] || LINK_CATALOG_MAP.website;
+            return (
+              <div className="link-row" key={item.id}>
+                <div>
+                  <label className="label">Etiqueta</label>
+                  <input className="input" value={item.label} onChange={(e) => updateLink(item.id, "label", e.target.value)} disabled={!canEdit} />
                 </div>
-              );
-            })}
+                <div>
+                  <label className="label">{meta.kind === "phone" ? "Número" : "URL"}</label>
+                  <input className="input" value={item.value} placeholder={meta.placeholder} onChange={(e) => updateLink(item.id, "value", e.target.value)} disabled={!canEdit} />
+                </div>
+                <button className="btn btn-secondary link-remove" type="button" onClick={() => removeLink(item.id)} disabled={!canEdit}>
+                  <Trash2 size={16} />
+                </button>
+                {item.type === "whatsapp" ? (
+                  <div className="link-row-message">
+                    <label className="label">Mensaje inicial</label>
+                    <input className="input" value={item.message || ""} placeholder="Hola, quiero información" onChange={(e) => updateLink(item.id, "message", e.target.value)} disabled={!canEdit} />
+                  </div>
+                ) : null}
+              </div>
+            );
+          }) : (
+            <div className="kpi">
+              <strong>Sin enlaces todavía</strong>
+              <p className="muted" style={{ marginTop: ".5rem" }}>Agrega tu primer canal para empezar a construir tu página pública.</p>
+            </div>
+          )}
+        </div>
+      </section>
+
+      <section className="dashboard-section panel">
+        <div className="dashboard-section-head">
+          <div>
+            <h2 className="section-title">QR y URL pública</h2>
+            <p className="section-copy">Mantén a la vista tu enlace único y tu código QR para compartirlos rápido.</p>
           </div>
-        </section>
+        </div>
 
         <div className="actions">
-          <button className="btn btn-primary" disabled={loading || !canEdit} type="submit">
-            {loading ? <RefreshCw size={16} /> : null}
-            Guardar perfil
-          </button>
           {profile?.qrUrl ? (
             <button className="btn btn-secondary" type="button" onClick={handleQrDownload}>
               <Download size={16} /> Descargar QR
             </button>
           ) : null}
-          {publicUrl ? (
-            <a className="btn btn-secondary" href={publicUrl} target="_blank" rel="noreferrer">
-              <ExternalLink size={16} /> Abrir landing
+          {profile?.username ? (
+            <a className="btn btn-secondary" href={`/${profile.username}`} target="_blank" rel="noreferrer">
+              <ExternalLink size={16} /> Abrir página
             </a>
           ) : null}
+          <button className="btn btn-primary" disabled={loading || !canEdit} type="submit">
+            {loading ? <RefreshCw size={16} /> : null}
+            Guardar cambios
+          </button>
         </div>
         {message ? <p className="notice">{message}</p> : null}
-      </form>
-
-      <aside className="preview-shell">
-        <div className="preview-header">
-          <span className="pill"><Eye size={16} /> Vista previa</span>
-          <p className="muted">Así se verá la landing en móvil mientras editas.</p>
-        </div>
-        <div className="phone-frame">
-          <LandingView user={previewUser} preview />
-        </div>
-      </aside>
-    </div>
+      </section>
+    </form>
   );
 }

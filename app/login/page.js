@@ -1,31 +1,42 @@
 import Link from "next/link";
-import { ArrowLeft, CheckCircle2, QrCode, Sparkles } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Link2, QrCode } from "lucide-react";
 import { AuthForm } from "@/components/auth-form";
 
 export default function LoginPage() {
   return (
-    <main className="shell hero auth-hero" style={{ minHeight: "auto" }}>
-      <section className="stack auth-marketing">
-        <span className="pill"><Sparkles size={16} /> Acceso y registro</span>
-        <h1 className="title">Activa tu bio comercial con una experiencia más clara y rápida.</h1>
-        <p className="lead">
-          Regístrate con correo o Google, verifica tu cuenta y empieza con una prueba gratuita de un mes.
-        </p>
+    <main className="auth-shell">
+      <div className="shell auth-layout">
+        <section className="auth-brand-panel">
+          <div className="logo-mark">
+            <span className="logo-badge">L</span>
+            <span>Linka</span>
+          </div>
 
-        <div className="auth-feature-list">
-          <div className="auth-feature-item"><CheckCircle2 size={18} /> Landing profesional en minutos</div>
-          <div className="auth-feature-item"><QrCode size={18} /> QR listo para descargar</div>
-          <div className="auth-feature-item"><CheckCircle2 size={18} /> Gestión simple desde tu dashboard</div>
-        </div>
+          <div className="stack">
+            <span className="pill">Acceso y registro</span>
+            <h1 className="title" style={{ fontSize: "clamp(2.4rem, 6vw, 4.2rem)" }}>
+              Empieza con una cuenta clara, simple y lista para vender.
+            </h1>
+            <p className="lead">
+              Regístrate con correo o Google y activa tu página pública, tu URL única y tu QR en una sola plataforma.
+            </p>
+          </div>
 
-        <div className="auth-cta-row">
-          <Link className="btn btn-secondary" href="/">
-            <ArrowLeft size={16} /> Volver al inicio
-          </Link>
-        </div>
-      </section>
+          <div className="auth-brand-points">
+            <div className="auth-brand-point"><CheckCircle2 size={18} /> Prueba gratis durante 30 días</div>
+            <div className="auth-brand-point"><Link2 size={18} /> Un solo enlace para todos tus canales</div>
+            <div className="auth-brand-point"><QrCode size={18} /> QR descargable desde tu panel</div>
+          </div>
 
-      <AuthForm />
+          <div className="actions">
+            <Link className="btn btn-secondary" href="/">
+              <ArrowLeft size={16} /> Volver al inicio
+            </Link>
+          </div>
+        </section>
+
+        <AuthForm />
+      </div>
     </main>
   );
 }

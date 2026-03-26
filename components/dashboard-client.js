@@ -2,11 +2,20 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { AlertTriangle, CheckCircle2, Copy, CreditCard, ExternalLink, Link2, LogOut, Send, ShieldAlert } from "lucide-react";
 import { sendEmailVerification, signOut } from "firebase/auth";
 import { getClientAuth } from "@/lib/firebase-client";
 import { apiFetch } from "@/lib/client-api";
 import { useAuth } from "@/components/providers/auth-provider";
 import { ProfileForm } from "@/components/profile-form";
+import { LandingView } from "@/components/landing-view";
+
+function getStatusTone(status) {
+  if (status === "active" || status === "trial") return "success";
+  if (status === "grace_period") return "warning";
+  if (status === "suspended") return "danger";
+  return "";
+}
 
 export function DashboardClient() {
   const { user, loading } = useAuth();
@@ -59,14 +68,20 @@ export function DashboardClient() {
     await signOut(auth);
   }
 
+  async function handleCopyLink() {
+    if (!data?.publicUrl) return;
+    await navigator.clipboard.writeText(data.publicUrl);
+    setError("Enlace copiado.");
+  }
+
   if (loading) {
-    return <main className="shell" style={{ padding: "4rem 0" }}><div className="panel">Cargando...</div></main>;
+    return <main className="shell page-shell"><div className="kpi">Cargando panel...</div></main>;
   }
 
   if (!user) {
     return (
-      <main className="shell" style={{ padding: "4rem 0" }}>
-        <div className="panel stack">
+      <main className="shell page-shell">
+        <div className="card dashboard-section">
           <p>Necesitas iniciar sesión para ver tu dashboard.</p>
           <Link className="btn btn-primary" href="/login">Ir a login</Link>
         </div>
@@ -75,56 +90,135 @@ export function DashboardClient() {
   }
 
   if (!data) {
-    return <main className="shell" style={{ padding: "4rem 0" }}><div className="panel">Preparando tu panel...</div></main>;
+    return <main className="shell page-shell"><div className="kpi">Preparando tu panel...</div></main>;
   }
 
   const isAdmin = data.user.role === "admin";
+  const statusTone = getStatusTone(data.user.status);
 
   return (
-    <main className="shell" style={{ padding: "2rem 0 4rem" }}>
-      <div className="topbar">
-        <div>
-          <span className="pill">Dashboard</span>
-          <h1 style={{ marginBottom: ".3rem" }}>{data.user.businessName || "Tu negocio"}</h1>
-          <p className="muted">Plan {data.user.plan} · Estado {data.user.status}</p>
+    <main className="shell dashboard-shell">
+      <header className="dashboard-header">
+        <div className="stack" style={{ gap: ".65rem" }}>
+          <div className="logo-mark">
+            <span className="logo-badge">L</span>
+            <span>Linka</span>
+          </div>
+          <div className="stack" style={{ gap: ".45rem" }}>
+            <h1 className="section-title" style={{ fontSize: "2.1rem" }}>{data.user.businessName || "Tu negocio"}</h1>
+            <p className="section-copy">Gestiona tu perfil, tus enlaces y tu QR desde un solo panel.</p>
+          </div>
+          <div className={`status-badge ${statusTone}`}>
+            {statusTone === "success" ? <CheckCircle2 size={14} /> : statusTone === "warning" ? <AlertTriangle size={14} /> : <ShieldAlert size={14} />}
+            <span>{data.user.plan} · {data.user.status}</span>
+          </div>
         </div>
+
         <div className="actions">
           {isAdmin ? <Link className="btn btn-secondary" href="/admin">Panel admin</Link> : null}
-          <button className="btn btn-secondary" type="button" onClick={handleLogout}>Cerrar sesión</button>
+          <button className="btn btn-secondary" type="button" onClick={handleLogout}><LogOut size={16} /> Cerrar sesión</button>
         </div>
-      </div>
+      </header>
+
       {!user.emailVerified ? (
-        <div className="notice notice-danger" style={{ marginBottom: "1rem" }}>
-          Debes verificar tu correo para completar el flujo comercial. <button className="btn btn-secondary" type="button" onClick={handleSendVerification}>Reenviar verificación</button>
+        <div className="notice notice-danger">
+          <ShieldAlert size={16} />
+          <span>Debes verificar tu correo para completar el flujo comercial.</span>
+          <button className="btn btn-secondary" type="button" onClick={handleSendVerification}><Send size={16} /> Reenviar verificación</button>
         </div>
       ) : null}
-      {data.user.status === "grace_period" ? <div className="notice" style={{ marginBottom: "1rem" }}>Tu suscripción venció. Tienes 15 días sin edición antes de suspender la landing.</div> : null}
-      {data.user.status === "suspended" ? <div className="notice notice-danger" style={{ marginBottom: "1rem" }}>Tu landing está suspendida hasta registrar el pago anual.</div> : null}
-      <div className="grid-3" style={{ marginBottom: "1rem" }}>
-        <div className="kpi"><strong>URL pública</strong><p className="muted">{data.publicUrl || "Aún no definida"}</p></div>
-        <div className="kpi"><strong>QR</strong><p className="muted">{data.user.qrUrl ? "Listo para descargar" : "Se genera al guardar username"}</p></div>
-        <div className="kpi"><strong>Precio actual</strong><p className="muted">${Intl.NumberFormat("es-CO").format(data.settings.annualPrice)} COP / año</p></div>
+
+      {data.user.status === "grace_period" ? (
+        <div className="notice">
+          <AlertTriangle size={16} />
+          <span>Tu suscripción venció. Tienes 15 días sin edición antes de suspender la página.</span>
+        </div>
+      ) : null}
+
+      {data.user.status === "suspended" ? (
+        <div className="notice notice-danger">
+          <ShieldAlert size={16} />
+          <span>Tu página está suspendida hasta registrar el pago anual.</span>
+        </div>
+      ) : null}
+
+      <div className="dashboard-grid">
+        <div className="dashboard-main">
+          <ProfileForm
+            token={token}
+            profile={data.user}
+            canEdit={canEdit}
+            onSaved={(userData) => setData({
+              ...data,
+              user: userData,
+              publicUrl: userData.username ? `${window.location.origin}/${userData.username}` : "",
+            })}
+          />
+        </div>
+
+        <aside className="dashboard-side">
+          <section className="qr-card card">
+            <div className="dashboard-section-head">
+              <div>
+                <h2 className="section-title">QR y URL pública</h2>
+                <p className="section-copy">Tu acceso directo para compartir tu presencia digital.</p>
+              </div>
+            </div>
+
+            <div className="kpi">
+              <strong>URL pública</strong>
+              <p className="muted" style={{ marginTop: ".5rem", wordBreak: "break-word" }}>{data.publicUrl || "Aún no definida"}</p>
+            </div>
+
+            <div className="qr-box">
+              {data.user.qrUrl ? <img src={data.user.qrUrl} alt="Código QR" style={{ width: 180, height: 180, objectFit: "contain" }} /> : <span className="muted">Se genera al guardar tu username</span>}
+            </div>
+
+            <div className="actions">
+              <button className="btn btn-secondary" type="button" onClick={handleCopyLink} disabled={!data.publicUrl}><Copy size={16} /> Copiar link</button>
+              <a className="btn btn-secondary" href={data.publicUrl || "#"} target="_blank" rel="noreferrer"><ExternalLink size={16} /> Abrir página</a>
+            </div>
+          </section>
+
+          <section className="qr-card card">
+            <div className="dashboard-section-head">
+              <div>
+                <h2 className="section-title">Suscripción</h2>
+                <p className="section-copy">Renovación manual anual a través de Mercado Pago.</p>
+              </div>
+              <span className="status-badge">{Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", maximumFractionDigits: 0 }).format(data.settings.annualPrice)}</span>
+            </div>
+
+            <div className="kpi">
+              <strong>Prueba hasta</strong>
+              <p className="muted" style={{ marginTop: ".5rem" }}>{data.user.trialEndsAtLabel || "-"}</p>
+            </div>
+            <div className="kpi">
+              <strong>Expira</strong>
+              <p className="muted" style={{ marginTop: ".5rem" }}>{data.user.expiresAtLabel || "-"}</p>
+            </div>
+
+            <button className="btn btn-primary" type="button" onClick={handleCheckout} disabled={paying || !user.emailVerified}>
+              <CreditCard size={16} /> {paying ? "Abriendo checkout..." : data.user.status === "active" ? "Renovar plan" : "Activar plan"}
+            </button>
+          </section>
+
+          <section className="qr-card card">
+            <div className="dashboard-section-head">
+              <div>
+                <h2 className="section-title">Vista previa</h2>
+                <p className="section-copy">Así se verá tu página pública en móvil.</p>
+              </div>
+            </div>
+
+            <div className="preview-frame">
+              <LandingView user={data.user} preview />
+            </div>
+          </section>
+        </aside>
       </div>
-      <section className="card" style={{ padding: "1.5rem", marginBottom: "1rem" }}>
-        <div className="topbar">
-          <div>
-            <h2 style={{ marginBottom: ".25rem" }}>Perfil y landing</h2>
-            <p className="muted">Puedes cambiar el username solo una vez cada 30 días. Si cambia, regeneramos el QR automáticamente.</p>
-          </div>
-        </div>
-        <ProfileForm token={token} profile={data.user} canEdit={canEdit} onSaved={(userData) => setData({ ...data, user: userData, publicUrl: userData.username ? `${window.location.origin}/${userData.username}` : "" })} />
-      </section>
-      <section className="card" style={{ padding: "1.5rem", marginBottom: "1rem" }}>
-        <div className="topbar">
-          <div>
-            <h2 style={{ marginBottom: ".25rem" }}>Suscripción anual</h2>
-            <p className="muted">Renovación manual cada año por Mercado Pago.</p>
-          </div>
-          <button className="btn btn-primary" type="button" onClick={handleCheckout} disabled={paying || !user.emailVerified}>{paying ? "Abriendo checkout..." : data.user.status === "active" ? "Renovar" : "Activar plan"}</button>
-        </div>
-        <p className="muted">Prueba hasta: {data.user.trialEndsAtLabel || "-"} · Expira: {data.user.expiresAtLabel || "-"}</p>
-      </section>
-      {error ? <p className="notice" style={{ marginTop: "1rem" }}>{error}</p> : null}
+
+      {error ? <p className="notice">{error}</p> : null}
     </main>
   );
 }

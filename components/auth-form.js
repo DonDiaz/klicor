@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createUserWithEmailAndPassword, sendEmailVerification, signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
-import { BadgeCheck, Chrome, LockKeyhole, Mail, MailCheck, ShieldCheck } from "lucide-react";
+import { Chrome, LockKeyhole, Mail, MailCheck } from "lucide-react";
 import { getClientAuth, getGoogleProvider } from "@/lib/firebase-client";
 import { apiFetch } from "@/lib/client-api";
 
@@ -64,17 +64,7 @@ export function AuthForm() {
 
   return (
     <section className="card auth-card">
-      <div className="auth-head">
-        <div>
-          <span className="auth-kicker">{mode === "login" ? "Acceso seguro" : "Empieza hoy"}</span>
-          <h2 className="auth-title">{mode === "login" ? "Entra a tu cuenta" : "Crea tu cuenta"}</h2>
-          <p className="auth-copy">
-            {mode === "login"
-              ? "Gestiona tu landing, QR y suscripción desde un solo panel."
-              : "Prueba gratis por 30 días. Luego decides si activas tu plan anual."}
-          </p>
-        </div>
-
+      <div className="stack" style={{ gap: "0.75rem" }}>
         <div className="auth-switch" role="tablist" aria-label="Modo de acceso">
           <button className={`auth-switch-btn ${mode === "register" ? "is-active" : ""}`} type="button" onClick={() => setMode("register")}>
             Crear cuenta
@@ -83,15 +73,20 @@ export function AuthForm() {
             Ingresar
           </button>
         </div>
+
+        <div className="stack" style={{ gap: "0.35rem" }}>
+          <h2 className="section-title" style={{ fontSize: "2rem" }}>
+            {mode === "register" ? "Crea tu cuenta" : "Ingresa a Linka"}
+          </h2>
+          <p className="section-copy">
+            {mode === "register"
+              ? "Activa tu perfil con correo o Google y empieza con una prueba gratis."
+              : "Entra a tu panel para editar enlaces, descargar tu QR y abrir tu página."}
+          </p>
+        </div>
       </div>
 
-      <div className="auth-benefits">
-        <div className="auth-benefit"><BadgeCheck size={16} /> Activación en minutos</div>
-        <div className="auth-benefit"><ShieldCheck size={16} /> Verificación por correo</div>
-        <div className="auth-benefit"><MailCheck size={16} /> Prueba gratis 30 días</div>
-      </div>
-
-      <form className="stack" onSubmit={handleSubmit}>
+      <form className="auth-form-grid" onSubmit={handleSubmit}>
         <div>
           <label className="label">Correo electrónico</label>
           <div className="input-with-icon">
@@ -99,8 +94,8 @@ export function AuthForm() {
             <input
               className="input input-embedded"
               type="email"
-              placeholder="tucorreo@negocio.com"
               required
+              placeholder="tucorreo@negocio.com"
               value={form.email}
               onChange={(event) => setForm({ ...form, email: event.target.value })}
             />
@@ -114,33 +109,33 @@ export function AuthForm() {
             <input
               className="input input-embedded"
               type="password"
-              placeholder="Mínimo 6 caracteres"
               required
               minLength={6}
+              placeholder="Mínimo 6 caracteres"
               value={form.password}
               onChange={(event) => setForm({ ...form, password: event.target.value })}
             />
           </div>
-          {mode === "register" ? <p className="auth-hint">Usa una contraseña fácil de recordar, pero difícil de adivinar.</p> : null}
+          {mode === "register" ? <p className="auth-hint">Tu cuenta se crea al instante y requiere verificación por correo.</p> : null}
         </div>
 
-        <button className="btn btn-primary auth-submit" disabled={loading} type="submit">
-          {loading ? "Procesando..." : mode === "login" ? "Entrar al dashboard" : "Crear cuenta gratis"}
+        <button className="btn btn-primary" disabled={loading} type="submit">
+          {loading ? "Procesando..." : mode === "login" ? "Entrar al dashboard" : "Crear mi Linka"}
         </button>
       </form>
 
       <div className="auth-divider">
-        <span>o si prefieres</span>
+        <span>o continúa con</span>
       </div>
 
-      <button className="btn btn-secondary auth-google" type="button" onClick={handleGoogle} disabled={loading}>
-        <Chrome size={16} /> Continuar con Google
+      <button className="btn btn-secondary" type="button" onClick={handleGoogle} disabled={loading}>
+        <Chrome size={16} /> Google
       </button>
 
       {message ? (
-        <p className="notice auth-notice">
-          <MailCheck size={16} style={{ verticalAlign: "middle", marginRight: ".4rem" }} />
-          {message}
+        <p className="notice">
+          <MailCheck size={16} />
+          <span>{message}</span>
         </p>
       ) : null}
     </section>
