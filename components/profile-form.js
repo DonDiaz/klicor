@@ -1,40 +1,16 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Download, ExternalLink, Eye, Palette, Plus, RefreshCw, Trash2 } from "lucide-react";
+import { Download, ExternalLink, Eye, ImagePlus, Palette, Plus, RefreshCw, Trash2, UploadCloud } from "lucide-react";
 import { apiFetch } from "@/lib/client-api";
 import { LINK_CATALOG, LINK_CATALOG_MAP } from "@/lib/link-catalog";
 import { LandingView } from "@/components/landing-view";
 
 const THEME_PRESETS = [
-  {
-    id: "sunrise",
-    name: "Amanecer",
-    accent: "#f97316",
-    surface: "#fff7ed",
-    text: "#1c1917",
-  },
-  {
-    id: "ocean",
-    name: "Océano",
-    accent: "#0f766e",
-    surface: "#ecfeff",
-    text: "#0f172a",
-  },
-  {
-    id: "berry",
-    name: "Berry",
-    accent: "#be185d",
-    surface: "#fff1f2",
-    text: "#3f0d22",
-  },
-  {
-    id: "night",
-    name: "Noche",
-    accent: "#6366f1",
-    surface: "#111827",
-    text: "#f9fafb",
-  },
+  { id: "sunrise", name: "Amanecer", accent: "#f97316", surface: "#fff7ed", text: "#1c1917", mode: "light" },
+  { id: "ocean", name: "Océano", accent: "#0f766e", surface: "#ecfeff", text: "#0f172a", mode: "light" },
+  { id: "berry", name: "Berry", accent: "#be185d", surface: "#fff1f2", text: "#3f0d22", mode: "light" },
+  { id: "night", name: "Noche", accent: "#6366f1", surface: "#111827", text: "#f9fafb", mode: "dark" },
 ];
 
 function normalizeLinks(profile) {
@@ -111,6 +87,7 @@ export function ProfileForm({ token, profile, onSaved, canEdit }) {
     accent: profile?.settings?.accent || "#f97316",
     surface: profile?.settings?.surface || "#fff7ed",
     text: profile?.settings?.text || "#1c1917",
+    buttonOpacity: profile?.settings?.buttonOpacity ?? 0.92,
     mode: profile?.settings?.mode || "light",
   });
   const [profileLinks, setProfileLinks] = useState(normalizeLinks(profile));
@@ -131,6 +108,7 @@ export function ProfileForm({ token, profile, onSaved, canEdit }) {
       accent: profile?.settings?.accent || "#f97316",
       surface: profile?.settings?.surface || "#fff7ed",
       text: profile?.settings?.text || "#1c1917",
+      buttonOpacity: profile?.settings?.buttonOpacity ?? 0.92,
       mode: profile?.settings?.mode || "light",
     });
     setProfileLinks(normalizeLinks(profile));
@@ -144,6 +122,7 @@ export function ProfileForm({ token, profile, onSaved, canEdit }) {
       accent: form.accent,
       surface: form.surface,
       text: form.text,
+      buttonOpacity: form.buttonOpacity,
       mode: form.mode,
     },
     profileLinks: profileLinks
@@ -160,11 +139,12 @@ export function ProfileForm({ token, profile, onSaved, canEdit }) {
       setMessage("Tu cuenta no permite edición en este momento.");
       return;
     }
+
     setLoading(true);
     setMessage("");
     try {
       const body = new FormData();
-      Object.entries(form).forEach(([key, value]) => body.append(key, value));
+      Object.entries(form).forEach(([key, value]) => body.append(key, String(value)));
       body.append("profileLinks", JSON.stringify(profileLinks));
       if (photo) body.append("photo", photo);
       const data = await apiFetch("/api/profile", {
@@ -224,14 +204,14 @@ export function ProfileForm({ token, profile, onSaved, canEdit }) {
   }
 
   function updateLink(id, field, value) {
-    setProfileLinks((current) => current.map((item) => {
-      if (item.id !== id) return item;
-      const next = { ...item, [field]: value };
-      if (next.type !== "whatsapp") {
-        next.message = "";
-      }
-      return next;
-    }));
+    setProfileLinks((current) =>
+      current.map((item) => {
+        if (item.id !== id) return item;
+        const next = { ...item, [field]: value };
+        if (next.type !== "whatsapp") next.message = "";
+        return next;
+      }),
+    );
   }
 
   function removeLink(id) {
@@ -244,11 +224,12 @@ export function ProfileForm({ token, profile, onSaved, canEdit }) {
       accent: preset.accent,
       surface: preset.surface,
       text: preset.text,
-      mode: preset.id === "night" ? "dark" : current.mode,
+      mode: preset.mode,
     }));
   }
 
   const publicUrl = form.username ? `${origin}/${form.username}` : "";
+  const selectedPhotoLabel = photo ? photo.name : profile?.photo ? "Imagen actual cargada" : "Aún no has elegido imagen";
 
   return (
     <div className="editor-layout">
@@ -267,7 +248,23 @@ export function ProfileForm({ token, profile, onSaved, canEdit }) {
         <div className="form-grid">
           <div>
             <label className="label">Imagen del negocio</label>
-            <input className="input" type="file" accept="image/png,image/jpeg,image/webp" onChange={(e) => setPhoto(e.target.files?.[0] || null)} disabled={!canEdit} />
+            <label className={`upload-card ${!canEdit ? "upload-card-disabled" : ""}`}>
+              <input
+                className="upload-input"
+                type="file"
+                accept="image/png,image/jpeg,image/webp"
+                onChange={(e) => setPhoto(e.target.files?.[0] || null)}
+                disabled={!canEdit}
+              />
+              <span className="upload-icon">
+                {photo || profile?.photo ? <ImagePlus size={20} /> : <UploadCloud size={20} />}
+              </span>
+              <span className="upload-copy">
+                <strong>{photo ? "Cambiar imagen" : "Subir imagen"}</strong>
+                <span>{selectedPhotoLabel}</span>
+                <small>PNG, JPG o WEBP hasta 2 MB</small>
+              </span>
+            </label>
           </div>
           <div>
             <label className="label">Modo base</label>
@@ -282,7 +279,7 @@ export function ProfileForm({ token, profile, onSaved, canEdit }) {
           <div className="topbar" style={{ marginBottom: 0 }}>
             <div>
               <h3 style={{ marginBottom: ".2rem" }}>Estilo visual</h3>
-              <p className="muted">Haz que la landing se sienta más tuya. El color principal ahora domina botones, acentos y detalles clave.</p>
+              <p className="muted">Aplica una base bonita y luego ajusta cada color sin que el preset te bloquee.</p>
             </div>
             <span className="pill"><Palette size={16} /> Personaliza</span>
           </div>
@@ -321,19 +318,38 @@ export function ProfileForm({ token, profile, onSaved, canEdit }) {
             />
           </div>
 
-          <ColorField
-            label="Color de texto"
-            value={form.text}
-            onChange={(e) => setForm({ ...form, text: e.target.value })}
-            presets={["#1c1917", "#0f172a", "#3f0d22", "#f9fafb", "#334155"]}
-          />
+          <div className="form-grid color-grid">
+            <ColorField
+              label="Color de texto"
+              value={form.text}
+              onChange={(e) => setForm({ ...form, text: e.target.value })}
+              presets={["#1c1917", "#0f172a", "#3f0d22", "#f9fafb", "#334155"]}
+            />
+            <div className="opacity-card">
+              <div>
+                <label className="label">Opacidad de botones</label>
+                <strong>{Math.round(Number(form.buttonOpacity) * 100)}%</strong>
+              </div>
+              <input
+                className="opacity-slider"
+                type="range"
+                min="0.2"
+                max="1"
+                step="0.05"
+                value={form.buttonOpacity}
+                onChange={(e) => setForm({ ...form, buttonOpacity: Number(e.target.value) })}
+                disabled={!canEdit}
+              />
+              <p className="muted" style={{ margin: 0 }}>Controla qué tan sólidos o suaves se ven los botones de la landing.</p>
+            </div>
+          </div>
         </section>
 
         <section className="panel stack">
           <div className="topbar" style={{ marginBottom: 0 }}>
             <div>
               <h3 style={{ marginBottom: ".2rem" }}>Tus links</h3>
-              <p className="muted">Agrega todos los enlaces que quieras. Puedes mezclar redes, tienda, web y contacto.</p>
+              <p className="muted">Agrega todos los enlaces que quieras. Cada botón mostrará el icono real de su plataforma.</p>
             </div>
           </div>
 
