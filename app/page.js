@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowRight, Copy, QrCode, Store, Zap } from "lucide-react";
+import { BrandLogo } from "@/components/brand-logo";
 import { MarketingPreview } from "@/components/marketing-preview";
 
 export default function HomePage() {
@@ -7,10 +8,7 @@ export default function HomePage() {
     <main>
       <section className="shell marketing-hero">
         <div className="hero-copy">
-          <div className="logo-mark">
-            <span className="logo-badge">L</span>
-            <span>Linka</span>
-          </div>
+          <BrandLogo />
 
           <span className="pill"><Zap size={16} /> Linka — todos tus enlaces en un solo lugar</span>
           <h1 className="title">Tu página para vender en un solo link</h1>
@@ -94,10 +92,7 @@ export default function HomePage() {
 
       <footer className="shell app-footer">
         <div className="topbar">
-          <div className="logo-mark">
-            <span className="logo-badge" style={{ width: 34, height: 34, borderRadius: 10 }}>L</span>
-            <span>Linka</span>
-          </div>
+          <BrandLogo size={36} />
           <span>Todos tus enlaces en un solo lugar</span>
         </div>
       </footer>

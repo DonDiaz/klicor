@@ -1,14 +1,12 @@
 import { Copy, QrCode, Smartphone, Zap } from "lucide-react";
+import { BrandLogo } from "@/components/brand-logo";
 
 export function MarketingPreview() {
   return (
     <div className="mockup-card">
       <div className="mockup-screen">
         <div className="mockup-topbar">
-          <div className="logo-mark" style={{ color: "var(--dark-text)" }}>
-            <span className="logo-badge" style={{ width: 34, height: 34, borderRadius: 10 }}>L</span>
-            <span>Linka</span>
-          </div>
+          <BrandLogo size={34} lightText />
           <div className="mockup-mini-card">
             <strong style={{ display: "block", marginBottom: 6 }}>Tu página lista</strong>
             <span style={{ color: "var(--text-secondary)" }}>Publica, comparte y vende desde un solo link.</span>

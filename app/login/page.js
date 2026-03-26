@@ -1,16 +1,14 @@
 import Link from "next/link";
 import { ArrowLeft, CheckCircle2, Link2, QrCode } from "lucide-react";
 import { AuthForm } from "@/components/auth-form";
+import { BrandLogo } from "@/components/brand-logo";
 
 export default function LoginPage() {
   return (
     <main className="auth-shell">
       <div className="shell auth-layout">
         <section className="auth-brand-panel">
-          <div className="logo-mark">
-            <span className="logo-badge">L</span>
-            <span>Linka</span>
-          </div>
+          <BrandLogo />
 
           <div className="stack">
             <span className="pill">Acceso y registro</span>

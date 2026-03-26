@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { AlertTriangle, CheckCircle2, CreditCard, LogOut, Send, ShieldAlert } from "lucide-react";
 import { sendEmailVerification, signOut } from "firebase/auth";
+import { BrandLogo } from "@/components/brand-logo";
 import { getClientAuth } from "@/lib/firebase-client";
 import { apiFetch } from "@/lib/client-api";
 import { useAuth } from "@/components/providers/auth-provider";
@@ -93,10 +94,7 @@ export function DashboardClient() {
     <main className="shell dashboard-shell">
       <header className="dashboard-header">
         <div className="stack" style={{ gap: ".65rem" }}>
-          <div className="logo-mark">
-            <span className="logo-badge">L</span>
-            <span>Linka</span>
-          </div>
+          <BrandLogo />
           <div className="stack" style={{ gap: ".45rem" }}>
             <h1 className="section-title" style={{ fontSize: "2.1rem" }}>{data.user.businessName || "Tu negocio"}</h1>
             <p className="section-copy">Gestiona tu perfil, tus enlaces, la apariencia y tu QR en un solo lugar.</p>

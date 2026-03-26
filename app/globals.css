@@ -236,6 +236,23 @@ img { max-width: 100%; display: block; }
   box-shadow: 0 16px 32px rgba(91, 33, 182, 0.24);
 }
 
+.brand-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.brand-logo-icon {
+  flex: 0 0 auto;
+  filter: drop-shadow(0 16px 28px rgba(91, 33, 182, 0.18));
+}
+
+.brand-logo-text {
+  font-size: 1.08rem;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+}
+
 .marketing-hero {
   display: grid;
   grid-template-columns: 1.05fr 0.95fr;
