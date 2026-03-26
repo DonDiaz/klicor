@@ -11,6 +11,10 @@ const THEME_PRESETS = [
   { id: "ocean", name: "Océano", accent: "#0f766e", surface: "#ecfeff", titleText: "#0f172a", buttonText: "#ecfeff", mode: "light" },
   { id: "berry", name: "Berry", accent: "#be185d", surface: "#fff1f2", titleText: "#3f0d22", buttonText: "#fff1f2", mode: "light" },
   { id: "night", name: "Noche", accent: "#6366f1", surface: "#111827", titleText: "#f9fafb", buttonText: "#ffffff", mode: "dark" },
+  { id: "forest", name: "Bosque", accent: "#166534", surface: "#f0fdf4", titleText: "#14532d", buttonText: "#f0fdf4", mode: "light" },
+  { id: "gold", name: "Oro", accent: "#ca8a04", surface: "#fefce8", titleText: "#713f12", buttonText: "#fff7ed", mode: "light" },
+  { id: "coral", name: "Coral", accent: "#ea580c", surface: "#fff7ed", titleText: "#7c2d12", buttonText: "#fff7ed", mode: "light" },
+  { id: "midnight", name: "Medianoche", accent: "#0f172a", surface: "#020617", titleText: "#e2e8f0", buttonText: "#f8fafc", mode: "dark" },
 ];
 
 function normalizeLinks(profile) {
@@ -280,20 +284,13 @@ export function ProfileForm({ token, profile, onSaved, canEdit }) {
               </span>
             </label>
           </div>
-          <div>
-            <label className="label">Modo base</label>
-            <select className="select" value={form.mode} onChange={(e) => setForm({ ...form, mode: e.target.value })} disabled={!canEdit}>
-              <option value="light">Claro</option>
-              <option value="dark">Oscuro</option>
-            </select>
-          </div>
         </div>
 
         <section className="panel stack">
           <div className="topbar" style={{ marginBottom: 0 }}>
             <div>
               <h3 style={{ marginBottom: ".2rem" }}>Estilo visual</h3>
-              <p className="muted">Aplica una base bonita y luego ajusta cada color sin que el preset te bloquee.</p>
+              <p className="muted">Usa un preset como base y luego ajusta colores y opacidad si quieres afinar el diseño.</p>
             </div>
             <span className="pill"><Palette size={16} /> Personaliza</span>
           </div>
