@@ -40,8 +40,8 @@ export function DashboardClient() {
         token,
       });
       window.location.href = response.initPoint;
-    } catch (error) {
-      setError(error.message);
+    } catch (nextError) {
+      setError(nextError.message);
       setPaying(false);
     }
   }
@@ -50,7 +50,7 @@ export function DashboardClient() {
     const auth = getClientAuth();
     if (!auth?.currentUser) return;
     await sendEmailVerification(auth.currentUser);
-    setError("Te reenviamos el correo de verificacion.");
+    setError("Te reenviamos el correo de verificación.");
   }
 
   async function handleLogout() {
@@ -67,7 +67,7 @@ export function DashboardClient() {
     return (
       <main className="shell" style={{ padding: "4rem 0" }}>
         <div className="panel stack">
-          <p>Necesitas iniciar sesion para ver tu dashboard.</p>
+          <p>Necesitas iniciar sesión para ver tu dashboard.</p>
           <Link className="btn btn-primary" href="/login">Ir a login</Link>
         </div>
       </main>
@@ -90,26 +90,26 @@ export function DashboardClient() {
         </div>
         <div className="actions">
           {isAdmin ? <Link className="btn btn-secondary" href="/admin">Panel admin</Link> : null}
-          <button className="btn btn-secondary" type="button" onClick={handleLogout}>Cerrar sesion</button>
+          <button className="btn btn-secondary" type="button" onClick={handleLogout}>Cerrar sesión</button>
         </div>
       </div>
       {!user.emailVerified ? (
         <div className="notice notice-danger" style={{ marginBottom: "1rem" }}>
-          Debes verificar tu correo para completar el flujo comercial. <button className="btn btn-secondary" type="button" onClick={handleSendVerification}>Reenviar verificacion</button>
+          Debes verificar tu correo para completar el flujo comercial. <button className="btn btn-secondary" type="button" onClick={handleSendVerification}>Reenviar verificación</button>
         </div>
       ) : null}
-      {data.user.status === "grace_period" ? <div className="notice" style={{ marginBottom: "1rem" }}>Tu suscripcion vencio. Tienes 15 dias sin edicion antes de suspender la landing.</div> : null}
-      {data.user.status === "suspended" ? <div className="notice notice-danger" style={{ marginBottom: "1rem" }}>Tu landing esta suspendida hasta registrar el pago anual.</div> : null}
+      {data.user.status === "grace_period" ? <div className="notice" style={{ marginBottom: "1rem" }}>Tu suscripción venció. Tienes 15 días sin edición antes de suspender la landing.</div> : null}
+      {data.user.status === "suspended" ? <div className="notice notice-danger" style={{ marginBottom: "1rem" }}>Tu landing está suspendida hasta registrar el pago anual.</div> : null}
       <div className="grid-3" style={{ marginBottom: "1rem" }}>
-        <div className="kpi"><strong>URL publica</strong><p className="muted">{data.publicUrl || "Aun no definida"}</p></div>
+        <div className="kpi"><strong>URL pública</strong><p className="muted">{data.publicUrl || "Aún no definida"}</p></div>
         <div className="kpi"><strong>QR</strong><p className="muted">{data.user.qrUrl ? "Listo para descargar" : "Se genera al guardar username"}</p></div>
-        <div className="kpi"><strong>Precio actual</strong><p className="muted">${Intl.NumberFormat("es-CO").format(data.settings.annualPrice)} COP / ano</p></div>
+        <div className="kpi"><strong>Precio actual</strong><p className="muted">${Intl.NumberFormat("es-CO").format(data.settings.annualPrice)} COP / año</p></div>
       </div>
       <section className="card" style={{ padding: "1.5rem", marginBottom: "1rem" }}>
         <div className="topbar">
           <div>
             <h2 style={{ marginBottom: ".25rem" }}>Perfil y landing</h2>
-            <p className="muted">Puedes cambiar el username solo una vez cada 30 dias. Si cambia, regeneramos el QR automaticamente.</p>
+            <p className="muted">Puedes cambiar el username solo una vez cada 30 días. Si cambia, regeneramos el QR automáticamente.</p>
           </div>
         </div>
         <ProfileForm token={token} profile={data.user} canEdit={canEdit} onSaved={(userData) => setData({ ...data, user: userData, publicUrl: userData.username ? `${window.location.origin}/${userData.username}` : "" })} />
@@ -117,8 +117,8 @@ export function DashboardClient() {
       <section className="card" style={{ padding: "1.5rem", marginBottom: "1rem" }}>
         <div className="topbar">
           <div>
-            <h2 style={{ marginBottom: ".25rem" }}>Suscripcion anual</h2>
-            <p className="muted">Renovacion manual cada ano por Mercado Pago.</p>
+            <h2 style={{ marginBottom: ".25rem" }}>Suscripción anual</h2>
+            <p className="muted">Renovación manual cada año por Mercado Pago.</p>
           </div>
           <button className="btn btn-primary" type="button" onClick={handleCheckout} disabled={paying || !user.emailVerified}>{paying ? "Abriendo checkout..." : data.user.status === "active" ? "Renovar" : "Activar plan"}</button>
         </div>
