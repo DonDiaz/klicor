@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Download, ExternalLink, ImagePlus, MonitorSmartphone, Paintbrush, Plus, RefreshCw, RotateCcw, Trash2, UploadCloud } from "lucide-react";
 import { apiFetch } from "@/lib/client-api";
-import { LINK_CATALOG, LINK_CATALOG_MAP } from "@/lib/link-catalog";
+import { canAddLinkType, getLinkTypeCount, getLinkTypeLimit, LINK_CATALOG, LINK_CATALOG_MAP } from "@/lib/link-catalog";
 import { LandingView } from "@/components/landing-view";
 import { APPEARANCE_DEFAULTS, APPEARANCE_PRESETS, APPEARANCE_SWATCHES, getAppearanceWarnings, normalizeAppearance } from "@/lib/theme-system";
 
@@ -142,6 +142,9 @@ export function ProfileForm({ token, profile, onSaved, canEdit }) {
   }), [appearance, form.businessName, form.username, photoPreviewUrl, profile?.photo, profileLinks]);
 
   const appearanceWarnings = useMemo(() => getAppearanceWarnings(appearance), [appearance]);
+  const selectedTypeLimit = getLinkTypeLimit(selectedType);
+  const selectedTypeCount = getLinkTypeCount(profileLinks, selectedType);
+  const selectedTypeAvailable = canAddLinkType(profileLinks, selectedType);
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -208,6 +211,15 @@ export function ProfileForm({ token, profile, onSaved, canEdit }) {
 
   function addLink() {
     const meta = LINK_CATALOG_MAP[selectedType];
+    if (!selectedTypeAvailable) {
+      setMessage(
+        selectedType === "whatsapp"
+          ? "Solo puedes agregar hasta 2 enlaces de WhatsApp."
+          : `Solo puedes agregar 1 enlace de ${meta.label}.`,
+      );
+      return;
+    }
+
     setProfileLinks((current) => [
       ...current,
       {
@@ -319,13 +331,22 @@ export function ProfileForm({ token, profile, onSaved, canEdit }) {
           <div className="link-toolbar">
             <select className="select" value={selectedType} onChange={(e) => setSelectedType(e.target.value)} disabled={!canEdit}>
               {LINK_CATALOG.map((item) => (
-                <option key={item.type} value={item.type}>{item.label}</option>
+                <option key={item.type} value={item.type}>
+                  {item.label}
+                  {getLinkTypeCount(profileLinks, item.type) >= getLinkTypeLimit(item.type) ? " · límite alcanzado" : ""}
+                </option>
               ))}
             </select>
-            <button className="btn btn-secondary" type="button" onClick={addLink} disabled={!canEdit}>
+            <button className="btn btn-secondary" type="button" onClick={addLink} disabled={!canEdit || !selectedTypeAvailable}>
               <Plus size={16} /> Agregar enlace
             </button>
           </div>
+
+          <p className="muted">
+            {selectedType === "whatsapp"
+              ? `WhatsApp permite hasta ${selectedTypeLimit} enlaces. Ya tienes ${selectedTypeCount}.`
+              : `${LINK_CATALOG_MAP[selectedType]?.label || "Esta red"} permite solo ${selectedTypeLimit} enlace. Ya tienes ${selectedTypeCount}.`}
+          </p>
 
           <div className="stack">
             {profileLinks.length ? profileLinks.map((item) => {
