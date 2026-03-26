@@ -3,6 +3,11 @@
 import { useState } from "react";
 import { apiFetch } from "@/lib/client-api";
 
+function getPlanLabel(plan) {
+  if (plan === "annual") return "anual";
+  return plan || "-";
+}
+
 export function AdminPanel({ token, initialSettings, initialUsers }) {
   const [annualPrice, setAnnualPrice] = useState(initialSettings?.annualPrice || 55000);
   const [message, setMessage] = useState("");
@@ -48,7 +53,7 @@ export function AdminPanel({ token, initialSettings, initialUsers }) {
                 <td>{user.businessName}</td>
                 <td>{user.email}</td>
                 <td>{user.status}</td>
-                <td>{user.plan}</td>
+                <td>{getPlanLabel(user.plan)}</td>
                 <td>{user.expiresAtLabel}</td>
               </tr>
             ))}
