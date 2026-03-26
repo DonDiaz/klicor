@@ -50,7 +50,7 @@ export function LandingView({ user, preview = false }) {
         )}
         <div style={{ textAlign: "center" }}>
           <h1 style={{ marginBottom: ".45rem", color: titleText }}>{user.businessName}</h1>
-          <p style={{ marginTop: 0, opacity: 0.75 }}>@{user.username}</p>
+          <p style={{ marginTop: 0, opacity: 0.75, color: titleText }}>@{user.username}</p>
         </div>
         <div className="public-links">
           {links.length ? links.map((item) => {
