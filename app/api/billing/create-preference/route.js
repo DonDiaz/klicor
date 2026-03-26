@@ -13,8 +13,9 @@ export async function POST(request) {
     const settings = await getAdminSettings();
     const preference = await createPreference({ user, annualPrice: settings.annualPrice });
     return NextResponse.json({
+      preferenceId: preference.id,
       initPoint: preference.sandbox_init_point || preference.init_point,
-      id: preference.id,
+      publicKey: process.env.MERCADOPAGO_PUBLIC_KEY || "",
     });
   } catch (error) {
     return NextResponse.json({ error: error.message }, { status: 400 });

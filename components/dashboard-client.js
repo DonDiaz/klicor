@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Script from "next/script";
 import { AlertTriangle, CheckCircle2, CreditCard, LogOut, Send, ShieldAlert } from "lucide-react";
 import { sendEmailVerification, signOut } from "firebase/auth";
 import { BrandLogo } from "@/components/brand-logo";
@@ -26,6 +27,8 @@ export function DashboardClient() {
   const [error, setError] = useState("");
   const [paying, setPaying] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
+  const [checkoutConfig, setCheckoutConfig] = useState(null);
+  const [sdkReady, setSdkReady] = useState(false);
 
   useEffect(() => {
     async function bootstrap() {
@@ -44,14 +47,42 @@ export function DashboardClient() {
     return status === "trial" || status === "active";
   }, [data]);
 
+  useEffect(() => {
+    if (!sdkReady || !checkoutConfig?.preferenceId || !checkoutConfig?.publicKey) return;
+    if (!window.MercadoPago) return;
+
+    const container = document.getElementById("mercadopago-checkout");
+    if (!container) return;
+
+    container.innerHTML = "";
+
+    try {
+      const mp = new window.MercadoPago(checkoutConfig.publicKey, { locale: "es-CO" });
+      mp.checkout({
+        preference: {
+          id: checkoutConfig.preferenceId,
+        },
+        render: {
+          container: "#mercadopago-checkout",
+          label: data?.user?.status === "active" ? "Renovar con Mercado Pago" : "Pagar con Mercado Pago",
+        },
+      });
+    } catch (sdkError) {
+      setError("No pudimos inicializar el checkout oficial de Mercado Pago.");
+    } finally {
+      setPaying(false);
+    }
+  }, [checkoutConfig, sdkReady, data?.user?.status]);
+
   async function handleCheckout() {
     setPaying(true);
+    setError("");
     try {
       const response = await apiFetch("/api/billing/create-preference", {
         method: "POST",
         token,
       });
-      window.location.href = response.initPoint;
+      setCheckoutConfig(response);
     } catch (nextError) {
       setError(nextError.message);
       setPaying(false);
@@ -91,6 +122,7 @@ export function DashboardClient() {
 
   return (
     <main className="shell dashboard-shell">
+      <Script src="https://sdk.mercadopago.com/js/v2" strategy="afterInteractive" onLoad={() => setSdkReady(true)} />
       <header className="dashboard-header">
         <div className="stack" style={{ gap: ".65rem" }}>
           <BrandLogo />
@@ -187,6 +219,20 @@ export function DashboardClient() {
             <CreditCard size={16} /> {paying ? "Abriendo checkout..." : data.user.status === "active" ? "Renovar plan" : "Activar plan"}
           </button>
         </div>
+
+        {checkoutConfig ? (
+          <div className="stack" style={{ gap: ".85rem", marginTop: "1rem" }}>
+            <p className="muted">Checkout oficial de Mercado Pago cargado segun documentacion. Si no responde, puedes continuar con el fallback.</p>
+            <div id="mercadopago-checkout" />
+            <button
+              className="btn btn-secondary"
+              type="button"
+              onClick={() => window.location.href = checkoutConfig.initPoint}
+            >
+              Abrir checkout por redireccion
+            </button>
+          </div>
+        ) : null}
       </section>
 
       {error ? <p className="notice">{error}</p> : null}
