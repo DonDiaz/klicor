@@ -1,10 +1,41 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Download, ExternalLink, Eye, Plus, RefreshCw, Trash2 } from "lucide-react";
+import { Download, ExternalLink, Eye, Palette, Plus, RefreshCw, Trash2 } from "lucide-react";
 import { apiFetch } from "@/lib/client-api";
 import { LINK_CATALOG, LINK_CATALOG_MAP } from "@/lib/link-catalog";
 import { LandingView } from "@/components/landing-view";
+
+const THEME_PRESETS = [
+  {
+    id: "sunrise",
+    name: "Amanecer",
+    accent: "#f97316",
+    surface: "#fff7ed",
+    text: "#1c1917",
+  },
+  {
+    id: "ocean",
+    name: "Océano",
+    accent: "#0f766e",
+    surface: "#ecfeff",
+    text: "#0f172a",
+  },
+  {
+    id: "berry",
+    name: "Berry",
+    accent: "#be185d",
+    surface: "#fff1f2",
+    text: "#3f0d22",
+  },
+  {
+    id: "night",
+    name: "Noche",
+    accent: "#6366f1",
+    surface: "#111827",
+    text: "#f9fafb",
+  },
+];
 
 function normalizeLinks(profile) {
   if (Array.isArray(profile?.profileLinks) && profile.profileLinks.length) {
@@ -13,6 +44,7 @@ function normalizeLinks(profile) {
       type: item.type,
       label: item.label,
       value: item.value,
+      message: item.message || "",
     }));
   }
 
@@ -24,7 +56,52 @@ function normalizeLinks(profile) {
       type,
       label: LINK_CATALOG_MAP[type]?.label || "Enlace",
       value,
+      message: type === "whatsapp" ? "Hola, quiero información" : "",
     }));
+}
+
+function normalizeLinkUrl(item) {
+  const raw = String(item.value || "").trim();
+  if (!raw) return "";
+
+  const meta = LINK_CATALOG_MAP[item.type];
+  if (meta?.kind === "phone") {
+    const digits = raw.replace(/\D/g, "");
+    const message = (item.message || "Hola, quiero información").trim();
+    return digits ? `https://wa.me/${digits}?text=${encodeURIComponent(message)}` : "";
+  }
+
+  return /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
+}
+
+function ColorField({ label, value, onChange, presets = [] }) {
+  return (
+    <div className="color-card">
+      <div className="color-card-top">
+        <div>
+          <label className="label">{label}</label>
+          <strong>{value}</strong>
+        </div>
+        <label className="color-chip" style={{ "--swatch": value }}>
+          <input type="color" value={value} onChange={onChange} />
+          <span />
+        </label>
+      </div>
+      {presets.length ? (
+        <div className="color-swatches">
+          {presets.map((preset) => (
+            <button
+              key={`${label}-${preset}`}
+              className="swatch-button"
+              style={{ "--swatch": preset }}
+              type="button"
+              onClick={() => onChange({ target: { value: preset } })}
+            />
+          ))}
+        </div>
+      ) : null}
+    </div>
+  );
 }
 
 export function ProfileForm({ token, profile, onSaved, canEdit }) {
@@ -69,12 +146,12 @@ export function ProfileForm({ token, profile, onSaved, canEdit }) {
       text: form.text,
       mode: form.mode,
     },
-    profileLinks: profileLinks.map((item) => ({
-      ...item,
-      url: LINK_CATALOG_MAP[item.type]?.kind === "phone"
-        ? `https://wa.me/${String(item.value).replace(/\D/g, "")}`
-        : /^https?:\/\//i.test(item.value) ? item.value : `https://${item.value}`,
-    })),
+    profileLinks: profileLinks
+      .filter((item) => item.value?.trim())
+      .map((item) => ({
+        ...item,
+        url: normalizeLinkUrl(item),
+      })),
   }), [form, profile?.photo, profileLinks]);
 
   async function handleSubmit(event) {
@@ -141,16 +218,34 @@ export function ProfileForm({ token, profile, onSaved, canEdit }) {
         type: selectedType,
         label: meta.label,
         value: "",
+        message: selectedType === "whatsapp" ? "Hola, quiero información" : "",
       },
     ]);
   }
 
   function updateLink(id, field, value) {
-    setProfileLinks((current) => current.map((item) => item.id === id ? { ...item, [field]: value } : item));
+    setProfileLinks((current) => current.map((item) => {
+      if (item.id !== id) return item;
+      const next = { ...item, [field]: value };
+      if (next.type !== "whatsapp") {
+        next.message = "";
+      }
+      return next;
+    }));
   }
 
   function removeLink(id) {
     setProfileLinks((current) => current.filter((item) => item.id !== id));
+  }
+
+  function applyPreset(preset) {
+    setForm((current) => ({
+      ...current,
+      accent: preset.accent,
+      surface: preset.surface,
+      text: preset.text,
+      mode: preset.id === "night" ? "dark" : current.mode,
+    }));
   }
 
   const publicUrl = form.username ? `${origin}/${form.username}` : "";
@@ -168,27 +263,71 @@ export function ProfileForm({ token, profile, onSaved, canEdit }) {
             <input className="input" value={form.username} onChange={(e) => setForm({ ...form, username: e.target.value })} disabled={!canEdit} required />
           </div>
         </div>
+
         <div className="form-grid">
           <div>
             <label className="label">Imagen del negocio</label>
             <input className="input" type="file" accept="image/png,image/jpeg,image/webp" onChange={(e) => setPhoto(e.target.files?.[0] || null)} disabled={!canEdit} />
           </div>
           <div>
-            <label className="label">Modo</label>
+            <label className="label">Modo base</label>
             <select className="select" value={form.mode} onChange={(e) => setForm({ ...form, mode: e.target.value })} disabled={!canEdit}>
               <option value="light">Claro</option>
               <option value="dark">Oscuro</option>
             </select>
           </div>
         </div>
-        <div className="form-grid">
-          <div><label className="label">Color principal</label><input className="input" type="color" value={form.accent} onChange={(e) => setForm({ ...form, accent: e.target.value })} disabled={!canEdit} /></div>
-          <div><label className="label">Color de fondo</label><input className="input" type="color" value={form.surface} onChange={(e) => setForm({ ...form, surface: e.target.value })} disabled={!canEdit} /></div>
-        </div>
-        <div>
-          <label className="label">Color de texto</label>
-          <input className="input" type="color" value={form.text} onChange={(e) => setForm({ ...form, text: e.target.value })} disabled={!canEdit} />
-        </div>
+
+        <section className="panel stack">
+          <div className="topbar" style={{ marginBottom: 0 }}>
+            <div>
+              <h3 style={{ marginBottom: ".2rem" }}>Estilo visual</h3>
+              <p className="muted">Haz que la landing se sienta más tuya. El color principal ahora domina botones, acentos y detalles clave.</p>
+            </div>
+            <span className="pill"><Palette size={16} /> Personaliza</span>
+          </div>
+
+          <div className="preset-grid">
+            {THEME_PRESETS.map((preset) => (
+              <button
+                key={preset.id}
+                className="preset-card"
+                type="button"
+                onClick={() => applyPreset(preset)}
+                disabled={!canEdit}
+              >
+                <span className="preset-swatches">
+                  <i style={{ background: preset.accent }} />
+                  <i style={{ background: preset.surface }} />
+                  <i style={{ background: preset.text }} />
+                </span>
+                <strong>{preset.name}</strong>
+              </button>
+            ))}
+          </div>
+
+          <div className="form-grid color-grid">
+            <ColorField
+              label="Color principal"
+              value={form.accent}
+              onChange={(e) => setForm({ ...form, accent: e.target.value })}
+              presets={["#f97316", "#0f766e", "#2563eb", "#be185d", "#7c3aed"]}
+            />
+            <ColorField
+              label="Color de fondo"
+              value={form.surface}
+              onChange={(e) => setForm({ ...form, surface: e.target.value })}
+              presets={["#fff7ed", "#eff6ff", "#fdf2f8", "#ecfeff", "#111827"]}
+            />
+          </div>
+
+          <ColorField
+            label="Color de texto"
+            value={form.text}
+            onChange={(e) => setForm({ ...form, text: e.target.value })}
+            presets={["#1c1917", "#0f172a", "#3f0d22", "#f9fafb", "#334155"]}
+          />
+        </section>
 
         <section className="panel stack">
           <div className="topbar" style={{ marginBottom: 0 }}>
@@ -197,14 +336,18 @@ export function ProfileForm({ token, profile, onSaved, canEdit }) {
               <p className="muted">Agrega todos los enlaces que quieras. Puedes mezclar redes, tienda, web y contacto.</p>
             </div>
           </div>
+
           <div className="link-toolbar">
             <select className="select" value={selectedType} onChange={(e) => setSelectedType(e.target.value)} disabled={!canEdit}>
               {LINK_CATALOG.map((item) => (
                 <option key={item.type} value={item.type}>{item.label}</option>
               ))}
             </select>
-            <button className="btn btn-secondary" type="button" onClick={addLink} disabled={!canEdit}><Plus size={16} /> Agregar link</button>
+            <button className="btn btn-secondary" type="button" onClick={addLink} disabled={!canEdit}>
+              <Plus size={16} /> Agregar link
+            </button>
           </div>
+
           <div className="stack">
             {profileLinks.map((item) => {
               const meta = LINK_CATALOG_MAP[item.type] || LINK_CATALOG_MAP.website;
@@ -218,7 +361,21 @@ export function ProfileForm({ token, profile, onSaved, canEdit }) {
                     <label className="label">{meta.kind === "phone" ? "Número" : "URL"}</label>
                     <input className="input" value={item.value} placeholder={meta.placeholder} onChange={(e) => updateLink(item.id, "value", e.target.value)} disabled={!canEdit} />
                   </div>
-                  <button className="btn btn-secondary link-remove" type="button" onClick={() => removeLink(item.id)} disabled={!canEdit}><Trash2 size={16} /></button>
+                  <button className="btn btn-secondary link-remove" type="button" onClick={() => removeLink(item.id)} disabled={!canEdit}>
+                    <Trash2 size={16} />
+                  </button>
+                  {item.type === "whatsapp" ? (
+                    <div className="link-row-message">
+                      <label className="label">Mensaje inicial</label>
+                      <input
+                        className="input"
+                        value={item.message || ""}
+                        placeholder="Hola, quiero información"
+                        onChange={(e) => updateLink(item.id, "message", e.target.value)}
+                        disabled={!canEdit}
+                      />
+                    </div>
+                  ) : null}
                 </div>
               );
             })}
@@ -226,17 +383,28 @@ export function ProfileForm({ token, profile, onSaved, canEdit }) {
         </section>
 
         <div className="actions">
-          <button className="btn btn-primary" disabled={loading || !canEdit} type="submit">{loading ? <RefreshCw size={16} /> : null} Guardar perfil</button>
-          {profile?.qrUrl ? <button className="btn btn-secondary" type="button" onClick={handleQrDownload}><Download size={16} /> Descargar QR</button> : null}
-          {publicUrl ? <a className="btn btn-secondary" href={publicUrl} target="_blank" rel="noreferrer"><ExternalLink size={16} /> Abrir landing</a> : null}
+          <button className="btn btn-primary" disabled={loading || !canEdit} type="submit">
+            {loading ? <RefreshCw size={16} /> : null}
+            Guardar perfil
+          </button>
+          {profile?.qrUrl ? (
+            <button className="btn btn-secondary" type="button" onClick={handleQrDownload}>
+              <Download size={16} /> Descargar QR
+            </button>
+          ) : null}
+          {publicUrl ? (
+            <a className="btn btn-secondary" href={publicUrl} target="_blank" rel="noreferrer">
+              <ExternalLink size={16} /> Abrir landing
+            </a>
+          ) : null}
         </div>
         {message ? <p className="notice">{message}</p> : null}
       </form>
 
       <aside className="preview-shell">
         <div className="preview-header">
-          <span className="pill"><Eye size={16} /> Vista previa en tiempo real</span>
-          <p className="muted">Así verá el usuario su landing en móvil mientras edita.</p>
+          <span className="pill"><Eye size={16} /> Vista previa</span>
+          <p className="muted">Así se verá la landing en móvil mientras editas.</p>
         </div>
         <div className="phone-frame">
           <LandingView user={previewUser} preview />
