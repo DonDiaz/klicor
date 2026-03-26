@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { AuthProvider } from "@/components/providers/auth-provider";
+import { BillingSuccessClient } from "@/components/billing-success-client";
 import { getPayment } from "@/lib/mercadopago";
 
 export default async function BillingSuccessPage({ searchParams }) {
@@ -34,6 +36,9 @@ export default async function BillingSuccessPage({ searchParams }) {
             <p><strong>Medio:</strong> {payment.payment_method_id || payment.payment_type_id || "sin dato"}</p>
           </div>
         ) : null}
+        <AuthProvider>
+          <BillingSuccessClient paymentId={paymentId} initialStatus={payment?.status || status} />
+        </AuthProvider>
         <Link className="btn btn-primary" href="/dashboard">Volver al dashboard</Link>
       </section>
     </main>

@@ -49,8 +49,8 @@ export async function POST(request) {
       return NextResponse.json({ error: "Firma de webhook no válida" }, { status: 401 });
     }
 
-    const uid = payment.external_reference || payment.metadata?.uid;
     const payment = await getPayment(paymentId);
+    const uid = payment.external_reference || payment.metadata?.uid;
 
     if (uid) {
       await storePaymentAttempt(uid, {

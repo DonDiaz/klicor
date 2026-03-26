@@ -19,6 +19,11 @@ function getStatusTone(status) {
   return "";
 }
 
+function getPlanLabel(plan) {
+  if (plan === "annual") return "anual";
+  return plan || "-";
+}
+
 export function DashboardClient() {
   const router = useRouter();
   const { user, loading } = useAuth();
@@ -132,7 +137,7 @@ export function DashboardClient() {
           </div>
           <div className={`status-badge ${statusTone}`}>
             {statusTone === "success" ? <CheckCircle2 size={14} /> : statusTone === "warning" ? <AlertTriangle size={14} /> : <ShieldAlert size={14} />}
-            <span>{data.user.plan} · {data.user.status}</span>
+            <span>{getPlanLabel(data.user.plan)} · {data.user.status}</span>
           </div>
         </div>
 
