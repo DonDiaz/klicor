@@ -21,7 +21,7 @@ export default function HomePage() {
               Crear mi Linka <ArrowRight size={16} />
             </Link>
             <a className="btn btn-secondary" href="#ejemplo">
-              Ver ejemplo
+              Ver demo de landing
             </a>
           </div>
 
@@ -32,7 +32,15 @@ export default function HomePage() {
           </div>
         </div>
 
-        <div id="ejemplo">
+        <div id="ejemplo" className="stack" style={{ gap: "0.9rem" }}>
+          <div>
+            <span className="pill" style={{ background: "var(--surface)", color: "var(--text-primary)" }}>
+              Demo
+            </span>
+            <p className="section-copy" style={{ marginTop: "0.65rem" }}>
+              Esta es una vista de ejemplo de cómo se vería la página pública de un negocio dentro de Linka.
+            </p>
+          </div>
           <MarketingPreview />
         </div>
       </section>

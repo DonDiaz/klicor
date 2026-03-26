@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { AlertTriangle, CheckCircle2, CreditCard, LogOut, Send, ShieldAlert } from "lucide-react";
 import { sendEmailVerification, signOut } from "firebase/auth";
@@ -18,11 +19,13 @@ function getStatusTone(status) {
 }
 
 export function DashboardClient() {
+  const router = useRouter();
   const { user, loading } = useAuth();
   const [token, setToken] = useState("");
   const [data, setData] = useState(null);
   const [error, setError] = useState("");
   const [paying, setPaying] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
 
   useEffect(() => {
     async function bootstrap() {
@@ -65,22 +68,18 @@ export function DashboardClient() {
   async function handleLogout() {
     const auth = getClientAuth();
     if (!auth) return;
+    setLoggingOut(true);
     await signOut(auth);
+    router.replace("/login");
   }
 
-  if (loading) {
+  if (loading || loggingOut) {
     return <main className="shell page-shell"><div className="kpi">Cargando panel...</div></main>;
   }
 
   if (!user) {
-    return (
-      <main className="shell page-shell">
-        <div className="card dashboard-section">
-          <p>Necesitas iniciar sesión para ver tu dashboard.</p>
-          <Link className="btn btn-primary" href="/login">Ir a login</Link>
-        </div>
-      </main>
-    );
+    router.replace("/login");
+    return <main className="shell page-shell"><div className="kpi">Redirigiendo a login...</div></main>;
   }
 
   if (!data) {
