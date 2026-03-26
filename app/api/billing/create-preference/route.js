@@ -12,7 +12,10 @@ export async function POST(request) {
 
     const settings = await getAdminSettings();
     const preference = await createPreference({ user, annualPrice: settings.annualPrice });
-    return NextResponse.json({ initPoint: preference.init_point, id: preference.id });
+    return NextResponse.json({
+      initPoint: preference.sandbox_init_point || preference.init_point,
+      id: preference.id,
+    });
   } catch (error) {
     return NextResponse.json({ error: error.message }, { status: 400 });
   }
