@@ -19,6 +19,8 @@ export async function POST(request) {
       accent: formData.get("accent"),
       surface: formData.get("surface"),
       text: formData.get("text"),
+      titleText: formData.get("titleText"),
+      buttonText: formData.get("buttonText"),
       buttonOpacity: formData.get("buttonOpacity"),
       mode: formData.get("mode"),
     });

@@ -18,6 +18,8 @@ export function LandingView({ user, preview = false }) {
   const accent = user.settings?.accent || "#f97316";
   const surface = user.settings?.surface || "#fff7ed";
   const text = user.settings?.text || "#1c1917";
+  const titleText = user.settings?.titleText || text;
+  const buttonText = user.settings?.buttonText || "#ffffff";
   const opacity = Number(user.settings?.buttonOpacity ?? 0.92);
   const cardStyle = {
     background: dark ? "linear-gradient(180deg, rgba(17,24,39,.96), rgba(15,23,42,.92))" : `linear-gradient(180deg, ${surface}, #ffffff)`,
@@ -27,7 +29,7 @@ export function LandingView({ user, preview = false }) {
   };
   const buttonStyle = {
     background: `linear-gradient(135deg, ${hexToRgba(accent, opacity)}, ${hexToRgba(accent, Math.max(opacity - 0.12, 0.2))})`,
-    color: text,
+    color: buttonText,
     border: `1px solid ${hexToRgba(accent, Math.min(opacity + 0.05, 1))}`,
     boxShadow: `0 14px 30px ${hexToRgba(accent, 0.28)}`,
   };
@@ -47,7 +49,7 @@ export function LandingView({ user, preview = false }) {
           </div>
         )}
         <div style={{ textAlign: "center" }}>
-          <h1 style={{ marginBottom: ".45rem" }}>{user.businessName}</h1>
+          <h1 style={{ marginBottom: ".45rem", color: titleText }}>{user.businessName}</h1>
           <p style={{ marginTop: 0, opacity: 0.75 }}>@{user.username}</p>
         </div>
         <div className="public-links">

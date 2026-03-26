@@ -7,10 +7,10 @@ import { LINK_CATALOG, LINK_CATALOG_MAP } from "@/lib/link-catalog";
 import { LandingView } from "@/components/landing-view";
 
 const THEME_PRESETS = [
-  { id: "sunrise", name: "Amanecer", accent: "#f97316", surface: "#fff7ed", text: "#1c1917", mode: "light" },
-  { id: "ocean", name: "Océano", accent: "#0f766e", surface: "#ecfeff", text: "#0f172a", mode: "light" },
-  { id: "berry", name: "Berry", accent: "#be185d", surface: "#fff1f2", text: "#3f0d22", mode: "light" },
-  { id: "night", name: "Noche", accent: "#6366f1", surface: "#111827", text: "#f9fafb", mode: "dark" },
+  { id: "sunrise", name: "Amanecer", accent: "#f97316", surface: "#fff7ed", text: "#1c1917", titleText: "#1c1917", buttonText: "#ffffff", mode: "light" },
+  { id: "ocean", name: "Océano", accent: "#0f766e", surface: "#ecfeff", text: "#0f172a", titleText: "#0f172a", buttonText: "#ecfeff", mode: "light" },
+  { id: "berry", name: "Berry", accent: "#be185d", surface: "#fff1f2", text: "#3f0d22", titleText: "#3f0d22", buttonText: "#fff1f2", mode: "light" },
+  { id: "night", name: "Noche", accent: "#6366f1", surface: "#111827", text: "#f9fafb", titleText: "#f9fafb", buttonText: "#ffffff", mode: "dark" },
 ];
 
 function normalizeLinks(profile) {
@@ -87,6 +87,8 @@ export function ProfileForm({ token, profile, onSaved, canEdit }) {
     accent: profile?.settings?.accent || "#f97316",
     surface: profile?.settings?.surface || "#fff7ed",
     text: profile?.settings?.text || "#1c1917",
+    titleText: profile?.settings?.titleText || profile?.settings?.text || "#1c1917",
+    buttonText: profile?.settings?.buttonText || "#ffffff",
     buttonOpacity: profile?.settings?.buttonOpacity ?? 0.92,
     mode: profile?.settings?.mode || "light",
   });
@@ -108,6 +110,8 @@ export function ProfileForm({ token, profile, onSaved, canEdit }) {
       accent: profile?.settings?.accent || "#f97316",
       surface: profile?.settings?.surface || "#fff7ed",
       text: profile?.settings?.text || "#1c1917",
+      titleText: profile?.settings?.titleText || profile?.settings?.text || "#1c1917",
+      buttonText: profile?.settings?.buttonText || "#ffffff",
       buttonOpacity: profile?.settings?.buttonOpacity ?? 0.92,
       mode: profile?.settings?.mode || "light",
     });
@@ -122,6 +126,8 @@ export function ProfileForm({ token, profile, onSaved, canEdit }) {
       accent: form.accent,
       surface: form.surface,
       text: form.text,
+      titleText: form.titleText,
+      buttonText: form.buttonText,
       buttonOpacity: form.buttonOpacity,
       mode: form.mode,
     },
@@ -224,6 +230,8 @@ export function ProfileForm({ token, profile, onSaved, canEdit }) {
       accent: preset.accent,
       surface: preset.surface,
       text: preset.text,
+      titleText: preset.titleText,
+      buttonText: preset.buttonText,
       mode: preset.mode,
     }));
   }
@@ -330,10 +338,25 @@ export function ProfileForm({ token, profile, onSaved, canEdit }) {
 
           <div className="form-grid color-grid">
             <ColorField
-              label="Color de texto"
+              label="Color del nombre"
+              value={form.titleText}
+              onChange={(e) => setForm({ ...form, titleText: e.target.value })}
+              presets={["#1c1917", "#0f172a", "#3f0d22", "#f9fafb", "#334155"]}
+            />
+            <ColorField
+              label="Color del texto general"
               value={form.text}
               onChange={(e) => setForm({ ...form, text: e.target.value })}
               presets={["#1c1917", "#0f172a", "#3f0d22", "#f9fafb", "#334155"]}
+            />
+          </div>
+
+          <div className="form-grid color-grid">
+            <ColorField
+              label="Color del texto en botones"
+              value={form.buttonText}
+              onChange={(e) => setForm({ ...form, buttonText: e.target.value })}
+              presets={["#ffffff", "#f9fafb", "#1c1917", "#0f172a", "#fde68a"]}
             />
             <div className="opacity-card">
               <div>
