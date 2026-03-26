@@ -96,7 +96,7 @@ export function LandingView({ user, preview = false }) {
         <div style={{ textAlign: "center" }}>
           <h1
             style={{
-              marginBottom: ".45rem",
+              marginBottom: 0,
               color: appearance.textPrimaryColor,
               fontSize: NAME_SIZE_MAP[appearance.nameSize],
               fontWeight: NAME_WEIGHT_MAP[appearance.nameWeight],
@@ -104,7 +104,6 @@ export function LandingView({ user, preview = false }) {
           >
             {user.businessName}
           </h1>
-          <p style={{ marginTop: 0, color: appearance.textSecondaryColor }}>@{user.username}</p>
         </div>
 
         <div className="public-links">

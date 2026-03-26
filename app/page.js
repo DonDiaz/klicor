@@ -20,7 +20,7 @@ export default function HomePage() {
             <Link className="btn btn-primary" href="/login">
               Crear mi Linka <ArrowRight size={16} />
             </Link>
-            <a className="btn btn-secondary" href="#ejemplo">
+            <a className="btn btn-secondary mobile-demo-link" href="#ejemplo">
               Ver demo de landing
             </a>
           </div>

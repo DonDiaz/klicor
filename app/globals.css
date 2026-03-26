@@ -787,6 +787,15 @@ img { max-width: 100%; display: block; }
   border: 1px solid var(--dark-border);
 }
 
+.marketing-demo-frame {
+  box-shadow: var(--shadow-md);
+}
+
+.marketing-demo-surface {
+  border-radius: 18px;
+  overflow: hidden;
+}
+
 .preview-page {
   min-height: 620px;
   display: flex;
@@ -858,6 +867,10 @@ img { max-width: 100%; display: block; }
 
 .public-link svg { flex: 0 0 auto; }
 
+.mobile-demo-link {
+  display: none;
+}
+
 @media (max-width: 980px) {
   .marketing-hero,
   .auth-layout,
@@ -876,5 +889,9 @@ img { max-width: 100%; display: block; }
 
   .preview-shell {
     position: static;
+  }
+
+  .mobile-demo-link {
+    display: inline-flex;
   }
 }
