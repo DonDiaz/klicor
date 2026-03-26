@@ -2,13 +2,12 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { AlertTriangle, CheckCircle2, Copy, CreditCard, ExternalLink, Link2, LogOut, Send, ShieldAlert } from "lucide-react";
+import { AlertTriangle, CheckCircle2, CreditCard, LogOut, Send, ShieldAlert } from "lucide-react";
 import { sendEmailVerification, signOut } from "firebase/auth";
 import { getClientAuth } from "@/lib/firebase-client";
 import { apiFetch } from "@/lib/client-api";
 import { useAuth } from "@/components/providers/auth-provider";
 import { ProfileForm } from "@/components/profile-form";
-import { LandingView } from "@/components/landing-view";
 
 function getStatusTone(status) {
   if (status === "active" || status === "trial") return "success";
@@ -68,12 +67,6 @@ export function DashboardClient() {
     await signOut(auth);
   }
 
-  async function handleCopyLink() {
-    if (!data?.publicUrl) return;
-    await navigator.clipboard.writeText(data.publicUrl);
-    setError("Enlace copiado.");
-  }
-
   if (loading) {
     return <main className="shell page-shell"><div className="kpi">Cargando panel...</div></main>;
   }
@@ -106,7 +99,7 @@ export function DashboardClient() {
           </div>
           <div className="stack" style={{ gap: ".45rem" }}>
             <h1 className="section-title" style={{ fontSize: "2.1rem" }}>{data.user.businessName || "Tu negocio"}</h1>
-            <p className="section-copy">Gestiona tu perfil, tus enlaces y tu QR desde un solo panel.</p>
+            <p className="section-copy">Gestiona tu perfil, tus enlaces, la apariencia y tu QR en un solo lugar.</p>
           </div>
           <div className={`status-badge ${statusTone}`}>
             {statusTone === "success" ? <CheckCircle2 size={14} /> : statusTone === "warning" ? <AlertTriangle size={14} /> : <ShieldAlert size={14} />}
@@ -120,6 +113,21 @@ export function DashboardClient() {
         </div>
       </header>
 
+      <div className="grid-3">
+        <div className="kpi">
+          <strong>URL pública</strong>
+          <p className="muted" style={{ marginTop: ".5rem" }}>{data.publicUrl || "Aún no definida"}</p>
+        </div>
+        <div className="kpi">
+          <strong>QR</strong>
+          <p className="muted" style={{ marginTop: ".5rem" }}>{data.user.qrUrl ? "Listo para descargar" : "Se genera al guardar el username"}</p>
+        </div>
+        <div className="kpi">
+          <strong>Plan actual</strong>
+          <p className="muted" style={{ marginTop: ".5rem" }}>{Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", maximumFractionDigits: 0 }).format(data.settings.annualPrice)}</p>
+        </div>
+      </div>
+
       {!user.emailVerified ? (
         <div className="notice notice-danger">
           <ShieldAlert size={16} />
@@ -131,7 +139,7 @@ export function DashboardClient() {
       {data.user.status === "grace_period" ? (
         <div className="notice">
           <AlertTriangle size={16} />
-          <span>Tu suscripción venció. Tienes 15 días sin edición antes de suspender la página.</span>
+          <span>Tu suscripción venció. Tienes 15 días sin edición antes de suspender la landing.</span>
         </div>
       ) : null}
 
@@ -142,81 +150,47 @@ export function DashboardClient() {
         </div>
       ) : null}
 
-      <div className="dashboard-grid">
-        <div className="dashboard-main">
-          <ProfileForm
-            token={token}
-            profile={data.user}
-            canEdit={canEdit}
-            onSaved={(userData) => setData({
-              ...data,
-              user: userData,
-              publicUrl: userData.username ? `${window.location.origin}/${userData.username}` : "",
-            })}
-          />
+      <ProfileForm
+        token={token}
+        profile={data.user}
+        canEdit={canEdit}
+        onSaved={(userData) => setData({
+          ...data,
+          user: userData,
+          publicUrl: userData.username ? `${window.location.origin}/${userData.username}` : "",
+        })}
+      />
+
+      <section className="card qr-card">
+        <div className="dashboard-section-head">
+          <div>
+            <h2 className="section-title">Suscripción</h2>
+            <p className="section-copy">Renovación manual anual mediante Mercado Pago.</p>
+          </div>
+          <span className="status-badge">{Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", maximumFractionDigits: 0 }).format(data.settings.annualPrice)}</span>
         </div>
 
-        <aside className="dashboard-side">
-          <section className="qr-card card">
-            <div className="dashboard-section-head">
-              <div>
-                <h2 className="section-title">QR y URL pública</h2>
-                <p className="section-copy">Tu acceso directo para compartir tu presencia digital.</p>
-              </div>
-            </div>
+        <div className="grid-3">
+          <div className="kpi">
+            <strong>Prueba hasta</strong>
+            <p className="muted" style={{ marginTop: ".5rem" }}>{data.user.trialEndsAtLabel || "-"}</p>
+          </div>
+          <div className="kpi">
+            <strong>Expira</strong>
+            <p className="muted" style={{ marginTop: ".5rem" }}>{data.user.expiresAtLabel || "-"}</p>
+          </div>
+          <div className="kpi">
+            <strong>Renovación</strong>
+            <p className="muted" style={{ marginTop: ".5rem" }}>Manual por Mercado Pago</p>
+          </div>
+        </div>
 
-            <div className="kpi">
-              <strong>URL pública</strong>
-              <p className="muted" style={{ marginTop: ".5rem", wordBreak: "break-word" }}>{data.publicUrl || "Aún no definida"}</p>
-            </div>
-
-            <div className="qr-box">
-              {data.user.qrUrl ? <img src={data.user.qrUrl} alt="Código QR" style={{ width: 180, height: 180, objectFit: "contain" }} /> : <span className="muted">Se genera al guardar tu username</span>}
-            </div>
-
-            <div className="actions">
-              <button className="btn btn-secondary" type="button" onClick={handleCopyLink} disabled={!data.publicUrl}><Copy size={16} /> Copiar link</button>
-              <a className="btn btn-secondary" href={data.publicUrl || "#"} target="_blank" rel="noreferrer"><ExternalLink size={16} /> Abrir página</a>
-            </div>
-          </section>
-
-          <section className="qr-card card">
-            <div className="dashboard-section-head">
-              <div>
-                <h2 className="section-title">Suscripción</h2>
-                <p className="section-copy">Renovación manual anual a través de Mercado Pago.</p>
-              </div>
-              <span className="status-badge">{Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", maximumFractionDigits: 0 }).format(data.settings.annualPrice)}</span>
-            </div>
-
-            <div className="kpi">
-              <strong>Prueba hasta</strong>
-              <p className="muted" style={{ marginTop: ".5rem" }}>{data.user.trialEndsAtLabel || "-"}</p>
-            </div>
-            <div className="kpi">
-              <strong>Expira</strong>
-              <p className="muted" style={{ marginTop: ".5rem" }}>{data.user.expiresAtLabel || "-"}</p>
-            </div>
-
-            <button className="btn btn-primary" type="button" onClick={handleCheckout} disabled={paying || !user.emailVerified}>
-              <CreditCard size={16} /> {paying ? "Abriendo checkout..." : data.user.status === "active" ? "Renovar plan" : "Activar plan"}
-            </button>
-          </section>
-
-          <section className="qr-card card">
-            <div className="dashboard-section-head">
-              <div>
-                <h2 className="section-title">Vista previa</h2>
-                <p className="section-copy">Así se verá tu página pública en móvil.</p>
-              </div>
-            </div>
-
-            <div className="preview-frame">
-              <LandingView user={data.user} preview />
-            </div>
-          </section>
-        </aside>
-      </div>
+        <div className="actions">
+          <button className="btn btn-primary" type="button" onClick={handleCheckout} disabled={paying || !user.emailVerified}>
+            <CreditCard size={16} /> {paying ? "Abriendo checkout..." : data.user.status === "active" ? "Renovar plan" : "Activar plan"}
+          </button>
+        </div>
+      </section>
 
       {error ? <p className="notice">{error}</p> : null}
     </main>
