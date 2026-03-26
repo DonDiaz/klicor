@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Script from "next/script";
-import { AlertTriangle, CheckCircle2, CreditCard, LogOut, Send, ShieldAlert } from "lucide-react";
+import { AlertTriangle, CheckCircle2, CreditCard, LogOut, Mail, Phone, Send, ShieldAlert } from "lucide-react";
 import { sendEmailVerification, signOut } from "firebase/auth";
 import { BrandLogo } from "@/components/brand-logo";
 import { getClientAuth } from "@/lib/firebase-client";
@@ -34,6 +34,15 @@ export function DashboardClient() {
   const [loggingOut, setLoggingOut] = useState(false);
   const [checkoutConfig, setCheckoutConfig] = useState(null);
   const [sdkReady, setSdkReady] = useState(false);
+  const [recovery, setRecovery] = useState({
+    backupEmail: "",
+    backupEmailVerified: false,
+    recoveryPhone: "",
+    recoveryPhoneVerified: false,
+    backupEmailVerificationExpiresAt: null,
+  });
+  const [recoveryLoading, setRecoveryLoading] = useState(false);
+  const [recoveryMessage, setRecoveryMessage] = useState("");
 
   useEffect(() => {
     async function bootstrap() {
@@ -42,6 +51,13 @@ export function DashboardClient() {
       setToken(nextToken);
       const payload = await apiFetch("/api/me", { token: nextToken });
       setData(payload);
+      setRecovery({
+        backupEmail: payload.user.backupEmail || "",
+        backupEmailVerified: Boolean(payload.user.backupEmailVerified),
+        recoveryPhone: payload.user.recoveryPhone || "",
+        recoveryPhoneVerified: Boolean(payload.user.recoveryPhoneVerified),
+        backupEmailVerificationExpiresAt: payload.user.backupEmailVerificationExpiresAt || null,
+      });
     }
 
     bootstrap().catch((err) => setError(err.message));
@@ -107,6 +123,46 @@ export function DashboardClient() {
     setLoggingOut(true);
     await signOut(auth);
     router.replace("/login");
+  }
+
+  async function saveRecoverySettings() {
+    setRecoveryLoading(true);
+    setRecoveryMessage("");
+    try {
+      const response = await apiFetch("/api/recovery/settings", {
+        method: "POST",
+        token,
+        body: {
+          backupEmail: recovery.backupEmail,
+          recoveryPhone: recovery.recoveryPhone,
+        },
+      });
+      setRecovery((current) => ({
+        ...current,
+        ...response.user,
+      }));
+      setRecoveryMessage(response.verificationSent ? "Guardamos tus datos y enviamos la verificación al correo de respaldo." : "Datos de recuperación actualizados.");
+    } catch (nextError) {
+      setRecoveryMessage(nextError.message);
+    } finally {
+      setRecoveryLoading(false);
+    }
+  }
+
+  async function resendRecoveryVerification() {
+    setRecoveryLoading(true);
+    setRecoveryMessage("");
+    try {
+      await apiFetch("/api/recovery/settings", {
+        method: "PUT",
+        token,
+      });
+      setRecoveryMessage("Reenviamos la verificación al correo de respaldo.");
+    } catch (nextError) {
+      setRecoveryMessage(nextError.message);
+    } finally {
+      setRecoveryLoading(false);
+    }
   }
 
   if (loading || loggingOut) {
@@ -194,6 +250,87 @@ export function DashboardClient() {
           publicUrl: userData.username ? `${window.location.origin}/${userData.username}` : "",
         })}
       />
+
+      <section className="card qr-card">
+        <div className="dashboard-section-head">
+          <div>
+            <h2 className="section-title">Seguridad y recuperación</h2>
+            <p className="section-copy">Protege tu QR y tu enlace con un correo de respaldo y un teléfono de recuperación.</p>
+          </div>
+          <span className={`status-badge ${recovery.backupEmailVerified ? "success" : ""}`}>
+            {recovery.backupEmailVerified ? "Protegida" : "Pendiente"}
+          </span>
+        </div>
+
+        <div className="grid-3">
+          <div className="kpi">
+            <strong>Correo de respaldo</strong>
+            <p className="muted" style={{ marginTop: ".5rem" }}>{recovery.backupEmail || "Aún no configurado"}</p>
+            <p className="muted" style={{ marginTop: ".35rem" }}>{recovery.backupEmailVerified ? "Verificado" : "Pendiente de verificación"}</p>
+          </div>
+          <div className="kpi">
+            <strong>Teléfono de recuperación</strong>
+            <p className="muted" style={{ marginTop: ".5rem" }}>{recovery.recoveryPhone || "Aún no configurado"}</p>
+            <p className="muted" style={{ marginTop: ".35rem" }}>{recovery.recoveryPhoneVerified ? "Verificado" : "Guardado para siguiente fase OTP"}</p>
+          </div>
+          <div className="kpi">
+            <strong>Estado</strong>
+            <p className="muted" style={{ marginTop: ".5rem" }}>
+              {recovery.backupEmailVerified ? "Tu cuenta ya tiene un método de recuperación verificado." : "Configura y verifica al menos un correo de respaldo."}
+            </p>
+          </div>
+        </div>
+
+        <div className="profile-grid">
+          <div>
+            <label className="label">Correo de respaldo</label>
+            <div className="input-with-icon">
+              <Mail size={16} />
+              <input
+                className="input"
+                type="email"
+                value={recovery.backupEmail}
+                onChange={(e) => setRecovery((current) => ({ ...current, backupEmail: e.target.value }))}
+                placeholder="respaldo@tuempresa.com"
+              />
+            </div>
+          </div>
+          <div>
+            <label className="label">Teléfono de recuperación</label>
+            <div className="input-with-icon">
+              <Phone size={16} />
+              <input
+                className="input"
+                value={recovery.recoveryPhone}
+                onChange={(e) => setRecovery((current) => ({ ...current, recoveryPhone: e.target.value }))}
+                placeholder="+57 300 123 4567"
+              />
+            </div>
+          </div>
+        </div>
+
+        {!recovery.backupEmailVerified && recovery.backupEmail ? (
+          <div className="notice">
+            <span>
+              Verifica el correo de respaldo para usarlo en recuperación.
+              {recovery.backupEmailVerificationExpiresAt ? ` El enlace actual vence pronto.` : ""}
+            </span>
+          </div>
+        ) : null}
+
+        <div className="actions">
+          <button className="btn btn-primary" type="button" onClick={saveRecoverySettings} disabled={recoveryLoading}>
+            {recoveryLoading ? "Guardando..." : "Guardar recuperación"}
+          </button>
+          {recovery.backupEmail && !recovery.backupEmailVerified ? (
+            <button className="btn btn-secondary" type="button" onClick={resendRecoveryVerification} disabled={recoveryLoading}>
+              Reenviar verificación
+            </button>
+          ) : null}
+        </div>
+
+        {recoveryMessage ? <p className="notice">{recoveryMessage}</p> : null}
+      </section>
 
       <section className="card qr-card">
         <div className="dashboard-section-head">
