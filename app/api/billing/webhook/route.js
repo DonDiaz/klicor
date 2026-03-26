@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { activateUserSubscription } from "@/lib/firestore";
+import { activateUserSubscription, storePaymentAttempt } from "@/lib/firestore";
 import { getPayment } from "@/lib/mercadopago";
 import { verifyMercadoPagoWebhook } from "@/lib/mercadopago-webhook";
 
@@ -49,12 +49,28 @@ export async function POST(request) {
       return NextResponse.json({ error: "Firma de webhook no válida" }, { status: 401 });
     }
 
+    const uid = payment.external_reference || payment.metadata?.uid;
     const payment = await getPayment(paymentId);
-    if (payment.status !== "approved") {
-      return NextResponse.json({ received: true, status: payment.status });
+
+    if (uid) {
+      await storePaymentAttempt(uid, {
+        id: String(payment.id),
+        amount: payment.transaction_amount,
+        status: payment.status,
+        statusDetail: payment.status_detail || "",
+        externalReference: payment.external_reference,
+        raw: payment,
+      });
     }
 
-    const uid = payment.external_reference || payment.metadata?.uid;
+    if (payment.status !== "approved") {
+      return NextResponse.json({
+        received: true,
+        status: payment.status,
+        statusDetail: payment.status_detail || null,
+      });
+    }
+
     if (!uid) {
       return NextResponse.json({ received: true, warning: "missing_uid" });
     }
@@ -63,6 +79,7 @@ export async function POST(request) {
       id: String(payment.id),
       amount: payment.transaction_amount,
       status: payment.status,
+      statusDetail: payment.status_detail || "",
       externalReference: payment.external_reference,
       raw: payment,
     });
