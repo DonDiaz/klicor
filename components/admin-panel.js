@@ -28,7 +28,7 @@ export function AdminPanel({ token, initialSettings, initialUsers }) {
         <div className="form-grid">
           <div>
             <label className="label">Precio anual (COP)</label>
-            <input className="input" type="number" min={50000} max={60000} value={annualPrice} onChange={(e) => setAnnualPrice(Number(e.target.value))} />
+            <input className="input" type="number" min={5000} max={60000} value={annualPrice} onChange={(e) => setAnnualPrice(Number(e.target.value))} />
           </div>
           <div className="actions" style={{ alignItems: "end" }}>
             <button className="btn btn-primary" type="button" onClick={savePrice}>Guardar precio</button>
