@@ -70,6 +70,33 @@ export function ProfileForm({ token, profile, onSaved, canEdit }) {
     }
   }
 
+  async function handleQrDownload() {
+    try {
+      const response = await fetch("/api/qr/download", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        throw new Error(data.error || "No se pudo descargar el QR");
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `${profile?.username || "bioimpulso"}-qr.png`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      setMessage(error.message || "No se pudo descargar el QR");
+    }
+  }
+
   const publicUrl = form.username ? `${origin}/${form.username}` : "";
 
   return (
@@ -112,7 +139,7 @@ export function ProfileForm({ token, profile, onSaved, canEdit }) {
       </div>
       <div className="actions">
         <button className="btn btn-primary" disabled={loading || !canEdit} type="submit">{loading ? <RefreshCw size={16} /> : null} Guardar perfil</button>
-        {profile?.qrUrl ? <a className="btn btn-secondary" href="/api/qr/download"><Download size={16} /> Descargar QR</a> : null}
+        {profile?.qrUrl ? <button className="btn btn-secondary" type="button" onClick={handleQrDownload}><Download size={16} /> Descargar QR</button> : null}
         {publicUrl ? <a className="btn btn-secondary" href={publicUrl} target="_blank" rel="noreferrer"><ExternalLink size={16} /> Ver landing</a> : null}
       </div>
       {message ? <p className="notice">{message}</p> : null}
