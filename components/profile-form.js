@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState } from "react";
 import { Download, ExternalLink, RefreshCw } from "lucide-react";
@@ -112,7 +112,7 @@ export function ProfileForm({ token, profile, onSaved, canEdit }) {
       </div>
       <div className="actions">
         <button className="btn btn-primary" disabled={loading || !canEdit} type="submit">{loading ? <RefreshCw size={16} /> : null} Guardar perfil</button>
-        {profile?.qrUrl ? <a className="btn btn-secondary" href={profile.qrUrl} target="_blank" rel="noreferrer"><Download size={16} /> Descargar QR</a> : null}
+        {profile?.qrUrl ? <a className="btn btn-secondary" href="/api/qr/download"><Download size={16} /> Descargar QR</a> : null}
         {publicUrl ? <a className="btn btn-secondary" href={publicUrl} target="_blank" rel="noreferrer"><ExternalLink size={16} /> Ver landing</a> : null}
       </div>
       {message ? <p className="notice">{message}</p> : null}

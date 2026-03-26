@@ -1,4 +1,3 @@
-﻿import Image from "next/image";
 import Link from "next/link";
 import { Globe, Instagram, MessageCircleMore, Music2, Facebook } from "lucide-react";
 
@@ -38,10 +37,10 @@ export function LandingView({ user }) {
   return (
     <main className="public-page" style={{ background: `linear-gradient(180deg, ${user.settings?.accent || "#f97316"}22, transparent 38%), linear-gradient(180deg, ${dark ? "#111827" : "#fffdf8"}, ${dark ? "#030712" : "#fff1e6"})` }}>
       <section className="public-card" style={cardStyle}>
-        {user.photo ? <Image className="avatar" src={user.photo} alt={user.businessName} width={110} height={110} /> : <div className="avatar" style={{ background: `${user.settings?.accent || "#f97316"}33`, display: "grid", placeItems: "center", fontSize: "2rem", color: user.settings?.accent || "#f97316" }}>{user.businessName?.slice(0,1) || "B"}</div>}
+        {user.photo ? <img className="avatar" src={user.photo} alt={user.businessName} /> : <div className="avatar" style={{ background: `${user.settings?.accent || "#f97316"}33`, display: "grid", placeItems: "center", fontSize: "2rem", color: user.settings?.accent || "#f97316" }}>{user.businessName?.slice(0, 1) || "B"}</div>}
         <div style={{ textAlign: "center" }}>
           <h1 style={{ marginBottom: ".45rem" }}>{user.businessName}</h1>
-          <p style={{ marginTop: 0, opacity: .75 }}>@{user.username}</p>
+          <p style={{ marginTop: 0, opacity: 0.75 }}>@{user.username}</p>
         </div>
         <div className="public-links">
           {links.map((item) => {
