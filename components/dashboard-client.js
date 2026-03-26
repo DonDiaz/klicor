@@ -7,7 +7,6 @@ import { getClientAuth } from "@/lib/firebase-client";
 import { apiFetch } from "@/lib/client-api";
 import { useAuth } from "@/components/providers/auth-provider";
 import { ProfileForm } from "@/components/profile-form";
-import { AdminPanel } from "@/components/admin-panel";
 
 export function DashboardClient() {
   const { user, loading } = useAuth();
@@ -90,6 +89,7 @@ export function DashboardClient() {
           <p className="muted">Plan {data.user.plan} · Estado {data.user.status}</p>
         </div>
         <div className="actions">
+          {isAdmin ? <Link className="btn btn-secondary" href="/admin">Panel admin</Link> : null}
           <button className="btn btn-secondary" type="button" onClick={handleLogout}>Cerrar sesion</button>
         </div>
       </div>
@@ -124,7 +124,6 @@ export function DashboardClient() {
         </div>
         <p className="muted">Prueba hasta: {data.user.trialEndsAtLabel || "-"} · Expira: {data.user.expiresAtLabel || "-"}</p>
       </section>
-      {isAdmin ? <section className="card" style={{ padding: "1.5rem" }}><AdminPanel token={token} initialSettings={data.settings} initialUsers={data.adminUsers || []} /></section> : null}
       {error ? <p className="notice" style={{ marginTop: "1rem" }}>{error}</p> : null}
     </main>
   );
