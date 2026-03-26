@@ -1,31 +1,9 @@
 import Link from "next/link";
-import { Globe, Instagram, MessageCircleMore, Music2, Facebook } from "lucide-react";
+import { Globe } from "lucide-react";
+import { LINK_CATALOG_MAP } from "@/lib/link-catalog";
 
-const icons = {
-  whatsapp: MessageCircleMore,
-  instagram: Instagram,
-  facebook: Facebook,
-  tiktok: Music2,
-  website: Globe,
-};
-
-const labels = {
-  whatsapp: "WhatsApp",
-  instagram: "Instagram",
-  facebook: "Facebook",
-  tiktok: "TikTok",
-  website: "Sitio web",
-};
-
-export function LandingView({ user }) {
-  const links = [
-    user.whatsappUrl ? { key: "whatsapp", href: user.whatsappUrl } : null,
-    user.links?.instagram ? { key: "instagram", href: user.links.instagram } : null,
-    user.links?.facebook ? { key: "facebook", href: user.links.facebook } : null,
-    user.links?.tiktok ? { key: "tiktok", href: user.links.tiktok } : null,
-    user.links?.website ? { key: "website", href: user.links.website } : null,
-  ].filter(Boolean);
-
+export function LandingView({ user, preview = false }) {
+  const links = user.profileLinks || [];
   const dark = user.settings?.mode === "dark";
   const cardStyle = {
     background: dark ? "rgba(17,24,39,.88)" : user.settings?.surface || "#fff7ed",
@@ -35,7 +13,7 @@ export function LandingView({ user }) {
   };
 
   return (
-    <main className="public-page" style={{ background: `linear-gradient(180deg, ${user.settings?.accent || "#f97316"}22, transparent 38%), linear-gradient(180deg, ${dark ? "#111827" : "#fffdf8"}, ${dark ? "#030712" : "#fff1e6"})` }}>
+    <main className={preview ? "preview-page" : "public-page"} style={{ background: `linear-gradient(180deg, ${user.settings?.accent || "#f97316"}22, transparent 38%), linear-gradient(180deg, ${dark ? "#111827" : "#fffdf8"}, ${dark ? "#030712" : "#fff1e6"})` }}>
       <section className="public-card" style={cardStyle}>
         {user.photo ? <img className="avatar" src={user.photo} alt={user.businessName} /> : <div className="avatar" style={{ background: `${user.settings?.accent || "#f97316"}33`, display: "grid", placeItems: "center", fontSize: "2rem", color: user.settings?.accent || "#f97316" }}>{user.businessName?.slice(0, 1) || "B"}</div>}
         <div style={{ textAlign: "center" }}>
@@ -43,14 +21,20 @@ export function LandingView({ user }) {
           <p style={{ marginTop: 0, opacity: 0.75 }}>@{user.username}</p>
         </div>
         <div className="public-links">
-          {links.map((item) => {
-            const Icon = icons[item.key];
+          {links.length ? links.map((item) => {
+            const Icon = LINK_CATALOG_MAP[item.type]?.icon || Globe;
+            const content = <><Icon size={18} /> {item.label}</>;
+
+            if (preview) {
+              return <div className="public-link" key={item.id}>{content}</div>;
+            }
+
             return (
-              <Link className="public-link" key={item.key} href={`/api/analytics/click?username=${user.username}&button=${item.key}&target=${encodeURIComponent(item.href)}`}>
-                <Icon size={18} /> {labels[item.key]}
+              <Link className="public-link" key={item.id} href={`/api/analytics/click?username=${user.username}&button=${item.type}&target=${encodeURIComponent(item.url)}`}>
+                {content}
               </Link>
             );
-          })}
+          }) : <div className="public-link"><Globe size={18} /> Agrega tus enlaces para ver la vista previa</div>}
         </div>
       </section>
     </main>

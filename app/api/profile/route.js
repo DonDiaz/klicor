@@ -1,4 +1,4 @@
-﻿import { NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { profileSchema } from "@/lib/schemas";
 import { verifyRequest } from "@/lib/auth";
 import { getAccountView, updateUserProfile } from "@/lib/firestore";
@@ -11,14 +11,11 @@ export async function POST(request) {
     }
 
     const formData = await request.formData();
+    const linksJson = formData.get("profileLinks");
     const parsed = profileSchema.parse({
       businessName: formData.get("businessName"),
       username: formData.get("username"),
-      whatsapp: formData.get("whatsapp"),
-      instagram: formData.get("instagram"),
-      facebook: formData.get("facebook"),
-      tiktok: formData.get("tiktok"),
-      website: formData.get("website"),
+      profileLinks: JSON.parse(typeof linksJson === "string" ? linksJson : "[]"),
       accent: formData.get("accent"),
       surface: formData.get("surface"),
       text: formData.get("text"),
