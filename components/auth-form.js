@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createUserWithEmailAndPassword, sendEmailVerification, signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
-import { Chrome, LockKeyhole, Mail, MailCheck } from "lucide-react";
+import { Chrome, Eye, EyeOff, LockKeyhole, Mail, MailCheck } from "lucide-react";
 import { getClientAuth, getGoogleProvider } from "@/lib/firebase-client";
 import { apiFetch } from "@/lib/client-api";
 
@@ -19,9 +19,11 @@ export function AuthForm({
 }) {
   const router = useRouter();
   const [mode, setMode] = useState(allowRegister ? initialMode : "login");
-  const [form, setForm] = useState({ email: "", password: "" });
+  const [form, setForm] = useState({ email: "", password: "", confirmPassword: "" });
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   async function bootstrapSession(user, { welcome = false } = {}) {
     const token = await user.getIdToken();
@@ -43,6 +45,12 @@ export function AuthForm({
     event.preventDefault();
     const auth = getClientAuth();
     if (!auth) return;
+
+    if (mode === "register" && form.password !== form.confirmPassword) {
+      setMessage("Las contrasenas no coinciden.");
+      return;
+    }
+
     setLoading(true);
     setMessage("");
     try {
@@ -129,16 +137,50 @@ export function AuthForm({
             <LockKeyhole size={18} />
             <input
               className="input input-embedded"
-              type="password"
+              type={showPassword ? "text" : "password"}
               required
               minLength={6}
               placeholder="Minimo 6 caracteres"
               value={form.password}
               onChange={(event) => setForm({ ...form, password: event.target.value })}
             />
+            <button
+              className="input-icon-button"
+              type="button"
+              onClick={() => setShowPassword((current) => !current)}
+              aria-label={showPassword ? "Ocultar contrasena" : "Mostrar contrasena"}
+            >
+              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
           </div>
           {mode === "register" ? <p className="auth-hint">Tu cuenta se crea al instante y requiere verificacion por correo.</p> : null}
         </div>
+
+        {mode === "register" ? (
+          <div>
+            <label className="label">Confirmar contrasena</label>
+            <div className="input-with-icon">
+              <LockKeyhole size={18} />
+              <input
+                className="input input-embedded"
+                type={showConfirmPassword ? "text" : "password"}
+                required
+                minLength={6}
+                placeholder="Repite tu contrasena"
+                value={form.confirmPassword}
+                onChange={(event) => setForm({ ...form, confirmPassword: event.target.value })}
+              />
+              <button
+                className="input-icon-button"
+                type="button"
+                onClick={() => setShowConfirmPassword((current) => !current)}
+                aria-label={showConfirmPassword ? "Ocultar confirmacion de contrasena" : "Mostrar confirmacion de contrasena"}
+              >
+                {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
+          </div>
+        ) : null}
 
         <button className="btn btn-primary" disabled={loading} type="submit">
           {loading ? "Procesando..." : resolvedSubmitLabel}
