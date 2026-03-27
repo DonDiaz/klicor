@@ -20,7 +20,7 @@ import {
 import { apiFetch } from "@/lib/client-api";
 import { canAddLinkType, getLinkTypeCount, getLinkTypeLimit, LINK_CATALOG, LINK_CATALOG_MAP } from "@/lib/link-catalog";
 import { LandingView } from "@/components/landing-view";
-import { APPEARANCE_DEFAULTS, APPEARANCE_PRESETS, APPEARANCE_SWATCHES, getAppearanceWarnings, normalizeAppearance } from "@/lib/theme-system";
+import { APPEARANCE_DEFAULTS, APPEARANCE_PRESETS, APPEARANCE_SWATCHES, getAppearanceSuggestions, getAppearanceWarnings, normalizeAppearance } from "@/lib/theme-system";
 
 function normalizeLinks(profile) {
   if (Array.isArray(profile?.profileLinks) && profile.profileLinks.length) {
@@ -190,6 +190,7 @@ export function ProfileForm({
   }), [appearance, form.businessName, form.username, photoPreviewUrl, profile?.photo, profileLinks]);
 
   const appearanceWarnings = useMemo(() => getAppearanceWarnings(appearance), [appearance]);
+  const appearanceSuggestions = useMemo(() => getAppearanceSuggestions(appearance), [appearance]);
   const selectedTypeLimit = getLinkTypeLimit(selectedType);
   const selectedTypeCount = getLinkTypeCount(profileLinks, selectedType);
   const selectedTypeAvailable = canAddLinkType(profileLinks, selectedType);
@@ -600,6 +601,12 @@ export function ProfileForm({
           {appearanceWarnings.length ? (
             <div className="notice notice-danger">
               <span>{appearanceWarnings[0].message}</span>
+            </div>
+          ) : null}
+
+          {!appearanceWarnings.length && appearanceSuggestions.length ? (
+            <div className="notice">
+              <span>{appearanceSuggestions[0].message}</span>
             </div>
           ) : null}
 
