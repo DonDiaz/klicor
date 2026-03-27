@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createUserWithEmailAndPassword, sendEmailVerification, signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
@@ -24,6 +25,9 @@ export function AuthForm({
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showTermsPrompt, setShowTermsPrompt] = useState(false);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [pendingAction, setPendingAction] = useState(null);
 
   async function bootstrapSession(user, { welcome = false } = {}) {
     const token = await user.getIdToken();
@@ -41,16 +45,18 @@ export function AuthForm({
     router.push("/dashboard");
   }
 
-  async function handleSubmit(event) {
-    event.preventDefault();
-    const auth = getClientAuth();
-    if (!auth) return;
+  function openTermsPrompt(action) {
+    setPendingAction(action);
+    setShowTermsPrompt(true);
+    setMessage("");
+  }
 
-    if (mode === "register" && form.password !== form.confirmPassword) {
-      setMessage("Las contrasenas no coinciden.");
-      return;
-    }
+  function closeTermsPrompt() {
+    setPendingAction(null);
+    setShowTermsPrompt(false);
+  }
 
+  async function runEmailFlow(auth) {
     setLoading(true);
     setMessage("");
     try {
@@ -70,9 +76,7 @@ export function AuthForm({
     }
   }
 
-  async function handleGoogle() {
-    const auth = getClientAuth();
-    if (!auth) return;
+  async function runGoogleFlow(auth) {
     setLoading(true);
     setMessage("");
     try {
@@ -83,6 +87,56 @@ export function AuthForm({
     } finally {
       setLoading(false);
     }
+  }
+
+  async function handleSubmit(event) {
+    event.preventDefault();
+    const auth = getClientAuth();
+    if (!auth) return;
+
+    if (mode === "register" && form.password !== form.confirmPassword) {
+      setMessage("Las contrasenas no coinciden.");
+      return;
+    }
+
+    if (mode === "register" && !acceptedTerms) {
+      openTermsPrompt("email");
+      return;
+    }
+
+    await runEmailFlow(auth);
+  }
+
+  async function handleGoogle() {
+    const auth = getClientAuth();
+    if (!auth) return;
+
+    if (mode === "register" && !acceptedTerms) {
+      openTermsPrompt("google");
+      return;
+    }
+
+    await runGoogleFlow(auth);
+  }
+
+  async function handleAcceptTerms() {
+    if (!acceptedTerms) {
+      setMessage("Debes aceptar los terminos y condiciones para continuar.");
+      return;
+    }
+
+    const auth = getClientAuth();
+    if (!auth) return;
+
+    const action = pendingAction;
+    closeTermsPrompt();
+
+    if (action === "google") {
+      await runGoogleFlow(auth);
+      return;
+    }
+
+    await runEmailFlow(auth);
   }
 
   const resolvedTitle = title || (mode === "register" ? "Crea tu cuenta" : "Ingresa a Linka");
@@ -98,10 +152,24 @@ export function AuthForm({
       <div className="stack" style={{ gap: "0.75rem" }}>
         {!hideSwitcher ? (
           <div className="auth-switch" role="tablist" aria-label="Modo de acceso">
-            <button className={`auth-switch-btn ${mode === "register" ? "is-active" : ""}`} type="button" onClick={() => setMode("register")}>
+            <button
+              className={`auth-switch-btn ${mode === "register" ? "is-active" : ""}`}
+              type="button"
+              onClick={() => {
+                setMode("register");
+                closeTermsPrompt();
+              }}
+            >
               Crear cuenta
             </button>
-            <button className={`auth-switch-btn ${mode === "login" ? "is-active" : ""}`} type="button" onClick={() => setMode("login")}>
+            <button
+              className={`auth-switch-btn ${mode === "login" ? "is-active" : ""}`}
+              type="button"
+              onClick={() => {
+                setMode("login");
+                closeTermsPrompt();
+              }}
+            >
               Ingresar
             </button>
           </div>
@@ -182,9 +250,47 @@ export function AuthForm({
           </div>
         ) : null}
 
-        <button className="btn btn-primary" disabled={loading} type="submit">
-          {loading ? "Procesando..." : resolvedSubmitLabel}
-        </button>
+        <div className="auth-submit-wrap">
+          <button className="btn btn-primary" disabled={loading} type="submit">
+            {loading ? "Procesando..." : resolvedSubmitLabel}
+          </button>
+
+          {mode === "register" && showTermsPrompt ? (
+            <div className="terms-popover" role="dialog" aria-live="polite">
+              <div className="stack" style={{ gap: "0.75rem" }}>
+                <strong>Debes aceptar nuestros terminos para continuar.</strong>
+                <p className="section-copy">
+                  Para crear tu cuenta en Linka debes aceptar los{" "}
+                  <Link className="terms-link" href="/terminos" target="_blank" rel="noreferrer">
+                    Terminos y condiciones
+                  </Link>{" "}
+                  y la{" "}
+                  <Link className="terms-link" href="/privacidad" target="_blank" rel="noreferrer">
+                    Politica de privacidad
+                  </Link>.
+                </p>
+
+                <label className="terms-check">
+                  <input
+                    type="checkbox"
+                    checked={acceptedTerms}
+                    onChange={(event) => setAcceptedTerms(event.target.checked)}
+                  />
+                  <span>He leido y acepto los terminos y condiciones de Linka.</span>
+                </label>
+
+                <div className="actions">
+                  <button className="btn btn-secondary" type="button" onClick={closeTermsPrompt}>
+                    Cancelar
+                  </button>
+                  <button className="btn btn-primary" type="button" onClick={handleAcceptTerms} disabled={loading}>
+                    Aceptar y continuar
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : null}
+        </div>
       </form>
 
       <div className="auth-divider">

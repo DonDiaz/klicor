@@ -877,6 +877,11 @@ img { max-width: 100%; display: block; }
   gap: 1rem;
 }
 
+.auth-submit-wrap {
+  display: grid;
+  gap: 0.85rem;
+}
+
 .input-with-icon {
   display: grid;
   grid-template-columns: auto 1fr auto;
@@ -940,6 +945,34 @@ img { max-width: 100%; display: block; }
   position: relative;
   padding: 0 0.75rem;
   background: var(--surface);
+}
+
+.terms-popover {
+  padding: 1rem 1.05rem;
+  border-radius: 16px;
+  border: 1px solid rgba(91, 33, 182, 0.14);
+  background: rgba(237, 233, 254, 0.42);
+}
+
+.terms-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  color: var(--text-secondary);
+  line-height: 1.55;
+}
+
+.terms-check input {
+  margin-top: 0.2rem;
+}
+
+.terms-link {
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.terms-link:hover {
+  color: var(--primary-hover);
 }
 
 .dashboard-shell {
