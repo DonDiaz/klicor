@@ -618,6 +618,52 @@ img { max-width: 100%; display: block; }
   color: var(--text-primary);
 }
 
+.landing-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  padding: 1.25rem;
+  background: rgba(11, 16, 32, 0.52);
+  backdrop-filter: blur(10px);
+}
+
+.landing-modal-shell {
+  width: min(560px, 100%);
+  max-height: min(90vh, 880px);
+  overflow: auto;
+  padding: 1.25rem;
+  border-radius: 24px;
+  border: 1px solid rgba(226, 232, 240, 0.95);
+  background: rgba(248, 250, 252, 0.98);
+  box-shadow: 0 28px 80px rgba(15, 23, 42, 0.28);
+}
+
+.landing-modal-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.landing-modal-close {
+  width: 40px;
+  height: 40px;
+  flex: 0 0 auto;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.landing-modal-close:hover {
+  color: var(--text-primary);
+  border-color: rgba(91, 33, 182, 0.18);
+}
+
 .marketing-hero {
   display: grid;
   grid-template-columns: 1.05fr 0.95fr;

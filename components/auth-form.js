@@ -7,9 +7,18 @@ import { Chrome, LockKeyhole, Mail, MailCheck } from "lucide-react";
 import { getClientAuth, getGoogleProvider } from "@/lib/firebase-client";
 import { apiFetch } from "@/lib/client-api";
 
-export function AuthForm() {
+export function AuthForm({
+  initialMode = "register",
+  allowRegister = true,
+  hideSwitcher = false,
+  title,
+  description,
+  submitLabel,
+  googleLabel = "Google",
+  onSuccess,
+}) {
   const router = useRouter();
-  const [mode, setMode] = useState("register");
+  const [mode, setMode] = useState(allowRegister ? initialMode : "login");
   const [form, setForm] = useState({ email: "", password: "" });
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
@@ -21,6 +30,12 @@ export function AuthForm() {
       token,
       body: { welcome },
     });
+
+    if (onSuccess) {
+      onSuccess(user);
+      return;
+    }
+
     router.push("/dashboard");
   }
 
@@ -34,7 +49,7 @@ export function AuthForm() {
       if (mode === "register") {
         const credential = await createUserWithEmailAndPassword(auth, form.email, form.password);
         await sendEmailVerification(credential.user);
-        setMessage("Te enviamos un correo para verificar tu cuenta. Después podrás entrar al dashboard.");
+        setMessage("Te enviamos un correo para verificar tu cuenta. Despues podras entrar al dashboard.");
         await bootstrapSession(credential.user);
       } else {
         const credential = await signInWithEmailAndPassword(auth, form.email, form.password);
@@ -62,33 +77,39 @@ export function AuthForm() {
     }
   }
 
+  const resolvedTitle = title || (mode === "register" ? "Crea tu cuenta" : "Ingresa a Linka");
+  const resolvedDescription = description || (
+    mode === "register"
+      ? "Activa tu perfil con correo o Google y empieza con una prueba gratis."
+      : "Entra a tu panel para editar enlaces, descargar tu QR y abrir tu pagina."
+  );
+  const resolvedSubmitLabel = submitLabel || (mode === "login" ? "Entrar al dashboard" : "Crear mi Linka");
+
   return (
     <section className="card auth-card">
       <div className="stack" style={{ gap: "0.75rem" }}>
-        <div className="auth-switch" role="tablist" aria-label="Modo de acceso">
-          <button className={`auth-switch-btn ${mode === "register" ? "is-active" : ""}`} type="button" onClick={() => setMode("register")}>
-            Crear cuenta
-          </button>
-          <button className={`auth-switch-btn ${mode === "login" ? "is-active" : ""}`} type="button" onClick={() => setMode("login")}>
-            Ingresar
-          </button>
-        </div>
+        {!hideSwitcher ? (
+          <div className="auth-switch" role="tablist" aria-label="Modo de acceso">
+            <button className={`auth-switch-btn ${mode === "register" ? "is-active" : ""}`} type="button" onClick={() => setMode("register")}>
+              Crear cuenta
+            </button>
+            <button className={`auth-switch-btn ${mode === "login" ? "is-active" : ""}`} type="button" onClick={() => setMode("login")}>
+              Ingresar
+            </button>
+          </div>
+        ) : null}
 
         <div className="stack" style={{ gap: "0.35rem" }}>
           <h2 className="section-title" style={{ fontSize: "2rem" }}>
-            {mode === "register" ? "Crea tu cuenta" : "Ingresa a Linka"}
+            {resolvedTitle}
           </h2>
-          <p className="section-copy">
-            {mode === "register"
-              ? "Activa tu perfil con correo o Google y empieza con una prueba gratis."
-              : "Entra a tu panel para editar enlaces, descargar tu QR y abrir tu página."}
-          </p>
+          <p className="section-copy">{resolvedDescription}</p>
         </div>
       </div>
 
       <form className="auth-form-grid" onSubmit={handleSubmit}>
         <div>
-          <label className="label">Correo electrónico</label>
+          <label className="label">Correo electronico</label>
           <div className="input-with-icon">
             <Mail size={18} />
             <input
@@ -103,7 +124,7 @@ export function AuthForm() {
         </div>
 
         <div>
-          <label className="label">Contraseña</label>
+          <label className="label">Contrasena</label>
           <div className="input-with-icon">
             <LockKeyhole size={18} />
             <input
@@ -111,25 +132,25 @@ export function AuthForm() {
               type="password"
               required
               minLength={6}
-              placeholder="Mínimo 6 caracteres"
+              placeholder="Minimo 6 caracteres"
               value={form.password}
               onChange={(event) => setForm({ ...form, password: event.target.value })}
             />
           </div>
-          {mode === "register" ? <p className="auth-hint">Tu cuenta se crea al instante y requiere verificación por correo.</p> : null}
+          {mode === "register" ? <p className="auth-hint">Tu cuenta se crea al instante y requiere verificacion por correo.</p> : null}
         </div>
 
         <button className="btn btn-primary" disabled={loading} type="submit">
-          {loading ? "Procesando..." : mode === "login" ? "Entrar al dashboard" : "Crear mi Linka"}
+          {loading ? "Procesando..." : resolvedSubmitLabel}
         </button>
       </form>
 
       <div className="auth-divider">
-        <span>o continúa con</span>
+        <span>o continua con</span>
       </div>
 
       <button className="btn btn-secondary" type="button" onClick={handleGoogle} disabled={loading}>
-        <Chrome size={16} /> Google
+        <Chrome size={16} /> {googleLabel}
       </button>
 
       {message ? (

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, CheckCircle2, Copy, LayoutTemplate, MessageCircleMore, QrCode, ShieldCheck, Store, Zap } from "lucide-react";
 import { BrandLogo } from "@/components/brand-logo";
+import { LandingLoginModal } from "@/components/landing-login-modal";
 import { MarketingPreview } from "@/components/marketing-preview";
 
 const howItWorks = [
@@ -39,9 +40,7 @@ export default function HomePage() {
             <a href="#precios">Precios</a>
             <Link href="/login">Iniciar sesion</Link>
           </nav>
-          <Link className="btn btn-primary" href="/login">
-            Crear mi Linka
-          </Link>
+          <LandingLoginModal />
         </div>
       </header>
 
