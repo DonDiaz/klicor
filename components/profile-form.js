@@ -151,6 +151,7 @@ export function ProfileForm({
   const [loading, setLoading] = useState(false);
   const [selectedType, setSelectedType] = useState("whatsapp");
   const [openSection, setOpenSection] = useState(null);
+  const [presetsOpen, setPresetsOpen] = useState(false);
 
   useEffect(() => {
     setForm({
@@ -531,22 +532,45 @@ export function ProfileForm({
             </button>
           </div>
 
-          <div className="appearance-presets">
-            {APPEARANCE_PRESETS.map((preset) => (
-              <button
-                key={preset.id}
-                className={`appearance-preset ${appearance.presetId === preset.id ? "is-active" : ""}`}
-                type="button"
-                onClick={() => applyPreset(preset.id)}
-              >
-                <span className="preset-swatches">
-                  <i style={{ background: preset.appearance.primaryColor }} />
-                  <i style={{ background: preset.appearance.backgroundColor }} />
-                  <i style={{ background: preset.appearance.surfaceColor }} />
-                </span>
-                <strong>{preset.name}</strong>
-              </button>
-            ))}
+          <div className={`panel accordion-section preset-accordion ${presetsOpen ? "is-open" : ""}`}>
+            <button className="accordion-toggle" type="button" onClick={() => setPresetsOpen((current) => !current)} aria-expanded={presetsOpen}>
+              <span className="accordion-toggle-copy">
+                <strong className="section-title" style={{ fontSize: "1rem" }}>Presets visuales</strong>
+                <span className="section-copy">Elige una combinacion lista para empezar mas rapido.</span>
+              </span>
+              <span className="accordion-toggle-meta">
+                <span className="status-badge">{APPEARANCE_PRESETS.length} opciones</span>
+                {presetsOpen ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+              </span>
+            </button>
+
+            {presetsOpen ? (
+              <div className="accordion-content">
+                <div className="appearance-presets">
+                  {APPEARANCE_PRESETS.map((preset) => (
+                    <button
+                      key={preset.id}
+                      className={`appearance-preset ${appearance.presetId === preset.id ? "is-active" : ""}`}
+                      type="button"
+                      onClick={() => applyPreset(preset.id)}
+                      style={{
+                        "--preset-primary": preset.appearance.primaryColor,
+                        "--preset-surface": preset.appearance.surfaceColor,
+                        "--preset-text": preset.appearance.textPrimaryColor,
+                      }}
+                    >
+                      <span className="preset-tone" />
+                      <span className="preset-swatches">
+                        <i style={{ background: preset.appearance.primaryColor }} />
+                        <i style={{ background: preset.appearance.backgroundColor }} />
+                        <i style={{ background: preset.appearance.surfaceColor }} />
+                      </span>
+                      <strong>{preset.name}</strong>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : null}
           </div>
 
           {appearance.advancedEnabled ? (
