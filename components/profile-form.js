@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Download, ExternalLink, ImagePlus, MonitorSmartphone, Paintbrush, Plus, RefreshCw, RotateCcw, Trash2, UploadCloud } from "lucide-react";
+import { ImagePlus, MonitorSmartphone, Paintbrush, Plus, RefreshCw, RotateCcw, Trash2, UploadCloud } from "lucide-react";
 import { apiFetch } from "@/lib/client-api";
 import { canAddLinkType, getLinkTypeCount, getLinkTypeLimit, LINK_CATALOG, LINK_CATALOG_MAP } from "@/lib/link-catalog";
 import { LandingView } from "@/components/landing-view";
@@ -26,7 +26,7 @@ function normalizeLinks(profile) {
       type,
       label: LINK_CATALOG_MAP[type]?.label || "Enlace",
       value,
-      message: type === "whatsapp" ? "Hola, quiero información" : "",
+      message: type === "whatsapp" ? "Hola, quiero informacion" : "",
     }));
 }
 
@@ -37,7 +37,7 @@ function normalizeLinkUrl(item) {
   const meta = LINK_CATALOG_MAP[item.type];
   if (meta?.kind === "phone") {
     const digits = raw.replace(/\D/g, "");
-    const message = (item.message || "Hola, quiero información").trim();
+    const message = (item.message || "Hola, quiero informacion").trim();
     return digits ? `https://wa.me/${digits}?text=${encodeURIComponent(message)}` : "";
   }
 
@@ -149,7 +149,7 @@ export function ProfileForm({ token, profile, onSaved, canEdit }) {
   async function handleSubmit(event) {
     event.preventDefault();
     if (!canEdit) {
-      setMessage("Tu cuenta no permite edición en este momento.");
+      setMessage("Tu cuenta no permite edicion en este momento.");
       return;
     }
     if (appearanceWarnings.length) {
@@ -174,38 +174,11 @@ export function ProfileForm({ token, profile, onSaved, canEdit }) {
         isFormData: true,
       });
       onSaved(data.user);
-      setMessage("Perfil y diseño actualizados correctamente.");
+      setMessage("Perfil y diseno actualizados correctamente.");
     } catch (error) {
       setMessage(error.message);
     } finally {
       setLoading(false);
-    }
-  }
-
-  async function handleQrDownload() {
-    try {
-      const response = await fetch("/api/qr/download", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (!response.ok) {
-        const data = await response.json().catch(() => ({}));
-        throw new Error(data.error || "No se pudo descargar el QR");
-      }
-
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `${profile?.username || "linka"}-qr.png`;
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      window.URL.revokeObjectURL(url);
-    } catch (error) {
-      setMessage(error.message || "No se pudo descargar el QR");
     }
   }
 
@@ -227,7 +200,7 @@ export function ProfileForm({ token, profile, onSaved, canEdit }) {
         type: selectedType,
         label: meta.label,
         value: "",
-        message: selectedType === "whatsapp" ? "Hola, quiero información" : "",
+        message: selectedType === "whatsapp" ? "Hola, quiero informacion" : "",
       },
     ]);
   }
@@ -274,7 +247,7 @@ export function ProfileForm({ token, profile, onSaved, canEdit }) {
     });
   }
 
-  const selectedPhotoLabel = photo ? photo.name : profile?.photo ? "Imagen actual cargada" : "Aún no has elegido imagen";
+  const selectedPhotoLabel = photo ? photo.name : profile?.photo ? "Imagen actual cargada" : "Aun no has elegido imagen";
   const usernameChanged = Boolean(profile?.username) && form.username.trim() && form.username.trim() !== profile.username;
 
   return (
@@ -296,13 +269,13 @@ export function ProfileForm({ token, profile, onSaved, canEdit }) {
             <div>
               <label className="label">Username</label>
               <input className="input" value={form.username} onChange={(e) => setForm({ ...form, username: e.target.value })} disabled={!canEdit} required />
-              <p className="muted" style={{ marginTop: ".45rem" }}>Este valor crea tu URL pública y tu código QR.</p>
+              <p className="muted" style={{ marginTop: ".45rem" }}>Este valor crea tu URL publica y tu codigo QR.</p>
             </div>
           </div>
 
           {usernameChanged ? (
             <div className="notice notice-danger">
-              <span>Si cambias el username, tu link actual y tu QR actual dejan de funcionar y se reemplazan por la nueva versión.</span>
+              <span>Si cambias el username, tu link actual y tu QR actual dejan de funcionar y se reemplazan por la nueva version.</span>
             </div>
           ) : null}
 
@@ -333,7 +306,7 @@ export function ProfileForm({ token, profile, onSaved, canEdit }) {
               {LINK_CATALOG.map((item) => (
                 <option key={item.type} value={item.type}>
                   {item.label}
-                  {getLinkTypeCount(profileLinks, item.type) >= getLinkTypeLimit(item.type) ? " · límite alcanzado" : ""}
+                  {getLinkTypeCount(profileLinks, item.type) >= getLinkTypeLimit(item.type) ? " · limite alcanzado" : ""}
                 </option>
               ))}
             </select>
@@ -358,7 +331,7 @@ export function ProfileForm({ token, profile, onSaved, canEdit }) {
                     <input className="input" value={item.label} onChange={(e) => updateLink(item.id, "label", e.target.value)} disabled={!canEdit} />
                   </div>
                   <div>
-                    <label className="label">{meta.kind === "phone" ? "Número" : "URL"}</label>
+                    <label className="label">{meta.kind === "phone" ? "Numero" : "URL"}</label>
                     <input className="input" value={item.value} placeholder={meta.placeholder} onChange={(e) => updateLink(item.id, "value", e.target.value)} disabled={!canEdit} />
                   </div>
                   <button className="btn btn-secondary link-remove" type="button" onClick={() => removeLink(item.id)} disabled={!canEdit}>
@@ -367,15 +340,15 @@ export function ProfileForm({ token, profile, onSaved, canEdit }) {
                   {item.type === "whatsapp" ? (
                     <div className="link-row-message">
                       <label className="label">Mensaje inicial</label>
-                      <input className="input" value={item.message || ""} placeholder="Hola, quiero información" onChange={(e) => updateLink(item.id, "message", e.target.value)} disabled={!canEdit} />
+                      <input className="input" value={item.message || ""} placeholder="Hola, quiero informacion" onChange={(e) => updateLink(item.id, "message", e.target.value)} disabled={!canEdit} />
                     </div>
                   ) : null}
                 </div>
               );
             }) : (
               <div className="kpi">
-                <strong>Sin enlaces todavía</strong>
-                <p className="muted" style={{ marginTop: ".5rem" }}>Agrega tu primer canal para empezar a construir tu página pública.</p>
+                <strong>Sin enlaces todavia</strong>
+                <p className="muted" style={{ marginTop: ".5rem" }}>Agrega tu primer canal para empezar a construir tu pagina publica.</p>
               </div>
             )}
           </div>
@@ -385,14 +358,14 @@ export function ProfileForm({ token, profile, onSaved, canEdit }) {
           <div className="dashboard-section-head">
             <div>
               <h2 className="section-title">Apariencia</h2>
-              <p className="section-copy">Usa un preset para avanzar rápido o activa el modo avanzado para personalizar sin romper la legibilidad.</p>
+              <p className="section-copy">Usa un preset para avanzar rapido o activa el modo avanzado para personalizar sin romper la legibilidad.</p>
             </div>
             <button
               className={`btn ${appearance.advancedEnabled ? "btn-primary" : "btn-secondary"}`}
               type="button"
               onClick={() => setAppearance((current) => ({ ...current, advancedEnabled: !current.advancedEnabled }))}
             >
-              <Paintbrush size={16} /> Personalizar diseño
+              <Paintbrush size={16} /> Personalizar diseno
             </button>
           </div>
 
@@ -426,13 +399,13 @@ export function ProfileForm({ token, profile, onSaved, canEdit }) {
               </div>
 
               <div className="appearance-grid">
-                <SegmentedControl label="Fondo" value={appearance.backgroundStyle} options={[{ label: "Sólido", value: "solid" }, { label: "Degradado", value: "gradient" }]} onChange={(value) => updateAppearance("backgroundStyle", value)} />
-                <SegmentedControl label="Botón" value={appearance.buttonStyle} options={[{ label: "Sólido", value: "solid" }, { label: "Outline", value: "outline" }, { label: "Suave", value: "soft" }]} onChange={(value) => updateAppearance("buttonStyle", value)} />
-                <SegmentedControl label="Borde de botón" value={appearance.buttonRadius} options={[{ label: "Redondeado", value: "rounded" }, { label: "Más recto", value: "square" }]} onChange={(value) => updateAppearance("buttonRadius", value)} />
-                <SegmentedControl label="Tarjeta" value={appearance.cardTransparency} options={[{ label: "Sólida", value: "solid" }, { label: "Transparencia leve", value: "soft" }]} onChange={(value) => updateAppearance("cardTransparency", value)} />
+                <SegmentedControl label="Fondo" value={appearance.backgroundStyle} options={[{ label: "Solido", value: "solid" }, { label: "Degradado", value: "gradient" }]} onChange={(value) => updateAppearance("backgroundStyle", value)} />
+                <SegmentedControl label="Boton" value={appearance.buttonStyle} options={[{ label: "Solido", value: "solid" }, { label: "Outline", value: "outline" }, { label: "Suave", value: "soft" }]} onChange={(value) => updateAppearance("buttonStyle", value)} />
+                <SegmentedControl label="Borde de boton" value={appearance.buttonRadius} options={[{ label: "Redondeado", value: "rounded" }, { label: "Mas recto", value: "square" }]} onChange={(value) => updateAppearance("buttonRadius", value)} />
+                <SegmentedControl label="Tarjeta" value={appearance.cardTransparency} options={[{ label: "Solida", value: "solid" }, { label: "Transparencia leve", value: "soft" }]} onChange={(value) => updateAppearance("cardTransparency", value)} />
                 <SegmentedControl label="Sombra" value={appearance.cardShadow} options={[{ label: "Ninguna", value: "none" }, { label: "Soft", value: "soft" }, { label: "Medium", value: "medium" }]} onChange={(value) => updateAppearance("cardShadow", value)} />
                 <SegmentedControl label="Forma de imagen" value={appearance.avatarShape} options={[{ label: "Circular", value: "circle" }, { label: "Rounded", value: "rounded" }, { label: "Cuadrado suave", value: "soft-square" }]} onChange={(value) => updateAppearance("avatarShape", value)} />
-                <SegmentedControl label="Tamaño del nombre" value={appearance.nameSize} options={[{ label: "S", value: "s" }, { label: "M", value: "m" }, { label: "L", value: "l" }]} onChange={(value) => updateAppearance("nameSize", value)} />
+                <SegmentedControl label="Tamano del nombre" value={appearance.nameSize} options={[{ label: "S", value: "s" }, { label: "M", value: "m" }, { label: "L", value: "l" }]} onChange={(value) => updateAppearance("nameSize", value)} />
                 <SegmentedControl label="Peso del nombre" value={appearance.nameWeight} options={[{ label: "Regular", value: "regular" }, { label: "Bold", value: "bold" }]} onChange={(value) => updateAppearance("nameWeight", value)} />
               </div>
             </div>
@@ -450,35 +423,10 @@ export function ProfileForm({ token, profile, onSaved, canEdit }) {
             </button>
             <button className="btn btn-primary" type="submit" disabled={loading || !canEdit || appearanceWarnings.length > 0}>
               {loading ? <RefreshCw size={16} /> : null}
-              Guardar diseño
-            </button>
-          </div>
-        </section>
-
-        <section className="dashboard-section panel">
-          <div className="dashboard-section-head">
-            <div>
-              <h2 className="section-title">QR</h2>
-              <p className="section-copy">Mantén visible tu enlace y descarga tu QR cuando lo necesites.</p>
-            </div>
-          </div>
-
-          <div className="actions">
-            {profile?.qrUrl ? (
-              <button className="btn btn-secondary" type="button" onClick={handleQrDownload}>
-                <Download size={16} /> Descargar QR
-              </button>
-            ) : null}
-            {profile?.username ? (
-              <a className="btn btn-secondary" href={`/${profile.username}`} target="_blank" rel="noreferrer">
-                <ExternalLink size={16} /> Abrir página
-              </a>
-            ) : null}
-            <button className="btn btn-primary" disabled={loading || !canEdit || appearanceWarnings.length > 0} type="submit">
-              {loading ? <RefreshCw size={16} /> : null}
               Guardar cambios
             </button>
           </div>
+
           {message ? <p className="notice">{message}</p> : null}
         </section>
       </form>
@@ -486,7 +434,7 @@ export function ProfileForm({ token, profile, onSaved, canEdit }) {
       <aside className="preview-shell">
         <div className="preview-header">
           <span className="pill"><MonitorSmartphone size={16} /> Preview real</span>
-          <p className="section-copy">Refleja el diseño final de la landing pública.</p>
+          <p className="section-copy">Refleja el diseno final de la landing publica.</p>
         </div>
         <div className="preview-frame">
           <LandingView user={previewUser} preview />

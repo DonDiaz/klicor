@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Script from "next/script";
-import { AlertTriangle, CheckCircle2, CreditCard, LogOut, Mail, Phone, Send, ShieldAlert } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Copy, CreditCard, Download, ExternalLink, LogOut, Mail, Phone, Send, ShieldAlert } from "lucide-react";
 import { sendEmailVerification, signOut } from "firebase/auth";
 import { BrandLogo } from "@/components/brand-logo";
 import { getClientAuth } from "@/lib/firebase-client";
@@ -88,7 +88,7 @@ export function DashboardClient() {
           label: data?.user?.status === "active" ? "Renovar con Mercado Pago" : "Pagar con Mercado Pago",
         },
       });
-    } catch (sdkError) {
+    } catch {
       setError("No pudimos inicializar el checkout oficial de Mercado Pago.");
     } finally {
       setPaying(false);
@@ -114,7 +114,7 @@ export function DashboardClient() {
     const auth = getClientAuth();
     if (!auth?.currentUser) return;
     await sendEmailVerification(auth.currentUser);
-    setError("Te reenviamos el correo de verificación.");
+    setError("Te reenviamos el correo de verificacion.");
   }
 
   async function handleLogout() {
@@ -123,6 +123,43 @@ export function DashboardClient() {
     setLoggingOut(true);
     await signOut(auth);
     router.replace("/login");
+  }
+
+  async function handleCopyPublicUrl() {
+    if (!data?.publicUrl) return;
+    try {
+      await navigator.clipboard.writeText(data.publicUrl);
+      setError("Enlace copiado al portapapeles.");
+    } catch {
+      setError("No pudimos copiar el enlace.");
+    }
+  }
+
+  async function handleQrDownload() {
+    try {
+      const response = await fetch("/api/qr/download", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        const payload = await response.json().catch(() => ({}));
+        throw new Error(payload.error || "No se pudo descargar el QR");
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `${data?.user?.username || "linka"}-qr.png`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (nextError) {
+      setError(nextError.message || "No se pudo descargar el QR");
+    }
   }
 
   async function saveRecoverySettings() {
@@ -141,7 +178,11 @@ export function DashboardClient() {
         ...current,
         ...response.user,
       }));
-      setRecoveryMessage(response.verificationSent ? "Guardamos tus datos y enviamos la verificación al correo de respaldo." : "Datos de recuperación actualizados.");
+      setRecoveryMessage(
+        response.verificationSent
+          ? "Guardamos tus datos y enviamos la verificacion al correo de respaldo."
+          : "Datos de recuperacion actualizados.",
+      );
     } catch (nextError) {
       setRecoveryMessage(nextError.message);
     } finally {
@@ -157,7 +198,7 @@ export function DashboardClient() {
         method: "PUT",
         token,
       });
-      setRecoveryMessage("Reenviamos la verificación al correo de respaldo.");
+      setRecoveryMessage("Reenviamos la verificacion al correo de respaldo.");
     } catch (nextError) {
       setRecoveryMessage(nextError.message);
     } finally {
@@ -199,22 +240,41 @@ export function DashboardClient() {
 
         <div className="actions">
           {isAdmin ? <Link className="btn btn-secondary" href="/admin">Panel admin</Link> : null}
-          <button className="btn btn-secondary" type="button" onClick={handleLogout}><LogOut size={16} /> Cerrar sesión</button>
+          <button className="btn btn-secondary" type="button" onClick={handleLogout}><LogOut size={16} /> Cerrar sesion</button>
         </div>
       </header>
 
       <div className="grid-3">
         <div className="kpi">
-          <strong>URL pública</strong>
-          <p className="muted" style={{ marginTop: ".5rem" }}>{data.publicUrl || "Aún no definida"}</p>
+          <strong>URL publica</strong>
+          <p className="muted" style={{ marginTop: ".5rem" }}>{data.publicUrl || "Aun no definida"}</p>
+          {data.publicUrl ? (
+            <div className="actions" style={{ marginTop: ".85rem" }}>
+              <button className="btn btn-secondary" type="button" onClick={handleCopyPublicUrl}>
+                <Copy size={16} /> Copiar link
+              </button>
+              <a className="btn btn-secondary" href={data.publicUrl} target="_blank" rel="noreferrer">
+                <ExternalLink size={16} /> Abrir link
+              </a>
+            </div>
+          ) : null}
         </div>
         <div className="kpi">
           <strong>QR</strong>
           <p className="muted" style={{ marginTop: ".5rem" }}>{data.user.qrUrl ? "Listo para descargar" : "Se genera al guardar el username"}</p>
+          {data.user.qrUrl ? (
+            <div className="actions" style={{ marginTop: ".85rem" }}>
+              <button className="btn btn-secondary" type="button" onClick={handleQrDownload}>
+                <Download size={16} /> Descargar QR
+              </button>
+            </div>
+          ) : null}
         </div>
         <div className="kpi">
           <strong>Plan actual</strong>
-          <p className="muted" style={{ marginTop: ".5rem" }}>{Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", maximumFractionDigits: 0 }).format(data.settings.annualPrice)}</p>
+          <p className="muted" style={{ marginTop: ".5rem" }}>
+            {Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", maximumFractionDigits: 0 }).format(data.settings.annualPrice)}
+          </p>
         </div>
       </div>
 
@@ -222,21 +282,21 @@ export function DashboardClient() {
         <div className="notice notice-danger">
           <ShieldAlert size={16} />
           <span>Debes verificar tu correo para completar el flujo comercial.</span>
-          <button className="btn btn-secondary" type="button" onClick={handleSendVerification}><Send size={16} /> Reenviar verificación</button>
+          <button className="btn btn-secondary" type="button" onClick={handleSendVerification}><Send size={16} /> Reenviar verificacion</button>
         </div>
       ) : null}
 
       {data.user.status === "grace_period" ? (
         <div className="notice">
           <AlertTriangle size={16} />
-          <span>Tu suscripción venció. Tienes 15 días sin edición antes de suspender la landing.</span>
+          <span>Tu suscripcion vencio. Tienes 15 dias sin edicion antes de suspender la landing.</span>
         </div>
       ) : null}
 
       {data.user.status === "suspended" ? (
         <div className="notice notice-danger">
           <ShieldAlert size={16} />
-          <span>Tu página está suspendida hasta registrar el pago anual.</span>
+          <span>Tu pagina esta suspendida hasta registrar el pago anual.</span>
         </div>
       ) : null}
 
@@ -254,8 +314,8 @@ export function DashboardClient() {
       <section className="card qr-card">
         <div className="dashboard-section-head">
           <div>
-            <h2 className="section-title">Seguridad y recuperación</h2>
-            <p className="section-copy">Protege tu QR y tu enlace con un correo de respaldo y un teléfono de recuperación.</p>
+            <h2 className="section-title">Seguridad y recuperacion</h2>
+            <p className="section-copy">Protege tu QR y tu enlace con un correo de respaldo y un telefono de recuperacion.</p>
           </div>
           <span className={`status-badge ${recovery.backupEmailVerified ? "success" : ""}`}>
             {recovery.backupEmailVerified ? "Protegida" : "Pendiente"}
@@ -265,18 +325,18 @@ export function DashboardClient() {
         <div className="grid-3">
           <div className="kpi">
             <strong>Correo de respaldo</strong>
-            <p className="muted" style={{ marginTop: ".5rem" }}>{recovery.backupEmail || "Aún no configurado"}</p>
-            <p className="muted" style={{ marginTop: ".35rem" }}>{recovery.backupEmailVerified ? "Verificado" : "Pendiente de verificación"}</p>
+            <p className="muted" style={{ marginTop: ".5rem" }}>{recovery.backupEmail || "Aun no configurado"}</p>
+            <p className="muted" style={{ marginTop: ".35rem" }}>{recovery.backupEmailVerified ? "Verificado" : "Pendiente de verificacion"}</p>
           </div>
           <div className="kpi">
-            <strong>Teléfono de recuperación</strong>
-            <p className="muted" style={{ marginTop: ".5rem" }}>{recovery.recoveryPhone || "Aún no configurado"}</p>
+            <strong>Telefono de recuperacion</strong>
+            <p className="muted" style={{ marginTop: ".5rem" }}>{recovery.recoveryPhone || "Aun no configurado"}</p>
             <p className="muted" style={{ marginTop: ".35rem" }}>{recovery.recoveryPhoneVerified ? "Verificado" : "Guardado para siguiente fase OTP"}</p>
           </div>
           <div className="kpi">
             <strong>Estado</strong>
             <p className="muted" style={{ marginTop: ".5rem" }}>
-              {recovery.backupEmailVerified ? "Tu cuenta ya tiene un método de recuperación verificado." : "Configura y verifica al menos un correo de respaldo."}
+              {recovery.backupEmailVerified ? "Tu cuenta ya tiene un metodo de recuperacion verificado." : "Configura y verifica al menos un correo de respaldo."}
             </p>
           </div>
         </div>
@@ -296,7 +356,7 @@ export function DashboardClient() {
             </div>
           </div>
           <div>
-            <label className="label">Teléfono de recuperación</label>
+            <label className="label">Telefono de recuperacion</label>
             <div className="input-with-icon">
               <Phone size={16} />
               <input
@@ -312,19 +372,19 @@ export function DashboardClient() {
         {!recovery.backupEmailVerified && recovery.backupEmail ? (
           <div className="notice">
             <span>
-              Verifica el correo de respaldo para usarlo en recuperación.
-              {recovery.backupEmailVerificationExpiresAt ? ` El enlace actual vence pronto.` : ""}
+              Verifica el correo de respaldo para usarlo en recuperacion.
+              {recovery.backupEmailVerificationExpiresAt ? " El enlace actual vence pronto." : ""}
             </span>
           </div>
         ) : null}
 
         <div className="actions">
           <button className="btn btn-primary" type="button" onClick={saveRecoverySettings} disabled={recoveryLoading}>
-            {recoveryLoading ? "Guardando..." : "Guardar recuperación"}
+            {recoveryLoading ? "Guardando..." : "Guardar recuperacion"}
           </button>
           {recovery.backupEmail && !recovery.backupEmailVerified ? (
             <button className="btn btn-secondary" type="button" onClick={resendRecoveryVerification} disabled={recoveryLoading}>
-              Reenviar verificación
+              Reenviar verificacion
             </button>
           ) : null}
         </div>
@@ -335,10 +395,12 @@ export function DashboardClient() {
       <section className="card qr-card">
         <div className="dashboard-section-head">
           <div>
-            <h2 className="section-title">Suscripción</h2>
-            <p className="section-copy">Renovación manual anual mediante Mercado Pago.</p>
+            <h2 className="section-title">Suscripcion</h2>
+            <p className="section-copy">Renovacion manual anual mediante Mercado Pago.</p>
           </div>
-          <span className="status-badge">{Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", maximumFractionDigits: 0 }).format(data.settings.annualPrice)}</span>
+          <span className="status-badge">
+            {Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", maximumFractionDigits: 0 }).format(data.settings.annualPrice)}
+          </span>
         </div>
 
         <div className="grid-3">
@@ -351,7 +413,7 @@ export function DashboardClient() {
             <p className="muted" style={{ marginTop: ".5rem" }}>{data.user.expiresAtLabel || "-"}</p>
           </div>
           <div className="kpi">
-            <strong>Renovación</strong>
+            <strong>Renovacion</strong>
             <p className="muted" style={{ marginTop: ".5rem" }}>Manual por Mercado Pago</p>
           </div>
         </div>
@@ -366,11 +428,7 @@ export function DashboardClient() {
           <div className="stack" style={{ gap: ".85rem", marginTop: "1rem" }}>
             <p className="muted">Checkout oficial de Mercado Pago cargado segun documentacion. Si no responde, puedes continuar con el fallback.</p>
             <div id="mercadopago-checkout" />
-            <button
-              className="btn btn-secondary"
-              type="button"
-              onClick={() => window.location.href = checkoutConfig.initPoint}
-            >
+            <button className="btn btn-secondary" type="button" onClick={() => window.location.href = checkoutConfig.initPoint}>
               Abrir checkout por redireccion
             </button>
           </div>
