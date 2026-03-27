@@ -1013,6 +1013,55 @@ img { max-width: 100%; display: block; }
   gap: 1rem;
 }
 
+.accordion-section {
+  gap: 0;
+  overflow: hidden;
+}
+
+.accordion-section.is-open {
+  box-shadow: var(--shadow-sm);
+}
+
+.accordion-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.accordion-toggle-copy {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.accordion-toggle-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.accordion-content {
+  display: grid;
+  gap: 1rem;
+  padding-top: 1rem;
+}
+
+.section-divider {
+  height: 1px;
+  background: var(--border);
+}
+
+.editor-form-footer {
+  justify-content: flex-end;
+}
+
 .dashboard-section-head {
   display: flex;
   justify-content: space-between;

@@ -1,7 +1,22 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { ImagePlus, MonitorSmartphone, Paintbrush, Plus, RefreshCw, RotateCcw, Trash2, UploadCloud } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronUp,
+  ImagePlus,
+  MonitorSmartphone,
+  Paintbrush,
+  Plus,
+  RefreshCw,
+  RotateCcw,
+  Trash2,
+  UploadCloud,
+  Mail,
+  Phone,
+  Send,
+  ShieldCheck,
+} from "lucide-react";
 import { apiFetch } from "@/lib/client-api";
 import { canAddLinkType, getLinkTypeCount, getLinkTypeLimit, LINK_CATALOG, LINK_CATALOG_MAP } from "@/lib/link-catalog";
 import { LandingView } from "@/components/landing-view";
@@ -92,7 +107,38 @@ function SegmentedControl({ label, value, options, onChange }) {
   );
 }
 
-export function ProfileForm({ token, profile, onSaved, canEdit }) {
+function AccordionSection({ id, title, copy, openSection, onToggle, children, trailing }) {
+  const isOpen = openSection === id;
+
+  return (
+    <section className={`dashboard-section panel accordion-section ${isOpen ? "is-open" : ""}`}>
+      <button className="accordion-toggle" type="button" onClick={() => onToggle(id)} aria-expanded={isOpen}>
+        <span className="accordion-toggle-copy">
+          <strong className="section-title">{title}</strong>
+          <span className="section-copy">{copy}</span>
+        </span>
+        <span className="accordion-toggle-meta">
+          {trailing}
+          {isOpen ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+        </span>
+      </button>
+      {isOpen ? <div className="accordion-content">{children}</div> : null}
+    </section>
+  );
+}
+
+export function ProfileForm({
+  token,
+  profile,
+  onSaved,
+  canEdit,
+  recovery,
+  recoveryLoading,
+  recoveryMessage,
+  onRecoveryFieldChange,
+  onSaveRecovery,
+  onResendRecoveryVerification,
+}) {
   const [form, setForm] = useState({
     businessName: profile?.businessName || "",
     username: profile?.username || "",
@@ -104,6 +150,7 @@ export function ProfileForm({ token, profile, onSaved, canEdit }) {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [selectedType, setSelectedType] = useState("whatsapp");
+  const [openSection, setOpenSection] = useState(null);
 
   useEffect(() => {
     setForm({
@@ -152,6 +199,7 @@ export function ProfileForm({ token, profile, onSaved, canEdit }) {
       setMessage("Tu cuenta no permite edicion en este momento.");
       return;
     }
+
     if (appearanceWarnings.length) {
       setMessage(appearanceWarnings[0].message);
       return;
@@ -173,13 +221,18 @@ export function ProfileForm({ token, profile, onSaved, canEdit }) {
         body,
         isFormData: true,
       });
+
       onSaved(data.user);
-      setMessage("Perfil y diseno actualizados correctamente.");
+      setMessage("Cambios guardados correctamente.");
     } catch (error) {
       setMessage(error.message);
     } finally {
       setLoading(false);
     }
+  }
+
+  function toggleSection(sectionId) {
+    setOpenSection((current) => (current === sectionId ? null : sectionId));
   }
 
   function addLink() {
@@ -249,26 +302,39 @@ export function ProfileForm({ token, profile, onSaved, canEdit }) {
 
   const selectedPhotoLabel = photo ? photo.name : profile?.photo ? "Imagen actual cargada" : "Aun no has elegido imagen";
   const usernameChanged = Boolean(profile?.username) && form.username.trim() && form.username.trim() !== profile.username;
+  const recoveryProtected = Boolean(recovery?.backupEmailVerified);
 
   return (
     <div className="editor-layout">
       <form className="section-stack" onSubmit={handleSubmit}>
-        <section className="dashboard-section panel">
-          <div className="dashboard-section-head">
-            <div>
-              <h2 className="section-title">Perfil</h2>
-              <p className="section-copy">Actualiza nombre, username e imagen principal del negocio.</p>
-            </div>
-          </div>
-
+        <AccordionSection
+          id="profile"
+          title="Perfil"
+          copy="Actualiza nombre, username, imagen y seguridad de la cuenta."
+          openSection={openSection}
+          onToggle={toggleSection}
+          trailing={<span className={`status-badge ${recoveryProtected ? "success" : ""}`}>{recoveryProtected ? "Protegida" : "Pendiente"}</span>}
+        >
           <div className="profile-grid">
             <div>
               <label className="label">Nombre del negocio</label>
-              <input className="input" value={form.businessName} onChange={(e) => setForm({ ...form, businessName: e.target.value })} disabled={!canEdit} required />
+              <input
+                className="input"
+                value={form.businessName}
+                onChange={(e) => setForm({ ...form, businessName: e.target.value })}
+                disabled={!canEdit}
+                required
+              />
             </div>
             <div>
               <label className="label">Username</label>
-              <input className="input" value={form.username} onChange={(e) => setForm({ ...form, username: e.target.value })} disabled={!canEdit} required />
+              <input
+                className="input"
+                value={form.username}
+                onChange={(e) => setForm({ ...form, username: e.target.value })}
+                disabled={!canEdit}
+                required
+              />
               <p className="muted" style={{ marginTop: ".45rem" }}>Este valor crea tu URL publica y tu codigo QR.</p>
             </div>
           </div>
@@ -282,7 +348,13 @@ export function ProfileForm({ token, profile, onSaved, canEdit }) {
           <div className="upload-inline">
             <label className="label">Imagen del negocio</label>
             <label className={`upload-card ${!canEdit ? "upload-card-disabled" : ""}`}>
-              <input className="upload-input" type="file" accept="image/png,image/jpeg,image/webp" onChange={(e) => setPhoto(e.target.files?.[0] || null)} disabled={!canEdit} />
+              <input
+                className="upload-input"
+                type="file"
+                accept="image/png,image/jpeg,image/webp"
+                onChange={(e) => setPhoto(e.target.files?.[0] || null)}
+                disabled={!canEdit}
+              />
               <span className="upload-icon">{photo || profile?.photo ? <ImagePlus size={20} /> : <UploadCloud size={20} />}</span>
               <span className="upload-copy">
                 <strong>{photo ? "Cambiar imagen" : "Subir imagen"}</strong>
@@ -291,22 +363,105 @@ export function ProfileForm({ token, profile, onSaved, canEdit }) {
               </span>
             </label>
           </div>
-        </section>
 
-        <section className="dashboard-section panel">
+          <div className="section-divider" />
+
           <div className="dashboard-section-head">
             <div>
-              <h2 className="section-title">Enlaces</h2>
-              <p className="section-copy">Lista editable de enlaces con etiquetas limpias y mensaje personalizado para WhatsApp.</p>
+              <h3 className="section-title" style={{ fontSize: "1.05rem" }}>Seguridad y recuperacion</h3>
+              <p className="section-copy">Protege tu QR y tu enlace con un correo de respaldo y un telefono de recuperacion.</p>
+            </div>
+            <span className={`status-badge ${recoveryProtected ? "success" : ""}`}>
+              {recoveryProtected ? <ShieldCheck size={14} /> : null}
+              {recoveryProtected ? "Protegida" : "Pendiente"}
+            </span>
+          </div>
+
+          <div className="grid-3">
+            <div className="kpi">
+              <strong>Correo de respaldo</strong>
+              <p className="muted" style={{ marginTop: ".5rem" }}>{recovery?.backupEmail || "Aun no configurado"}</p>
+              <p className="muted" style={{ marginTop: ".35rem" }}>{recovery?.backupEmailVerified ? "Verificado" : "Pendiente de verificacion"}</p>
+            </div>
+            <div className="kpi">
+              <strong>Telefono de recuperacion</strong>
+              <p className="muted" style={{ marginTop: ".5rem" }}>{recovery?.recoveryPhone || "Aun no configurado"}</p>
+              <p className="muted" style={{ marginTop: ".35rem" }}>{recovery?.recoveryPhoneVerified ? "Verificado" : "Guardado para siguiente fase OTP"}</p>
+            </div>
+            <div className="kpi">
+              <strong>Estado</strong>
+              <p className="muted" style={{ marginTop: ".5rem" }}>
+                {recoveryProtected ? "Tu cuenta ya tiene un metodo de recuperacion verificado." : "Configura y verifica al menos un correo de respaldo."}
+              </p>
             </div>
           </div>
 
+          <div className="profile-grid">
+            <div>
+              <label className="label">Correo de respaldo</label>
+              <div className="input-with-icon">
+                <Mail size={16} />
+                <input
+                  className="input"
+                  type="email"
+                  value={recovery?.backupEmail || ""}
+                  onChange={(e) => onRecoveryFieldChange("backupEmail", e.target.value)}
+                  placeholder="respaldo@tuempresa.com"
+                />
+              </div>
+            </div>
+            <div>
+              <label className="label">Telefono de recuperacion</label>
+              <div className="input-with-icon">
+                <Phone size={16} />
+                <input
+                  className="input"
+                  value={recovery?.recoveryPhone || ""}
+                  onChange={(e) => onRecoveryFieldChange("recoveryPhone", e.target.value)}
+                  placeholder="+57 300 123 4567"
+                />
+              </div>
+            </div>
+          </div>
+
+          {!recovery?.backupEmailVerified && recovery?.backupEmail ? (
+            <div className="notice">
+              <span>
+                Verifica el correo de respaldo para usarlo en recuperacion.
+                {recovery?.backupEmailVerificationExpiresAt ? " El enlace actual vence pronto." : ""}
+              </span>
+            </div>
+          ) : null}
+
+          <div className="actions">
+            <button className="btn btn-secondary" type="button" onClick={onSaveRecovery} disabled={recoveryLoading}>
+              {recoveryLoading ? <RefreshCw size={16} /> : <Mail size={16} />}
+              {recoveryLoading ? "Guardando..." : "Guardar recuperacion"}
+            </button>
+            {recovery?.backupEmail && !recovery?.backupEmailVerified ? (
+              <button className="btn btn-secondary" type="button" onClick={onResendRecoveryVerification} disabled={recoveryLoading}>
+                <Send size={16} /> Reenviar verificacion
+              </button>
+            ) : null}
+          </div>
+
+          {recoveryMessage ? <p className="notice">{recoveryMessage}</p> : null}
+        </AccordionSection>
+
+        <AccordionSection
+          id="links"
+          title="Enlaces"
+          copy="Agrega y ordena los canales principales de tu negocio."
+          openSection={openSection}
+          onToggle={toggleSection}
+          trailing={<span className="status-badge">{profileLinks.length} enlaces</span>}
+        >
           <div className="link-toolbar">
             <select className="select" value={selectedType} onChange={(e) => setSelectedType(e.target.value)} disabled={!canEdit}>
               {LINK_CATALOG.map((item) => (
                 <option key={item.type} value={item.type}>
                   {item.label}
-                  {getLinkTypeCount(profileLinks, item.type) >= getLinkTypeLimit(item.type) ? " · limite alcanzado" : ""}
+                  {getLinkTypeCount(profileLinks, item.type) >= getLinkTypeLimit(item.type) ? " - limite alcanzado" : ""}
                 </option>
               ))}
             </select>
@@ -352,13 +507,20 @@ export function ProfileForm({ token, profile, onSaved, canEdit }) {
               </div>
             )}
           </div>
-        </section>
+        </AccordionSection>
 
-        <section className="dashboard-section panel">
+        <AccordionSection
+          id="appearance"
+          title="Apariencia"
+          copy="Usa un preset o abre el modo avanzado para personalizar con control."
+          openSection={openSection}
+          onToggle={toggleSection}
+          trailing={<span className="status-badge">{appearance.advancedEnabled ? "Avanzado" : "Preset"}</span>}
+        >
           <div className="dashboard-section-head">
             <div>
-              <h2 className="section-title">Apariencia</h2>
-              <p className="section-copy">Usa un preset para avanzar rapido o activa el modo avanzado para personalizar sin romper la legibilidad.</p>
+              <h3 className="section-title" style={{ fontSize: "1.05rem" }}>Diseño de la landing</h3>
+              <p className="section-copy">Mantenemos el estilo guiado para que tu Linka se vea limpia y legible.</p>
             </div>
             <button
               className={`btn ${appearance.advancedEnabled ? "btn-primary" : "btn-secondary"}`}
@@ -421,14 +583,17 @@ export function ProfileForm({ token, profile, onSaved, canEdit }) {
             <button className="btn btn-secondary" type="button" onClick={resetAppearance}>
               <RotateCcw size={16} /> Restablecer
             </button>
-            <button className="btn btn-primary" type="submit" disabled={loading || !canEdit || appearanceWarnings.length > 0}>
-              {loading ? <RefreshCw size={16} /> : null}
-              Guardar cambios
-            </button>
           </div>
+        </AccordionSection>
 
-          {message ? <p className="notice">{message}</p> : null}
-        </section>
+        <div className="actions editor-form-footer">
+          <button className="btn btn-primary" type="submit" disabled={loading || !canEdit || appearanceWarnings.length > 0}>
+            {loading ? <RefreshCw size={16} /> : null}
+            Guardar cambios
+          </button>
+        </div>
+
+        {message ? <p className="notice">{message}</p> : null}
       </form>
 
       <aside className="preview-shell">

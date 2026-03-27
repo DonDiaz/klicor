@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Script from "next/script";
-import { AlertTriangle, CheckCircle2, Copy, CreditCard, Download, ExternalLink, LogOut, Mail, Phone, Send, ShieldAlert } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Copy, CreditCard, Download, ExternalLink, LogOut, Send, ShieldAlert } from "lucide-react";
 import { sendEmailVerification, signOut } from "firebase/auth";
 import { BrandLogo } from "@/components/brand-logo";
 import { getClientAuth } from "@/lib/firebase-client";
@@ -222,6 +222,13 @@ export function DashboardClient() {
   const isAdmin = data.user.role === "admin";
   const statusTone = getStatusTone(data.user.status);
 
+  function handleRecoveryFieldChange(field, value) {
+    setRecovery((current) => ({
+      ...current,
+      [field]: value,
+    }));
+  }
+
   return (
     <main className="shell dashboard-shell">
       <Script src="https://sdk.mercadopago.com/js/v2" strategy="afterInteractive" onLoad={() => setSdkReady(true)} />
@@ -234,7 +241,7 @@ export function DashboardClient() {
           </div>
           <div className={`status-badge ${statusTone}`}>
             {statusTone === "success" ? <CheckCircle2 size={14} /> : statusTone === "warning" ? <AlertTriangle size={14} /> : <ShieldAlert size={14} />}
-            <span>{getPlanLabel(data.user.plan)} · {data.user.status}</span>
+            <span>{getPlanLabel(data.user.plan)} - {data.user.status}</span>
           </div>
         </div>
 
@@ -304,93 +311,18 @@ export function DashboardClient() {
         token={token}
         profile={data.user}
         canEdit={canEdit}
+        recovery={recovery}
+        recoveryLoading={recoveryLoading}
+        recoveryMessage={recoveryMessage}
+        onRecoveryFieldChange={handleRecoveryFieldChange}
+        onSaveRecovery={saveRecoverySettings}
+        onResendRecoveryVerification={resendRecoveryVerification}
         onSaved={(userData) => setData({
           ...data,
           user: userData,
           publicUrl: userData.username ? `${window.location.origin}/${userData.username}` : "",
         })}
       />
-
-      <section className="card qr-card">
-        <div className="dashboard-section-head">
-          <div>
-            <h2 className="section-title">Seguridad y recuperacion</h2>
-            <p className="section-copy">Protege tu QR y tu enlace con un correo de respaldo y un telefono de recuperacion.</p>
-          </div>
-          <span className={`status-badge ${recovery.backupEmailVerified ? "success" : ""}`}>
-            {recovery.backupEmailVerified ? "Protegida" : "Pendiente"}
-          </span>
-        </div>
-
-        <div className="grid-3">
-          <div className="kpi">
-            <strong>Correo de respaldo</strong>
-            <p className="muted" style={{ marginTop: ".5rem" }}>{recovery.backupEmail || "Aun no configurado"}</p>
-            <p className="muted" style={{ marginTop: ".35rem" }}>{recovery.backupEmailVerified ? "Verificado" : "Pendiente de verificacion"}</p>
-          </div>
-          <div className="kpi">
-            <strong>Telefono de recuperacion</strong>
-            <p className="muted" style={{ marginTop: ".5rem" }}>{recovery.recoveryPhone || "Aun no configurado"}</p>
-            <p className="muted" style={{ marginTop: ".35rem" }}>{recovery.recoveryPhoneVerified ? "Verificado" : "Guardado para siguiente fase OTP"}</p>
-          </div>
-          <div className="kpi">
-            <strong>Estado</strong>
-            <p className="muted" style={{ marginTop: ".5rem" }}>
-              {recovery.backupEmailVerified ? "Tu cuenta ya tiene un metodo de recuperacion verificado." : "Configura y verifica al menos un correo de respaldo."}
-            </p>
-          </div>
-        </div>
-
-        <div className="profile-grid">
-          <div>
-            <label className="label">Correo de respaldo</label>
-            <div className="input-with-icon">
-              <Mail size={16} />
-              <input
-                className="input"
-                type="email"
-                value={recovery.backupEmail}
-                onChange={(e) => setRecovery((current) => ({ ...current, backupEmail: e.target.value }))}
-                placeholder="respaldo@tuempresa.com"
-              />
-            </div>
-          </div>
-          <div>
-            <label className="label">Telefono de recuperacion</label>
-            <div className="input-with-icon">
-              <Phone size={16} />
-              <input
-                className="input"
-                value={recovery.recoveryPhone}
-                onChange={(e) => setRecovery((current) => ({ ...current, recoveryPhone: e.target.value }))}
-                placeholder="+57 300 123 4567"
-              />
-            </div>
-          </div>
-        </div>
-
-        {!recovery.backupEmailVerified && recovery.backupEmail ? (
-          <div className="notice">
-            <span>
-              Verifica el correo de respaldo para usarlo en recuperacion.
-              {recovery.backupEmailVerificationExpiresAt ? " El enlace actual vence pronto." : ""}
-            </span>
-          </div>
-        ) : null}
-
-        <div className="actions">
-          <button className="btn btn-primary" type="button" onClick={saveRecoverySettings} disabled={recoveryLoading}>
-            {recoveryLoading ? "Guardando..." : "Guardar recuperacion"}
-          </button>
-          {recovery.backupEmail && !recovery.backupEmailVerified ? (
-            <button className="btn btn-secondary" type="button" onClick={resendRecoveryVerification} disabled={recoveryLoading}>
-              Reenviar verificacion
-            </button>
-          ) : null}
-        </div>
-
-        {recoveryMessage ? <p className="notice">{recoveryMessage}</p> : null}
-      </section>
 
       <section className="card qr-card">
         <div className="dashboard-section-head">
