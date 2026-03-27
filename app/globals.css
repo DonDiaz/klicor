@@ -290,18 +290,26 @@ img { max-width: 100%; display: block; }
 }
 
 .landing-login-trigger {
+  min-height: 42px;
+  padding: 0.75rem 1rem;
   border: 0;
-  padding: 0;
-  background: transparent;
-  color: var(--text-secondary);
+  border-radius: 12px;
+  background: var(--primary);
+  color: white;
   font: inherit;
   font-size: 0.95rem;
-  font-weight: 500;
+  font-weight: 600;
+  box-shadow: 0 16px 34px rgba(91, 33, 182, 0.2);
   cursor: pointer;
 }
 
 .landing-login-trigger:hover {
-  color: var(--text-primary);
+  background: var(--primary-hover);
+}
+
+.landing-login-popover {
+  position: relative;
+  display: inline-flex;
 }
 
 .landing-hero {
@@ -633,20 +641,13 @@ img { max-width: 100%; display: block; }
   color: var(--text-primary);
 }
 
-.landing-modal-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 40;
-  display: grid;
-  place-items: center;
-  padding: 1.25rem;
-  background: rgba(11, 16, 32, 0.52);
-  backdrop-filter: blur(10px);
-}
-
 .landing-modal-shell {
-  width: min(460px, 100%);
-  max-height: min(90vh, 880px);
+  position: absolute;
+  top: calc(100% + 0.8rem);
+  right: 0;
+  z-index: 40;
+  width: min(430px, calc(100vw - 2rem));
+  max-height: min(82vh, 820px);
   overflow: auto;
   padding: 1.1rem;
   border-radius: 24px;
@@ -1314,6 +1315,20 @@ img { max-width: 100%; display: block; }
   .landing-nav-links {
     flex-wrap: wrap;
     gap: 0.9rem 1rem;
+  }
+
+  .landing-login-popover {
+    width: 100%;
+  }
+
+  .landing-login-trigger {
+    width: 100%;
+  }
+
+  .landing-modal-shell {
+    left: 0;
+    right: auto;
+    width: min(430px, calc(100vw - 2rem));
   }
 
   .landing-hero,
