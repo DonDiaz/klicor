@@ -14,15 +14,16 @@ export async function generateMetadata({ params }) {
   const canonicalUsername = user.usernameLower || username.toLowerCase();
   const canonicalUrl = buildVanityProfileUrl(canonicalUsername);
   const imageUrl = `${canonicalUrl}/opengraph-image`;
+  const title = user.businessName;
 
   return {
-    title: `${user.businessName} | Linka`,
+    title,
     description,
     alternates: {
       canonical: canonicalUrl,
     },
     openGraph: {
-      title: `${user.businessName} | Linka`,
+      title,
       description,
       url: canonicalUrl,
       type: "website",
@@ -37,7 +38,7 @@ export async function generateMetadata({ params }) {
     },
     twitter: {
       card: "summary_large_image",
-      title: `${user.businessName} | Linka`,
+      title,
       description,
       images: [imageUrl],
     },
