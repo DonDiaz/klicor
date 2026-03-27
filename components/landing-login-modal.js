@@ -53,13 +53,7 @@ export function LandingLoginModal() {
           aria-labelledby="landing-login-title"
         >
           <div className="landing-modal-head">
-            <div className="stack" style={{ gap: "0.35rem" }}>
-              <span className="pill landing-soft-pill">Acceso</span>
-              <h2 id="landing-login-title" className="section-title" style={{ fontSize: "1.45rem" }}>
-                Inicia sesion en Linka
-              </h2>
-              <p className="section-copy">Entra con tu correo o con Google para volver a tu panel.</p>
-            </div>
+            <div id="landing-login-title" />
             <button className="landing-modal-close" type="button" onClick={() => setOpen(false)} aria-label="Cerrar modal">
               <X size={18} />
             </button>
