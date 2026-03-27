@@ -1,5 +1,6 @@
 import { notFound, redirect } from "next/navigation";
-import { getPublicProfileByUsername } from "@/lib/public-profiles";
+import { buildPublicProfileDescription, getPublicProfileByUsername } from "@/lib/public-profiles";
+import { buildVanityProfileUrl } from "@/lib/public-profile-links";
 import { LandingView } from "@/components/landing-view";
 
 export async function generateMetadata({ params }) {
@@ -8,7 +9,39 @@ export async function generateMetadata({ params }) {
   if (!user) {
     return { title: "No encontrado" };
   }
-  return { title: `${user.businessName} | BioImpulso` };
+
+  const description = buildPublicProfileDescription(user);
+  const canonicalUsername = user.usernameLower || username.toLowerCase();
+  const canonicalUrl = buildVanityProfileUrl(canonicalUsername);
+  const imageUrl = `${canonicalUrl}/opengraph-image`;
+
+  return {
+    title: `${user.businessName} | Linka`,
+    description,
+    alternates: {
+      canonical: canonicalUrl,
+    },
+    openGraph: {
+      title: `${user.businessName} | Linka`,
+      description,
+      url: canonicalUrl,
+      type: "website",
+      images: [
+        {
+          url: imageUrl,
+          width: 1200,
+          height: 630,
+          alt: `Vista previa de ${user.businessName}`,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${user.businessName} | Linka`,
+      description,
+      images: [imageUrl],
+    },
+  };
 }
 
 export default async function PublicPage({ params }) {
