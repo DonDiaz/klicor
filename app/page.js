@@ -38,9 +38,11 @@ export default function HomePage() {
           <nav className="landing-nav-links" aria-label="Principal">
             <a href="#como-funciona">Como funciona</a>
             <a href="#precios">Precios</a>
-            <Link href="/login">Iniciar sesion</Link>
+            <LandingLoginModal />
           </nav>
-          <LandingLoginModal />
+          <Link className="btn btn-primary" href="/login">
+            Crear mi Linka
+          </Link>
         </div>
       </header>
 

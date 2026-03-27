@@ -34,7 +34,7 @@ export function LandingLoginModal() {
 
   return (
     <>
-      <button className="btn btn-secondary" type="button" onClick={() => setOpen(true)}>
+      <button className="landing-login-trigger" type="button" onClick={() => setOpen(true)}>
         Iniciar sesion
       </button>
 

@@ -289,6 +289,21 @@ img { max-width: 100%; display: block; }
   color: var(--text-primary);
 }
 
+.landing-login-trigger {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.landing-login-trigger:hover {
+  color: var(--text-primary);
+}
+
 .landing-hero {
   display: grid;
   grid-template-columns: minmax(0, 1.02fr) minmax(360px, 0.98fr);
@@ -630,10 +645,10 @@ img { max-width: 100%; display: block; }
 }
 
 .landing-modal-shell {
-  width: min(560px, 100%);
+  width: min(460px, 100%);
   max-height: min(90vh, 880px);
   overflow: auto;
-  padding: 1.25rem;
+  padding: 1.1rem;
   border-radius: 24px;
   border: 1px solid rgba(226, 232, 240, 0.95);
   background: rgba(248, 250, 252, 0.98);
@@ -662,6 +677,13 @@ img { max-width: 100%; display: block; }
 .landing-modal-close:hover {
   color: var(--text-primary);
   border-color: rgba(91, 33, 182, 0.18);
+}
+
+.landing-modal-shell .auth-card {
+  border: 0;
+  box-shadow: none;
+  background: transparent;
+  padding: 0;
 }
 
 .marketing-hero {
