@@ -268,7 +268,7 @@ export function DashboardClient() {
         </div>
         <div className="kpi">
           <strong>QR</strong>
-          <p className="muted" style={{ marginTop: ".5rem" }}>{data.user.qrUrl ? "Listo para descargar" : "Se genera al guardar el username"}</p>
+          <p className="muted" style={{ marginTop: ".5rem" }}>{data.user.qrUrl ? "Permanente aunque cambies el username" : "Se genera al guardar el username"}</p>
           {data.user.qrUrl ? (
             <div className="actions" style={{ marginTop: ".85rem" }}>
               <button className="btn btn-secondary" type="button" onClick={handleQrDownload}>
@@ -321,6 +321,7 @@ export function DashboardClient() {
           ...data,
           user: userData,
           publicUrl: userData.username ? `${window.location.origin}/${userData.username}` : "",
+          stablePublicUrl: userData.stablePublicUrl || data.stablePublicUrl,
         })}
       />
 

@@ -1,4 +1,4 @@
-﻿import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { getAccountView, getUserByUsername } from "@/lib/firestore";
 import { LandingView } from "@/components/landing-view";
 
@@ -16,6 +16,10 @@ export default async function PublicPage({ params }) {
   const data = await getUserByUsername(username);
   if (!data) {
     notFound();
+  }
+
+  if (data.usernameLower && data.usernameLower !== username.toLowerCase()) {
+    redirect(`/${data.usernameLower}`);
   }
 
   const user = getAccountView(data);

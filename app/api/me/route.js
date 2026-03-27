@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { buildVanityProfileUrl } from "@/lib/public-profile-links";
 import { formatDate, toDate } from "@/lib/utils";
 import { verifyRequest, requireAdmin } from "@/lib/auth";
 import { getAccountView, getAdminSettings } from "@/lib/firestore";
@@ -34,7 +35,8 @@ export async function GET(request) {
         expiresAtLabel: formatDate(account.expiresAt),
       },
       settings,
-      publicUrl: account.username ? `${process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") || "http://localhost:3000"}/${account.username}` : "",
+      publicUrl: buildVanityProfileUrl(account.username),
+      stablePublicUrl: account.stablePublicUrl || "",
       adminUsers,
     });
   } catch (error) {

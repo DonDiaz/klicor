@@ -337,13 +337,13 @@ export function ProfileForm({
                 disabled={!canEdit}
                 required
               />
-              <p className="muted" style={{ marginTop: ".45rem" }}>Este valor crea tu URL publica y tu codigo QR.</p>
+              <p className="muted" style={{ marginTop: ".45rem" }}>Este valor cambia tu URL visible. Tu enlace anterior y tu QR se mantienen funcionando.</p>
             </div>
           </div>
 
           {usernameChanged ? (
-            <div className="notice notice-danger">
-              <span>Si cambias el username, tu link actual y tu QR actual dejan de funcionar y se reemplazan por la nueva version.</span>
+            <div className="notice">
+              <span>Al guardar, tu URL visible se actualiza al nuevo username. Los enlaces anteriores y el QR siguen resolviendo a tu perfil.</span>
             </div>
           ) : null}
 
