@@ -126,10 +126,11 @@ export function DashboardClient() {
   }
 
   async function handleCopyPublicUrl() {
-    if (!data?.publicUrl) return;
+    const nextUrl = data?.shareUrl || data?.publicUrl;
+    if (!nextUrl) return;
     try {
-      await navigator.clipboard.writeText(data.publicUrl);
-      setError("Enlace copiado al portapapeles.");
+      await navigator.clipboard.writeText(nextUrl);
+      setError("Enlace copiado y listo para compartir.");
     } catch {
       setError("No pudimos copiar el enlace.");
     }
@@ -321,6 +322,7 @@ export function DashboardClient() {
           ...data,
           user: userData,
           publicUrl: userData.username ? `${window.location.origin}/${userData.username}` : "",
+          shareUrl: userData.shareUrl || data.shareUrl,
           stablePublicUrl: userData.stablePublicUrl || data.stablePublicUrl,
         })}
       />

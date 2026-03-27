@@ -1,8 +1,12 @@
 import { NextResponse } from "next/server";
+import { buildShareProfileUrl } from "@/lib/public-profile-links";
 import { profileSchema } from "@/lib/schemas";
 import { verifyRequest } from "@/lib/auth";
 import { getAccountView, updateUserProfile } from "@/lib/firestore";
 import { getAppearanceWarnings } from "@/lib/theme-system";
+import { toDate } from "@/lib/utils";
+
+const SHARE_LINK_VERSION = "v1";
 
 export async function POST(request) {
   try {
@@ -30,12 +34,14 @@ export async function POST(request) {
     const photo = formData.get("photo");
     const nextUser = await updateUserProfile(user.uid, parsed, photo?.size ? photo : null);
     const account = getAccountView(nextUser);
+    const updatedAtMs = toDate(account.updatedAt)?.getTime() || 0;
 
     return NextResponse.json({
       user: {
         ...account,
         trialEndsAtLabel: account.trialEndsAt?.toISOString() || null,
         expiresAtLabel: account.expiresAt?.toISOString() || null,
+        shareUrl: buildShareProfileUrl(account.username, `${SHARE_LINK_VERSION}-${updatedAtMs}`),
       },
     });
   } catch (error) {

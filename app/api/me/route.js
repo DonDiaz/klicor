@@ -1,15 +1,18 @@
 import { NextResponse } from "next/server";
-import { buildVanityProfileUrl } from "@/lib/public-profile-links";
+import { buildShareProfileUrl, buildVanityProfileUrl } from "@/lib/public-profile-links";
 import { formatDate, toDate } from "@/lib/utils";
 import { verifyRequest, requireAdmin } from "@/lib/auth";
 import { getAccountView, getAdminSettings } from "@/lib/firestore";
 import { getAdminDb } from "@/lib/firebase-admin";
+
+const SHARE_LINK_VERSION = "v1";
 
 export async function GET(request) {
   try {
     const { user } = await verifyRequest(request);
     const settings = await getAdminSettings();
     const account = getAccountView(user);
+    const updatedAtMs = toDate(account.updatedAt)?.getTime() || 0;
     let adminUsers = [];
 
     if (user.role === "admin") {
@@ -36,6 +39,7 @@ export async function GET(request) {
       },
       settings,
       publicUrl: buildVanityProfileUrl(account.username),
+      shareUrl: buildShareProfileUrl(account.username, `${SHARE_LINK_VERSION}-${updatedAtMs}`),
       stablePublicUrl: account.stablePublicUrl || "",
       adminUsers,
     });

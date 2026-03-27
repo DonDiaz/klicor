@@ -3,6 +3,8 @@ import { buildPublicProfileDescription, getPublicProfileByUsername } from "@/lib
 import { buildVanityProfileUrl } from "@/lib/public-profile-links";
 import { LandingView } from "@/components/landing-view";
 
+const SHARE_IMAGE_VERSION = "v3";
+
 export async function generateMetadata({ params }) {
   const { username } = await params;
   const user = await getPublicProfileByUsername(username);
@@ -13,7 +15,7 @@ export async function generateMetadata({ params }) {
   const description = buildPublicProfileDescription(user);
   const canonicalUsername = user.usernameLower || username.toLowerCase();
   const canonicalUrl = buildVanityProfileUrl(canonicalUsername);
-  const imageUrl = `${canonicalUrl}/opengraph-image`;
+  const imageUrl = `${canonicalUrl}/opengraph-image?cache=${SHARE_IMAGE_VERSION}-${user.updatedAtMs || 0}`;
   const title = user.businessName;
 
   return {
