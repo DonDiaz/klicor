@@ -1305,6 +1305,10 @@ img { max-width: 100%; display: block; }
 }
 
 @media (max-width: 980px) {
+  .mobile-demo-link {
+    display: inline-flex;
+  }
+
   .landing-nav {
     min-height: auto;
     padding: 1rem 0;
