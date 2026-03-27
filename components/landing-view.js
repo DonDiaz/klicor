@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { Globe } from "lucide-react";
 import { LINK_CATALOG_MAP } from "@/lib/link-catalog";
 import { hexToRgba, normalizeAppearance } from "@/lib/theme-system";
@@ -76,7 +75,15 @@ export function LandingView({ user, preview = false }) {
       <section className="public-card" style={cardStyle}>
         <div className="public-accent-bar" style={{ background: appearance.primaryColor }} />
         {user.photo ? (
-          <img className="avatar" src={user.photo} alt={user.businessName} style={{ borderRadius: AVATAR_RADIUS_MAP[appearance.avatarShape] }} />
+          <img
+            className="avatar"
+            src={user.photo}
+            alt={user.businessName}
+            loading="eager"
+            decoding="async"
+            fetchPriority="high"
+            style={{ borderRadius: AVATAR_RADIUS_MAP[appearance.avatarShape] }}
+          />
         ) : (
           <div
             className="avatar"
@@ -115,11 +122,7 @@ export function LandingView({ user, preview = false }) {
               return <div className="public-link" style={{ ...buttonStyle, borderRadius: RADIUS_MAP[appearance.buttonRadius] }} key={item.id}>{content}</div>;
             }
 
-            return (
-              <Link className="public-link" style={{ ...buttonStyle, borderRadius: RADIUS_MAP[appearance.buttonRadius] }} key={item.id} href={`/api/analytics/click?username=${user.username}&button=${item.type}&target=${encodeURIComponent(item.url)}`}>
-                {content}
-              </Link>
-            );
+            return <a className="public-link" style={{ ...buttonStyle, borderRadius: RADIUS_MAP[appearance.buttonRadius] }} key={item.id} href={`/api/analytics/click?username=${user.username}&button=${item.type}&target=${encodeURIComponent(item.url)}`}>{content}</a>;
           }) : (
             <div className="public-link" style={{ ...buttonStyle, borderRadius: RADIUS_MAP[appearance.buttonRadius] }}>
               <Globe size={18} />

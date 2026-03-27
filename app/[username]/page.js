@@ -1,10 +1,10 @@
 import { notFound, redirect } from "next/navigation";
-import { getAccountView, getUserByUsername } from "@/lib/firestore";
+import { getPublicProfileByUsername } from "@/lib/public-profiles";
 import { LandingView } from "@/components/landing-view";
 
 export async function generateMetadata({ params }) {
   const { username } = await params;
-  const user = await getUserByUsername(username);
+  const user = await getPublicProfileByUsername(username);
   if (!user) {
     return { title: "No encontrado" };
   }
@@ -13,7 +13,7 @@ export async function generateMetadata({ params }) {
 
 export default async function PublicPage({ params }) {
   const { username } = await params;
-  const data = await getUserByUsername(username);
+  const data = await getPublicProfileByUsername(username);
   if (!data) {
     notFound();
   }
@@ -22,8 +22,7 @@ export default async function PublicPage({ params }) {
     redirect(`/${data.usernameLower}`);
   }
 
-  const user = getAccountView(data);
-  if (["suspended", "cancelled"].includes(user.status)) {
+  if (["suspended", "cancelled"].includes(data.status)) {
     return (
       <main className="public-page">
         <section className="card" style={{ padding: "2rem", maxWidth: "560px" }}>
@@ -34,5 +33,5 @@ export default async function PublicPage({ params }) {
     );
   }
 
-  return <LandingView user={user} />;
+  return <LandingView user={data} />;
 }

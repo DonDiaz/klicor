@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
-import { getUserByPublicLinkId } from "@/lib/firestore";
+import { getPublicProfileByPublicLinkId } from "@/lib/public-profiles";
 import { buildVanityProfilePath } from "@/lib/public-profile-links";
 
 export async function GET(request, { params }) {
   const { publicLinkId } = await params;
-  const user = await getUserByPublicLinkId(publicLinkId);
+  const user = await getPublicProfileByPublicLinkId(publicLinkId);
 
   if (!user?.usernameLower) {
     return new NextResponse("Not found", { status: 404 });
