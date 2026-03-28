@@ -35,6 +35,11 @@ export function LandingView({ user, preview = false }) {
   const links = user.profileLinks || [];
   const paymentKey = links.find((item) => item.type === "payment_key");
   const visibleLinks = links.filter((item) => item.type !== "payment_key");
+  const paymentQrUrl = user.paymentQrUrl
+    ? preview
+      ? user.paymentQrUrl
+      : `/${user.username}/payment-qr`
+    : "";
   const appearance = normalizeAppearance(user.settings);
 
   const pageBackground = appearance.backgroundStyle === "gradient"
@@ -120,7 +125,7 @@ export function LandingView({ user, preview = false }) {
           {paymentKey ? (
             <PaymentKeyCard
               item={paymentKey}
-              qrImageUrl={user.paymentQrUrl || ""}
+              qrImageUrl={paymentQrUrl}
               preview={preview}
               buttonStyle={buttonStyle}
               buttonRadius={RADIUS_MAP[appearance.buttonRadius]}

@@ -158,6 +158,7 @@ export function ProfileForm({
   const [selectedType, setSelectedType] = useState("whatsapp");
   const [openSection, setOpenSection] = useState(null);
   const [presetsOpen, setPresetsOpen] = useState(false);
+  const savedPaymentQrUrl = profile?.paymentQrUrl && profile?.username ? `/${profile.username}/payment-qr` : profile?.paymentQrUrl || "";
 
   useEffect(() => {
     setForm({
@@ -202,7 +203,7 @@ export function ProfileForm({
     businessName: form.businessName || "Tu negocio",
     username: form.username || "tu-usuario",
     photo: photoPreviewUrl || profile?.photo || "",
-    paymentQrUrl: paymentQrPreviewUrl || profile?.paymentQrUrl || "",
+    paymentQrUrl: paymentQrPreviewUrl || savedPaymentQrUrl,
     settings: appearance,
     profileLinks: profileLinks
       .filter((item) => item.value?.trim())
@@ -210,7 +211,7 @@ export function ProfileForm({
         ...item,
         url: normalizeLinkUrl(item),
       })),
-  }), [appearance, form.businessName, form.username, paymentQrPreviewUrl, photoPreviewUrl, profile?.paymentQrUrl, profile?.photo, profileLinks]);
+  }), [appearance, form.businessName, form.username, paymentQrPreviewUrl, photoPreviewUrl, profile?.photo, profileLinks, savedPaymentQrUrl]);
 
   const appearanceWarnings = useMemo(() => getAppearanceWarnings(appearance), [appearance]);
   const appearanceSuggestions = useMemo(() => getAppearanceSuggestions(appearance), [appearance]);
@@ -556,9 +557,9 @@ export function ProfileForm({
                       <p className="muted payment-key-upload-copy">
                         Este QR no lo genera Linka. Si cambias la llave, guarda una nueva imagen oficial del QR.
                       </p>
-                      {paymentQrPreviewUrl || profile?.paymentQrUrl ? (
+                      {paymentQrPreviewUrl || savedPaymentQrUrl ? (
                         <div className="payment-qr-preview">
-                          <img src={paymentQrPreviewUrl || profile?.paymentQrUrl} alt="QR oficial de pago" />
+                          <img src={paymentQrPreviewUrl || savedPaymentQrUrl} alt="QR oficial de pago" />
                         </div>
                       ) : null}
                     </div>
