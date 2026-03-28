@@ -7,7 +7,7 @@ const inter = Inter({
 });
 
 export const metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://bioimpulso-saa-s.vercel.app"),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://klicor.com"),
   title: "Klicor",
   description: "Klicor - todos tus enlaces en un solo lugar.",
   manifest: "/site.webmanifest",

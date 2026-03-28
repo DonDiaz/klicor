@@ -1,19 +1,20 @@
-# BioImpulso SaaS
+# Klicor SaaS
 
-MVP tipo link in bio para negocios y emprendedores.
+SaaS tipo link in bio para negocios y emprendedores.
 
 ## Incluye
 
 - Next.js App Router listo para Vercel
 - Firebase Auth con email/contrasena y Google
 - Firestore para usuarios, pagos, analytics y settings
-- Firebase Storage para imagen del negocio y QR
-- Landing publica por username
-- QR PNG de 400px con actualizacion solo al cambiar el username
+- Firebase Storage para imagen del negocio, QR del perfil y QR oficial de llave
+- Landing publica por username con resolucion estable por `publicLinkId`
+- QR permanente que no se rompe al cambiar el username
 - Prueba gratuita de 30 dias
-- Pago anual manual con Mercado Pago
-- Periodo de gracia de 15 dias sin edicion
-- Suspension automatica de landing y correo al no pagar
+- Checkout Pro anual con Mercado Pago
+- Recuperacion por correo de respaldo con Resend
+- Boton `Guardar contacto` con vCard `.vcf`
+- Llave Bre-B opcional con QR oficial subido por el cliente
 - Panel administrativo para cambiar el valor anual
 
 ## Estructura
@@ -52,10 +53,11 @@ Copia `.env.example` a `.env.local` y completa:
 
 1. Crea un proyecto en Firebase.
 2. Activa Authentication con Email/Password y Google.
-3. Crea Firestore en modo production.
-4. Crea Firebase Storage.
-5. Genera una service account y copia sus credenciales en las variables de entorno server.
-6. Instala Firebase CLI y ejecuta:
+3. Agrega tus dominios productivos a `Authorized domains`.
+4. Crea Firestore en modo production.
+5. Crea Firebase Storage.
+6. Genera una service account y copia sus credenciales en las variables de entorno server.
+7. Instala Firebase CLI y ejecuta:
 
 ```bash
 firebase login
@@ -75,9 +77,19 @@ https://tu-dominio.com/api/billing/webhook
 
 4. El checkout se crea desde `/api/billing/create-preference`.
 
+## Resend
+
+1. Verifica tu dominio final en Resend.
+2. Configura `RESEND_API_KEY`.
+3. Usa un remitente valido en `EMAIL_FROM`, por ejemplo:
+
+```text
+Klicor <hola@tu-dominio.com>
+```
+
 ## Vercel
 
-1. Importa la carpeta `bioimpulso-saas` como nuevo proyecto.
+1. Importa el proyecto.
 2. Carga todas las variables de entorno.
 3. Deja activo `vercel.json` para el cron diario.
 4. Configura tu dominio final y actualiza `NEXT_PUBLIC_APP_URL`.
@@ -99,10 +111,10 @@ node scripts/bootstrap-firestore.mjs
 - La landing publica muestra pantalla de suspension cuando la cuenta entra en `suspended` o `cancelled`.
 - El cron mueve estados entre `trial`, `active`, `grace_period`, `suspended` y `cancelled`.
 - Los correos transaccionales salen por Resend si la API key esta configurada.
+- El QR del perfil se resuelve por `publicLinkId` para evitar roturas al cambiar username.
 
-## Pendientes recomendados para produccion
+## Pendientes recomendados
 
-- Verificar la firma del webhook de Mercado Pago con el secreto real.
 - Agregar pruebas E2E del flujo de pago.
-- Refinar templates de correo y branding definitivo.
+- Refinar templates de correo.
 - Agregar dashboard de analytics por boton.
