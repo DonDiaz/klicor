@@ -1207,6 +1207,10 @@ img { max-width: 100%; display: block; }
   gap: 1rem;
 }
 
+.appearance-grid-colors > :last-child:nth-child(odd) {
+  grid-column: 1 / -1;
+}
+
 .appearance-control {
   padding: 1rem;
   border-radius: 12px;
