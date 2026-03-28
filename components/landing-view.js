@@ -116,16 +116,17 @@ export function LandingView({ user, preview = false }) {
           </h1>
         </div>
 
-        {paymentKey ? (
-          <PaymentKeyCard
-            item={paymentKey}
-            preview={preview}
-            buttonStyle={buttonStyle}
-            buttonRadius={RADIUS_MAP[appearance.buttonRadius]}
-          />
-        ) : null}
-
         <div className="public-links">
+          {paymentKey ? (
+            <PaymentKeyCard
+              item={paymentKey}
+              qrImageUrl={user.paymentQrUrl || ""}
+              preview={preview}
+              buttonStyle={buttonStyle}
+              buttonRadius={RADIUS_MAP[appearance.buttonRadius]}
+            />
+          ) : null}
+
           {visibleLinks.length ? visibleLinks.map((item) => {
             const Icon = LINK_CATALOG_MAP[item.type]?.icon || Globe;
             const content = <><Icon size={18} /><span>{item.label}</span></>;
@@ -135,12 +136,12 @@ export function LandingView({ user, preview = false }) {
             }
 
             return <a className="public-link" style={{ ...buttonStyle, borderRadius: RADIUS_MAP[appearance.buttonRadius] }} key={item.id} href={`/api/analytics/click?username=${user.username}&button=${item.type}&target=${encodeURIComponent(item.url)}`}>{content}</a>;
-          }) : (
+          }) : preview ? (
             <div className="public-link" style={{ ...buttonStyle, borderRadius: RADIUS_MAP[appearance.buttonRadius] }}>
               <Globe size={18} />
               <span>{paymentKey ? "Agrega mas enlaces para completar tu landing" : "Agrega tus enlaces para ver la vista previa"}</span>
             </div>
-          )}
+          ) : null}
         </div>
       </section>
     </main>

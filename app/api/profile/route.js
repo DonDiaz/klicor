@@ -32,7 +32,11 @@ export async function POST(request) {
     }
 
     const photo = formData.get("photo");
-    const nextUser = await updateUserProfile(user.uid, parsed, photo?.size ? photo : null);
+    const paymentQrImage = formData.get("paymentQrImage");
+    const nextUser = await updateUserProfile(user.uid, parsed, {
+      photo: photo?.size ? photo : null,
+      paymentQrImage: paymentQrImage?.size ? paymentQrImage : null,
+    });
     const account = getAccountView(nextUser);
     const updatedAtMs = toDate(account.updatedAt)?.getTime() || 0;
 

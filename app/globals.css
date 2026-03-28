@@ -1413,10 +1413,25 @@ img { max-width: 100%; display: block; }
   margin-top: 1.5rem;
 }
 
+.payment-key-shell {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.payment-key-toggle {
+  width: 100%;
+  justify-content: space-between;
+}
+
+.payment-key-toggle-copy {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+
 .payment-key-card {
   display: grid;
   gap: 0.9rem;
-  margin-top: 1.4rem;
   padding: 1rem;
   border-radius: 18px;
   border: 1px solid rgba(100, 116, 139, 0.18);
@@ -1431,7 +1446,8 @@ img { max-width: 100%; display: block; }
   align-items: flex-start;
 }
 
-.payment-key-head p {
+.payment-key-head p,
+.payment-key-upload-copy {
   margin: 0.35rem 0 0;
   font-size: 0.92rem;
   color: var(--text-secondary);
@@ -1461,6 +1477,26 @@ img { max-width: 100%; display: block; }
 .payment-key-action {
   width: 100%;
   cursor: pointer;
+}
+
+.payment-key-upload {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.payment-qr-preview {
+  padding: 0.85rem;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  display: grid;
+  place-items: center;
+}
+
+.payment-qr-preview img {
+  width: min(220px, 100%);
+  height: auto;
+  border-radius: 12px;
 }
 
 .qr-modal-backdrop {

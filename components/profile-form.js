@@ -151,6 +151,8 @@ export function ProfileForm({
   const [appearance, setAppearance] = useState(normalizeAppearance(profile?.settings || APPEARANCE_DEFAULTS));
   const [photo, setPhoto] = useState(null);
   const [photoPreviewUrl, setPhotoPreviewUrl] = useState("");
+  const [paymentQrImage, setPaymentQrImage] = useState(null);
+  const [paymentQrPreviewUrl, setPaymentQrPreviewUrl] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [selectedType, setSelectedType] = useState("whatsapp");
@@ -164,6 +166,8 @@ export function ProfileForm({
     });
     setProfileLinks(normalizeLinks(profile));
     setAppearance(normalizeAppearance(profile?.settings || APPEARANCE_DEFAULTS));
+    setPhoto(null);
+    setPaymentQrImage(null);
   }, [profile]);
 
   useEffect(() => {
@@ -180,10 +184,25 @@ export function ProfileForm({
     };
   }, [photo]);
 
+  useEffect(() => {
+    if (!paymentQrImage) {
+      setPaymentQrPreviewUrl("");
+      return;
+    }
+
+    const nextUrl = URL.createObjectURL(paymentQrImage);
+    setPaymentQrPreviewUrl(nextUrl);
+
+    return () => {
+      URL.revokeObjectURL(nextUrl);
+    };
+  }, [paymentQrImage]);
+
   const previewUser = useMemo(() => ({
     businessName: form.businessName || "Tu negocio",
     username: form.username || "tu-usuario",
     photo: photoPreviewUrl || profile?.photo || "",
+    paymentQrUrl: paymentQrPreviewUrl || profile?.paymentQrUrl || "",
     settings: appearance,
     profileLinks: profileLinks
       .filter((item) => item.value?.trim())
@@ -191,7 +210,7 @@ export function ProfileForm({
         ...item,
         url: normalizeLinkUrl(item),
       })),
-  }), [appearance, form.businessName, form.username, photoPreviewUrl, profile?.photo, profileLinks]);
+  }), [appearance, form.businessName, form.username, paymentQrPreviewUrl, photoPreviewUrl, profile?.paymentQrUrl, profile?.photo, profileLinks]);
 
   const appearanceWarnings = useMemo(() => getAppearanceWarnings(appearance), [appearance]);
   const appearanceSuggestions = useMemo(() => getAppearanceSuggestions(appearance), [appearance]);
@@ -220,6 +239,7 @@ export function ProfileForm({
       body.append("profileLinks", JSON.stringify(profileLinks));
       body.append("appearance", JSON.stringify(appearance));
       if (photo) body.append("photo", photo);
+      if (paymentQrImage) body.append("paymentQrImage", paymentQrImage);
 
       const data = await apiFetch("/api/profile", {
         method: "POST",
@@ -307,6 +327,11 @@ export function ProfileForm({
   }
 
   const selectedPhotoLabel = photo ? photo.name : profile?.photo ? "Imagen actual cargada" : "Aun no has elegido imagen";
+  const selectedPaymentQrLabel = paymentQrImage
+    ? paymentQrImage.name
+    : profile?.paymentQrUrl
+      ? "QR oficial cargado"
+      : "Aun no has cargado un QR oficial";
   const usernameChanged = Boolean(profile?.username) && form.username.trim() && form.username.trim() !== profile.username;
   const recoveryProtected = Boolean(recovery?.backupEmailVerified);
 
@@ -508,6 +533,34 @@ export function ProfileForm({
                     <div className="link-row-message">
                       <label className="label">Mensaje inicial</label>
                       <input className="input" value={item.message || ""} placeholder="Hola, quiero informacion" onChange={(e) => updateLink(item.id, "message", e.target.value)} disabled={!canEdit} />
+                    </div>
+                  ) : null}
+                  {item.type === "payment_key" ? (
+                    <div className="link-row-message payment-key-upload">
+                      <label className="label">QR oficial del banco o billetera</label>
+                      <label className={`upload-card ${!canEdit ? "upload-card-disabled" : ""}`}>
+                        <input
+                          className="upload-input"
+                          type="file"
+                          accept="image/png,image/jpeg,image/webp"
+                          onChange={(e) => setPaymentQrImage(e.target.files?.[0] || null)}
+                          disabled={!canEdit}
+                        />
+                        <span className="upload-icon">{paymentQrImage || profile?.paymentQrUrl ? <ImagePlus size={20} /> : <UploadCloud size={20} />}</span>
+                        <span className="upload-copy">
+                          <strong>{paymentQrImage ? "Cambiar QR oficial" : "Subir QR oficial"}</strong>
+                          <span>{selectedPaymentQrLabel}</span>
+                          <small>Sube la imagen oficial generada en Nequi, Daviplata o tu banco</small>
+                        </span>
+                      </label>
+                      <p className="muted payment-key-upload-copy">
+                        Este QR no lo genera Linka. Si cambias la llave, guarda una nueva imagen oficial del QR.
+                      </p>
+                      {paymentQrPreviewUrl || profile?.paymentQrUrl ? (
+                        <div className="payment-qr-preview">
+                          <img src={paymentQrPreviewUrl || profile?.paymentQrUrl} alt="QR oficial de pago" />
+                        </div>
+                      ) : null}
                     </div>
                   ) : null}
                 </div>
