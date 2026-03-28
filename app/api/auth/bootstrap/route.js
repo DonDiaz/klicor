@@ -5,7 +5,7 @@ import { sendWelcomeEmail } from "@/lib/mailer";
 
 export async function POST(request) {
   try {
-    const { decoded, user } = await verifyRequest(request);
+    const { decoded, user, claimsUpdated } = await verifyRequest(request);
     const body = await request.json().catch(() => ({}));
     const updates = {
       emailVerified: Boolean(decoded.email_verified),
@@ -24,7 +24,7 @@ export async function POST(request) {
     }
 
     await getAdminDb().collection("users").doc(decoded.uid).set(updates, { merge: true });
-    return NextResponse.json({ ok: true, warning });
+    return NextResponse.json({ ok: true, warning, claimsUpdated });
   } catch (error) {
     return NextResponse.json({ error: error.message }, { status: 401 });
   }

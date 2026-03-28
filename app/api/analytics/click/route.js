@@ -1,14 +1,38 @@
-﻿import { NextResponse } from "next/server";
+import { NextResponse } from "next/server";
+import { resolveContactCardData } from "@/lib/contact-card";
 import { trackClick } from "@/lib/firestore";
+import { getPublicProfileByUsername } from "@/lib/public-profiles";
+import { sanitizeSlug } from "@/lib/utils";
 
-export async function GET(request) {
-  const username = request.nextUrl.searchParams.get("username");
-  const button = request.nextUrl.searchParams.get("button") || "unknown";
-  const target = request.nextUrl.searchParams.get("target") || "/";
+function resolveTrackedTarget(user, { button, linkId }) {
+  if (!user) return "";
 
-  if (username) {
-    await trackClick(username, button);
+  if (button === "contact_card") {
+    return resolveContactCardData(user).contactUrl || "";
   }
 
-  return NextResponse.redirect(target);
+  const safeLinkId = String(linkId || "").trim();
+  if (!safeLinkId) return "";
+
+  return user.profileLinks?.find((item) => item.id === safeLinkId && item.type === button)?.url || "";
+}
+
+export async function GET(request) {
+  const username = sanitizeSlug(request.nextUrl.searchParams.get("username"));
+  const button = String(request.nextUrl.searchParams.get("button") || "unknown").trim();
+  const linkId = request.nextUrl.searchParams.get("linkId") || "";
+
+  if (!username) {
+    return new NextResponse("Not found", { status: 404 });
+  }
+
+  const user = await getPublicProfileByUsername(username);
+  const target = resolveTrackedTarget(user, { button, linkId });
+
+  if (!target) {
+    return new NextResponse("Not found", { status: 404 });
+  }
+
+  await trackClick(username, button);
+  return NextResponse.redirect(new URL(target, request.url), 307);
 }

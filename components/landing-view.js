@@ -142,7 +142,7 @@ export function LandingView({ user, preview = false }) {
               return <div className="public-link" style={{ ...buttonStyle, borderRadius: RADIUS_MAP[appearance.buttonRadius] }} key={item.id}>{content}</div>;
             }
 
-            return <a className="public-link" style={{ ...buttonStyle, borderRadius: RADIUS_MAP[appearance.buttonRadius] }} key={item.id} href={`/api/analytics/click?username=${user.username}&button=${item.type}&target=${encodeURIComponent(item.url)}`}>{content}</a>;
+            return <a className="public-link" style={{ ...buttonStyle, borderRadius: RADIUS_MAP[appearance.buttonRadius] }} key={item.id} href={`/api/analytics/click?username=${user.username}&button=${item.type}&linkId=${encodeURIComponent(item.id)}`}>{content}</a>;
           }) : preview ? (
             <div className="public-link" style={{ ...buttonStyle, borderRadius: RADIUS_MAP[appearance.buttonRadius] }}>
               <Globe size={18} />
@@ -174,7 +174,7 @@ export function LandingView({ user, preview = false }) {
               color: appearance.buttonTextColor,
               boxShadow: `0 20px 44px ${hexToRgba(appearance.primaryColor, 0.32)}`,
             }}
-            href={`/api/analytics/click?username=${user.username}&button=contact_card&target=${encodeURIComponent(contactCard.contactUrl)}`}
+            href={`/api/analytics/click?username=${user.username}&button=contact_card`}
             aria-label="Guardar contacto"
             title="Guardar contacto"
           >

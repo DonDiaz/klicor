@@ -9,14 +9,15 @@ const SHARE_LINK_VERSION = "v1";
 
 export async function GET(request) {
   try {
-    const { user } = await verifyRequest(request);
+    const auth = await verifyRequest(request);
+    const { decoded, user } = auth;
     const settings = await getAdminSettings();
     const account = getAccountView(user);
     const updatedAtMs = toDate(account.updatedAt)?.getTime() || 0;
     let adminUsers = [];
 
     if (user.role === "admin") {
-      requireAdmin(user);
+      requireAdmin(auth);
       const usersSnap = await getAdminDb().collection("users").orderBy("createdAt", "desc").limit(25).get();
       adminUsers = usersSnap.docs.map((doc) => {
         const data = doc.data();
@@ -34,6 +35,8 @@ export async function GET(request) {
     return NextResponse.json({
       user: {
         ...account,
+        role: user.role,
+        emailVerified: Boolean(decoded.email_verified),
         trialEndsAtLabel: formatDate(account.trialEndsAt),
         expiresAtLabel: formatDate(account.expiresAt),
       },

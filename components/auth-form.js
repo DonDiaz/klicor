@@ -36,6 +36,7 @@ export function AuthForm({
       token,
       body: { welcome },
     });
+    await user.getIdToken(true);
 
     if (onSuccess) {
       onSuccess(user);

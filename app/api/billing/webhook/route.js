@@ -46,7 +46,11 @@ export async function POST(request) {
     });
 
     if (!signatureCheck.ok) {
-      return NextResponse.json({ error: "Firma de webhook no válida" }, { status: 401 });
+      const status = signatureCheck.reason === "missing_secret" ? 503 : 401;
+      const errorMessage = signatureCheck.reason === "missing_secret"
+        ? "Webhook de Mercado Pago no configurado"
+        : "Firma de webhook no válida";
+      return NextResponse.json({ error: errorMessage }, { status });
     }
 
     const payment = await getPayment(paymentId);
@@ -86,7 +90,7 @@ export async function POST(request) {
 
     return NextResponse.json({
       received: true,
-      verified: !signatureCheck.skipped,
+      verified: true,
     });
   } catch (error) {
     return NextResponse.json({ error: error.message }, { status: 400 });

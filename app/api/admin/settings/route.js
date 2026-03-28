@@ -5,8 +5,8 @@ import { priceSchema } from "@/lib/schemas";
 
 export async function POST(request) {
   try {
-    const { user } = await verifyRequest(request);
-    requireAdmin(user);
+    const auth = await verifyRequest(request);
+    requireAdmin(auth);
     const body = await request.json();
     const parsed = priceSchema.parse(body);
     await updateBillingPrice(parsed.annualPrice);
