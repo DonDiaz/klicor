@@ -1614,7 +1614,7 @@ img { max-width: 100%; display: block; }
 .floating-contact-button {
   position: fixed;
   right: max(1rem, env(safe-area-inset-right));
-  bottom: calc(1rem + env(safe-area-inset-bottom));
+  top: calc(1rem + env(safe-area-inset-top));
   width: 62px;
   height: 62px;
   border-radius: 999px;
@@ -1635,7 +1635,7 @@ img { max-width: 100%; display: block; }
 .floating-contact-button.is-preview {
   position: absolute;
   right: 1rem;
-  bottom: 1rem;
+  top: 1rem;
 }
 
 .mobile-demo-link {
