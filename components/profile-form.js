@@ -5,6 +5,7 @@ import {
   ChevronDown,
   ChevronUp,
   ImagePlus,
+  Link2,
   MonitorSmartphone,
   Paintbrush,
   Plus,
@@ -18,6 +19,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { apiFetch } from "@/lib/client-api";
+import { resolveContactCardData } from "@/lib/contact-card";
 import { canAddLinkType, getLinkTypeCount, getLinkTypeLimit, LINK_CATALOG, LINK_CATALOG_MAP } from "@/lib/link-catalog";
 import { LandingView } from "@/components/landing-view";
 import { APPEARANCE_DEFAULTS, APPEARANCE_PRESETS, APPEARANCE_SWATCHES, getAppearanceSuggestions, getAppearanceWarnings, normalizeAppearance } from "@/lib/theme-system";
@@ -56,11 +58,25 @@ function normalizeLinkUrl(item) {
     return digits ? `https://wa.me/${digits}?text=${encodeURIComponent(message)}` : "";
   }
 
+  if (meta?.kind === "email") {
+    return raw ? `mailto:${raw.toLowerCase()}` : "";
+  }
+
   if (meta?.kind === "text") {
     return "";
   }
 
   return /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
+}
+
+function normalizeContactCard(profile) {
+  return {
+    enabled: Boolean(profile?.contactCardEnabled),
+    name: profile?.contactCardName || "",
+    title: profile?.contactCardTitle || "",
+    whatsappLinkId: profile?.contactCardWhatsappLinkId || "",
+    phone: profile?.contactCardPhone || "",
+  };
 }
 
 function ColorEditor({ label, value, onChange, swatches }) {
@@ -153,6 +169,7 @@ export function ProfileForm({
   const [photoPreviewUrl, setPhotoPreviewUrl] = useState("");
   const [paymentQrImage, setPaymentQrImage] = useState(null);
   const [paymentQrPreviewUrl, setPaymentQrPreviewUrl] = useState("");
+  const [contactCard, setContactCard] = useState(normalizeContactCard(profile));
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [selectedType, setSelectedType] = useState("whatsapp");
@@ -169,6 +186,7 @@ export function ProfileForm({
     setAppearance(normalizeAppearance(profile?.settings || APPEARANCE_DEFAULTS));
     setPhoto(null);
     setPaymentQrImage(null);
+    setContactCard(normalizeContactCard(profile));
   }, [profile]);
 
   useEffect(() => {
@@ -200,10 +218,16 @@ export function ProfileForm({
   }, [paymentQrImage]);
 
   const previewUser = useMemo(() => ({
+    publicLinkId: profile?.publicLinkId || "",
     businessName: form.businessName || "Tu negocio",
     username: form.username || "tu-usuario",
     photo: photoPreviewUrl || profile?.photo || "",
     paymentQrUrl: paymentQrPreviewUrl || savedPaymentQrUrl,
+    contactCardEnabled: contactCard.enabled,
+    contactCardName: contactCard.name,
+    contactCardTitle: contactCard.title,
+    contactCardWhatsappLinkId: contactCard.whatsappLinkId,
+    contactCardPhone: contactCard.phone,
     settings: appearance,
     profileLinks: profileLinks
       .filter((item) => item.value?.trim())
@@ -211,13 +235,23 @@ export function ProfileForm({
         ...item,
         url: normalizeLinkUrl(item),
       })),
-  }), [appearance, form.businessName, form.username, paymentQrPreviewUrl, photoPreviewUrl, profile?.photo, profileLinks, savedPaymentQrUrl]);
+  }), [appearance, contactCard.enabled, contactCard.name, contactCard.phone, contactCard.title, contactCard.whatsappLinkId, form.businessName, form.username, paymentQrPreviewUrl, photoPreviewUrl, profile?.photo, profile?.publicLinkId, profileLinks, savedPaymentQrUrl]);
 
   const appearanceWarnings = useMemo(() => getAppearanceWarnings(appearance), [appearance]);
   const appearanceSuggestions = useMemo(() => getAppearanceSuggestions(appearance), [appearance]);
   const selectedTypeLimit = getLinkTypeLimit(selectedType);
   const selectedTypeCount = getLinkTypeCount(profileLinks, selectedType);
   const selectedTypeAvailable = canAddLinkType(profileLinks, selectedType);
+  const whatsappLinks = useMemo(() => profileLinks.filter((item) => item.type === "whatsapp" && item.value?.trim()), [profileLinks]);
+  const emailLink = useMemo(() => profileLinks.find((item) => item.type === "email" && item.value?.trim()), [profileLinks]);
+  const websiteLink = useMemo(() => profileLinks.find((item) => item.type === "website" && item.value?.trim()), [profileLinks]);
+  const contactCardPreview = useMemo(() => resolveContactCardData(previewUser), [previewUser]);
+
+  useEffect(() => {
+    if (!contactCard.whatsappLinkId) return;
+    if (whatsappLinks.some((item) => item.id === contactCard.whatsappLinkId)) return;
+    setContactCard((current) => ({ ...current, whatsappLinkId: "" }));
+  }, [contactCard.whatsappLinkId, whatsappLinks]);
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -239,6 +273,7 @@ export function ProfileForm({
       body.append("username", form.username);
       body.append("profileLinks", JSON.stringify(profileLinks));
       body.append("appearance", JSON.stringify(appearance));
+      body.append("contactCard", JSON.stringify(contactCard));
       if (photo) body.append("photo", photo);
       if (paymentQrImage) body.append("paymentQrImage", paymentQrImage);
 
@@ -335,6 +370,7 @@ export function ProfileForm({
       : "Aun no has cargado un QR oficial";
   const usernameChanged = Boolean(profile?.username) && form.username.trim() && form.username.trim() !== profile.username;
   const recoveryProtected = Boolean(recovery?.backupEmailVerified);
+  const contactCardEnabled = Boolean(contactCard.enabled);
 
   return (
     <div className="editor-layout">
@@ -478,6 +514,109 @@ export function ProfileForm({
           </div>
 
           {recoveryMessage ? <p className="notice">{recoveryMessage}</p> : null}
+
+          <div className="section-divider" />
+
+          <div className="dashboard-section-head">
+            <div>
+              <h3 className="section-title" style={{ fontSize: "1.05rem" }}>Guardar contacto</h3>
+              <p className="section-copy">Decide si tu landing mostrara un boton para guardar tu negocio como contacto.</p>
+            </div>
+            <span className={`status-badge ${contactCardEnabled ? "success" : ""}`}>
+              {contactCardEnabled ? <Link2 size={14} /> : null}
+              {contactCardEnabled ? "Activo" : "Oculto"}
+            </span>
+          </div>
+
+          <label className="toggle-card">
+            <input
+              type="checkbox"
+              checked={contactCardEnabled}
+              onChange={(e) => setContactCard((current) => ({ ...current, enabled: e.target.checked }))}
+              disabled={!canEdit}
+            />
+            <span className="toggle-copy">
+              <strong>Mostrar boton Guardar contacto en mi landing</strong>
+              <small>Linka generara una vCard simple con tus datos publicos si lo activas.</small>
+            </span>
+          </label>
+
+          {contactCardEnabled ? (
+            <div className="section-stack">
+              <div className="profile-grid">
+                <div>
+                  <label className="label">Nombre del contacto</label>
+                  <input
+                    className="input"
+                    value={contactCard.name}
+                    onChange={(e) => setContactCard((current) => ({ ...current, name: e.target.value }))}
+                    placeholder={form.businessName || "Tu negocio"}
+                    disabled={!canEdit}
+                  />
+                  <p className="muted" style={{ marginTop: ".45rem" }}>Si lo dejas vacio, usamos el nombre del negocio.</p>
+                </div>
+                <div>
+                  <label className="label">Cargo o rol</label>
+                  <input
+                    className="input"
+                    value={contactCard.title}
+                    onChange={(e) => setContactCard((current) => ({ ...current, title: e.target.value }))}
+                    placeholder="Gerente, asesor, medico, fotografo..."
+                    disabled={!canEdit}
+                  />
+                </div>
+              </div>
+
+              {whatsappLinks.length ? (
+                <div>
+                  <label className="label">WhatsApp para el contacto</label>
+                  <select
+                    className="select"
+                    value={contactCard.whatsappLinkId}
+                    onChange={(e) => setContactCard((current) => ({ ...current, whatsappLinkId: e.target.value }))}
+                    disabled={!canEdit}
+                  >
+                    <option value="">Usar el primer WhatsApp disponible</option>
+                    {whatsappLinks.map((item) => (
+                      <option key={item.id} value={item.id}>
+                        {item.label} - {item.value}
+                      </option>
+                    ))}
+                  </select>
+                  <p className="muted" style={{ marginTop: ".45rem" }}>Ese numero se guardara dentro del contacto.</p>
+                </div>
+              ) : (
+                <div>
+                  <label className="label">Telefono del contacto</label>
+                  <input
+                    className="input"
+                    value={contactCard.phone}
+                    onChange={(e) => setContactCard((current) => ({ ...current, phone: e.target.value }))}
+                    placeholder="+57 300 123 4567"
+                    disabled={!canEdit}
+                  />
+                  <p className="muted" style={{ marginTop: ".45rem" }}>Como no tienes WhatsApp agregado, puedes escribir un numero publico manual.</p>
+                </div>
+              )}
+
+              <div className="grid-3">
+                <div className="kpi">
+                  <strong>Correo del contacto</strong>
+                  <p className="muted" style={{ marginTop: ".5rem" }}>{emailLink?.value || "Agrega un enlace de correo en Enlaces"}</p>
+                </div>
+                <div className="kpi">
+                  <strong>Web del contacto</strong>
+                  <p className="muted" style={{ marginTop: ".5rem" }}>{websiteLink?.value || "Usaremos tu Linka publica si no agregas pagina web"}</p>
+                </div>
+                <div className="kpi">
+                  <strong>Estado</strong>
+                  <p className="muted" style={{ marginTop: ".5rem" }}>
+                    {contactCardPreview.shouldShow ? "La opcion Guardar contacto ya quedaria lista en tu landing." : "Completa los datos para que el contacto tenga al menos un canal util."}
+                  </p>
+                </div>
+              </div>
+            </div>
+          ) : null}
         </AccordionSection>
 
         <AccordionSection
@@ -523,7 +662,7 @@ export function ProfileForm({
                   </div>
                   <div>
                     <label className="label">
-                      {meta.kind === "phone" ? "Numero" : meta.kind === "text" ? "Llave" : "URL"}
+                      {meta.kind === "phone" ? "Numero" : meta.kind === "text" ? "Llave" : meta.kind === "email" ? "Correo" : "URL"}
                     </label>
                     <input className="input" value={item.value} placeholder={meta.placeholder} onChange={(e) => updateLink(item.id, "value", e.target.value)} disabled={!canEdit} />
                   </div>

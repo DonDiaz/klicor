@@ -1,4 +1,5 @@
-import { Globe } from "lucide-react";
+import { Download, Globe } from "lucide-react";
+import { resolveContactCardData } from "@/lib/contact-card";
 import { LINK_CATALOG_MAP } from "@/lib/link-catalog";
 import { hexToRgba, normalizeAppearance } from "@/lib/theme-system";
 import { PaymentKeyCard } from "@/components/payment-key-card";
@@ -35,6 +36,7 @@ export function LandingView({ user, preview = false }) {
   const links = user.profileLinks || [];
   const paymentKey = links.find((item) => item.type === "payment_key");
   const visibleLinks = links.filter((item) => item.type !== "payment_key");
+  const contactCard = resolveContactCardData(user);
   const paymentQrUrl = user.paymentQrUrl
     ? preview
       ? user.paymentQrUrl
@@ -130,6 +132,24 @@ export function LandingView({ user, preview = false }) {
               buttonStyle={buttonStyle}
               buttonRadius={RADIUS_MAP[appearance.buttonRadius]}
             />
+          ) : null}
+
+          {contactCard.shouldShow ? (
+            preview ? (
+              <div className="public-link" style={{ ...buttonStyle, borderRadius: RADIUS_MAP[appearance.buttonRadius] }}>
+                <Download size={18} />
+                <span>Guardar contacto</span>
+              </div>
+            ) : (
+              <a
+                className="public-link"
+                style={{ ...buttonStyle, borderRadius: RADIUS_MAP[appearance.buttonRadius] }}
+                href={`/api/analytics/click?username=${user.username}&button=contact_card&target=${encodeURIComponent(contactCard.contactUrl)}`}
+              >
+                <Download size={18} />
+                <span>Guardar contacto</span>
+              </a>
+            )
           ) : null}
 
           {visibleLinks.length ? visibleLinks.map((item) => {

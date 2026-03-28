@@ -1161,6 +1161,32 @@ img { max-width: 100%; display: block; }
 .upload-copy span,
 .upload-copy small { color: var(--text-secondary); }
 
+.toggle-card {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: start;
+  gap: 0.9rem;
+  padding: 1rem;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--surface-alt);
+}
+
+.toggle-card input {
+  width: 18px;
+  height: 18px;
+  margin-top: 0.2rem;
+}
+
+.toggle-copy {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.toggle-copy small {
+  color: var(--text-secondary);
+}
+
 .appearance-presets {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));

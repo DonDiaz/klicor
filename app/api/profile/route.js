@@ -18,12 +18,16 @@ export async function POST(request) {
     const formData = await request.formData();
     const linksJson = formData.get("profileLinks");
     const appearanceJson = formData.get("appearance");
+    const contactCardJson = formData.get("contactCard");
 
     const parsed = profileSchema.parse({
       businessName: formData.get("businessName"),
       username: formData.get("username"),
       profileLinks: JSON.parse(typeof linksJson === "string" ? linksJson : "[]"),
       appearance: JSON.parse(typeof appearanceJson === "string" ? appearanceJson : "{}"),
+      contactCard: typeof contactCardJson === "string"
+        ? JSON.parse(contactCardJson)
+        : { enabled: false, name: "", title: "", whatsappLinkId: "", phone: "" },
     });
 
     const warnings = getAppearanceWarnings(parsed.appearance);
