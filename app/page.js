@@ -47,7 +47,7 @@ export default function HomePage() {
         <div className="landing-hero-copy">
           <span className="pill">
             <Zap size={16} />
-            Linka - todos tus enlaces en un solo lugar
+            Klicor - todos tus enlaces en un solo lugar
           </span>
           <h1 className="landing-hero-title">Tu pagina para vender en un solo link</h1>
           <p className="landing-hero-lead">
@@ -55,7 +55,7 @@ export default function HomePage() {
           </p>
           <div className="actions">
             <Link className="btn btn-primary" href="/login">
-              Crear mi Linka <ArrowRight size={16} />
+              Crear mi Klicor <ArrowRight size={16} />
             </Link>
             <a className="btn btn-secondary mobile-demo-link" href="#ejemplo">
               Ver ejemplo
@@ -70,7 +70,7 @@ export default function HomePage() {
         <div id="ejemplo" className="landing-hero-visual">
           <div className="landing-visual-caption">
             <span className="pill landing-soft-pill">Vista publica</span>
-            <p className="section-copy">Asi se ve una Linka lista para compartir con clientes.</p>
+            <p className="section-copy">Asi se ve un Klicor listo para compartir con clientes.</p>
           </div>
           <MarketingPreview />
         </div>
@@ -112,7 +112,7 @@ export default function HomePage() {
               <span className="solution-label">Despues</span>
               <h3>Un solo link para todo tu negocio</h3>
               <p>
-                Linka organiza tus canales en una pagina clara, lista para compartir y pensada para convertir mejor.
+                Klicor organiza tus canales en una pagina clara, lista para compartir y pensada para convertir mejor.
               </p>
               <div className="solution-points">
                 <span><CheckCircle2 size={16} /> Mas claridad para el cliente</span>
@@ -128,7 +128,7 @@ export default function HomePage() {
         <div className="shell">
           <div className="section-heading landing-centered-heading">
             <span className="pill">Como funciona</span>
-            <h2 className="landing-section-title">Tres pasos para publicar tu Linka</h2>
+            <h2 className="landing-section-title">Tres pasos para publicar tu Klicor</h2>
             <p className="section-copy">Sin configuraciones tecnicas. Solo completas tu perfil y empiezas a compartir.</p>
           </div>
           <div className="steps-grid landing-steps-grid">
@@ -177,7 +177,7 @@ export default function HomePage() {
               <span className="pill">Precios</span>
               <h2 className="landing-section-title">Empieza gratis y activa tu plan anual cuando estes listo</h2>
               <p className="section-copy">
-                Crea tu pagina, organiza tus enlaces y valida tu Linka antes de pasar al cobro anual.
+                Crea tu pagina, organiza tus enlaces y valida tu Klicor antes de pasar al cobro anual.
               </p>
             </div>
             <div className="pricing-points">
@@ -199,11 +199,11 @@ export default function HomePage() {
           <div>
             <span className="pill">Empieza gratis hoy</span>
             <h2 className="landing-section-title">Ordena tus enlaces y comparte una presencia mas profesional.</h2>
-            <p className="section-copy">Crea tu Linka y deja listo tu negocio para compartir en un solo link.</p>
+            <p className="section-copy">Crea tu Klicor y deja listo tu negocio para compartir en un solo link.</p>
           </div>
           <div className="actions">
             <Link className="btn btn-primary" href="/login">
-              Crear mi Linka <ArrowRight size={16} />
+              Crear mi Klicor <ArrowRight size={16} />
             </Link>
           </div>
         </div>
@@ -213,7 +213,7 @@ export default function HomePage() {
         <div className="shell landing-footer-inner">
           <div className="landing-footer-brand">
             <BrandLogo size={36} />
-            <p>Linka - todos tus enlaces en un solo lugar</p>
+            <p>Klicor - todos tus enlaces en un solo lugar</p>
           </div>
           <div className="landing-footer-links">
             <Link href="/terminos">Terminos y condiciones</Link>

@@ -2,7 +2,7 @@ import Link from "next/link";
 import { BrandLogo } from "@/components/brand-logo";
 
 export const metadata = {
-  title: "Politica de privacidad | Linka",
+  title: "Politica de privacidad | Klicor",
 };
 
 export default function PrivacyPage() {
@@ -13,7 +13,7 @@ export default function PrivacyPage() {
         <div className="card" style={{ padding: "1.5rem", display: "grid", gap: "1rem" }}>
           <h1 className="section-title" style={{ fontSize: "2rem" }}>Politica de privacidad</h1>
           <p className="section-copy">
-            Linka recopila los datos necesarios para crear tu perfil, administrar tu suscripcion y operar tu pagina publica de enlaces.
+            Klicor recopila los datos necesarios para crear tu perfil, administrar tu suscripcion y operar tu pagina publica de enlaces.
           </p>
           <p className="section-copy">
             La informacion del usuario se utiliza para autenticacion, funcionamiento del producto, soporte y comunicaciones esenciales del servicio.

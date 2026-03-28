@@ -153,7 +153,7 @@ export function DashboardClient() {
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = `${data?.user?.username || "linka"}-qr.png`;
+      link.download = `${data?.user?.username || "klicor"}-qr.png`;
       document.body.appendChild(link);
       link.click();
       link.remove();

@@ -139,13 +139,13 @@ export function AuthForm({
     await runEmailFlow(auth);
   }
 
-  const resolvedTitle = title || (mode === "register" ? "Crea tu cuenta" : "Ingresa a Linka");
+  const resolvedTitle = title || (mode === "register" ? "Crea tu cuenta" : "Ingresa a Klicor");
   const resolvedDescription = description || (
     mode === "register"
       ? "Activa tu perfil con correo o Google y empieza con una prueba gratis."
       : "Entra a tu panel para editar enlaces, descargar tu QR y abrir tu pagina."
   );
-  const resolvedSubmitLabel = submitLabel || (mode === "login" ? "Entrar al dashboard" : "Crear mi Linka");
+  const resolvedSubmitLabel = submitLabel || (mode === "login" ? "Entrar al dashboard" : "Crear mi Klicor");
 
   return (
     <section className="card auth-card">
@@ -260,7 +260,7 @@ export function AuthForm({
               <div className="stack" style={{ gap: "0.75rem" }}>
                 <strong>Debes aceptar nuestros terminos para continuar.</strong>
                 <p className="section-copy">
-                  Para crear tu cuenta en Linka debes aceptar los{" "}
+                  Para crear tu cuenta en Klicor debes aceptar los{" "}
                   <Link className="terms-link" href="/terminos" target="_blank" rel="noreferrer">
                     Terminos y condiciones
                   </Link>{" "}
@@ -276,7 +276,7 @@ export function AuthForm({
                     checked={acceptedTerms}
                     onChange={(event) => setAcceptedTerms(event.target.checked)}
                   />
-                  <span>He leido y acepto los terminos y condiciones de Linka.</span>
+                  <span>He leido y acepto los terminos y condiciones de Klicor.</span>
                 </label>
 
                 <div className="actions">

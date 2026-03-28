@@ -1,7 +1,7 @@
 {
-  "name": "Linka",
-  "short_name": "Linka",
-  "description": "Linka — todos tus enlaces en un solo lugar.",
+  "name": "Klicor",
+  "short_name": "Klicor",
+  "description": "Klicor - todos tus enlaces en un solo lugar.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#160D33",

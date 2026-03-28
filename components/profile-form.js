@@ -537,7 +537,7 @@ export function ProfileForm({
             />
             <span className="toggle-copy">
               <strong>Mostrar boton Guardar contacto en mi landing</strong>
-              <small>Linka generara una vCard simple con tus datos publicos si lo activas.</small>
+              <small>Klicor generara una vCard simple con tus datos publicos si lo activas.</small>
             </span>
           </label>
 
@@ -606,7 +606,7 @@ export function ProfileForm({
                 </div>
                 <div className="kpi">
                   <strong>Web del contacto</strong>
-                  <p className="muted" style={{ marginTop: ".5rem" }}>{websiteLink?.value || "Usaremos tu Linka publica si no agregas pagina web"}</p>
+                  <p className="muted" style={{ marginTop: ".5rem" }}>{websiteLink?.value || "Usaremos tu Klicor publica si no agregas pagina web"}</p>
                 </div>
                 <div className="kpi">
                   <strong>Estado</strong>
@@ -694,7 +694,7 @@ export function ProfileForm({
                         </span>
                       </label>
                       <p className="muted payment-key-upload-copy">
-                        Este QR no lo genera Linka. Si cambias la llave, guarda una nueva imagen oficial del QR.
+                        Este QR no lo genera Klicor. Si cambias la llave, guarda una nueva imagen oficial del QR.
                       </p>
                       {paymentQrPreviewUrl || savedPaymentQrUrl ? (
                         <div className="payment-qr-preview">
@@ -725,7 +725,7 @@ export function ProfileForm({
           <div className="dashboard-section-head">
             <div>
               <h3 className="section-title" style={{ fontSize: "1.05rem" }}>Diseño de la landing</h3>
-              <p className="section-copy">Mantenemos el estilo guiado para que tu Linka se vea limpia y legible.</p>
+              <p className="section-copy">Mantenemos el estilo guiado para que tu Klicor se vea limpia y legible.</p>
             </div>
             <button
               className={`btn ${appearance.advancedEnabled ? "btn-primary" : "btn-secondary"}`}

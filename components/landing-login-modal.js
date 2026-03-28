@@ -64,7 +64,7 @@ export function LandingLoginModal() {
             allowRegister={false}
             hideSwitcher
             title="Bienvenido de nuevo"
-            description="Accede a tu panel para editar enlaces, descargar tu QR y administrar tu Linka."
+            description="Accede a tu panel para editar enlaces, descargar tu QR y administrar tu Klicor."
             submitLabel="Entrar al dashboard"
             googleLabel="Iniciar con Google"
             onSuccess={handleSuccess}
