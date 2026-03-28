@@ -146,7 +146,7 @@ export function LandingView({ user, preview = false }) {
           }) : preview ? (
             <div className="public-link" style={{ ...buttonStyle, borderRadius: RADIUS_MAP[appearance.buttonRadius] }}>
               <Globe size={18} />
-              <span>{paymentKey ? "Agrega mas enlaces para completar tu landing" : "Agrega tus enlaces para ver la vista previa"}</span>
+              <span>{paymentKey ? "Agrega más enlaces para completar tu página" : "Agrega tus enlaces para ver la vista previa"}</span>
             </div>
           ) : null}
         </div>

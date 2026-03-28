@@ -21,7 +21,7 @@ export default async function RecoveryVerifyPage({ searchParams }) {
       <section className="card" style={{ padding: "2rem", maxWidth: "640px", margin: "0 auto" }}>
         <h1>Verificación de recuperación</h1>
         <p className="lead">{result.message}</p>
-        <Link className="btn btn-primary" href="/dashboard">Ir al dashboard</Link>
+        <Link className="btn btn-primary" href="/dashboard">Ir al panel</Link>
       </section>
     </main>
   );

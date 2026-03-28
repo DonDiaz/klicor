@@ -63,7 +63,7 @@ export function AuthForm({
       if (mode === "register") {
         const credential = await createUserWithEmailAndPassword(auth, form.email, form.password);
         await sendEmailVerification(credential.user);
-        setMessage("Te enviamos un correo para verificar tu cuenta. Despues podras entrar al dashboard.");
+        setMessage("Te enviamos un correo para verificar tu cuenta. Después podrás entrar al panel.");
         await bootstrapSession(credential.user);
       } else {
         const credential = await signInWithEmailAndPassword(auth, form.email, form.password);
@@ -95,7 +95,7 @@ export function AuthForm({
     if (!auth) return;
 
     if (mode === "register" && form.password !== form.confirmPassword) {
-      setMessage("Las contrasenas no coinciden.");
+      setMessage("Las contraseñas no coinciden.");
       return;
     }
 
@@ -121,7 +121,7 @@ export function AuthForm({
 
   async function handleAcceptTerms() {
     if (!acceptedTerms) {
-      setMessage("Debes aceptar los terminos y condiciones para continuar.");
+      setMessage("Debes aceptar los términos y condiciones para continuar.");
       return;
     }
 
@@ -143,9 +143,9 @@ export function AuthForm({
   const resolvedDescription = description || (
     mode === "register"
       ? "Activa tu perfil con correo o Google y empieza con una prueba gratis."
-      : "Entra a tu panel para editar enlaces, descargar tu QR y abrir tu pagina."
+      : "Entra a tu panel para editar enlaces, descargar tu QR y abrir tu página."
   );
-  const resolvedSubmitLabel = submitLabel || (mode === "login" ? "Entrar al dashboard" : "Crear mi Klicor");
+  const resolvedSubmitLabel = submitLabel || (mode === "login" ? "Entrar al panel" : "Crear mi Klicor");
 
   return (
     <section className="card auth-card">
@@ -185,7 +185,7 @@ export function AuthForm({
 
       <form className="auth-form-grid" onSubmit={handleSubmit}>
         <div>
-          <label className="label">Correo electronico</label>
+          <label className="label">Correo electrónico</label>
           <div className="input-with-icon">
             <Mail size={18} />
             <input
@@ -200,7 +200,7 @@ export function AuthForm({
         </div>
 
         <div>
-          <label className="label">Contrasena</label>
+          <label className="label">Contraseña</label>
           <div className="input-with-icon">
             <LockKeyhole size={18} />
             <input
@@ -208,7 +208,7 @@ export function AuthForm({
               type={showPassword ? "text" : "password"}
               required
               minLength={6}
-              placeholder="Minimo 6 caracteres"
+              placeholder="Mínimo 6 caracteres"
               value={form.password}
               onChange={(event) => setForm({ ...form, password: event.target.value })}
             />
@@ -216,17 +216,17 @@ export function AuthForm({
               className="input-icon-button"
               type="button"
               onClick={() => setShowPassword((current) => !current)}
-              aria-label={showPassword ? "Ocultar contrasena" : "Mostrar contrasena"}
+              aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
             >
               {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
           </div>
-          {mode === "register" ? <p className="auth-hint">Tu cuenta se crea al instante y requiere verificacion por correo.</p> : null}
+          {mode === "register" ? <p className="auth-hint">Tu cuenta se crea al instante y requiere verificación por correo.</p> : null}
         </div>
 
         {mode === "register" ? (
           <div>
-            <label className="label">Confirmar contrasena</label>
+            <label className="label">Confirmar contraseña</label>
             <div className="input-with-icon">
               <LockKeyhole size={18} />
               <input
@@ -234,7 +234,7 @@ export function AuthForm({
                 type={showConfirmPassword ? "text" : "password"}
                 required
                 minLength={6}
-                placeholder="Repite tu contrasena"
+                placeholder="Repite tu contraseña"
                 value={form.confirmPassword}
                 onChange={(event) => setForm({ ...form, confirmPassword: event.target.value })}
               />
@@ -242,7 +242,7 @@ export function AuthForm({
                 className="input-icon-button"
                 type="button"
                 onClick={() => setShowConfirmPassword((current) => !current)}
-                aria-label={showConfirmPassword ? "Ocultar confirmacion de contrasena" : "Mostrar confirmacion de contrasena"}
+                aria-label={showConfirmPassword ? "Ocultar confirmación de contraseña" : "Mostrar confirmación de contraseña"}
               >
                 {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
@@ -258,15 +258,15 @@ export function AuthForm({
           {mode === "register" && showTermsPrompt ? (
             <div className="terms-popover" role="dialog" aria-live="polite">
               <div className="stack" style={{ gap: "0.75rem" }}>
-                <strong>Debes aceptar nuestros terminos para continuar.</strong>
+                <strong>Debes aceptar nuestros términos para continuar.</strong>
                 <p className="section-copy">
                   Para crear tu cuenta en Klicor debes aceptar los{" "}
                   <Link className="terms-link" href="/terminos" target="_blank" rel="noreferrer">
-                    Terminos y condiciones
+                    Términos y condiciones
                   </Link>{" "}
                   y la{" "}
                   <Link className="terms-link" href="/privacidad" target="_blank" rel="noreferrer">
-                    Politica de privacidad
+                    Política de privacidad
                   </Link>.
                 </p>
 
@@ -276,7 +276,7 @@ export function AuthForm({
                     checked={acceptedTerms}
                     onChange={(event) => setAcceptedTerms(event.target.checked)}
                   />
-                  <span>He leido y acepto los terminos y condiciones de Klicor.</span>
+                  <span>He leído y acepto los términos y condiciones de Klicor.</span>
                 </label>
 
                 <div className="actions">
@@ -294,7 +294,7 @@ export function AuthForm({
       </form>
 
       <div className="auth-divider">
-        <span>o continua con</span>
+        <span>o continúa con</span>
       </div>
 
       <button className="btn btn-secondary" type="button" onClick={handleGoogle} disabled={loading}>

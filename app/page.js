@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, CheckCircle2, Copy, LayoutTemplate, MessageCircleMore, QrCode, ShieldCheck, Store, Zap } from "lucide-react";
+import { ArrowRight, CheckCircle2, LayoutTemplate, MessageCircleMore, QrCode, ShieldCheck, Store, Zap } from "lucide-react";
 import { BrandLogo } from "@/components/brand-logo";
 import { LandingLoginModal } from "@/components/landing-login-modal";
 import { MarketingPreview } from "@/components/marketing-preview";
@@ -8,25 +8,25 @@ const howItWorks = [
   {
     icon: LayoutTemplate,
     title: "Crea tu perfil",
-    description: "Define el nombre de tu negocio, tu imagen y tu enlace publico en minutos.",
+    description: "Define el nombre de tu negocio, tu imagen y tu enlace público en minutos.",
   },
   {
     icon: MessageCircleMore,
     title: "Agrega tus enlaces",
-    description: "Conecta WhatsApp, redes y tus canales principales en una sola pagina.",
+    description: "Conecta WhatsApp, redes y tus canales principales en una sola página.",
   },
   {
     icon: QrCode,
     title: "Comparte tu QR",
-    description: "Descarga el codigo QR y usalo en empaques, etiquetas, tarjetas o vitrina.",
+    description: "Descarga el código QR y úsalo en empaques, etiquetas, tarjetas o vitrina.",
   },
 ];
 
 const benefits = [
-  "URL unica para compartir tu negocio",
-  "QR automatico listo para imprimir",
+  "URL única para compartir tu negocio",
+  "QR automático listo para imprimir",
   "WhatsApp integrado para contacto directo",
-  "Panel simple para editar sin soporte tecnico",
+  "Panel simple para editar sin soporte técnico",
 ];
 
 export default function HomePage() {
@@ -36,7 +36,7 @@ export default function HomePage() {
         <div className="shell landing-nav">
           <BrandLogo />
           <nav className="landing-nav-links" aria-label="Principal">
-            <a href="#como-funciona">Como funciona</a>
+            <a href="#como-funciona">Cómo funciona</a>
             <a href="#precios">Precios</a>
           </nav>
           <LandingLoginModal />
@@ -49,9 +49,9 @@ export default function HomePage() {
             <Zap size={16} />
             Klicor - todos tus enlaces en un solo lugar
           </span>
-          <h1 className="landing-hero-title">Tu pagina para vender en un solo link</h1>
+          <h1 className="landing-hero-title">Tu página para vender con un solo enlace</h1>
           <p className="landing-hero-lead">
-            Centraliza WhatsApp, redes y tu negocio en una sola pagina lista para compartir.
+            Centraliza WhatsApp, redes y tu negocio en una sola página lista para compartir.
           </p>
           <div className="actions">
             <Link className="btn btn-primary" href="/login">
@@ -69,8 +69,8 @@ export default function HomePage() {
 
         <div id="ejemplo" className="landing-hero-visual">
           <div className="landing-visual-caption">
-            <span className="pill landing-soft-pill">Vista publica</span>
-            <p className="section-copy">Asi se ve un Klicor listo para compartir con clientes.</p>
+            <span className="pill landing-soft-pill">Vista pública</span>
+            <p className="section-copy">Así se ve un Klicor listo para compartir con clientes.</p>
           </div>
           <MarketingPreview />
         </div>
@@ -80,15 +80,15 @@ export default function HomePage() {
         <div className="shell landing-strip-grid">
           <div className="landing-strip-item">
             <strong>Ideal para emprendedores y negocios</strong>
-            <p>Una forma simple de ordenar tus canales sin conocimientos tecnicos.</p>
+            <p>Una forma simple de ordenar tus canales sin conocimientos técnicos.</p>
           </div>
           <div className="landing-strip-item">
             <strong>Listo para cobrar confianza</strong>
-            <p>Tu negocio se ve serio, claro y facil de compartir desde el primer dia.</p>
+            <p>Tu negocio se ve serio, claro y fácil de compartir desde el primer día.</p>
           </div>
           <div className="landing-strip-item">
             <strong>Hecho para compartir</strong>
-            <p>Funciona bien en bio, tarjetas, empaques, etiquetas y puntos fisicos.</p>
+            <p>Funciona bien en bio, tarjetas, empaques, etiquetas y puntos físicos.</p>
           </div>
         </div>
       </section>
@@ -96,8 +96,8 @@ export default function HomePage() {
       <section className="landing-section">
         <div className="shell">
           <div className="section-heading landing-centered-heading">
-            <span className="pill landing-soft-pill">Problema y solucion</span>
-            <h2 className="landing-section-title">Tus clientes no deberian perderse entre enlaces.</h2>
+            <span className="pill landing-soft-pill">Problema y solución</span>
+            <h2 className="landing-section-title">Tus clientes no deberían perderse entre enlaces.</h2>
           </div>
           <div className="problem-solution-grid">
             <article className="problem-card">
@@ -105,18 +105,18 @@ export default function HomePage() {
               <ul className="problem-list">
                 <li>Tus clientes no encuentran tus enlaces.</li>
                 <li>Pierdes ventas por desorden.</li>
-                <li>Compartes varios links y ninguno guia bien la accion.</li>
+                <li>Compartes varios enlaces y ninguno guía bien la acción.</li>
               </ul>
             </article>
             <article className="solution-card">
-              <span className="solution-label">Despues</span>
-              <h3>Un solo link para todo tu negocio</h3>
+              <span className="solution-label">Después</span>
+              <h3>Un solo enlace para todo tu negocio</h3>
               <p>
-                Klicor organiza tus canales en una pagina clara, lista para compartir y pensada para convertir mejor.
+                Klicor organiza tus canales en una página clara, lista para compartir y pensada para convertir mejor.
               </p>
               <div className="solution-points">
-                <span><CheckCircle2 size={16} /> Mas claridad para el cliente</span>
-                <span><CheckCircle2 size={16} /> Mejor percepcion de marca</span>
+                <span><CheckCircle2 size={16} /> Más claridad para el cliente</span>
+                <span><CheckCircle2 size={16} /> Mejor percepción de marca</span>
                 <span><CheckCircle2 size={16} /> Un CTA directo a WhatsApp y redes</span>
               </div>
             </article>
@@ -127,9 +127,9 @@ export default function HomePage() {
       <section id="como-funciona" className="landing-section landing-section-soft">
         <div className="shell">
           <div className="section-heading landing-centered-heading">
-            <span className="pill">Como funciona</span>
+            <span className="pill">Cómo funciona</span>
             <h2 className="landing-section-title">Tres pasos para publicar tu Klicor</h2>
-            <p className="section-copy">Sin configuraciones tecnicas. Solo completas tu perfil y empiezas a compartir.</p>
+            <p className="section-copy">Sin configuraciones técnicas. Solo completas tu perfil y empiezas a compartir.</p>
           </div>
           <div className="steps-grid landing-steps-grid">
             {howItWorks.map((step, index) => {
@@ -175,19 +175,19 @@ export default function HomePage() {
           <div className="pricing-card">
             <div className="pricing-copy">
               <span className="pill">Precios</span>
-              <h2 className="landing-section-title">Empieza gratis y activa tu plan anual cuando estes listo</h2>
+              <h2 className="landing-section-title">Empieza gratis y activa tu plan anual cuando estés listo</h2>
               <p className="section-copy">
-                Crea tu pagina, organiza tus enlaces y valida tu Klicor antes de pasar al cobro anual.
+                Crea tu página, organiza tus enlaces y valida tu Klicor antes de pasar al cobro anual.
               </p>
             </div>
             <div className="pricing-points">
               <div className="pricing-point">
                 <strong>Prueba gratis</strong>
-                <span>30 dias para configurar y compartir</span>
+                <span>30 días para configurar y compartir</span>
               </div>
               <div className="pricing-point">
                 <strong>Plan anual</strong>
-                <span>URL unica, QR automatico y panel de administracion</span>
+                <span>URL única, QR automático y panel de administración</span>
               </div>
             </div>
           </div>
@@ -198,8 +198,8 @@ export default function HomePage() {
         <div className="shell final-cta-card">
           <div>
             <span className="pill">Empieza gratis hoy</span>
-            <h2 className="landing-section-title">Ordena tus enlaces y comparte una presencia mas profesional.</h2>
-            <p className="section-copy">Crea tu Klicor y deja listo tu negocio para compartir en un solo link.</p>
+            <h2 className="landing-section-title">Ordena tus enlaces y comparte una presencia más profesional.</h2>
+            <p className="section-copy">Crea tu Klicor y deja listo tu negocio para compartir con un solo enlace.</p>
           </div>
           <div className="actions">
             <Link className="btn btn-primary" href="/login">
@@ -216,8 +216,8 @@ export default function HomePage() {
             <p>Klicor - todos tus enlaces en un solo lugar</p>
           </div>
           <div className="landing-footer-links">
-            <Link href="/terminos">Terminos y condiciones</Link>
-            <Link href="/privacidad">Politica de privacidad</Link>
+            <Link href="/terminos">Términos y condiciones</Link>
+            <Link href="/privacidad">Política de privacidad</Link>
           </div>
         </div>
       </footer>

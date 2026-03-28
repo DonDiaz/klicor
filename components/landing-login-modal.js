@@ -42,7 +42,7 @@ export function LandingLoginModal() {
   return (
     <div ref={wrapperRef} className="landing-login-popover">
       <button className="landing-login-trigger" type="button" onClick={() => setOpen((current) => !current)}>
-        Iniciar sesion
+        Iniciar sesión
       </button>
 
       {open ? (
@@ -65,7 +65,7 @@ export function LandingLoginModal() {
             hideSwitcher
             title="Bienvenido de nuevo"
             description="Accede a tu panel para editar enlaces, descargar tu QR y administrar tu Klicor."
-            submitLabel="Entrar al dashboard"
+            submitLabel="Entrar al panel"
             googleLabel="Iniciar con Google"
             onSuccess={handleSuccess}
           />

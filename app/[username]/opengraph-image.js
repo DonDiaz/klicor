@@ -24,7 +24,7 @@ function FallbackImage() {
         fontFamily: "sans-serif",
       }}
     >
-      Perfil publico
+      Perfil público
     </div>
   );
 }

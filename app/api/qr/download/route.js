@@ -6,7 +6,7 @@ export async function GET(request) {
   try {
     const { user } = await verifyRequest(request);
     if (!user?.qrPath) {
-      return NextResponse.json({ error: "Todavia no tienes un QR generado" }, { status: 404 });
+      return NextResponse.json({ error: "Todavía no tienes un QR generado" }, { status: 404 });
     }
 
     const [buffer] = await getAdminStorage().file(user.qrPath).download();

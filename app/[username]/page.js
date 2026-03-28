@@ -63,7 +63,7 @@ export default async function PublicPage({ params }) {
       <main className="public-page">
         <section className="card" style={{ padding: "2rem", maxWidth: "560px" }}>
           <h1>Cuenta suspendida</h1>
-          <p className="lead">Esta landing esta temporalmente pausada por falta de pago. Una vez se reactive el plan anual, volvera a estar disponible.</p>
+          <p className="lead">Esta página está temporalmente pausada por falta de pago. Una vez se reactive el plan anual, volverá a estar disponible.</p>
         </section>
       </main>
     );

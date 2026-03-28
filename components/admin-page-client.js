@@ -40,8 +40,8 @@ export function AdminPageClient() {
     return (
       <main className="shell" style={{ padding: "4rem 0" }}>
         <div className="panel stack">
-          <p>Necesitas iniciar sesion para ver el panel administrativo.</p>
-          <Link className="btn btn-primary" href="/login">Ir a login</Link>
+          <p>Necesitas iniciar sesión para ver el panel administrativo.</p>
+          <Link className="btn btn-primary" href="/login">Ir al inicio de sesión</Link>
         </div>
       </main>
     );
@@ -56,8 +56,8 @@ export function AdminPageClient() {
       <main className="shell" style={{ padding: "4rem 0" }}>
         <div className="panel stack">
           <h1>Acceso restringido</h1>
-          <p className="muted">Este panel solo esta disponible para cuentas administradoras.</p>
-          <Link className="btn btn-secondary" href="/dashboard">Volver al dashboard</Link>
+          <p className="muted">Este panel solo está disponible para cuentas administradoras.</p>
+          <Link className="btn btn-secondary" href="/dashboard">Volver al panel</Link>
         </div>
       </main>
     );
@@ -67,13 +67,13 @@ export function AdminPageClient() {
     <main className="shell" style={{ padding: "2rem 0 4rem" }}>
       <div className="topbar">
         <div>
-          <span className="pill">Administracion</span>
+          <span className="pill">Administración</span>
           <h1 style={{ marginBottom: ".3rem" }}>Panel administrativo</h1>
           <p className="muted">Gestiona el precio anual y el estado general de las cuentas.</p>
         </div>
         <div className="actions">
-          <Link className="btn btn-secondary" href="/dashboard">Volver al dashboard</Link>
-          <button className="btn btn-secondary" type="button" onClick={handleLogout}>Cerrar sesion</button>
+          <Link className="btn btn-secondary" href="/dashboard">Volver al panel</Link>
+          <button className="btn btn-secondary" type="button" onClick={handleLogout}>Cerrar sesión</button>
         </div>
       </div>
       <section className="card" style={{ padding: "1.5rem" }}>

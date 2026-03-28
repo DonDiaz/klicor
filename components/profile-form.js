@@ -43,7 +43,7 @@ function normalizeLinks(profile) {
       type,
       label: LINK_CATALOG_MAP[type]?.label || "Enlace",
       value,
-      message: type === "whatsapp" ? "Hola, quiero informacion" : "",
+      message: type === "whatsapp" ? "Hola, quiero información" : "",
     }));
 }
 
@@ -54,7 +54,7 @@ function normalizeLinkUrl(item) {
   const meta = LINK_CATALOG_MAP[item.type];
   if (meta?.kind === "phone") {
     const digits = raw.replace(/\D/g, "");
-    const message = (item.message || "Hola, quiero informacion").trim();
+    const message = (item.message || "Hola, quiero información").trim();
     return digits ? `https://wa.me/${digits}?text=${encodeURIComponent(message)}` : "";
   }
 
@@ -256,7 +256,7 @@ export function ProfileForm({
   async function handleSubmit(event) {
     event.preventDefault();
     if (!canEdit) {
-      setMessage("Tu cuenta no permite edicion en este momento.");
+      setMessage("Tu cuenta no permite edición en este momento.");
       return;
     }
 
@@ -315,7 +315,7 @@ export function ProfileForm({
         type: selectedType,
         label: meta.label,
         value: "",
-        message: selectedType === "whatsapp" ? "Hola, quiero informacion" : "",
+        message: selectedType === "whatsapp" ? "Hola, quiero información" : "",
       },
     ]);
   }
@@ -362,12 +362,12 @@ export function ProfileForm({
     });
   }
 
-  const selectedPhotoLabel = photo ? photo.name : profile?.photo ? "Imagen actual cargada" : "Aun no has elegido imagen";
+  const selectedPhotoLabel = photo ? photo.name : profile?.photo ? "Imagen actual cargada" : "Aún no has elegido imagen";
   const selectedPaymentQrLabel = paymentQrImage
     ? paymentQrImage.name
     : profile?.paymentQrUrl
       ? "QR oficial cargado"
-      : "Aun no has cargado un QR oficial";
+      : "Aún no has cargado un QR oficial";
   const usernameChanged = Boolean(profile?.username) && form.username.trim() && form.username.trim() !== profile.username;
   const recoveryProtected = Boolean(recovery?.backupEmailVerified);
   const contactCardEnabled = Boolean(contactCard.enabled);
@@ -378,7 +378,7 @@ export function ProfileForm({
         <AccordionSection
           id="profile"
           title="Perfil"
-          copy="Actualiza nombre, username, imagen y seguridad de la cuenta."
+          copy="Actualiza nombre, usuario, imagen y seguridad de la cuenta."
           openSection={openSection}
           onToggle={toggleSection}
           trailing={<span className={`status-badge ${recoveryProtected ? "success" : ""}`}>{recoveryProtected ? "Protegida" : "Pendiente"}</span>}
@@ -395,7 +395,7 @@ export function ProfileForm({
               />
             </div>
             <div>
-              <label className="label">Username</label>
+              <label className="label">Nombre de usuario</label>
               <input
                 className="input"
                 value={form.username}
@@ -409,7 +409,7 @@ export function ProfileForm({
 
           {usernameChanged ? (
             <div className="notice">
-              <span>Al guardar, tu URL visible se actualiza al nuevo username. Los enlaces anteriores y el QR siguen resolviendo a tu perfil.</span>
+              <span>Al guardar, tu URL visible se actualiza al nuevo usuario. Los enlaces anteriores y el QR siguen resolviendo a tu perfil.</span>
             </div>
           ) : null}
 
@@ -436,8 +436,8 @@ export function ProfileForm({
 
           <div className="dashboard-section-head">
             <div>
-              <h3 className="section-title" style={{ fontSize: "1.05rem" }}>Seguridad y recuperacion</h3>
-              <p className="section-copy">Protege tu QR y tu enlace con un correo de respaldo y un telefono de recuperacion.</p>
+              <h3 className="section-title" style={{ fontSize: "1.05rem" }}>Seguridad y recuperación</h3>
+              <p className="section-copy">Protege tu QR y tu enlace con un correo de respaldo y un teléfono de recuperación.</p>
             </div>
             <span className={`status-badge ${recoveryProtected ? "success" : ""}`}>
               {recoveryProtected ? <ShieldCheck size={14} /> : null}
@@ -448,18 +448,18 @@ export function ProfileForm({
           <div className="grid-3">
             <div className="kpi">
               <strong>Correo de respaldo</strong>
-              <p className="muted" style={{ marginTop: ".5rem" }}>{recovery?.backupEmail || "Aun no configurado"}</p>
-              <p className="muted" style={{ marginTop: ".35rem" }}>{recovery?.backupEmailVerified ? "Verificado" : "Pendiente de verificacion"}</p>
+              <p className="muted" style={{ marginTop: ".5rem" }}>{recovery?.backupEmail || "Aún no configurado"}</p>
+              <p className="muted" style={{ marginTop: ".35rem" }}>{recovery?.backupEmailVerified ? "Verificado" : "Pendiente de verificación"}</p>
             </div>
             <div className="kpi">
-              <strong>Telefono de recuperacion</strong>
-              <p className="muted" style={{ marginTop: ".5rem" }}>{recovery?.recoveryPhone || "Aun no configurado"}</p>
+              <strong>Teléfono de recuperación</strong>
+              <p className="muted" style={{ marginTop: ".5rem" }}>{recovery?.recoveryPhone || "Aún no configurado"}</p>
               <p className="muted" style={{ marginTop: ".35rem" }}>{recovery?.recoveryPhoneVerified ? "Verificado" : "Guardado para siguiente fase OTP"}</p>
             </div>
             <div className="kpi">
               <strong>Estado</strong>
               <p className="muted" style={{ marginTop: ".5rem" }}>
-                {recoveryProtected ? "Tu cuenta ya tiene un metodo de recuperacion verificado." : "Configura y verifica al menos un correo de respaldo."}
+                {recoveryProtected ? "Tu cuenta ya tiene un método de recuperación verificado." : "Configura y verifica al menos un correo de respaldo."}
               </p>
             </div>
           </div>
@@ -479,7 +479,7 @@ export function ProfileForm({
               </div>
             </div>
             <div>
-              <label className="label">Telefono de recuperacion</label>
+              <label className="label">Teléfono de recuperación</label>
               <div className="input-with-icon">
                 <Phone size={16} />
                 <input
@@ -495,7 +495,7 @@ export function ProfileForm({
           {!recovery?.backupEmailVerified && recovery?.backupEmail ? (
             <div className="notice">
               <span>
-                Verifica el correo de respaldo para usarlo en recuperacion.
+                Verifica el correo de respaldo para usarlo en recuperación.
                 {recovery?.backupEmailVerificationExpiresAt ? " El enlace actual vence pronto." : ""}
               </span>
             </div>
@@ -504,11 +504,11 @@ export function ProfileForm({
           <div className="actions">
             <button className="btn btn-secondary" type="button" onClick={onSaveRecovery} disabled={recoveryLoading}>
               {recoveryLoading ? <RefreshCw size={16} /> : <Mail size={16} />}
-              {recoveryLoading ? "Guardando..." : "Guardar recuperacion"}
+              {recoveryLoading ? "Guardando..." : "Guardar recuperación"}
             </button>
             {recovery?.backupEmail && !recovery?.backupEmailVerified ? (
               <button className="btn btn-secondary" type="button" onClick={onResendRecoveryVerification} disabled={recoveryLoading}>
-                <Send size={16} /> Reenviar verificacion
+                <Send size={16} /> Reenviar verificación
               </button>
             ) : null}
           </div>
@@ -520,7 +520,7 @@ export function ProfileForm({
           <div className="dashboard-section-head">
             <div>
               <h3 className="section-title" style={{ fontSize: "1.05rem" }}>Guardar contacto</h3>
-              <p className="section-copy">Decide si tu landing mostrara un boton para guardar tu negocio como contacto.</p>
+              <p className="section-copy">Decide si tu página mostrará un botón para guardar tu negocio como contacto.</p>
             </div>
             <span className={`status-badge ${contactCardEnabled ? "success" : ""}`}>
               {contactCardEnabled ? <Link2 size={14} /> : null}
@@ -536,8 +536,8 @@ export function ProfileForm({
               disabled={!canEdit}
             />
             <span className="toggle-copy">
-              <strong>Mostrar boton Guardar contacto en mi landing</strong>
-              <small>Klicor generara una vCard simple con tus datos publicos si lo activas.</small>
+              <strong>Mostrar botón Guardar contacto en mi página</strong>
+              <small>Klicor generará una vCard simple con tus datos públicos si lo activas.</small>
             </span>
           </label>
 
@@ -553,7 +553,7 @@ export function ProfileForm({
                     placeholder={form.businessName || "Tu negocio"}
                     disabled={!canEdit}
                   />
-                  <p className="muted" style={{ marginTop: ".45rem" }}>Si lo dejas vacio, usamos el nombre del negocio.</p>
+                  <p className="muted" style={{ marginTop: ".45rem" }}>Si lo dejas vacío, usamos el nombre del negocio.</p>
                 </div>
                 <div>
                   <label className="label">Cargo o rol</label>
@@ -561,7 +561,7 @@ export function ProfileForm({
                     className="input"
                     value={contactCard.title}
                     onChange={(e) => setContactCard((current) => ({ ...current, title: e.target.value }))}
-                    placeholder="Gerente, asesor, medico, fotografo..."
+                    placeholder="Gerente, asesor, médico, fotógrafo..."
                     disabled={!canEdit}
                   />
                 </div>
@@ -583,11 +583,11 @@ export function ProfileForm({
                       </option>
                     ))}
                   </select>
-                  <p className="muted" style={{ marginTop: ".45rem" }}>Ese numero se guardara dentro del contacto.</p>
+                  <p className="muted" style={{ marginTop: ".45rem" }}>Ese número se guardará dentro del contacto.</p>
                 </div>
               ) : (
                 <div>
-                  <label className="label">Telefono del contacto</label>
+                  <label className="label">Teléfono del contacto</label>
                   <input
                     className="input"
                     value={contactCard.phone}
@@ -595,7 +595,7 @@ export function ProfileForm({
                     placeholder="+57 300 123 4567"
                     disabled={!canEdit}
                   />
-                  <p className="muted" style={{ marginTop: ".45rem" }}>Como no tienes WhatsApp agregado, puedes escribir un numero publico manual.</p>
+                  <p className="muted" style={{ marginTop: ".45rem" }}>Como no tienes WhatsApp agregado, puedes escribir un número público manual.</p>
                 </div>
               )}
 
@@ -606,12 +606,12 @@ export function ProfileForm({
                 </div>
                 <div className="kpi">
                   <strong>Web del contacto</strong>
-                  <p className="muted" style={{ marginTop: ".5rem" }}>{websiteLink?.value || "Usaremos tu Klicor publica si no agregas pagina web"}</p>
+                  <p className="muted" style={{ marginTop: ".5rem" }}>{websiteLink?.value || "Usaremos tu página de Klicor si no agregas un sitio web"}</p>
                 </div>
                 <div className="kpi">
                   <strong>Estado</strong>
                   <p className="muted" style={{ marginTop: ".5rem" }}>
-                    {contactCardPreview.shouldShow ? "La opcion Guardar contacto ya quedaria lista en tu landing." : "Completa los datos para que el contacto tenga al menos un canal util."}
+                    {contactCardPreview.shouldShow ? "El botón Guardar contacto ya quedaría listo en tu página." : "Completa los datos para que el contacto tenga al menos un canal útil."}
                   </p>
                 </div>
               </div>
@@ -643,7 +643,7 @@ export function ProfileForm({
 
           <p className="muted">
             {selectedType === "payment_key"
-              ? "Usa este tipo para mostrar una llave de pago con botones de copiar y ver QR en la landing."
+              ? "Usa este tipo para mostrar una llave de pago con botones para copiar y ver el QR en tu página."
               : null}
             {selectedType === "payment_key" ? " " : ""}
             {selectedType === "whatsapp"
@@ -662,7 +662,7 @@ export function ProfileForm({
                   </div>
                   <div>
                     <label className="label">
-                      {meta.kind === "phone" ? "Numero" : meta.kind === "text" ? "Llave" : meta.kind === "email" ? "Correo" : "URL"}
+                      {meta.kind === "phone" ? "Número" : meta.kind === "text" ? "Llave" : meta.kind === "email" ? "Correo" : "URL"}
                     </label>
                     <input className="input" value={item.value} placeholder={meta.placeholder} onChange={(e) => updateLink(item.id, "value", e.target.value)} disabled={!canEdit} />
                   </div>
@@ -672,7 +672,7 @@ export function ProfileForm({
                   {item.type === "whatsapp" ? (
                     <div className="link-row-message">
                       <label className="label">Mensaje inicial</label>
-                      <input className="input" value={item.message || ""} placeholder="Hola, quiero informacion" onChange={(e) => updateLink(item.id, "message", e.target.value)} disabled={!canEdit} />
+                      <input className="input" value={item.message || ""} placeholder="Hola, quiero información" onChange={(e) => updateLink(item.id, "message", e.target.value)} disabled={!canEdit} />
                     </div>
                   ) : null}
                   {item.type === "payment_key" ? (
@@ -707,8 +707,8 @@ export function ProfileForm({
               );
             }) : (
               <div className="kpi">
-                <strong>Sin enlaces todavia</strong>
-                <p className="muted" style={{ marginTop: ".5rem" }}>Agrega tu primer canal para empezar a construir tu pagina publica.</p>
+                <strong>Sin enlaces todavía</strong>
+                <p className="muted" style={{ marginTop: ".5rem" }}>Agrega tu primer canal para empezar a construir tu página pública.</p>
               </div>
             )}
           </div>
@@ -717,30 +717,30 @@ export function ProfileForm({
         <AccordionSection
           id="appearance"
           title="Apariencia"
-          copy="Usa un preset o abre el modo avanzado para personalizar con control."
+          copy="Usa un preajuste o abre el modo avanzado para personalizar con control."
           openSection={openSection}
           onToggle={toggleSection}
-          trailing={<span className="status-badge">{appearance.advancedEnabled ? "Avanzado" : "Preset"}</span>}
+          trailing={<span className="status-badge">{appearance.advancedEnabled ? "Avanzado" : "Preajuste"}</span>}
         >
           <div className="dashboard-section-head">
             <div>
-              <h3 className="section-title" style={{ fontSize: "1.05rem" }}>Diseño de la landing</h3>
-              <p className="section-copy">Mantenemos el estilo guiado para que tu Klicor se vea limpia y legible.</p>
+              <h3 className="section-title" style={{ fontSize: "1.05rem" }}>Diseño de la página</h3>
+              <p className="section-copy">Mantenemos el estilo guiado para que tu Klicor se vea clara y legible.</p>
             </div>
             <button
               className={`btn ${appearance.advancedEnabled ? "btn-primary" : "btn-secondary"}`}
               type="button"
               onClick={() => setAppearance((current) => ({ ...current, advancedEnabled: !current.advancedEnabled }))}
             >
-              <Paintbrush size={16} /> Personalizar diseno
+              <Paintbrush size={16} /> Personalizar diseño
             </button>
           </div>
 
           <div className={`panel accordion-section preset-accordion ${presetsOpen ? "is-open" : ""}`}>
             <button className="accordion-toggle" type="button" onClick={() => setPresetsOpen((current) => !current)} aria-expanded={presetsOpen}>
               <span className="accordion-toggle-copy">
-                <strong className="section-title" style={{ fontSize: "1rem" }}>Presets visuales</strong>
-                <span className="section-copy">Elige una combinacion lista para empezar mas rapido.</span>
+                <strong className="section-title" style={{ fontSize: "1rem" }}>Estilos predefinidos</strong>
+                <span className="section-copy">Elige una combinación lista para empezar más rápido.</span>
               </span>
               <span className="accordion-toggle-meta">
                 <span className="status-badge">{APPEARANCE_PRESETS.length} opciones</span>
@@ -788,14 +788,14 @@ export function ProfileForm({
               </div>
 
               <div className="appearance-grid">
-                <SegmentedControl label="Fondo" value={appearance.backgroundStyle} options={[{ label: "Solido", value: "solid" }, { label: "Degradado", value: "gradient" }]} onChange={(value) => updateAppearance("backgroundStyle", value)} />
-                <SegmentedControl label="Boton" value={appearance.buttonStyle} options={[{ label: "Solido", value: "solid" }, { label: "Outline", value: "outline" }, { label: "Suave", value: "soft" }]} onChange={(value) => updateAppearance("buttonStyle", value)} />
-                <SegmentedControl label="Borde de boton" value={appearance.buttonRadius} options={[{ label: "Redondeado", value: "rounded" }, { label: "Mas recto", value: "square" }]} onChange={(value) => updateAppearance("buttonRadius", value)} />
-                <SegmentedControl label="Tarjeta" value={appearance.cardTransparency} options={[{ label: "Solida", value: "solid" }, { label: "Transparencia leve", value: "soft" }]} onChange={(value) => updateAppearance("cardTransparency", value)} />
-                <SegmentedControl label="Sombra" value={appearance.cardShadow} options={[{ label: "Ninguna", value: "none" }, { label: "Soft", value: "soft" }, { label: "Medium", value: "medium" }]} onChange={(value) => updateAppearance("cardShadow", value)} />
-                <SegmentedControl label="Forma de imagen" value={appearance.avatarShape} options={[{ label: "Circular", value: "circle" }, { label: "Rounded", value: "rounded" }, { label: "Cuadrado suave", value: "soft-square" }]} onChange={(value) => updateAppearance("avatarShape", value)} />
-                <SegmentedControl label="Tamano del nombre" value={appearance.nameSize} options={[{ label: "S", value: "s" }, { label: "M", value: "m" }, { label: "L", value: "l" }]} onChange={(value) => updateAppearance("nameSize", value)} />
-                <SegmentedControl label="Peso del nombre" value={appearance.nameWeight} options={[{ label: "Regular", value: "regular" }, { label: "Bold", value: "bold" }]} onChange={(value) => updateAppearance("nameWeight", value)} />
+                <SegmentedControl label="Fondo" value={appearance.backgroundStyle} options={[{ label: "Sólido", value: "solid" }, { label: "Degradado", value: "gradient" }]} onChange={(value) => updateAppearance("backgroundStyle", value)} />
+                <SegmentedControl label="Botón" value={appearance.buttonStyle} options={[{ label: "Sólido", value: "solid" }, { label: "Contorno", value: "outline" }, { label: "Suave", value: "soft" }]} onChange={(value) => updateAppearance("buttonStyle", value)} />
+                <SegmentedControl label="Borde del botón" value={appearance.buttonRadius} options={[{ label: "Redondeado", value: "rounded" }, { label: "Más recto", value: "square" }]} onChange={(value) => updateAppearance("buttonRadius", value)} />
+                <SegmentedControl label="Tarjeta" value={appearance.cardTransparency} options={[{ label: "Sólida", value: "solid" }, { label: "Transparencia leve", value: "soft" }]} onChange={(value) => updateAppearance("cardTransparency", value)} />
+                <SegmentedControl label="Sombra" value={appearance.cardShadow} options={[{ label: "Ninguna", value: "none" }, { label: "Suave", value: "soft" }, { label: "Media", value: "medium" }]} onChange={(value) => updateAppearance("cardShadow", value)} />
+                <SegmentedControl label="Forma de imagen" value={appearance.avatarShape} options={[{ label: "Circular", value: "circle" }, { label: "Redondeada", value: "rounded" }, { label: "Cuadrado suave", value: "soft-square" }]} onChange={(value) => updateAppearance("avatarShape", value)} />
+                <SegmentedControl label="Tamaño del nombre" value={appearance.nameSize} options={[{ label: "S", value: "s" }, { label: "M", value: "m" }, { label: "L", value: "l" }]} onChange={(value) => updateAppearance("nameSize", value)} />
+                <SegmentedControl label="Peso del nombre" value={appearance.nameWeight} options={[{ label: "Regular", value: "regular" }, { label: "Negrita", value: "bold" }]} onChange={(value) => updateAppearance("nameWeight", value)} />
               </div>
             </div>
           ) : null}
@@ -831,8 +831,8 @@ export function ProfileForm({
 
       <aside className="preview-shell">
         <div className="preview-header">
-          <span className="pill"><MonitorSmartphone size={16} /> Preview real</span>
-          <p className="section-copy">Refleja el diseno final de la landing publica.</p>
+          <span className="pill"><MonitorSmartphone size={16} /> Vista previa real</span>
+          <p className="section-copy">Refleja el diseño final de la página pública.</p>
         </div>
         <div className="preview-frame">
           <LandingView user={previewUser} preview />

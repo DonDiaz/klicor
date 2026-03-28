@@ -89,7 +89,7 @@ export function DashboardClient() {
         },
       });
     } catch {
-      setError("No pudimos inicializar el checkout oficial de Mercado Pago.");
+      setError("No pudimos iniciar el proceso oficial de pago de Mercado Pago.");
     } finally {
       setPaying(false);
     }
@@ -114,7 +114,7 @@ export function DashboardClient() {
     const auth = getClientAuth();
     if (!auth?.currentUser) return;
     await sendEmailVerification(auth.currentUser);
-    setError("Te reenviamos el correo de verificacion.");
+    setError("Te reenviamos el correo de verificación.");
   }
 
   async function handleLogout() {
@@ -181,8 +181,8 @@ export function DashboardClient() {
       }));
       setRecoveryMessage(
         response.verificationSent
-          ? "Guardamos tus datos y enviamos la verificacion al correo de respaldo."
-          : "Datos de recuperacion actualizados.",
+          ? "Guardamos tus datos y enviamos la verificación al correo de respaldo."
+          : "Datos de recuperación actualizados.",
       );
     } catch (nextError) {
       setRecoveryMessage(nextError.message);
@@ -199,7 +199,7 @@ export function DashboardClient() {
         method: "PUT",
         token,
       });
-      setRecoveryMessage("Reenviamos la verificacion al correo de respaldo.");
+      setRecoveryMessage("Reenviamos la verificación al correo de respaldo.");
     } catch (nextError) {
       setRecoveryMessage(nextError.message);
     } finally {
@@ -213,7 +213,7 @@ export function DashboardClient() {
 
   if (!user) {
     router.replace("/login");
-    return <main className="shell page-shell"><div className="kpi">Redirigiendo a login...</div></main>;
+    return <main className="shell page-shell"><div className="kpi">Redirigiendo al inicio de sesión...</div></main>;
   }
 
   if (!data) {
@@ -247,29 +247,29 @@ export function DashboardClient() {
         </div>
 
         <div className="actions">
-          {isAdmin ? <Link className="btn btn-secondary" href="/admin">Panel admin</Link> : null}
-          <button className="btn btn-secondary" type="button" onClick={handleLogout}><LogOut size={16} /> Cerrar sesion</button>
+          {isAdmin ? <Link className="btn btn-secondary" href="/admin">Panel de administración</Link> : null}
+          <button className="btn btn-secondary" type="button" onClick={handleLogout}><LogOut size={16} /> Cerrar sesión</button>
         </div>
       </header>
 
       <div className="grid-3">
         <div className="kpi">
-          <strong>URL publica</strong>
-          <p className="muted" style={{ marginTop: ".5rem" }}>{data.publicUrl || "Aun no definida"}</p>
+          <strong>URL pública</strong>
+          <p className="muted" style={{ marginTop: ".5rem" }}>{data.publicUrl || "Aún no definida"}</p>
           {data.publicUrl ? (
             <div className="actions" style={{ marginTop: ".85rem" }}>
               <button className="btn btn-secondary" type="button" onClick={handleCopyPublicUrl}>
-                <Copy size={16} /> Copiar link
+                <Copy size={16} /> Copiar enlace
               </button>
               <a className="btn btn-secondary" href={data.publicUrl} target="_blank" rel="noreferrer">
-                <ExternalLink size={16} /> Abrir link
+                <ExternalLink size={16} /> Abrir enlace
               </a>
             </div>
           ) : null}
         </div>
         <div className="kpi">
           <strong>QR</strong>
-          <p className="muted" style={{ marginTop: ".5rem" }}>{data.user.qrUrl ? "Permanente aunque cambies el username" : "Se genera al guardar el username"}</p>
+          <p className="muted" style={{ marginTop: ".5rem" }}>{data.user.qrUrl ? "Permanente aunque cambies tu nombre de usuario" : "Se genera al guardar tu nombre de usuario"}</p>
           {data.user.qrUrl ? (
             <div className="actions" style={{ marginTop: ".85rem" }}>
               <button className="btn btn-secondary" type="button" onClick={handleQrDownload}>
@@ -290,21 +290,21 @@ export function DashboardClient() {
         <div className="notice notice-danger">
           <ShieldAlert size={16} />
           <span>Debes verificar tu correo para completar el flujo comercial.</span>
-          <button className="btn btn-secondary" type="button" onClick={handleSendVerification}><Send size={16} /> Reenviar verificacion</button>
+          <button className="btn btn-secondary" type="button" onClick={handleSendVerification}><Send size={16} /> Reenviar verificación</button>
         </div>
       ) : null}
 
       {data.user.status === "grace_period" ? (
         <div className="notice">
           <AlertTriangle size={16} />
-          <span>Tu suscripcion vencio. Tienes 15 dias sin edicion antes de suspender la landing.</span>
+          <span>Tu suscripción venció. Tienes 15 días sin edición antes de suspender la página.</span>
         </div>
       ) : null}
 
       {data.user.status === "suspended" ? (
         <div className="notice notice-danger">
           <ShieldAlert size={16} />
-          <span>Tu pagina esta suspendida hasta registrar el pago anual.</span>
+          <span>Tu página está suspendida hasta registrar el pago anual.</span>
         </div>
       ) : null}
 
@@ -330,8 +330,8 @@ export function DashboardClient() {
       <section className="card qr-card">
         <div className="dashboard-section-head">
           <div>
-            <h2 className="section-title">Suscripcion</h2>
-            <p className="section-copy">Renovacion manual anual mediante Mercado Pago.</p>
+            <h2 className="section-title">Suscripción</h2>
+            <p className="section-copy">Renovación manual anual mediante Mercado Pago.</p>
           </div>
           <span className="status-badge">
             {Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", maximumFractionDigits: 0 }).format(data.settings.annualPrice)}
@@ -348,23 +348,23 @@ export function DashboardClient() {
             <p className="muted" style={{ marginTop: ".5rem" }}>{data.user.expiresAtLabel || "-"}</p>
           </div>
           <div className="kpi">
-            <strong>Renovacion</strong>
+            <strong>Renovación</strong>
             <p className="muted" style={{ marginTop: ".5rem" }}>Manual por Mercado Pago</p>
           </div>
         </div>
 
         <div className="actions">
           <button className="btn btn-primary" type="button" onClick={handleCheckout} disabled={paying || !user.emailVerified}>
-            <CreditCard size={16} /> {paying ? "Abriendo checkout..." : data.user.status === "active" ? "Renovar plan" : "Activar plan"}
+            <CreditCard size={16} /> {paying ? "Abriendo pago..." : data.user.status === "active" ? "Renovar plan" : "Activar plan"}
           </button>
         </div>
 
         {checkoutConfig ? (
           <div className="stack" style={{ gap: ".85rem", marginTop: "1rem" }}>
-            <p className="muted">Checkout oficial de Mercado Pago cargado segun documentacion. Si no responde, puedes continuar con el fallback.</p>
+            <p className="muted">El proceso oficial de pago de Mercado Pago se cargó según la documentación. Si no responde, puedes continuar con la opción alternativa.</p>
             <div id="mercadopago-checkout" />
             <button className="btn btn-secondary" type="button" onClick={() => window.location.href = checkoutConfig.initPoint}>
-              Abrir checkout por redireccion
+              Abrir pago por redirección
             </button>
           </div>
         ) : null}

@@ -16,12 +16,12 @@ export default function LoginPage() {
               Empieza con una cuenta clara, simple y lista para vender.
             </h1>
             <p className="lead">
-              Registrate con correo o Google y activa tu pagina publica, tu URL unica y tu QR en una sola plataforma.
+              Regístrate con correo o Google y activa tu página pública, tu URL única y tu QR en una sola plataforma.
             </p>
           </div>
 
           <div className="auth-brand-points">
-            <div className="auth-brand-point"><CheckCircle2 size={18} /> Prueba gratis durante 30 dias</div>
+            <div className="auth-brand-point"><CheckCircle2 size={18} /> Prueba gratis durante 30 días</div>
             <div className="auth-brand-point"><Link2 size={18} /> Un solo enlace para todos tus canales</div>
             <div className="auth-brand-point"><QrCode size={18} /> QR descargable desde tu panel</div>
           </div>
