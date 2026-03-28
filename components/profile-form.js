@@ -645,7 +645,6 @@ export function ProfileForm({
                 <ColorEditor label="Color de fondo" value={appearance.backgroundColor} onChange={(value) => updateAppearance("backgroundColor", value)} swatches={APPEARANCE_SWATCHES.backgroundColor} />
                 <ColorEditor label="Color de tarjetas" value={appearance.surfaceColor} onChange={(value) => updateAppearance("surfaceColor", value)} swatches={APPEARANCE_SWATCHES.surfaceColor} />
                 <ColorEditor label="Texto principal" value={appearance.textPrimaryColor} onChange={(value) => updateAppearance("textPrimaryColor", value)} swatches={APPEARANCE_SWATCHES.textPrimaryColor} />
-                <ColorEditor label="Texto secundario" value={appearance.textSecondaryColor} onChange={(value) => updateAppearance("textSecondaryColor", value)} swatches={APPEARANCE_SWATCHES.textSecondaryColor} />
                 <ColorEditor label="Texto de botones" value={appearance.buttonTextColor} onChange={(value) => updateAppearance("buttonTextColor", value)} swatches={APPEARANCE_SWATCHES.buttonTextColor} />
               </div>
 
