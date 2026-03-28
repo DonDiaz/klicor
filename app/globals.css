@@ -1397,6 +1397,7 @@ img { max-width: 100%; display: block; }
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
   border-radius: 18px;
   overflow: hidden;
 }
@@ -1406,6 +1407,7 @@ img { max-width: 100%; display: block; }
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
   padding: 2rem 1rem;
   background: linear-gradient(180deg, #F8FAFC, #EEF2FF);
 }
@@ -1608,6 +1610,33 @@ img { max-width: 100%; display: block; }
 }
 
 .public-link svg { flex: 0 0 auto; }
+
+.floating-contact-button {
+  position: fixed;
+  right: max(1rem, env(safe-area-inset-right));
+  bottom: calc(1rem + env(safe-area-inset-bottom));
+  width: 62px;
+  height: 62px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  z-index: 40;
+  transform: translateZ(0);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.floating-contact-button:hover {
+  transform: translateY(-2px);
+}
+
+.floating-contact-button.is-preview {
+  position: absolute;
+  right: 1rem;
+  bottom: 1rem;
+}
 
 .mobile-demo-link {
   display: none;

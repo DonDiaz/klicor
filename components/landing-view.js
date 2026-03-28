@@ -1,4 +1,4 @@
-import { Download, Globe } from "lucide-react";
+import { Globe, Save } from "lucide-react";
 import { resolveContactCardData } from "@/lib/contact-card";
 import { LINK_CATALOG_MAP } from "@/lib/link-catalog";
 import { hexToRgba, normalizeAppearance } from "@/lib/theme-system";
@@ -134,24 +134,6 @@ export function LandingView({ user, preview = false }) {
             />
           ) : null}
 
-          {contactCard.shouldShow ? (
-            preview ? (
-              <div className="public-link" style={{ ...buttonStyle, borderRadius: RADIUS_MAP[appearance.buttonRadius] }}>
-                <Download size={18} />
-                <span>Guardar contacto</span>
-              </div>
-            ) : (
-              <a
-                className="public-link"
-                style={{ ...buttonStyle, borderRadius: RADIUS_MAP[appearance.buttonRadius] }}
-                href={`/api/analytics/click?username=${user.username}&button=contact_card&target=${encodeURIComponent(contactCard.contactUrl)}`}
-              >
-                <Download size={18} />
-                <span>Guardar contacto</span>
-              </a>
-            )
-          ) : null}
-
           {visibleLinks.length ? visibleLinks.map((item) => {
             const Icon = LINK_CATALOG_MAP[item.type]?.icon || Globe;
             const content = <><Icon size={18} /><span>{item.label}</span></>;
@@ -169,6 +151,37 @@ export function LandingView({ user, preview = false }) {
           ) : null}
         </div>
       </section>
+
+      {contactCard.shouldShow ? (
+        preview ? (
+          <div
+            className="floating-contact-button is-preview"
+            style={{
+              background: appearance.primaryColor,
+              color: appearance.buttonTextColor,
+              boxShadow: `0 20px 44px ${hexToRgba(appearance.primaryColor, 0.32)}`,
+            }}
+            aria-label="Guardar contacto"
+            title="Guardar contacto"
+          >
+            <Save size={20} />
+          </div>
+        ) : (
+          <a
+            className="floating-contact-button"
+            style={{
+              background: appearance.primaryColor,
+              color: appearance.buttonTextColor,
+              boxShadow: `0 20px 44px ${hexToRgba(appearance.primaryColor, 0.32)}`,
+            }}
+            href={`/api/analytics/click?username=${user.username}&button=contact_card&target=${encodeURIComponent(contactCard.contactUrl)}`}
+            aria-label="Guardar contacto"
+            title="Guardar contacto"
+          >
+            <Save size={20} />
+          </a>
+        )
+      ) : null}
     </main>
   );
 }
