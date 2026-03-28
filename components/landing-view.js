@@ -1,6 +1,7 @@
 import { Globe } from "lucide-react";
 import { LINK_CATALOG_MAP } from "@/lib/link-catalog";
 import { hexToRgba, normalizeAppearance } from "@/lib/theme-system";
+import { PaymentKeyCard } from "@/components/payment-key-card";
 
 const NAME_SIZE_MAP = {
   s: "1.6rem",
@@ -32,6 +33,8 @@ const AVATAR_RADIUS_MAP = {
 
 export function LandingView({ user, preview = false }) {
   const links = user.profileLinks || [];
+  const paymentKey = links.find((item) => item.type === "payment_key");
+  const visibleLinks = links.filter((item) => item.type !== "payment_key");
   const appearance = normalizeAppearance(user.settings);
 
   const pageBackground = appearance.backgroundStyle === "gradient"
@@ -113,8 +116,17 @@ export function LandingView({ user, preview = false }) {
           </h1>
         </div>
 
+        {paymentKey ? (
+          <PaymentKeyCard
+            item={paymentKey}
+            preview={preview}
+            buttonStyle={buttonStyle}
+            buttonRadius={RADIUS_MAP[appearance.buttonRadius]}
+          />
+        ) : null}
+
         <div className="public-links">
-          {links.length ? links.map((item) => {
+          {visibleLinks.length ? visibleLinks.map((item) => {
             const Icon = LINK_CATALOG_MAP[item.type]?.icon || Globe;
             const content = <><Icon size={18} /><span>{item.label}</span></>;
 
@@ -126,7 +138,7 @@ export function LandingView({ user, preview = false }) {
           }) : (
             <div className="public-link" style={{ ...buttonStyle, borderRadius: RADIUS_MAP[appearance.buttonRadius] }}>
               <Globe size={18} />
-              <span>Agrega tus enlaces para ver la vista previa</span>
+              <span>{paymentKey ? "Agrega mas enlaces para completar tu landing" : "Agrega tus enlaces para ver la vista previa"}</span>
             </div>
           )}
         </div>

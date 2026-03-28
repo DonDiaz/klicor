@@ -1413,6 +1413,116 @@ img { max-width: 100%; display: block; }
   margin-top: 1.5rem;
 }
 
+.payment-key-card {
+  display: grid;
+  gap: 0.9rem;
+  margin-top: 1.4rem;
+  padding: 1rem;
+  border-radius: 18px;
+  border: 1px solid rgba(100, 116, 139, 0.18);
+  background: rgba(255, 255, 255, 0.08);
+  text-align: left;
+}
+
+.payment-key-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  align-items: flex-start;
+}
+
+.payment-key-head p {
+  margin: 0.35rem 0 0;
+  font-size: 0.92rem;
+  color: var(--text-secondary);
+}
+
+.payment-key-value,
+.payment-key-code {
+  display: block;
+  width: 100%;
+  padding: 0.9rem 1rem;
+  border-radius: 14px;
+  background: rgba(15, 23, 42, 0.07);
+  border: 1px dashed rgba(100, 116, 139, 0.28);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 1rem;
+  font-weight: 700;
+  word-break: break-word;
+  text-align: center;
+}
+
+.payment-key-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.payment-key-action {
+  width: 100%;
+  cursor: pointer;
+}
+
+.qr-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  padding: 1.25rem;
+  background: rgba(11, 16, 32, 0.58);
+  backdrop-filter: blur(6px);
+}
+
+.qr-modal-card {
+  position: relative;
+  width: min(420px, 100%);
+  display: grid;
+  gap: 1rem;
+  padding: 1.25rem;
+  border-radius: 24px;
+  background: #ffffff;
+  color: var(--text-primary);
+  text-align: center;
+  box-shadow: 0 28px 60px rgba(15, 23, 42, 0.24);
+}
+
+.qr-modal-card p {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+.qr-modal-close {
+  position: absolute;
+  top: 0.8rem;
+  right: 0.8rem;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.06);
+  color: var(--text-primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.qr-modal-canvas {
+  min-height: 280px;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  border-radius: 20px;
+  background: #F8FAFC;
+}
+
+.qr-modal-canvas img {
+  width: min(280px, 100%);
+  height: auto;
+  display: block;
+}
+
 .public-link {
   display: flex;
   align-items: center;
@@ -1486,7 +1596,8 @@ img { max-width: 100%; display: block; }
   .appearance-grid,
   .profile-grid,
   .link-row,
-  .link-toolbar {
+  .link-toolbar,
+  .payment-key-actions {
     grid-template-columns: 1fr;
   }
 

@@ -56,6 +56,10 @@ function normalizeLinkUrl(item) {
     return digits ? `https://wa.me/${digits}?text=${encodeURIComponent(message)}` : "";
   }
 
+  if (meta?.kind === "text") {
+    return "";
+  }
+
   return /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
 }
 
@@ -473,6 +477,10 @@ export function ProfileForm({
           </div>
 
           <p className="muted">
+            {selectedType === "payment_key"
+              ? "Usa este tipo para mostrar una llave de pago con botones de copiar y ver QR en la landing."
+              : null}
+            {selectedType === "payment_key" ? " " : ""}
             {selectedType === "whatsapp"
               ? `WhatsApp permite hasta ${selectedTypeLimit} enlaces. Ya tienes ${selectedTypeCount}.`
               : `${LINK_CATALOG_MAP[selectedType]?.label || "Esta red"} permite solo ${selectedTypeLimit} enlace. Ya tienes ${selectedTypeCount}.`}
@@ -488,7 +496,9 @@ export function ProfileForm({
                     <input className="input" value={item.label} onChange={(e) => updateLink(item.id, "label", e.target.value)} disabled={!canEdit} />
                   </div>
                   <div>
-                    <label className="label">{meta.kind === "phone" ? "Numero" : "URL"}</label>
+                    <label className="label">
+                      {meta.kind === "phone" ? "Numero" : meta.kind === "text" ? "Llave" : "URL"}
+                    </label>
                     <input className="input" value={item.value} placeholder={meta.placeholder} onChange={(e) => updateLink(item.id, "value", e.target.value)} disabled={!canEdit} />
                   </div>
                   <button className="btn btn-secondary link-remove" type="button" onClick={() => removeLink(item.id)} disabled={!canEdit}>
