@@ -63,10 +63,10 @@ export function LandingLoginModal() {
             initialMode="login"
             allowRegister={false}
             hideSwitcher
-            title="Bienvenido de nuevo"
-            description="Accede a tu panel para editar enlaces, descargar tu QR y administrar tu Klicor."
-            submitLabel="Entrar al panel"
-            googleLabel="Iniciar con Google"
+            compact
+            title="Entra a tu panel"
+            description="Usa Google, un enlace a tu correo o tu contraseña si ya la venías usando."
+            googleLabel="Continuar con Google"
             onSuccess={handleSuccess}
           />
         </div>

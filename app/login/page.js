@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowLeft, CheckCircle2, Link2, QrCode } from "lucide-react";
+import { ArrowLeft, CheckCircle2, LayoutDashboard, MailCheck, QrCode, ShieldCheck } from "lucide-react";
 import { AuthForm } from "@/components/auth-form";
 import { BrandLogo } from "@/components/brand-logo";
 
@@ -7,27 +7,57 @@ export default function LoginPage() {
   return (
     <main className="auth-shell">
       <div className="shell auth-layout">
-        <section className="auth-brand-panel">
-          <BrandLogo />
+        <section className="auth-brand-panel auth-system-panel">
+          <BrandLogo lightText />
 
-          <div className="stack">
-            <span className="pill">Acceso y registro</span>
-            <h1 className="title" style={{ fontSize: "clamp(2.4rem, 6vw, 4.2rem)" }}>
-              Empieza con una cuenta clara, simple y lista para vender.
+          <div className="stack auth-system-copy">
+            <span className="pill auth-system-pill">Entrada unificada</span>
+            <h1 className="title auth-system-title">
+              Entra a Klicor sin pelear con un formulario largo.
             </h1>
-            <p className="lead">
-              Regístrate con correo o Google y activa tu página pública, tu URL única y tu QR en una sola plataforma.
+            <p className="lead auth-system-lead">
+              Google arriba, correo sin contraseña como camino principal y acceso clásico solo para quienes todavía lo necesitan.
             </p>
           </div>
 
-          <div className="auth-brand-points">
+          <div className="auth-system-steps">
+            <article className="auth-system-step">
+              <div className="auth-system-step-index">01</div>
+              <div>
+                <strong>Elige una entrada simple</strong>
+                <p>Continúa con Google o pide un enlace a tu correo para entrar sin contraseña.</p>
+              </div>
+            </article>
+            <article className="auth-system-step">
+              <div className="auth-system-step-index">02</div>
+              <div>
+                <strong>Verifica y entra</strong>
+                <p>El enlace del correo ya valida la identidad y te lleva directo al panel cuando lo abras.</p>
+              </div>
+            </article>
+            <article className="auth-system-step">
+              <div className="auth-system-step-index">03</div>
+              <div>
+                <strong>Activa tu presencia</strong>
+                <p>Configura enlaces, QR, cobros y contacto desde un mismo lugar apenas entres.</p>
+              </div>
+            </article>
+          </div>
+
+          <div className="auth-brand-points auth-system-points">
             <div className="auth-brand-point"><CheckCircle2 size={18} /> Prueba gratis durante 30 días</div>
-            <div className="auth-brand-point"><Link2 size={18} /> Un solo enlace para todos tus canales</div>
-            <div className="auth-brand-point"><QrCode size={18} /> QR descargable desde tu panel</div>
+            <div className="auth-brand-point"><MailCheck size={18} /> Correo con acceso directo</div>
+            <div className="auth-brand-point"><LayoutDashboard size={18} /> Dashboard listo para editar y publicar</div>
+            <div className="auth-brand-point"><QrCode size={18} /> QR estable y descargable desde tu panel</div>
+          </div>
+
+          <div className="auth-system-note">
+            <ShieldCheck size={18} />
+            <span>Diseñamos esta entrada para reducir fricción sin perder claridad ni control sobre tu cuenta.</span>
           </div>
 
           <div className="actions">
-            <Link className="btn btn-secondary" href="/">
+            <Link className="btn btn-secondary auth-system-back" href="/">
               <ArrowLeft size={16} /> Volver al inicio
             </Link>
           </div>
