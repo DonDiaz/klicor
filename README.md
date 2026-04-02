@@ -47,6 +47,7 @@ Copia `.env.example` a `.env.local` y completa:
 - `RESEND_API_KEY`
 - `EMAIL_FROM`
 - `ADMIN_EMAIL`
+- `GOOGLE_WEB_RISK_API_KEY` (opcional, pero recomendado para bloqueo de malware y phishing)
 - `CRON_SECRET`
 
 ## Firebase
@@ -94,6 +95,12 @@ Klicor <hola@tu-dominio.com>
 3. Deja activo `vercel.json` para el cron diario.
 4. Configura tu dominio final y actualiza `NEXT_PUBLIC_APP_URL`.
 5. Despliega.
+
+## Validacion de enlaces
+
+- Klicor bloquea enlaces con formatos inseguros o direcciones privadas/locales desde el backend.
+- Si configuras `GOOGLE_WEB_RISK_API_KEY`, tambien revisa malware, phishing y software no deseado antes de guardar.
+- Los tipos revisados en esta v1 son solo los enlaces web (`website`, redes, mapas, tienda, etc.).
 
 ## Desarrollo local
 

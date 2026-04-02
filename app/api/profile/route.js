@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { buildShareProfileUrl } from "@/lib/public-profile-links";
+import { validateProfileLinksSafety } from "@/lib/link-safety";
 import { profileSchema } from "@/lib/schemas";
 import { verifyRequest } from "@/lib/auth";
 import { getAccountView, updateUserProfile } from "@/lib/firestore";
@@ -34,6 +35,8 @@ export async function POST(request) {
     if (warnings.length) {
       return NextResponse.json({ error: warnings[0].message }, { status: 400 });
     }
+
+    await validateProfileLinksSafety(parsed.profileLinks);
 
     const photo = formData.get("photo");
     const paymentQrImage = formData.get("paymentQrImage");
