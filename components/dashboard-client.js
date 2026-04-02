@@ -9,7 +9,6 @@ import {
   AlertTriangle,
   CheckCircle2,
   Copy,
-  CreditCard,
   Download,
   ExternalLink,
   LogOut,
@@ -350,12 +349,17 @@ export function DashboardClient() {
         token={token}
         profile={data.user}
         canEdit={canEdit}
+        subscriptionSettings={data.settings}
+        userEmailVerified={user.emailVerified}
+        paying={paying}
+        checkoutConfig={checkoutConfig}
         recovery={recovery}
         recoveryLoading={recoveryLoading}
         recoveryMessage={recoveryMessage}
         onRecoveryFieldChange={handleRecoveryFieldChange}
         onSaveRecovery={saveRecoverySettings}
         onResendRecoveryVerification={resendRecoveryVerification}
+        onCheckout={handleCheckout}
         onSaved={(userData) => setData({
           ...data,
           user: userData,
@@ -364,49 +368,6 @@ export function DashboardClient() {
           stablePublicUrl: userData.stablePublicUrl || data.stablePublicUrl,
         })}
       />
-
-      <section id="dashboard-section-subscription" className="card qr-card">
-        <div className="dashboard-section-head">
-          <div>
-            <h2 className="section-title">Suscripción</h2>
-            <p className="section-copy">Renovación manual anual mediante Mercado Pago.</p>
-          </div>
-          <span className="status-badge">
-            {Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", maximumFractionDigits: 0 }).format(data.settings.annualPrice)}
-          </span>
-        </div>
-
-        <div className="grid-3">
-          <div className="kpi">
-            <strong>Prueba hasta</strong>
-            <p className="muted" style={{ marginTop: ".5rem" }}>{data.user.trialEndsAtLabel || "-"}</p>
-          </div>
-          <div className="kpi">
-            <strong>Expira</strong>
-            <p className="muted" style={{ marginTop: ".5rem" }}>{data.user.expiresAtLabel || "-"}</p>
-          </div>
-          <div className="kpi">
-            <strong>Renovación</strong>
-            <p className="muted" style={{ marginTop: ".5rem" }}>Manual por Mercado Pago</p>
-          </div>
-        </div>
-
-        <div className="actions">
-          <button className="btn btn-primary" type="button" onClick={handleCheckout} disabled={paying || !user.emailVerified}>
-            <CreditCard size={16} /> {paying ? "Abriendo pago..." : data.user.status === "active" ? "Renovar plan" : "Activar plan"}
-          </button>
-        </div>
-
-        {checkoutConfig ? (
-          <div className="stack" style={{ gap: ".85rem", marginTop: "1rem" }}>
-            <p className="muted">El proceso oficial de pago de Mercado Pago se cargó según la documentación. Si no responde, puedes continuar con la opción alternativa.</p>
-            <div id="mercadopago-checkout" />
-            <button className="btn btn-secondary" type="button" onClick={() => { window.location.href = checkoutConfig.initPoint; }}>
-              Abrir pago por redirección
-            </button>
-          </div>
-        ) : null}
-      </section>
 
       {error ? <p className="notice">{error}</p> : null}
     </main>

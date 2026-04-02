@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import {
+  CreditCard,
   ChevronDown,
   ChevronUp,
   ImagePlus,
@@ -161,17 +162,45 @@ function AccordionSection({ id, title, copy, openSection, onToggle, children, tr
   );
 }
 
+function getSubscriptionTone(status) {
+  if (status === "active" || status === "trial") return "success";
+  if (status === "grace_period") return "warning";
+  if (status === "suspended") return "danger";
+  return "";
+}
+
+function getSubscriptionLabel(status) {
+  if (status === "trial") return "Período de prueba";
+  if (status === "active") return "Activa";
+  if (status === "grace_period") return "Vencida con plazo";
+  if (status === "suspended") return "Suspendida";
+  return "Sin definir";
+}
+
+function getSubscriptionMessage(status) {
+  if (status === "trial") return "Tu cuenta sigue activa y puedes editar mientras termina el período de prueba.";
+  if (status === "active") return "Tu cuenta está operativa y lista para seguir compartiendo y cobrando.";
+  if (status === "grace_period") return "Tu cuenta requiere renovación para no perder edición durante el plazo de gracia.";
+  if (status === "suspended") return "Tu cuenta necesita registrar el pago para volver a operar con normalidad.";
+  return "Revisa el estado de tu cuenta para mantener la operación del perfil.";
+}
+
 export function ProfileForm({
   token,
   profile,
   onSaved,
   canEdit,
+  subscriptionSettings,
+  userEmailVerified,
+  paying,
+  checkoutConfig,
   recovery,
   recoveryLoading,
   recoveryMessage,
   onRecoveryFieldChange,
   onSaveRecovery,
   onResendRecoveryVerification,
+  onCheckout,
 }) {
   const [form, setForm] = useState({
     businessName: profile?.businessName || "",
@@ -386,6 +415,19 @@ export function ProfileForm({
   const usernameChanged = Boolean(profile?.username) && form.username.trim() && form.username.trim() !== profile.username;
   const recoveryProtected = Boolean(recovery?.backupEmailVerified);
   const contactCardEnabled = Boolean(contactCard.enabled);
+  const subscriptionTone = getSubscriptionTone(profile?.status);
+  const subscriptionLabel = getSubscriptionLabel(profile?.status);
+  const subscriptionMessage = getSubscriptionMessage(profile?.status);
+  const annualPriceLabel = Intl.NumberFormat("es-CO", {
+    style: "currency",
+    currency: "COP",
+    maximumFractionDigits: 0,
+  }).format(subscriptionSettings?.annualPrice || 0);
+  const subscriptionActionLabel = paying
+    ? "Abriendo pago..."
+    : profile?.status === "active"
+      ? "Renovar plan"
+      : "Activar plan";
 
   return (
     <div className="editor-layout">
@@ -393,7 +435,7 @@ export function ProfileForm({
         <AccordionSection
           id="profile"
           title="Perfil"
-          copy="Actualiza nombre, usuario, imagen y seguridad de la cuenta."
+          copy="Actualiza identidad, seguridad y estado operativo de la cuenta."
           openSection={openSection}
           onToggle={toggleSection}
           trailing={<span className={`status-badge ${recoveryProtected ? "success" : ""}`}>{recoveryProtected ? "Protegida" : "Pendiente"}</span>}
@@ -534,110 +576,56 @@ export function ProfileForm({
 
           <div className="dashboard-section-head">
             <div>
-              <h3 className="section-title" style={{ fontSize: "1.05rem" }}>Guardar contacto</h3>
-              <p className="section-copy">Decide si tu página mostrará un botón para guardar tu negocio como contacto.</p>
+              <h3 className="section-title" style={{ fontSize: "1.05rem" }}>Suscripción y estado de cuenta</h3>
+              <p className="section-copy">Mantén visible el estado del plan dentro del contexto de la cuenta.</p>
             </div>
-            <span className={`status-badge ${contactCardEnabled ? "success" : ""}`}>
-              {contactCardEnabled ? <Link2 size={14} /> : null}
-              {contactCardEnabled ? "Activo" : "Oculto"}
+            <span className={`status-badge ${subscriptionTone}`}>
+              <CreditCard size={14} />
+              {subscriptionLabel}
             </span>
           </div>
 
-          <label className="toggle-card">
-            <input
-              type="checkbox"
-              checked={contactCardEnabled}
-              onChange={(e) => setContactCard((current) => ({ ...current, enabled: e.target.checked }))}
-              disabled={!canEdit}
-            />
-            <span className="toggle-copy">
-              <strong>Mostrar botón Guardar contacto en mi página</strong>
-              <small>Klicor generará una vCard simple con tus datos públicos si lo activas.</small>
-            </span>
-          </label>
+          <div className="grid-3">
+            <div className="kpi">
+              <strong>Valor anual</strong>
+              <p className="muted" style={{ marginTop: ".5rem" }}>{annualPriceLabel}</p>
+            </div>
+            <div className="kpi">
+              <strong>Período de prueba</strong>
+              <p className="muted" style={{ marginTop: ".5rem" }}>{profile?.trialEndsAtLabel || "-"}</p>
+            </div>
+            <div className="kpi">
+              <strong>Expira</strong>
+              <p className="muted" style={{ marginTop: ".5rem" }}>{profile?.expiresAtLabel || "-"}</p>
+            </div>
+          </div>
 
-          {contactCardEnabled ? (
-            <div className="section-stack">
-              <div className="profile-grid">
-                <div>
-                  <label className="label">Nombre del contacto</label>
-                  <input
-                    className="input"
-                    value={contactCard.name}
-                    onChange={(e) => setContactCard((current) => ({ ...current, name: e.target.value }))}
-                    placeholder={form.businessName || "Tu negocio"}
-                    disabled={!canEdit}
-                  />
-                  <p className="muted" style={{ marginTop: ".45rem" }}>Si lo dejas vacío, usamos el nombre del negocio.</p>
-                </div>
-                <div>
-                  <label className="label">Cargo o rol</label>
-                  <input
-                    className="input"
-                    value={contactCard.title}
-                    onChange={(e) => setContactCard((current) => ({ ...current, title: e.target.value }))}
-                    placeholder="Gerente, asesor, médico, fotógrafo..."
-                    disabled={!canEdit}
-                  />
-                </div>
-              </div>
+          <div className="kpi">
+            <strong>Estado operativo</strong>
+            <p className="muted" style={{ marginTop: ".5rem" }}>{subscriptionMessage}</p>
+          </div>
 
-              {whatsappLinks.length ? (
-                <div>
-                  <label className="label">WhatsApp para el contacto</label>
-                  <select
-                    className="select"
-                    value={contactCard.whatsappLinkId}
-                    onChange={(e) => setContactCard((current) => ({ ...current, whatsappLinkId: e.target.value }))}
-                    disabled={!canEdit}
-                  >
-                    <option value="">Usar el primer WhatsApp disponible</option>
-                    {whatsappLinks.map((item) => (
-                      <option key={item.id} value={item.id}>
-                        {item.label} - {item.value}
-                      </option>
-                    ))}
-                  </select>
-                  <p className="muted" style={{ marginTop: ".45rem" }}>Ese número se guardará dentro del contacto.</p>
-                </div>
-              ) : (
-                <div>
-                  <label className="label">Teléfono del contacto</label>
-                  <input
-                    className="input"
-                    value={contactCard.phone}
-                    onChange={(e) => setContactCard((current) => ({ ...current, phone: e.target.value }))}
-                    placeholder="+57 300 123 4567"
-                    disabled={!canEdit}
-                  />
-                  <p className="muted" style={{ marginTop: ".45rem" }}>Como no tienes WhatsApp agregado, puedes escribir un número público manual.</p>
-                </div>
-              )}
+          <div className="actions">
+            <button className="btn btn-primary" type="button" onClick={onCheckout} disabled={paying || !userEmailVerified}>
+              <CreditCard size={16} /> {subscriptionActionLabel}
+            </button>
+          </div>
 
-              <div className="grid-3">
-                <div className="kpi">
-                  <strong>Correo del contacto</strong>
-                  <p className="muted" style={{ marginTop: ".5rem" }}>{emailLink?.value || "Agrega un enlace de correo en Enlaces"}</p>
-                </div>
-                <div className="kpi">
-                  <strong>Web del contacto</strong>
-                  <p className="muted" style={{ marginTop: ".5rem" }}>{websiteLink?.value || "Usaremos tu página de Klicor si no agregas un sitio web"}</p>
-                </div>
-                <div className="kpi">
-                  <strong>Estado</strong>
-                  <p className="muted" style={{ marginTop: ".5rem" }}>
-                    {contactCardPreview.shouldShow ? "El botón Guardar contacto ya quedaría listo en tu página." : "Completa los datos para que el contacto tenga al menos un canal útil."}
-                  </p>
-                </div>
-              </div>
+          {checkoutConfig ? (
+            <div className="stack" style={{ gap: ".85rem" }}>
+              <p className="muted">El proceso oficial de pago de Mercado Pago ya está listo. Si el widget no responde, puedes continuar por redirección.</p>
+              <div id="mercadopago-checkout" />
+              <button className="btn btn-secondary" type="button" onClick={() => { window.location.href = checkoutConfig.initPoint; }}>
+                Abrir pago por redirección
+              </button>
             </div>
           ) : null}
         </AccordionSection>
 
         <AccordionSection
           id="links"
-          title="Enlaces"
-          copy="Agrega y ordena los canales principales de tu negocio."
+          title="Enlaces y cobros"
+          copy="Administra redes, contacto, llave Bre-B y canales visibles de tu negocio."
           openSection={openSection}
           onToggle={toggleSection}
           trailing={<span className="status-badge">{profileLinks.length} enlaces</span>}
@@ -727,6 +715,108 @@ export function ProfileForm({
               </div>
             )}
           </div>
+          <div className="section-divider" />
+
+          <div className="dashboard-section-head">
+            <div>
+              <h3 className="section-title" style={{ fontSize: "1.05rem" }}>Guardar contacto</h3>
+              <p className="section-copy">Decide si tu página mostrará un botón para guardar tu negocio como contacto.</p>
+            </div>
+            <span className={`status-badge ${contactCardEnabled ? "success" : ""}`}>
+              {contactCardEnabled ? <Link2 size={14} /> : null}
+              {contactCardEnabled ? "Activo" : "Oculto"}
+            </span>
+          </div>
+
+          <label className="toggle-card">
+            <input
+              type="checkbox"
+              checked={contactCardEnabled}
+              onChange={(e) => setContactCard((current) => ({ ...current, enabled: e.target.checked }))}
+              disabled={!canEdit}
+            />
+            <span className="toggle-copy">
+              <strong>Mostrar botón Guardar contacto en mi página</strong>
+              <small>Klicor generará una vCard simple con tus datos públicos si lo activas.</small>
+            </span>
+          </label>
+
+          {contactCardEnabled ? (
+            <div className="section-stack">
+              <div className="profile-grid">
+                <div>
+                  <label className="label">Nombre del contacto</label>
+                  <input
+                    className="input"
+                    value={contactCard.name}
+                    onChange={(e) => setContactCard((current) => ({ ...current, name: e.target.value }))}
+                    placeholder={form.businessName || "Tu negocio"}
+                    disabled={!canEdit}
+                  />
+                  <p className="muted" style={{ marginTop: ".45rem" }}>Si lo dejas vacío, usamos el nombre del negocio.</p>
+                </div>
+                <div>
+                  <label className="label">Cargo o rol</label>
+                  <input
+                    className="input"
+                    value={contactCard.title}
+                    onChange={(e) => setContactCard((current) => ({ ...current, title: e.target.value }))}
+                    placeholder="Gerente, asesor, médico, fotógrafo..."
+                    disabled={!canEdit}
+                  />
+                </div>
+              </div>
+
+              {whatsappLinks.length ? (
+                <div>
+                  <label className="label">WhatsApp para el contacto</label>
+                  <select
+                    className="select"
+                    value={contactCard.whatsappLinkId}
+                    onChange={(e) => setContactCard((current) => ({ ...current, whatsappLinkId: e.target.value }))}
+                    disabled={!canEdit}
+                  >
+                    <option value="">Usar el primer WhatsApp disponible</option>
+                    {whatsappLinks.map((item) => (
+                      <option key={item.id} value={item.id}>
+                        {item.label} - {item.value}
+                      </option>
+                    ))}
+                  </select>
+                  <p className="muted" style={{ marginTop: ".45rem" }}>Ese número se guardará dentro del contacto.</p>
+                </div>
+              ) : (
+                <div>
+                  <label className="label">Teléfono del contacto</label>
+                  <input
+                    className="input"
+                    value={contactCard.phone}
+                    onChange={(e) => setContactCard((current) => ({ ...current, phone: e.target.value }))}
+                    placeholder="+57 300 123 4567"
+                    disabled={!canEdit}
+                  />
+                  <p className="muted" style={{ marginTop: ".45rem" }}>Como no tienes WhatsApp agregado, puedes escribir un número público manual.</p>
+                </div>
+              )}
+
+              <div className="grid-3">
+                <div className="kpi">
+                  <strong>Correo del contacto</strong>
+                  <p className="muted" style={{ marginTop: ".5rem" }}>{emailLink?.value || "Agrega un enlace de correo en Enlaces y cobros"}</p>
+                </div>
+                <div className="kpi">
+                  <strong>Web del contacto</strong>
+                  <p className="muted" style={{ marginTop: ".5rem" }}>{websiteLink?.value || "Usaremos tu página de Klicor si no agregas un sitio web"}</p>
+                </div>
+                <div className="kpi">
+                  <strong>Estado</strong>
+                  <p className="muted" style={{ marginTop: ".5rem" }}>
+                    {contactCardPreview.shouldShow ? "El botón Guardar contacto ya quedaría listo en tu página." : "Completa los datos para que el contacto tenga al menos un canal útil."}
+                  </p>
+                </div>
+              </div>
+            </div>
+          ) : null}
         </AccordionSection>
 
         <AccordionSection

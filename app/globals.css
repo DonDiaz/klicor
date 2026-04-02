@@ -2361,12 +2361,6 @@ img { max-width: 100%; display: block; }
   padding-inline: 0.9rem;
 }
 
-.qr-card {
-  padding: 1.5rem;
-  display: grid;
-  gap: 1rem;
-}
-
 .qr-box {
   display: grid;
   place-items: center;
