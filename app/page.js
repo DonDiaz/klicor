@@ -2,236 +2,155 @@ import Link from "next/link";
 import {
   ArrowRight,
   CheckCircle2,
+  ExternalLink,
   LayoutDashboard,
-  LayoutTemplate,
   Link2,
-  MessageCircleMore,
   QrCode,
   ShieldCheck,
+  Sparkles,
   Store,
   Wallet,
+  Workflow,
   Zap,
 } from "lucide-react";
 import { BrandLogo } from "@/components/brand-logo";
 import { LandingLoginModal } from "@/components/landing-login-modal";
 import { MarketingPreview } from "@/components/marketing-preview";
 
-const workflow = [
+const commandCards = [
   {
-    icon: LayoutTemplate,
-    title: "Configura tu página",
-    description: "Define el nombre de tu negocio, tu imagen, tus enlaces y la apariencia en un solo panel.",
+    title: "Página pública",
+    text: "Una presencia clara para compartir en bio, QR, tarjetas y puntos físicos.",
+    icon: Link2,
   },
   {
-    icon: QrCode,
-    title: "Comparte tu presencia",
-    description: "Publica tu URL, descarga tu QR permanente y úsalo en tarjetas, vitrinas, etiquetas o bio.",
+    title: "Cobro visible",
+    text: "Llave Bre-B y QR oficial del banco o billetera cuando el negocio lo necesite.",
+    icon: Wallet,
   },
   {
-    icon: MessageCircleMore,
-    title: "Convierte mejor",
-    description: "Lleva a tus clientes a WhatsApp, redes, contacto o cobro sin perderlos entre enlaces sueltos.",
+    title: "Control operativo",
+    text: "Dashboard para editar enlaces, branding, QR y contacto sin depender de soporte.",
+    icon: LayoutDashboard,
   },
 ];
 
-const platformBlocks = [
+const platformFlow = [
   {
-    icon: Link2,
-    title: "Perfil público claro",
-    description: "Una sola página con tus enlaces clave, branding consistente y botones listos para compartir.",
-    bullets: ["URL única", "Preview al compartir", "Botones ordenados por prioridad"],
+    label: "Configura",
+    title: "Arma tu presencia desde un solo panel",
+    description: "Nombre, imagen, botones, contacto, cobro y apariencia en el mismo sistema.",
   },
   {
-    icon: Wallet,
-    title: "Cobro visible en la landing",
-    description: "Muestra tu llave Bre-B, permite copiarla y, si quieres, exhibe tu QR oficial del banco o billetera.",
-    bullets: ["Llave visible", "Copiar en un toque", "QR oficial opcional"],
+    label: "Publica",
+    title: "Comparte una página que sí orienta al cliente",
+    description: "Tu negocio deja de repartir enlaces sueltos y pasa a una estructura clara y usable.",
   },
   {
-    icon: LayoutDashboard,
-    title: "Panel operativo",
-    description: "Edita tu página, cambia nombre, QR, enlaces, contacto y personalización sin depender de soporte.",
-    bullets: ["Edición rápida", "QR estable", "Configuración centralizada"],
+    label: "Escala",
+    title: "Usa el mismo perfil en QR, bio, tarjetas y puntos físicos",
+    description: "La presencia del negocio se mantiene consistente aunque cambies usuario o ajustes tu operación.",
+  },
+];
+
+const capabilityBlocks = [
+  {
+    icon: QrCode,
+    title: "Infraestructura para compartir",
+    text: "URL pública, QR estable, preview al compartir y un perfil listo para circular en digital y físico.",
+  },
+  {
+    icon: Workflow,
+    title: "Ruta más clara para el cliente",
+    text: "Contacto, redes, pago y contenido organizados para que el usuario no se pierda antes de actuar.",
+  },
+  {
+    icon: ShieldCheck,
+    title: "Base operativa más seria",
+    text: "Menos improvisación, mejor percepción de marca y una estructura más firme para crecer.",
   },
 ];
 
 const useCases = [
-  {
-    title: "Emprendedores",
-    description: "Para organizar WhatsApp, Instagram, pagos y contacto profesional en un solo punto.",
-  },
-  {
-    title: "Negocios físicos",
-    description: "Ideal para vitrinas, empaques, mesas, stickers, tarjetas y cualquier superficie con QR.",
-  },
-  {
-    title: "Marcas personales",
-    description: "Útil para freelancers, asesores y creadores que necesitan una presencia simple pero seria.",
-  },
-];
-
-const productHighlights = [
-  "URL pública fácil de compartir",
-  "QR permanente aunque cambies tu usuario",
-  "Botones para contacto, redes y pago",
-  "Panel simple para editar sin soporte técnico",
+  "Negocios que venden por WhatsApp y redes",
+  "Marcas que imprimen QR en empaques o vitrinas",
+  "Emprendedores que necesitan verse más serios",
+  "Profesionales que quieren una presencia simple y clara",
 ];
 
 export default function HomePage() {
   return (
-    <main className="landing-root home-root">
-      <header className="landing-header">
+    <main className="landing-root cloud-home-root">
+      <header className="landing-header cloud-home-header">
         <div className="shell landing-nav">
           <BrandLogo />
           <nav className="landing-nav-links" aria-label="Principal">
-            <a href="#producto">Producto</a>
-            <a href="#como-funciona">Cómo funciona</a>
-            <a href="#casos">Casos de uso</a>
+            <a href="#plataforma">Plataforma</a>
+            <a href="#flujo">Flujo</a>
+            <a href="#casos">Casos</a>
             <a href="#precios">Precios</a>
           </nav>
           <LandingLoginModal />
         </div>
       </header>
 
-      <section className="shell home-hero">
-        <div className="home-hero-copy">
-          <span className="pill home-kicker">
-            <Zap size={16} />
-            Klicor para negocios que necesitan compartir mejor
+      <section className="shell cloud-home-hero">
+        <div className="cloud-home-copy">
+          <span className="pill cloud-home-kicker">
+            <Sparkles size={16} />
+            Presencia cloud para negocios que comparten y cobran
           </span>
 
-          <div className="home-hero-title-wrap">
-            <h1 className="home-hero-title">Una presencia clara para compartir, cobrar y convertir desde un solo enlace.</h1>
-            <p className="home-hero-lead">
-              Klicor organiza la página pública de tu negocio para que tus clientes encuentren contacto, redes y cobro sin fricción.
-            </p>
-          </div>
+          <h1 className="cloud-home-title">
+            Klicor organiza la presencia pública de tu negocio como un sistema, no como una bio improvisada.
+          </h1>
+
+          <p className="cloud-home-lead">
+            Une enlaces, contacto, QR, branding y cobro en una estructura simple de operar y clara de entender para el cliente.
+          </p>
 
           <div className="actions">
             <Link className="btn btn-primary" href="/login">
               Crear mi Klicor <ArrowRight size={16} />
             </Link>
-            <a className="btn btn-secondary mobile-demo-link" href="#producto">
-              Ver producto
-            </a>
+            <Link className="btn btn-secondary" href="/comparar/home-anterior">
+              Comparar con versión anterior <ExternalLink size={16} />
+            </Link>
           </div>
 
-          <div className="home-hero-metrics">
-            <article className="home-metric-card">
-              <strong>1 página</strong>
-              <span>para reunir tus canales clave</span>
-            </article>
-            <article className="home-metric-card">
-              <strong>1 QR estable</strong>
-              <span>listo para imprimir y reutilizar</span>
-            </article>
-            <article className="home-metric-card">
-              <strong>Más claridad</strong>
-              <span>para que el cliente actúe más fácil</span>
-            </article>
+          <div className="cloud-home-proof">
+            <span><Store size={15} /> Diseñado para negocios reales</span>
+            <span><Zap size={15} /> Operación simple, presencia más firme</span>
+            <span><ShieldCheck size={15} /> QR y enlaces pensados para durar</span>
           </div>
         </div>
 
-        <div className="home-hero-stage">
-          <div className="home-stage-head">
-            <span className="pill landing-soft-pill">Vista pública del cliente</span>
-            <p className="section-copy">Así se ve una página lista para compartir en bio, QR, tarjeta o empaque.</p>
-          </div>
-          <div className="home-stage-frame">
-            <MarketingPreview />
-          </div>
-          <div className="home-stage-notes">
-            <div className="home-note-card">
-              <Store size={18} />
-              <div>
-                <strong>Hecho para negocio real</strong>
-                <span>No para “links bonitos”, sino para orientar acciones.</span>
-              </div>
+        <div className="cloud-home-console">
+          <div className="cloud-console-head">
+            <div>
+              <strong>Centro de presencia</strong>
+              <span>Una lectura más clara del producto y su operación.</span>
             </div>
-            <div className="home-note-card">
-              <ShieldCheck size={18} />
-              <div>
-                <strong>Base técnica estable</strong>
-                <span>URL pública, QR permanente y edición desde dashboard.</span>
-              </div>
+            <span className="cloud-console-badge">Producto en acción</span>
+          </div>
+
+          <div className="cloud-console-grid">
+            <div className="cloud-console-preview">
+              <MarketingPreview />
             </div>
-          </div>
-        </div>
-      </section>
 
-      <section className="landing-section home-logic-band">
-        <div className="shell home-logic-grid">
-          <div className="home-logic-copy">
-            <span className="pill home-soft-pill">Qué resuelve</span>
-            <h2 className="landing-section-title">Tu negocio no debería depender de enlaces sueltos ni de mensajes dispersos.</h2>
-            <p className="section-copy">
-              Klicor convierte tu presencia digital en una estructura simple: una página pública clara, una acción directa y una forma ordenada de compartir.
-            </p>
-          </div>
-
-          <div className="home-logic-points">
-            {productHighlights.map((item) => (
-              <div key={item} className="home-logic-point">
-                <CheckCircle2 size={18} />
-                <span>{item}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section id="producto" className="landing-section">
-        <div className="shell">
-          <div className="section-heading">
-            <span className="pill">Producto</span>
-            <h2 className="landing-section-title">Una plataforma pequeña por fuera, pero bien estructurada por dentro.</h2>
-            <p className="section-copy">
-              Todo está pensado para que el cliente vea una página clara y tú tengas control desde un panel centralizado.
-            </p>
-          </div>
-
-          <div className="home-product-grid">
-            <article className="home-product-lead">
-              <div className="home-product-lead-copy">
-                <strong className="home-panel-label">Vista del producto</strong>
-                <h3>Tu página pública, tu QR y tu configuración viven en el mismo sistema.</h3>
-                <p>
-                  No es solo una bio con botones. Es una presencia operativa para compartir mejor tu negocio y llevar a tus clientes a la acción correcta.
-                </p>
-              </div>
-
-              <div className="home-product-mini-grid">
-                <div className="home-product-mini-card">
-                  <span>Comparte</span>
-                  <strong>Bio, QR, stickers, tarjetas y vitrinas</strong>
-                </div>
-                <div className="home-product-mini-card">
-                  <span>Convierte</span>
-                  <strong>WhatsApp, redes, contacto y cobro visible</strong>
-                </div>
-              </div>
-            </article>
-
-            <div className="home-product-stack">
-              {platformBlocks.map((block) => {
-                const Icon = block.icon;
+            <div className="cloud-console-stack">
+              {commandCards.map((item) => {
+                const Icon = item.icon;
                 return (
-                  <article key={block.title} className="home-product-card">
-                    <div className="home-product-card-top">
-                      <div className="home-product-icon">
+                  <article key={item.title} className="cloud-console-card">
+                    <div className="cloud-console-card-top">
+                      <div className="cloud-console-icon">
                         <Icon size={18} />
                       </div>
-                      <strong>{block.title}</strong>
+                      <strong>{item.title}</strong>
                     </div>
-                    <p>{block.description}</p>
-                    <div className="home-product-bullets">
-                      {block.bullets.map((bullet) => (
-                        <span key={bullet}>
-                          <CheckCircle2 size={15} />
-                          {bullet}
-                        </span>
-                      ))}
-                    </div>
+                    <p>{item.text}</p>
                   </article>
                 );
               })}
@@ -240,29 +159,28 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section id="como-funciona" className="landing-section landing-section-soft">
-        <div className="shell">
-          <div className="section-heading landing-centered-heading">
-            <span className="pill">Cómo funciona</span>
-            <h2 className="landing-section-title">La operación está pensada para ser simple desde el día uno.</h2>
+      <section className="landing-section cloud-home-band" id="plataforma">
+        <div className="shell cloud-platform-shell">
+          <div className="cloud-platform-copy">
+            <span className="pill cloud-home-soft-pill">Plataforma</span>
+            <h2 className="landing-section-title">Más que una página con botones: una capa pública organizada para tu negocio.</h2>
             <p className="section-copy">
-              Configuras tu perfil, publicas tu página y luego solo ajustas cuando tu negocio lo necesite.
+              Klicor toma algo que normalmente está disperso y lo vuelve operable: contacto, enlaces, QR, cobro y branding en un mismo sistema.
             </p>
           </div>
 
-          <div className="home-workflow-grid">
-            {workflow.map((step, index) => {
-              const Icon = step.icon;
+          <div className="cloud-capability-grid">
+            {capabilityBlocks.map((item) => {
+              const Icon = item.icon;
               return (
-                <article key={step.title} className="home-workflow-card">
-                  <div className="home-workflow-head">
-                    <div className="home-product-icon">
+                <article key={item.title} className="cloud-capability-card">
+                  <div className="cloud-capability-top">
+                    <div className="cloud-console-icon">
                       <Icon size={18} />
                     </div>
-                    <span>0{index + 1}</span>
+                    <strong>{item.title}</strong>
                   </div>
-                  <h3>{step.title}</h3>
-                  <p>{step.description}</p>
+                  <p>{item.text}</p>
                 </article>
               );
             })}
@@ -270,17 +188,46 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section id="casos" className="landing-section">
+      <section className="landing-section cloud-architecture-section">
+        <div className="shell cloud-architecture-grid">
+          <article className="cloud-architecture-lead">
+            <span className="cloud-architecture-label">Arquitectura del producto</span>
+            <h2 className="landing-section-title">Klicor se entiende mejor cuando se ve como una operación conectada.</h2>
+            <p className="section-copy">
+              El cliente ve una página simple. Tú operas un sistema con identidad, enlaces, QR y contacto bien conectados.
+            </p>
+          </article>
+
+          <div className="cloud-architecture-stack">
+            <div className="cloud-architecture-card">
+              <strong>Capa pública</strong>
+              <p>La página que recibe al cliente, concentra enlaces, contacto y cobro visible.</p>
+            </div>
+            <div className="cloud-architecture-card">
+              <strong>Capa operativa</strong>
+              <p>El dashboard donde editas branding, enlaces, VCF, QR y configuración del perfil.</p>
+            </div>
+            <div className="cloud-architecture-card">
+              <strong>Capa de distribución</strong>
+              <p>La misma presencia se reutiliza en bio, tarjetas, stickers, vitrinas, empaques y QR.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="flujo" className="landing-section landing-section-soft">
         <div className="shell">
-          <div className="section-heading">
-            <span className="pill home-soft-pill">Casos de uso</span>
-            <h2 className="landing-section-title">Pensado para negocios que necesitan verse mejor y responder más rápido.</h2>
+          <div className="section-heading landing-centered-heading">
+            <span className="pill">Flujo</span>
+            <h2 className="landing-section-title">La experiencia se ordena en tres momentos operativos.</h2>
           </div>
 
-          <div className="home-use-cases">
-            {useCases.map((item) => (
-              <article key={item.title} className="home-use-case-card">
-                <strong>{item.title}</strong>
+          <div className="cloud-flow-grid">
+            {platformFlow.map((item, index) => (
+              <article key={item.title} className="cloud-flow-card">
+                <div className="cloud-flow-index">0{index + 1}</div>
+                <span className="cloud-flow-label">{item.label}</span>
+                <h3>{item.title}</h3>
                 <p>{item.description}</p>
               </article>
             ))}
@@ -288,38 +235,57 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section id="precios" className="landing-section landing-section-soft">
-        <div className="shell">
-          <div className="home-pricing-card">
-            <div className="home-pricing-copy">
-              <span className="pill">Precios</span>
-              <h2 className="landing-section-title">Empieza con prueba gratis y luego pasa a un esquema anual simple.</h2>
-              <p className="section-copy">
-                La idea es que primero montes tu presencia, valides cómo se ve tu negocio y luego consolides tu operación.
-              </p>
-            </div>
+      <section id="casos" className="landing-section">
+        <div className="shell cloud-cases-grid">
+          <div className="cloud-cases-copy">
+            <span className="pill cloud-home-soft-pill">Casos de uso</span>
+            <h2 className="landing-section-title">Sirve cuando el negocio necesita verse más claro y responder mejor.</h2>
+            <p className="section-copy">
+              No está pensado solo para creadores o bios personales. Está pensado para operación comercial simple y visible.
+            </p>
+          </div>
 
-            <div className="home-pricing-rail">
-              <div className="home-pricing-point">
-                <strong>Prueba gratis</strong>
-                <span>30 días para configurar tu página y dejar tu QR listo.</span>
+          <div className="cloud-cases-list">
+            {useCases.map((item) => (
+              <div key={item} className="cloud-case-item">
+                <CheckCircle2 size={18} />
+                <span>{item}</span>
               </div>
-              <div className="home-pricing-point">
-                <strong>Plan anual</strong>
-                <span>URL pública, QR permanente, dashboard y configuración del perfil.</span>
-              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section id="precios" className="landing-section cloud-pricing-section">
+        <div className="shell cloud-pricing-card">
+          <div className="cloud-pricing-copy">
+            <span className="pill">Precios</span>
+            <h2 className="landing-section-title">Primero montas tu presencia, luego consolidas tu operación.</h2>
+            <p className="section-copy">
+              El producto está estructurado para que lo puedas activar sin fricción y validar rápido si resuelve tu forma de compartir.
+            </p>
+          </div>
+
+          <div className="cloud-pricing-stack">
+            <div className="cloud-price-box">
+              <strong>Prueba gratis</strong>
+              <span>30 días para configurar tu página, tu QR y tu presencia pública.</span>
+            </div>
+            <div className="cloud-price-box">
+              <strong>Plan anual</strong>
+              <span>Dashboard, URL pública, QR permanente y configuración centralizada.</span>
             </div>
           </div>
         </div>
       </section>
 
       <section className="landing-section">
-        <div className="shell home-final-card">
-          <div className="home-final-copy">
+        <div className="shell cloud-final-card">
+          <div className="cloud-final-copy">
             <span className="pill">Empieza ahora</span>
-            <h2 className="landing-section-title">Haz que compartir tu negocio se vea más serio, más claro y más útil.</h2>
+            <h2 className="landing-section-title">Lleva tu negocio a una presencia pública más estructurada, más clara y más útil.</h2>
             <p className="section-copy">
-              Crea tu Klicor, organiza tus botones y deja lista una presencia que sí puedas usar en digital y en físico.
+              Crea tu Klicor, organiza tu operación visible y comparte una presencia que sí se siente como producto.
             </p>
           </div>
           <div className="actions">
@@ -334,9 +300,10 @@ export default function HomePage() {
         <div className="shell landing-footer-inner">
           <div className="landing-footer-brand">
             <BrandLogo size={36} />
-            <p>Klicor, una página operativa para compartir tu negocio desde un solo enlace.</p>
+            <p>Klicor, presencia pública, contacto y distribución en un solo sistema.</p>
           </div>
           <div className="landing-footer-links">
+            <Link href="/comparar/home-anterior">Comparar versión anterior</Link>
             <Link href="/terminos">Términos y condiciones</Link>
             <Link href="/privacidad">Política de privacidad</Link>
           </div>
