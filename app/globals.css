@@ -725,6 +725,12 @@ img { max-width: 100%; display: block; }
   color: #0f172a;
 }
 
+.cloud-home-title-brand {
+  display: block;
+  font-size: 1.2em;
+  line-height: 0.86;
+}
+
 .cloud-home-lead {
   margin: 0;
   max-width: 42rem;
