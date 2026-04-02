@@ -9,6 +9,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "@loskir/styled-qr-code-node": "^2.0.0",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
     "firebase": "^12.5.0",

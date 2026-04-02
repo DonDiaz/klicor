@@ -6,6 +6,7 @@ const __dirname = path.dirname(__filename);
 
 const nextConfig = {
   outputFileTracingRoot: __dirname,
+  serverExternalPackages: ["@loskir/styled-qr-code-node", "skia-canvas"],
   images: {
     remotePatterns: [
       {
