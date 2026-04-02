@@ -1,4 +1,5 @@
 import { Inter } from "next/font/google";
+import Script from "next/script";
 import "@/app/globals.css";
 
 const inter = Inter({
@@ -49,7 +50,28 @@ export const viewport = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="es">
+    <html lang="es" data-theme="light" suppressHydrationWarning>
+      <head>
+        <Script id="theme-mode-script" strategy="beforeInteractive">
+          {`
+            (() => {
+              const root = document.documentElement;
+              const media = window.matchMedia("(prefers-color-scheme: dark)");
+              const applyTheme = () => {
+                root.dataset.theme = media.matches ? "dark" : "light";
+              };
+
+              applyTheme();
+
+              if (typeof media.addEventListener === "function") {
+                media.addEventListener("change", applyTheme);
+              } else if (typeof media.addListener === "function") {
+                media.addListener(applyTheme);
+              }
+            })();
+          `}
+        </Script>
+      </head>
       <body className={inter.className}>{children}</body>
     </html>
   );

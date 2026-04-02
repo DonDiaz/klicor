@@ -1,5 +1,5 @@
 :root {
-  color-scheme: light dark;
+  color-scheme: light;
   --background: #F8FAFC;
   --surface: #FFFFFF;
   --surface-alt: #F1F5F9;
@@ -26,7 +26,10 @@
 
 * { box-sizing: border-box; }
 
-html { scroll-behavior: smooth; }
+html {
+  scroll-behavior: smooth;
+  color-scheme: light;
+}
 
 body {
   margin: 0;
@@ -230,6 +233,199 @@ body {
     background: rgba(239, 68, 68, 0.14);
     color: #FCA5A5;
   }
+}
+
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --background: #08111F;
+  --surface: #0F172A;
+  --surface-alt: #111C2D;
+  --text-primary: #E6EEF8;
+  --text-secondary: #94A3B8;
+  --border: #22324A;
+  --primary-soft: rgba(91, 33, 182, 0.2);
+  --accent-soft: rgba(34, 211, 238, 0.18);
+  --shadow-sm: 0 14px 34px rgba(0, 0, 0, 0.28);
+  --shadow-md: 0 28px 72px rgba(0, 0, 0, 0.34);
+}
+
+html[data-theme="dark"] body {
+  background:
+    radial-gradient(circle at top left, rgba(34, 211, 238, 0.12), transparent 24%),
+    radial-gradient(circle at top right, rgba(91, 33, 182, 0.16), transparent 28%),
+    var(--background);
+}
+
+html[data-theme="dark"] .btn-secondary:hover {
+  background: rgba(15, 23, 42, 0.96);
+}
+
+html[data-theme="dark"] .notice {
+  color: #FCD98B;
+}
+
+html[data-theme="dark"] .notice-danger {
+  color: #FCA5A5;
+}
+
+html[data-theme="dark"] .home-root,
+html[data-theme="dark"] .cloud-home-root,
+html[data-theme="dark"] .public-page {
+  background:
+    radial-gradient(circle at top left, rgba(34, 211, 238, 0.1), transparent 26%),
+    radial-gradient(circle at top right, rgba(91, 33, 182, 0.14), transparent 30%),
+    linear-gradient(180deg, #08111F 0%, #0B1322 48%, #111827 100%);
+}
+
+html[data-theme="dark"] .landing-header,
+html[data-theme="dark"] .cloud-home-header {
+  background: rgba(8, 17, 31, 0.72);
+  border-bottom-color: rgba(34, 50, 74, 0.82);
+}
+
+html[data-theme="dark"] .landing-header,
+html[data-theme="dark"] .landing-header .landing-nav-links a,
+html[data-theme="dark"] .landing-footer-brand p,
+html[data-theme="dark"] .landing-footer-links,
+html[data-theme="dark"] .landing-footer-links a,
+html[data-theme="dark"] .cloud-case-item,
+html[data-theme="dark"] .cloud-case-item span,
+html[data-theme="dark"] .cloud-pricing-copy .section-copy,
+html[data-theme="dark"] .cloud-cases-copy .section-copy,
+html[data-theme="dark"] .cloud-platform-copy .section-copy,
+html[data-theme="dark"] .cloud-final-copy .section-copy {
+  color: var(--text-secondary);
+}
+
+html[data-theme="dark"] .cloud-home-title,
+html[data-theme="dark"] .cloud-home-lead,
+html[data-theme="dark"] .home-hero-title,
+html[data-theme="dark"] .home-hero-lead,
+html[data-theme="dark"] .home-note-card span,
+html[data-theme="dark"] .home-metric-card span,
+html[data-theme="dark"] .home-product-lead p,
+html[data-theme="dark"] .home-product-card p,
+html[data-theme="dark"] .home-workflow-card p,
+html[data-theme="dark"] .home-use-case-card p,
+html[data-theme="dark"] .home-pricing-point span,
+html[data-theme="dark"] .cloud-home-proof span,
+html[data-theme="dark"] .cloud-capability-card p,
+html[data-theme="dark"] .cloud-architecture-card p,
+html[data-theme="dark"] .cloud-console-card p,
+html[data-theme="dark"] .dashboard-alert-copy p {
+  color: var(--text-secondary);
+}
+
+html[data-theme="dark"] .cloud-home-title,
+html[data-theme="dark"] .home-hero-title,
+html[data-theme="dark"] .home-product-bullets span,
+html[data-theme="dark"] .home-logic-point,
+html[data-theme="dark"] .landing-section-title,
+html[data-theme="dark"] .cloud-capability-card strong,
+html[data-theme="dark"] .cloud-architecture-card strong,
+html[data-theme="dark"] .cloud-flow-card h3,
+html[data-theme="dark"] .cloud-price-box strong,
+html[data-theme="dark"] .cloud-console-card strong,
+html[data-theme="dark"] .cloud-case-item strong,
+html[data-theme="dark"] .landing-footer-links a:hover,
+html[data-theme="dark"] .landing-header .landing-nav-links a:hover {
+  color: var(--text-primary);
+}
+
+html[data-theme="dark"] .cloud-home-proof span,
+html[data-theme="dark"] .home-metric-card,
+html[data-theme="dark"] .home-note-card,
+html[data-theme="dark"] .home-logic-copy,
+html[data-theme="dark"] .home-logic-points,
+html[data-theme="dark"] .home-product-lead,
+html[data-theme="dark"] .home-product-card,
+html[data-theme="dark"] .home-workflow-card,
+html[data-theme="dark"] .home-use-case-card,
+html[data-theme="dark"] .home-pricing-card,
+html[data-theme="dark"] .home-final-card,
+html[data-theme="dark"] .cloud-capability-card,
+html[data-theme="dark"] .cloud-architecture-card,
+html[data-theme="dark"] .cloud-flow-card,
+html[data-theme="dark"] .cloud-price-box,
+html[data-theme="dark"] .auth-brand-point,
+html[data-theme="dark"] .terms-popover,
+html[data-theme="dark"] .preview-placeholder-card,
+html[data-theme="dark"] .upload-card,
+html[data-theme="dark"] .appearance-control,
+html[data-theme="dark"] .toggle-card,
+html[data-theme="dark"] .preset-accordion,
+html[data-theme="dark"] .link-row,
+html[data-theme="dark"] .payment-qr-preview,
+html[data-theme="dark"] .qr-modal-card,
+html[data-theme="dark"] .dashboard-alert-card {
+  background: rgba(15, 23, 42, 0.9);
+  border-color: rgba(148, 163, 184, 0.16);
+}
+
+html[data-theme="dark"] .home-hero-stage {
+  border-color: rgba(148, 163, 184, 0.16);
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.92), rgba(17, 24, 39, 0.88));
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.32);
+}
+
+html[data-theme="dark"] .home-stage-frame .marketing-demo-frame {
+  border-color: rgba(148, 163, 184, 0.16);
+}
+
+html[data-theme="dark"] .upload-card,
+html[data-theme="dark"] .terms-popover,
+html[data-theme="dark"] .auth-inline-terms,
+html[data-theme="dark"] .auth-password-card {
+  background: rgba(91, 33, 182, 0.12);
+}
+
+html[data-theme="dark"] .cloud-pricing-card,
+html[data-theme="dark"] .cloud-final-card {
+  border-color: rgba(148, 163, 184, 0.16);
+  background: rgba(15, 23, 42, 0.86);
+}
+
+html[data-theme="dark"] .cloud-price-box,
+html[data-theme="dark"] .cloud-capability-card,
+html[data-theme="dark"] .cloud-architecture-card,
+html[data-theme="dark"] .cloud-flow-card {
+  background: rgba(15, 23, 42, 0.9);
+}
+
+html[data-theme="dark"] .cloud-console-preview .public-card {
+  background: rgba(15, 23, 42, 0.96);
+  border-color: rgba(148, 163, 184, 0.14);
+}
+
+html[data-theme="dark"] .cloud-console-preview .public-link {
+  background: var(--primary);
+  color: white;
+}
+
+html[data-theme="dark"] .cloud-console-preview .payment-key-card {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(148, 163, 184, 0.12);
+}
+
+html[data-theme="dark"] .auth-entry-badges span {
+  background: rgba(15, 23, 42, 0.82);
+  border-color: rgba(148, 163, 184, 0.14);
+  color: var(--text-secondary);
+}
+
+html[data-theme="dark"] .auth-notice-success {
+  color: #86efac;
+}
+
+html[data-theme="dark"] .preview-placeholder-card,
+html[data-theme="dark"] .payment-qr-preview,
+html[data-theme="dark"] .qr-modal-canvas {
+  background: rgba(8, 17, 31, 0.96);
+}
+
+html[data-theme="dark"] .dashboard-alert-icon {
+  background: rgba(239, 68, 68, 0.14);
+  color: #FCA5A5;
 }
 
 a { color: inherit; text-decoration: none; }
