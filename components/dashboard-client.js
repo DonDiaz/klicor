@@ -7,18 +7,14 @@ import dynamic from "next/dynamic";
 import Script from "next/script";
 import {
   AlertTriangle,
-  ArrowRight,
   CheckCircle2,
   Copy,
   CreditCard,
   Download,
   ExternalLink,
-  Link2,
   LogOut,
-  Paintbrush,
   Send,
   ShieldAlert,
-  ShieldCheck,
 } from "lucide-react";
 import { sendEmailVerification, signOut } from "firebase/auth";
 import { BrandLogo } from "@/components/brand-logo";
@@ -48,6 +44,11 @@ function getStatusTone(status) {
 function getPlanLabel(plan) {
   if (plan === "annual") return "anual";
   return plan || "-";
+}
+
+function getStatusBadgeLabel(user) {
+  if (user?.status === "trial") return "Período de prueba";
+  return `${getPlanLabel(user?.plan)} - ${user?.status}`;
 }
 
 export function DashboardClient() {
@@ -255,33 +256,6 @@ export function DashboardClient() {
     : statusTone === "warning"
       ? "Tu cuenta necesita renovación para no perder edición."
       : "Tu cuenta requiere una acción para volver a operar con normalidad.";
-  const quickLinks = [
-    {
-      href: "#dashboard-section-profile",
-      label: "Perfil y seguridad",
-      copy: "Nombre, usuario, imagen y recuperación.",
-      icon: ShieldCheck,
-    },
-    {
-      href: "#dashboard-section-links",
-      label: "Enlaces y contacto",
-      copy: "Botones, correo, llave Bre-B y QR oficial.",
-      icon: Link2,
-    },
-    {
-      href: "#dashboard-section-appearance",
-      label: "Diseño",
-      copy: "Preajustes, colores y vista del perfil.",
-      icon: Paintbrush,
-    },
-    {
-      href: "#dashboard-section-subscription",
-      label: "Suscripción",
-      copy: "Estado de pago y renovación anual.",
-      icon: CreditCard,
-    },
-  ];
-
   function handleRecoveryFieldChange(field, value) {
     setRecovery((current) => ({
       ...current,
@@ -314,7 +288,7 @@ export function DashboardClient() {
         <div className="dashboard-overview-copy">
           <span className={`status-badge ${statusTone}`}>
             {statusTone === "success" ? <CheckCircle2 size={14} /> : statusTone === "warning" ? <AlertTriangle size={14} /> : <ShieldAlert size={14} />}
-            <span>{getPlanLabel(data.user.plan)} - {data.user.status}</span>
+            <span>{getStatusBadgeLabel(data.user)}</span>
           </span>
           <h2 className="section-title" style={{ fontSize: "1.65rem" }}>Centro operativo del perfil</h2>
           <p className="section-copy">{statusSummary}</p>
@@ -322,7 +296,7 @@ export function DashboardClient() {
 
         <div className="dashboard-overview-grid">
           <div className="kpi">
-            <strong>URL pública</strong>
+            <strong>Link público</strong>
             <p className="muted" style={{ marginTop: ".5rem" }}>{data.publicUrl || "Aún no definida"}</p>
             {data.publicUrl ? (
               <div className="actions" style={{ marginTop: ".85rem" }}>
@@ -347,32 +321,7 @@ export function DashboardClient() {
               </div>
             ) : null}
           </div>
-
-          <div className="kpi">
-            <strong>Plan actual</strong>
-            <p className="muted" style={{ marginTop: ".5rem" }}>
-              {Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", maximumFractionDigits: 0 }).format(data.settings.annualPrice)}
-            </p>
-          </div>
         </div>
-      </section>
-
-      <section className="dashboard-shortcuts">
-        {quickLinks.map((item) => {
-          const Icon = item.icon;
-          return (
-            <a key={item.href} className="dashboard-shortcut-card" href={item.href}>
-              <div className="dashboard-shortcut-head">
-                <div className="cloud-console-icon">
-                  <Icon size={18} />
-                </div>
-                <ArrowRight size={16} />
-              </div>
-              <strong>{item.label}</strong>
-              <span>{item.copy}</span>
-            </a>
-          );
-        })}
       </section>
 
       {!user.emailVerified ? (
