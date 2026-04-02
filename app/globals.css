@@ -1872,7 +1872,7 @@ img { max-width: 100%; display: block; }
   position: absolute;
   top: calc(100% + 0.8rem);
   right: 0;
-  z-index: 40;
+  z-index: 80;
   width: min(430px, calc(100vw - 2rem));
   max-height: min(82vh, 820px);
   overflow: auto;
@@ -3169,6 +3169,7 @@ img { max-width: 100%; display: block; }
   position: absolute;
   right: 1rem;
   top: 1rem;
+  z-index: 1;
 }
 
 .mobile-demo-link {
