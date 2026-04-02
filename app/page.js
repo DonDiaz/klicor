@@ -2,7 +2,6 @@ import Link from "next/link";
 import {
   ArrowRight,
   CheckCircle2,
-  ExternalLink,
   LayoutDashboard,
   Link2,
   QrCode,
@@ -112,9 +111,6 @@ export default function HomePage() {
           <div className="actions">
             <Link className="btn btn-primary" href="/login">
               Crear mi Klicor <ArrowRight size={16} />
-            </Link>
-            <Link className="btn btn-secondary" href="/comparar/home-anterior">
-              Comparar con versión anterior <ExternalLink size={16} />
             </Link>
           </div>
 
@@ -303,7 +299,6 @@ export default function HomePage() {
             <p>Klicor, presencia pública, contacto y distribución en un solo sistema.</p>
           </div>
           <div className="landing-footer-links">
-            <Link href="/comparar/home-anterior">Comparar versión anterior</Link>
             <Link href="/terminos">Términos y condiciones</Link>
             <Link href="/privacidad">Política de privacidad</Link>
           </div>

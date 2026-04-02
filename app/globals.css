@@ -86,6 +86,20 @@ body {
     background: rgba(8, 17, 31, 0.72);
   }
 
+  .landing-header,
+  .landing-header .landing-nav-links a,
+  .landing-footer-brand p,
+  .landing-footer-links,
+  .landing-footer-links a,
+  .cloud-case-item,
+  .cloud-case-item span,
+  .cloud-pricing-copy .section-copy,
+  .cloud-cases-copy .section-copy,
+  .cloud-platform-copy .section-copy,
+  .cloud-final-copy .section-copy {
+    color: var(--text-secondary);
+  }
+
   .cloud-home-title,
   .cloud-home-lead,
   .home-hero-title,
@@ -108,7 +122,16 @@ body {
   .cloud-home-title,
   .home-hero-title,
   .home-product-bullets span,
-  .home-logic-point {
+  .home-logic-point,
+  .landing-section-title,
+  .cloud-capability-card strong,
+  .cloud-architecture-card strong,
+  .cloud-flow-card h3,
+  .cloud-price-box strong,
+  .cloud-console-card strong,
+  .cloud-case-item strong,
+  .landing-footer-links a:hover,
+  .landing-header .landing-nav-links a:hover {
     color: var(--text-primary);
   }
 
@@ -157,6 +180,34 @@ body {
   .auth-inline-terms,
   .auth-password-card {
     background: rgba(91, 33, 182, 0.12);
+  }
+
+  .cloud-pricing-card,
+  .cloud-final-card {
+    border-color: rgba(148, 163, 184, 0.16);
+    background: rgba(15, 23, 42, 0.86);
+  }
+
+  .cloud-price-box,
+  .cloud-capability-card,
+  .cloud-architecture-card,
+  .cloud-flow-card {
+    background: rgba(15, 23, 42, 0.9);
+  }
+
+  .cloud-console-preview .public-card {
+    background: rgba(15, 23, 42, 0.96);
+    border-color: rgba(148, 163, 184, 0.14);
+  }
+
+  .cloud-console-preview .public-link {
+    background: var(--primary);
+    color: white;
+  }
+
+  .cloud-console-preview .payment-key-card {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(148, 163, 184, 0.12);
   }
 
   .auth-entry-badges span {
