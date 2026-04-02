@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import dynamic from "next/dynamic";
 import {
   ChevronDown,
   ChevronUp,
@@ -21,8 +22,21 @@ import {
 import { apiFetch } from "@/lib/client-api";
 import { resolveContactCardData } from "@/lib/contact-card";
 import { canAddLinkType, getLinkTypeCount, getLinkTypeLimit, LINK_CATALOG, LINK_CATALOG_MAP } from "@/lib/link-catalog";
-import { LandingView } from "@/components/landing-view";
 import { APPEARANCE_DEFAULTS, APPEARANCE_PRESETS, APPEARANCE_SWATCHES, getAppearanceSuggestions, getAppearanceWarnings, normalizeAppearance } from "@/lib/theme-system";
+
+const LandingView = dynamic(
+  () => import("@/components/landing-view").then((mod) => mod.LandingView),
+  {
+    loading: () => (
+      <div className="preview-frame preview-frame-placeholder">
+        <div className="preview-placeholder-card">
+          <strong>Cargando vista previa</strong>
+          <p className="section-copy">Preparamos la representación real de tu página pública.</p>
+        </div>
+      </div>
+    ),
+  },
+);
 
 function normalizeLinks(profile) {
   if (Array.isArray(profile?.profileLinks) && profile.profileLinks.length) {
@@ -131,7 +145,7 @@ function AccordionSection({ id, title, copy, openSection, onToggle, children, tr
   const isOpen = openSection === id;
 
   return (
-    <section className={`dashboard-section panel accordion-section ${isOpen ? "is-open" : ""}`}>
+    <section id={`dashboard-section-${id}`} className={`dashboard-section panel accordion-section ${isOpen ? "is-open" : ""}`}>
       <button className="accordion-toggle" type="button" onClick={() => onToggle(id)} aria-expanded={isOpen}>
         <span className="accordion-toggle-copy">
           <strong className="section-title">{title}</strong>
@@ -173,8 +187,9 @@ export function ProfileForm({
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [selectedType, setSelectedType] = useState("whatsapp");
-  const [openSection, setOpenSection] = useState(null);
+  const [openSection, setOpenSection] = useState("profile");
   const [presetsOpen, setPresetsOpen] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
   const savedPaymentQrUrl = profile?.paymentQrUrl && profile?.username ? `/${profile.username}/payment-qr` : profile?.paymentQrUrl || "";
 
   useEffect(() => {
@@ -830,14 +845,29 @@ export function ProfileForm({
       </form>
 
       <aside className="preview-shell">
-        <div className="preview-header">
-          <span className="pill"><MonitorSmartphone size={16} /> Vista previa real</span>
-          <p className="section-copy">Refleja el diseño final de la página pública.</p>
+        <div className="preview-header preview-header-compact">
+          <div className="stack" style={{ gap: ".45rem" }}>
+            <span className="pill"><MonitorSmartphone size={16} /> Vista previa real</span>
+            <p className="section-copy">Ábrela solo cuando quieras revisar el resultado final de la página.</p>
+          </div>
+          <button className="btn btn-secondary" type="button" onClick={() => setShowPreview((current) => !current)}>
+            {showPreview ? "Ocultar vista previa" : "Mostrar vista previa"}
+          </button>
         </div>
-        <div className="preview-frame">
-          <LandingView user={previewUser} preview />
-        </div>
+        {showPreview ? (
+          <div className="preview-frame">
+            <LandingView user={previewUser} preview />
+          </div>
+        ) : (
+          <div className="preview-frame preview-frame-placeholder">
+            <div className="preview-placeholder-card">
+              <strong>Vista previa en reposo</strong>
+              <p className="section-copy">La mantenemos cerrada al inicio para que el editor cargue más ligero y el panel se sienta más ordenado.</p>
+            </div>
+          </div>
+        )}
       </aside>
     </div>
   );
 }
+

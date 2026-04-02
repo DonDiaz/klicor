@@ -1941,6 +1941,62 @@ img { max-width: 100%; display: block; }
   gap: 1.5rem;
 }
 
+.dashboard-overview,
+.dashboard-overview-copy,
+.dashboard-overview-grid,
+.dashboard-shortcuts {
+  display: grid;
+  gap: 1rem;
+}
+
+.dashboard-overview {
+  padding: 1.5rem;
+  border-radius: 24px;
+}
+
+.dashboard-overview-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.dashboard-shortcuts {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.dashboard-shortcut-card {
+  display: grid;
+  gap: 0.8rem;
+  padding: 1.05rem;
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.86);
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.dashboard-shortcut-card:hover {
+  transform: translateY(-1px);
+  border-color: rgba(91, 33, 182, 0.2);
+  box-shadow: 0 18px 34px rgba(15, 23, 42, 0.08);
+}
+
+.dashboard-shortcut-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  color: var(--text-secondary);
+}
+
+.dashboard-shortcut-card strong {
+  font-size: 1rem;
+  letter-spacing: -0.03em;
+}
+
+.dashboard-shortcut-card span {
+  color: var(--text-secondary);
+  line-height: 1.55;
+}
+
 .dashboard-header {
   display: flex;
   justify-content: space-between;
@@ -2085,6 +2141,30 @@ img { max-width: 100%; display: block; }
   border-radius: 12px;
   border: 1px solid var(--border);
   background: var(--surface);
+}
+
+.preview-header-compact {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.preview-frame-placeholder {
+  min-height: 260px;
+  display: grid;
+  place-items: center;
+}
+
+.preview-placeholder-card {
+  max-width: 320px;
+  display: grid;
+  gap: 0.45rem;
+  padding: 1.15rem;
+  border-radius: 18px;
+  border: 1px dashed rgba(148, 163, 184, 0.35);
+  background: rgba(255, 255, 255, 0.82);
+  text-align: center;
 }
 
 .upload-inline {
@@ -2661,6 +2741,8 @@ img { max-width: 100%; display: block; }
   .marketing-hero,
   .auth-layout,
   .dashboard-grid,
+  .dashboard-overview-grid,
+  .dashboard-shortcuts,
   .grid-3,
   .steps-grid,
   .benefits-grid,
@@ -2676,6 +2758,11 @@ img { max-width: 100%; display: block; }
 
   .preview-shell {
     position: static;
+  }
+
+  .preview-header-compact {
+    flex-direction: column;
+    align-items: stretch;
   }
 
   .landing-hero {

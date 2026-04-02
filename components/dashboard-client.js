@@ -3,14 +3,40 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import Script from "next/script";
-import { AlertTriangle, CheckCircle2, Copy, CreditCard, Download, ExternalLink, LogOut, Send, ShieldAlert } from "lucide-react";
+import {
+  AlertTriangle,
+  ArrowRight,
+  CheckCircle2,
+  Copy,
+  CreditCard,
+  Download,
+  ExternalLink,
+  Link2,
+  LogOut,
+  Paintbrush,
+  Send,
+  ShieldAlert,
+  ShieldCheck,
+} from "lucide-react";
 import { sendEmailVerification, signOut } from "firebase/auth";
 import { BrandLogo } from "@/components/brand-logo";
 import { getClientAuth } from "@/lib/firebase-client";
 import { apiFetch } from "@/lib/client-api";
 import { useAuth } from "@/components/providers/auth-provider";
-import { ProfileForm } from "@/components/profile-form";
+
+const ProfileForm = dynamic(
+  () => import("@/components/profile-form").then((mod) => mod.ProfileForm),
+  {
+    loading: () => (
+      <section className="card dashboard-section">
+        <strong>Preparando editor</strong>
+        <p className="section-copy">Estamos cargando tu panel de edición y la vista previa.</p>
+      </section>
+    ),
+  },
+);
 
 function getStatusTone(status) {
   if (status === "active" || status === "trial") return "success";
@@ -34,6 +60,7 @@ export function DashboardClient() {
   const [loggingOut, setLoggingOut] = useState(false);
   const [checkoutConfig, setCheckoutConfig] = useState(null);
   const [sdkReady, setSdkReady] = useState(false);
+  const [shouldLoadCheckoutSdk, setShouldLoadCheckoutSdk] = useState(false);
   const [recovery, setRecovery] = useState({
     backupEmail: "",
     backupEmailVerified: false,
@@ -98,6 +125,7 @@ export function DashboardClient() {
   async function handleCheckout() {
     setPaying(true);
     setError("");
+    setShouldLoadCheckoutSdk(true);
     try {
       const response = await apiFetch("/api/billing/create-preference", {
         method: "POST",
@@ -222,6 +250,37 @@ export function DashboardClient() {
 
   const isAdmin = data.user.role === "admin";
   const statusTone = getStatusTone(data.user.status);
+  const statusSummary = statusTone === "success"
+    ? "Tu cuenta está lista para editar, compartir y cobrar."
+    : statusTone === "warning"
+      ? "Tu cuenta necesita renovación para no perder edición."
+      : "Tu cuenta requiere una acción para volver a operar con normalidad.";
+  const quickLinks = [
+    {
+      href: "#dashboard-section-profile",
+      label: "Perfil y seguridad",
+      copy: "Nombre, usuario, imagen y recuperación.",
+      icon: ShieldCheck,
+    },
+    {
+      href: "#dashboard-section-links",
+      label: "Enlaces y contacto",
+      copy: "Botones, correo, llave Bre-B y QR oficial.",
+      icon: Link2,
+    },
+    {
+      href: "#dashboard-section-appearance",
+      label: "Diseño",
+      copy: "Preajustes, colores y vista del perfil.",
+      icon: Paintbrush,
+    },
+    {
+      href: "#dashboard-section-subscription",
+      label: "Suscripción",
+      copy: "Estado de pago y renovación anual.",
+      icon: CreditCard,
+    },
+  ];
 
   function handleRecoveryFieldChange(field, value) {
     setRecovery((current) => ({
@@ -232,17 +291,16 @@ export function DashboardClient() {
 
   return (
     <main className="shell dashboard-shell">
-      <Script src="https://sdk.mercadopago.com/js/v2" strategy="afterInteractive" onLoad={() => setSdkReady(true)} />
+      {shouldLoadCheckoutSdk ? (
+        <Script src="https://sdk.mercadopago.com/js/v2" strategy="afterInteractive" onLoad={() => setSdkReady(true)} />
+      ) : null}
+
       <header className="dashboard-header">
         <div className="stack" style={{ gap: ".65rem" }}>
           <BrandLogo />
           <div className="stack" style={{ gap: ".45rem" }}>
             <h1 className="section-title" style={{ fontSize: "2.1rem" }}>{data.user.businessName || "Tu negocio"}</h1>
             <p className="section-copy">Gestiona tu perfil, tus enlaces, la apariencia y tu QR en un solo lugar.</p>
-          </div>
-          <div className={`status-badge ${statusTone}`}>
-            {statusTone === "success" ? <CheckCircle2 size={14} /> : statusTone === "warning" ? <AlertTriangle size={14} /> : <ShieldAlert size={14} />}
-            <span>{getPlanLabel(data.user.plan)} - {data.user.status}</span>
           </div>
         </div>
 
@@ -252,39 +310,70 @@ export function DashboardClient() {
         </div>
       </header>
 
-      <div className="grid-3">
-        <div className="kpi">
-          <strong>URL pública</strong>
-          <p className="muted" style={{ marginTop: ".5rem" }}>{data.publicUrl || "Aún no definida"}</p>
-          {data.publicUrl ? (
-            <div className="actions" style={{ marginTop: ".85rem" }}>
-              <button className="btn btn-secondary" type="button" onClick={handleCopyPublicUrl}>
-                <Copy size={16} /> Copiar enlace
-              </button>
-              <a className="btn btn-secondary" href={data.publicUrl} target="_blank" rel="noreferrer">
-                <ExternalLink size={16} /> Abrir enlace
-              </a>
-            </div>
-          ) : null}
+      <section className="card dashboard-overview">
+        <div className="dashboard-overview-copy">
+          <span className={`status-badge ${statusTone}`}>
+            {statusTone === "success" ? <CheckCircle2 size={14} /> : statusTone === "warning" ? <AlertTriangle size={14} /> : <ShieldAlert size={14} />}
+            <span>{getPlanLabel(data.user.plan)} - {data.user.status}</span>
+          </span>
+          <h2 className="section-title" style={{ fontSize: "1.65rem" }}>Centro operativo del perfil</h2>
+          <p className="section-copy">{statusSummary}</p>
         </div>
-        <div className="kpi">
-          <strong>QR</strong>
-          <p className="muted" style={{ marginTop: ".5rem" }}>{data.user.qrUrl ? "Permanente aunque cambies tu nombre de usuario" : "Se genera al guardar tu nombre de usuario"}</p>
-          {data.user.qrUrl ? (
-            <div className="actions" style={{ marginTop: ".85rem" }}>
-              <button className="btn btn-secondary" type="button" onClick={handleQrDownload}>
-                <Download size={16} /> Descargar QR
-              </button>
-            </div>
-          ) : null}
+
+        <div className="dashboard-overview-grid">
+          <div className="kpi">
+            <strong>URL pública</strong>
+            <p className="muted" style={{ marginTop: ".5rem" }}>{data.publicUrl || "Aún no definida"}</p>
+            {data.publicUrl ? (
+              <div className="actions" style={{ marginTop: ".85rem" }}>
+                <button className="btn btn-secondary" type="button" onClick={handleCopyPublicUrl}>
+                  <Copy size={16} /> Copiar enlace
+                </button>
+                <a className="btn btn-secondary" href={data.publicUrl} target="_blank" rel="noreferrer">
+                  <ExternalLink size={16} /> Abrir enlace
+                </a>
+              </div>
+            ) : null}
+          </div>
+
+          <div className="kpi">
+            <strong>QR oficial</strong>
+            <p className="muted" style={{ marginTop: ".5rem" }}>{data.user.qrUrl ? "Permanente aunque cambies tu nombre de usuario" : "Se genera al guardar tu nombre de usuario"}</p>
+            {data.user.qrUrl ? (
+              <div className="actions" style={{ marginTop: ".85rem" }}>
+                <button className="btn btn-secondary" type="button" onClick={handleQrDownload}>
+                  <Download size={16} /> Descargar QR
+                </button>
+              </div>
+            ) : null}
+          </div>
+
+          <div className="kpi">
+            <strong>Plan actual</strong>
+            <p className="muted" style={{ marginTop: ".5rem" }}>
+              {Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", maximumFractionDigits: 0 }).format(data.settings.annualPrice)}
+            </p>
+          </div>
         </div>
-        <div className="kpi">
-          <strong>Plan actual</strong>
-          <p className="muted" style={{ marginTop: ".5rem" }}>
-            {Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", maximumFractionDigits: 0 }).format(data.settings.annualPrice)}
-          </p>
-        </div>
-      </div>
+      </section>
+
+      <section className="dashboard-shortcuts">
+        {quickLinks.map((item) => {
+          const Icon = item.icon;
+          return (
+            <a key={item.href} className="dashboard-shortcut-card" href={item.href}>
+              <div className="dashboard-shortcut-head">
+                <div className="cloud-console-icon">
+                  <Icon size={18} />
+                </div>
+                <ArrowRight size={16} />
+              </div>
+              <strong>{item.label}</strong>
+              <span>{item.copy}</span>
+            </a>
+          );
+        })}
+      </section>
 
       {!user.emailVerified ? (
         <div className="notice notice-danger">
@@ -327,7 +416,7 @@ export function DashboardClient() {
         })}
       />
 
-      <section className="card qr-card">
+      <section id="dashboard-section-subscription" className="card qr-card">
         <div className="dashboard-section-head">
           <div>
             <h2 className="section-title">Suscripción</h2>
@@ -363,7 +452,7 @@ export function DashboardClient() {
           <div className="stack" style={{ gap: ".85rem", marginTop: "1rem" }}>
             <p className="muted">El proceso oficial de pago de Mercado Pago se cargó según la documentación. Si no responde, puedes continuar con la opción alternativa.</p>
             <div id="mercadopago-checkout" />
-            <button className="btn btn-secondary" type="button" onClick={() => window.location.href = checkoutConfig.initPoint}>
+            <button className="btn btn-secondary" type="button" onClick={() => { window.location.href = checkoutConfig.initPoint; }}>
               Abrir pago por redirección
             </button>
           </div>
