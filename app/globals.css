@@ -681,9 +681,9 @@ img { max-width: 100%; display: block; }
   display: grid;
   grid-template-columns: minmax(0, 0.92fr) minmax(420px, 1.08fr);
   gap: 1.25rem;
-  align-items: stretch;
-  min-height: calc(100vh - 78px);
-  padding: 3rem 0 3.5rem;
+  align-items: center;
+  min-height: calc(100svh - 78px);
+  padding: clamp(1.25rem, 2.2vh, 2rem) 0 clamp(1.5rem, 2.8vh, 2.25rem);
 }
 
 .cloud-home-copy,
@@ -708,7 +708,7 @@ img { max-width: 100%; display: block; }
 
 .cloud-home-copy {
   align-content: center;
-  padding: 1rem 0;
+  padding: 0.35rem 0;
 }
 
 .cloud-home-kicker,
@@ -719,7 +719,7 @@ img { max-width: 100%; display: block; }
 .cloud-home-title {
   margin: 0;
   max-width: 12ch;
-  font-size: clamp(3.4rem, 7vw, 5.8rem);
+  font-size: clamp(3rem, 6.2vw, 5.1rem);
   line-height: 0.92;
   letter-spacing: -0.07em;
   color: #0f172a;
@@ -728,8 +728,8 @@ img { max-width: 100%; display: block; }
 .cloud-home-lead {
   margin: 0;
   max-width: 42rem;
-  font-size: 1.08rem;
-  line-height: 1.75;
+  font-size: 1.02rem;
+  line-height: 1.65;
   color: #334155;
 }
 
@@ -743,16 +743,16 @@ img { max-width: 100%; display: block; }
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
-  padding: 0.8rem 0.95rem;
+  padding: 0.7rem 0.9rem;
   border-radius: 999px;
   border: 1px solid rgba(148, 163, 184, 0.22);
   background: rgba(255, 255, 255, 0.8);
   color: #475569;
-  font-size: 0.93rem;
+  font-size: 0.9rem;
 }
 
 .cloud-home-console {
-  padding: 1.2rem;
+  padding: 1rem;
   border-radius: 32px;
   background:
     linear-gradient(180deg, rgba(15, 23, 42, 0.98), rgba(30, 41, 59, 0.98)),
@@ -789,19 +789,31 @@ img { max-width: 100%; display: block; }
 
 .cloud-console-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.08fr) minmax(280px, 0.92fr);
+  grid-template-columns: 1fr;
   gap: 1rem;
   align-items: stretch;
 }
 
 .cloud-console-preview {
-  padding: 0.2rem;
+  padding: 0.1rem;
 }
 
 .cloud-console-preview .marketing-demo-frame {
   background: linear-gradient(180deg, #111827, #0f172a);
   border-color: rgba(148, 163, 184, 0.16);
   box-shadow: none;
+}
+
+.cloud-console-preview .preview-page {
+  min-height: 420px;
+}
+
+.cloud-console-preview .public-card {
+  width: min(500px, 100%);
+}
+
+.cloud-console-stack {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .cloud-console-card,
@@ -813,15 +825,15 @@ img { max-width: 100%; display: block; }
 }
 
 .cloud-console-card {
-  padding: 1rem;
+  padding: 0.95rem;
   background: rgba(15, 23, 42, 0.62);
   color: rgba(248, 250, 252, 0.92);
 }
 
 .cloud-console-card p {
-  margin: 0.7rem 0 0;
+  margin: 0.55rem 0 0;
   color: rgba(226, 232, 240, 0.72);
-  line-height: 1.6;
+  line-height: 1.5;
 }
 
 .cloud-console-card-top,
@@ -2452,6 +2464,7 @@ img { max-width: 100%; display: block; }
   .landing-hero,
   .home-hero,
   .cloud-home-hero,
+  .cloud-console-stack,
   .home-hero-metrics,
   .home-stage-notes,
   .home-logic-grid,
@@ -2531,6 +2544,10 @@ img { max-width: 100%; display: block; }
 
   .cloud-home-console {
     padding: 1rem;
+  }
+
+  .cloud-console-preview .preview-page {
+    min-height: 520px;
   }
 
   .cloud-console-head {
