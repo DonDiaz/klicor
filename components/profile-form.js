@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import {
+  AlertTriangle,
   CreditCard,
   ChevronDown,
   ChevronUp,
@@ -214,6 +215,7 @@ export function ProfileForm({
   const [paymentQrPreviewUrl, setPaymentQrPreviewUrl] = useState("");
   const [contactCard, setContactCard] = useState(normalizeContactCard(profile));
   const [message, setMessage] = useState("");
+  const [alertMessage, setAlertMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [selectedType, setSelectedType] = useState("whatsapp");
   const [openSection, setOpenSection] = useState("profile");
@@ -231,6 +233,7 @@ export function ProfileForm({
     setPhoto(null);
     setPaymentQrImage(null);
     setContactCard(normalizeContactCard(profile));
+    setAlertMessage("");
   }, [profile]);
 
   useEffect(() => {
@@ -300,17 +303,18 @@ export function ProfileForm({
   async function handleSubmit(event) {
     event.preventDefault();
     if (!canEdit) {
-      setMessage("Tu cuenta no permite edición en este momento.");
+      setAlertMessage("Tu cuenta no permite edición en este momento.");
       return;
     }
 
     if (appearanceWarnings.length) {
-      setMessage(appearanceWarnings[0].message);
+      setAlertMessage(appearanceWarnings[0].message);
       return;
     }
 
     setLoading(true);
     setMessage("");
+    setAlertMessage("");
     try {
       const body = new FormData();
       body.append("businessName", form.businessName);
@@ -331,7 +335,7 @@ export function ProfileForm({
       onSaved(data.user);
       setMessage("Cambios guardados correctamente.");
     } catch (error) {
-      setMessage(error.message);
+      setAlertMessage(error.message);
     } finally {
       setLoading(false);
     }
@@ -344,7 +348,7 @@ export function ProfileForm({
   function addLink() {
     const meta = LINK_CATALOG_MAP[selectedType];
     if (!selectedTypeAvailable) {
-      setMessage(
+      setAlertMessage(
         selectedType === "whatsapp"
           ? "Solo puedes agregar hasta 2 enlaces de WhatsApp."
           : `Solo puedes agregar 1 enlace de ${meta.label}.`,
@@ -431,6 +435,22 @@ export function ProfileForm({
 
   return (
     <div className="editor-layout">
+      {alertMessage ? (
+        <div className="dashboard-alert-backdrop" role="alertdialog" aria-modal="true" aria-label="Alerta del editor">
+          <div className="dashboard-alert-card">
+            <div className="dashboard-alert-icon">
+              <AlertTriangle size={20} />
+            </div>
+            <div className="dashboard-alert-copy">
+              <strong>Revisa este enlace</strong>
+              <p>{alertMessage}</p>
+            </div>
+            <button className="btn btn-primary" type="button" onClick={() => setAlertMessage("")}>
+              Entendido
+            </button>
+          </div>
+        </div>
+      ) : null}
       <form className="section-stack" onSubmit={handleSubmit}>
         <AccordionSection
           id="profile"
