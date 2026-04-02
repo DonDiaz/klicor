@@ -48,6 +48,8 @@ Copia `.env.example` a `.env.local` y completa:
 - `EMAIL_FROM`
 - `ADMIN_EMAIL`
 - `GOOGLE_WEB_RISK_API_KEY` (opcional, pero recomendado para bloqueo de malware y phishing)
+- `WEBSHRINKER_ACCESS_KEY` (opcional, para clasificacion por categorias)
+- `WEBSHRINKER_SECRET_KEY` (opcional, para clasificacion por categorias)
 - `CRON_SECRET`
 
 ## Firebase
@@ -100,6 +102,7 @@ Klicor <hola@tu-dominio.com>
 
 - Klicor bloquea enlaces con formatos inseguros o direcciones privadas/locales desde el backend.
 - Si configuras `GOOGLE_WEB_RISK_API_KEY`, tambien revisa malware, phishing y software no deseado antes de guardar.
+- Si configuras `WEBSHRINKER_ACCESS_KEY` y `WEBSHRINKER_SECRET_KEY`, tambien bloquea categorias de riesgo como adulto, pornografia, hackeo o pirateria.
 - Los tipos revisados en esta v1 son solo los enlaces web (`website`, redes, mapas, tienda, etc.).
 
 ## Desarrollo local
