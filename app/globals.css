@@ -3122,6 +3122,10 @@ img { max-width: 100%; display: block; }
   gap: 0.8rem;
 }
 
+.public-card-live {
+  width: min(420px, 100%);
+}
+
 .public-hero {
   gap: 0.6rem;
 }
@@ -3502,6 +3506,26 @@ img { max-width: 100%; display: block; }
   right: 1rem;
   top: 1rem;
   z-index: 1;
+}
+
+@media (min-width: 900px) {
+  .public-page:not(.preview-page) {
+    padding: 2.25rem 1rem;
+  }
+
+  .public-page:not(.preview-page) .public-card-live {
+    padding: 1.1rem 1rem 1.25rem;
+    border-radius: 42px;
+    border: 10px solid #0B1020;
+    background: transparent;
+    box-shadow:
+      0 28px 80px rgba(11, 16, 32, 0.28),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+  }
+
+  .public-page:not(.preview-page) .floating-contact-live {
+    display: none;
+  }
 }
 
 .mobile-demo-link {

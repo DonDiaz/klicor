@@ -106,7 +106,7 @@ export function LandingView({ user, preview = false }) {
 
   return (
     <main className={preview ? "public-page preview-page" : "public-page"} style={{ background: pageBackground }}>
-      <section className="public-card public-business-card" style={shellStyle}>
+      <section className={`public-card public-business-card${preview ? "" : " public-card-live"}`} style={shellStyle}>
         <div className="public-hero">
           <div className="public-accent-bar" style={{ background: appearance.primaryColor }} />
           {user.photo ? (
@@ -265,7 +265,7 @@ export function LandingView({ user, preview = false }) {
           </div>
         ) : (
           <a
-            className="floating-contact-button"
+            className="floating-contact-button floating-contact-live"
             style={{
               background: appearance.primaryColor,
               color: appearance.buttonTextColor,
