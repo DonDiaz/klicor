@@ -1205,9 +1205,9 @@ export function ProfileForm({
               <div className="dashboard-section-head workspace-panel-head">
                 <div>
                   <h2 className="section-title" style={{ fontSize: "1.35rem" }}>Diseño de la página</h2>
-                  <p className="section-copy">Elige un preajuste y luego ajusta colores, botones y personalidad visual del perfil.</p>
+                  <p className="section-copy">Elige un tema y luego ajusta colores, botones y personalidad visual del perfil.</p>
                 </div>
-                <span className="status-badge">{appearance.advancedEnabled ? "Avanzado" : "Preajuste"}</span>
+                <span className="status-badge">{appearance.advancedEnabled ? "Avanzado" : "Tema"}</span>
               </div>
 
               <div className="section-stack">
@@ -1228,8 +1228,8 @@ export function ProfileForm({
           <div className={`panel accordion-section preset-accordion ${presetsOpen ? "is-open" : ""}`}>
             <button className="accordion-toggle" type="button" onClick={() => setPresetsOpen((current) => !current)} aria-expanded={presetsOpen}>
               <span className="accordion-toggle-copy">
-                <strong className="section-title" style={{ fontSize: "1rem" }}>Estilos predefinidos</strong>
-                <span className="section-copy">Elige una combinación lista para empezar más rápido.</span>
+                <strong className="section-title" style={{ fontSize: "1rem" }}>Temas</strong>
+                <span className="section-copy">Elige un tema listo para empezar más rápido.</span>
               </span>
               <span className="accordion-toggle-meta">
                 <span className="status-badge">{APPEARANCE_PRESETS.length} opciones</span>

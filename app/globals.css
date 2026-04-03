@@ -641,9 +641,21 @@ img { max-width: 100%; display: block; }
   line-height: 1;
 }
 
-.brand-logo-icon {
+.brand-logo-badge {
   flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
   border-radius: 22px;
+}
+
+.brand-logo-icon {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  transform: scale(1.16);
+  transform-origin: center;
   filter: drop-shadow(0 16px 28px rgba(91, 33, 182, 0.22));
 }
 

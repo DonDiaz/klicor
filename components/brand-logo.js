@@ -13,14 +13,16 @@ export function BrandLogo({ size = 44, textClassName, lightText = false }) {
 
   return (
     <div className="brand-logo" aria-label="Klicor">
-      <Image
-        src="/klicor-icon.png"
-        alt="Klicor"
-        width={size}
-        height={size}
-        className="brand-logo-icon"
-        priority
-      />
+      <span className="brand-logo-badge" style={{ width: size, height: size }}>
+        <Image
+          src="/klicor-icon.png"
+          alt="Klicor"
+          width={size}
+          height={size}
+          className="brand-logo-icon"
+          priority
+        />
+      </span>
       <span className={clsx("brand-logo-text", manrope.className, textClassName)} style={{ color: textColor }}>
         KLICOR
       </span>
