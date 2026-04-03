@@ -3110,6 +3110,7 @@ img { max-width: 100%; display: block; }
 .public-hero,
 .public-content-stack,
 .public-main-actions,
+.public-priority-two-actions,
 .public-secondary-actions,
 .public-section,
 .public-section-head,
@@ -3182,6 +3183,7 @@ img { max-width: 100%; display: block; }
 }
 
 .public-main-actions,
+.public-priority-two-actions,
 .public-secondary-actions {
   display: grid;
   gap: 0.75rem;
@@ -3266,6 +3268,18 @@ img { max-width: 100%; display: block; }
   background: rgba(255, 255, 255, 0.72);
 }
 
+.public-link-priority-1 {
+  font-weight: 700;
+}
+
+.public-link-priority-2 {
+  font-weight: 700;
+}
+
+.public-link-priority-3 {
+  justify-content: flex-start;
+}
+
 .payment-key-shell {
   display: grid;
   gap: 0.75rem;
@@ -3335,6 +3349,12 @@ img { max-width: 100%; display: block; }
 .payment-key-upload {
   display: grid;
   gap: 0.75rem;
+}
+
+.payment-key-upload-actions,
+.link-priority-row {
+  display: grid;
+  gap: 0.6rem;
 }
 
 .payment-qr-preview {

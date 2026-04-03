@@ -22,7 +22,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { apiFetch } from "@/lib/client-api";
-import { BUSINESS_CATEGORY_OPTIONS, normalizeBusinessCategory } from "@/lib/business-categories";
+import { applyDefaultLinkPriorityTiers, BUSINESS_CATEGORY_OPTIONS, isSocialLinkType, LINK_PRIORITY_LIMITS, normalizeBusinessCategory } from "@/lib/business-categories";
 import { COLOMBIA_DEPARTMENT_OPTIONS, getCitiesForDepartment, resolveCityName, resolveDepartmentName } from "@/lib/colombia-locations";
 import { resolveContactCardData } from "@/lib/contact-card";
 import { canAddLinkType, getLinkTypeCount, getLinkTypeLimit, LINK_CATALOG, LINK_CATALOG_MAP } from "@/lib/link-catalog";
@@ -43,26 +43,32 @@ const LandingView = dynamic(
 );
 
 function normalizeLinks(profile) {
+  const category = normalizeBusinessCategory(profile?.businessCategory);
+
   if (Array.isArray(profile?.profileLinks) && profile.profileLinks.length) {
-    return profile.profileLinks.map((item) => ({
+    return applyDefaultLinkPriorityTiers(profile.profileLinks.map((item) => ({
       id: item.id,
       type: item.type,
       label: item.label,
       value: item.value,
       message: item.message || "",
-    }));
+      priorityTier: item.priorityTier,
+    })), category);
   }
 
   const legacy = profile?.links || {};
-  return Object.entries(legacy)
-    .filter(([, value]) => value)
-    .map(([type, value], index) => ({
-      id: `${type}-${index}`,
-      type,
-      label: LINK_CATALOG_MAP[type]?.label || "Enlace",
-      value,
-      message: type === "whatsapp" ? "Hola, quiero información" : "",
-    }));
+  return applyDefaultLinkPriorityTiers(
+    Object.entries(legacy)
+      .filter(([, value]) => value)
+      .map(([type, value], index) => ({
+        id: `${type}-${index}`,
+        type,
+        label: LINK_CATALOG_MAP[type]?.label || "Enlace",
+        value,
+        message: type === "whatsapp" ? "Hola, quiero información" : "",
+      })),
+    category,
+  );
 }
 
 function normalizeLinkUrl(item) {
@@ -202,6 +208,16 @@ function AccordionSection({ id, title, copy, openSection, onToggle, children, tr
   );
 }
 
+const PRIORITY_OPTIONS = [
+  { value: 1, label: "Prioridad 1" },
+  { value: 2, label: "Prioridad 2" },
+  { value: 3, label: "Prioridad 3" },
+];
+
+function canConfigureActionPriority(type) {
+  return type !== "payment_key" && !isSocialLinkType(type);
+}
+
 function getSubscriptionTone(status) {
   if (status === "active" || status === "trial") return "success";
   if (status === "grace_period") return "warning";
@@ -255,6 +271,7 @@ export function ProfileForm({
   const [photoPreviewUrl, setPhotoPreviewUrl] = useState("");
   const [paymentQrImage, setPaymentQrImage] = useState(null);
   const [paymentQrPreviewUrl, setPaymentQrPreviewUrl] = useState("");
+  const [removePaymentQr, setRemovePaymentQr] = useState(false);
   const [contactCard, setContactCard] = useState(normalizeContactCard(profile));
   const [billingProfile, setBillingProfile] = useState(normalizeBillingProfile(profile));
   const [message, setMessage] = useState("");
@@ -278,6 +295,7 @@ export function ProfileForm({
     setAppearance(normalizeAppearance(profile?.settings || APPEARANCE_DEFAULTS));
     setPhoto(null);
     setPaymentQrImage(null);
+    setRemovePaymentQr(false);
     setContactCard(normalizeContactCard(profile));
     setBillingProfile(normalizeBillingProfile(profile));
     setAlertMessage("");
@@ -319,7 +337,7 @@ export function ProfileForm({
     businessHeadline: form.businessHeadline,
     businessSubheadline: form.businessSubheadline,
     photo: photoPreviewUrl || profile?.photo || "",
-    paymentQrUrl: paymentQrPreviewUrl || savedPaymentQrUrl,
+    paymentQrUrl: removePaymentQr ? "" : paymentQrPreviewUrl || savedPaymentQrUrl,
     contactCardEnabled: contactCard.enabled,
     contactCardName: contactCard.name,
     contactCardTitle: contactCard.title,
@@ -332,7 +350,7 @@ export function ProfileForm({
         ...item,
         url: normalizeLinkUrl(item),
       })),
-  }), [appearance, contactCard.enabled, contactCard.name, contactCard.phone, contactCard.title, contactCard.whatsappLinkId, form.businessCategory, form.businessHeadline, form.businessName, form.businessSubheadline, form.username, paymentQrPreviewUrl, photoPreviewUrl, profile?.photo, profile?.publicLinkId, profileLinks, savedPaymentQrUrl]);
+  }), [appearance, contactCard.enabled, contactCard.name, contactCard.phone, contactCard.title, contactCard.whatsappLinkId, form.businessCategory, form.businessHeadline, form.businessName, form.businessSubheadline, form.username, paymentQrPreviewUrl, photoPreviewUrl, profile?.photo, profile?.publicLinkId, profileLinks, removePaymentQr, savedPaymentQrUrl]);
 
   const appearanceWarnings = useMemo(() => getAppearanceWarnings(appearance), [appearance]);
   const appearanceSuggestions = useMemo(() => getAppearanceSuggestions(appearance), [appearance]);
@@ -376,6 +394,7 @@ export function ProfileForm({
       body.append("appearance", JSON.stringify(appearance));
       body.append("contactCard", JSON.stringify(contactCard));
       body.append("billingProfile", JSON.stringify(billingProfile));
+      body.append("removePaymentQr", removePaymentQr ? "true" : "false");
       if (photo) body.append("photo", photo);
       if (paymentQrImage) body.append("paymentQrImage", paymentQrImage);
 
@@ -410,7 +429,7 @@ export function ProfileForm({
       return;
     }
 
-    setProfileLinks((current) => [
+    setProfileLinks((current) => applyDefaultLinkPriorityTiers([
       ...current,
       {
         id: `${selectedType}-${Date.now()}`,
@@ -419,7 +438,7 @@ export function ProfileForm({
         value: "",
         message: selectedType === "whatsapp" ? "Hola, quiero información" : "",
       },
-    ]);
+    ], form.businessCategory));
   }
 
   function updateLink(id, field, value) {
@@ -437,14 +456,32 @@ export function ProfileForm({
     setProfileLinks((current) => current.filter((item) => item.id !== id));
   }
 
+  function updateLinkPriority(id, nextTier) {
+    const tier = Number(nextTier);
+    const maxAllowed = LINK_PRIORITY_LIMITS[tier] || Number.POSITIVE_INFINITY;
+
+    setProfileLinks((current) => {
+      const currentItem = current.find((item) => item.id === id);
+      if (!currentItem || !canConfigureActionPriority(currentItem.type)) return current;
+
+      const tierCount = current.filter((item) => item.id !== id && canConfigureActionPriority(item.type) && Number(item.priorityTier || 3) === tier).length;
+      if (tierCount >= maxAllowed) {
+        setAlertMessage(tier === 1 ? "Solo puedes tener 1 botón en prioridad 1." : "Solo puedes tener hasta 2 botones en prioridad 2.");
+        return current;
+      }
+
+      return current.map((item) => (item.id === id ? { ...item, priorityTier: tier } : item));
+    });
+  }
+
   function applyPreset(presetId) {
     const preset = APPEARANCE_PRESETS.find((item) => item.id === presetId);
     if (!preset) return;
-    setAppearance({
+    setAppearance(normalizeAppearance({
       presetId: preset.id,
       advancedEnabled: false,
       ...preset.appearance,
-    });
+    }));
   }
 
   function updateAppearance(field, value) {
@@ -457,11 +494,11 @@ export function ProfileForm({
 
   function resetAppearance() {
     const targetPreset = APPEARANCE_PRESETS.find((item) => item.id === appearance.presetId) || APPEARANCE_PRESETS[0];
-    setAppearance({
+    setAppearance(normalizeAppearance({
       presetId: targetPreset.id,
       advancedEnabled: false,
       ...targetPreset.appearance,
-    });
+    }));
   }
 
   const selectedPhotoLabel = photo ? photo.name : profile?.photo ? "Imagen actual cargada" : "Aún no has elegido imagen";
@@ -470,6 +507,7 @@ export function ProfileForm({
     : profile?.paymentQrUrl
       ? "QR oficial cargado"
       : "Aún no has cargado un QR oficial";
+  const paymentQrStatusLabel = removePaymentQr ? "El QR actual se eliminará al guardar" : selectedPaymentQrLabel;
   const usernameChanged = Boolean(profile?.username) && form.username.trim() && form.username.trim() !== profile.username;
   const recoveryProtected = Boolean(recovery?.backupEmailVerified);
   const contactCardEnabled = Boolean(contactCard.enabled);
@@ -1057,6 +1095,26 @@ export function ProfileForm({
                       <input className="input" value={item.message || ""} placeholder="Hola, quiero información" onChange={(e) => updateLink(item.id, "message", e.target.value)} disabled={!canEdit} />
                     </div>
                   ) : null}
+                  {canConfigureActionPriority(item.type) ? (
+                    <div className="link-row-message">
+                      <label className="label">Prioridad del botón</label>
+                      <div className="link-priority-row">
+                        <select
+                          className="select"
+                          value={Number(item.priorityTier || 3)}
+                          onChange={(e) => updateLinkPriority(item.id, e.target.value)}
+                          disabled={!canEdit}
+                        >
+                          {PRIORITY_OPTIONS.map((option) => (
+                            <option key={`${item.id}-${option.value}`} value={option.value}>
+                              {option.label}
+                            </option>
+                          ))}
+                        </select>
+                        <p className="muted">Prioridad 1 admite 1 botón y prioridad 2 admite hasta 2.</p>
+                      </div>
+                    </div>
+                  ) : null}
                   {item.type === "payment_key" ? (
                     <div className="link-row-message payment-key-upload">
                       <label className="label">QR oficial del banco o billetera</label>
@@ -1065,13 +1123,19 @@ export function ProfileForm({
                           className="upload-input"
                           type="file"
                           accept="image/png,image/jpeg,image/webp"
-                          onChange={(e) => setPaymentQrImage(e.target.files?.[0] || null)}
+                          onChange={(e) => {
+                            const file = e.target.files?.[0] || null;
+                            setPaymentQrImage(file);
+                            if (file) {
+                              setRemovePaymentQr(false);
+                            }
+                          }}
                           disabled={!canEdit}
                         />
-                        <span className="upload-icon">{paymentQrImage || profile?.paymentQrUrl ? <ImagePlus size={20} /> : <UploadCloud size={20} />}</span>
+                        <span className="upload-icon">{paymentQrImage || (profile?.paymentQrUrl && !removePaymentQr) ? <ImagePlus size={20} /> : <UploadCloud size={20} />}</span>
                         <span className="upload-copy">
-                          <strong>{paymentQrImage ? "Cambiar QR oficial" : "Subir QR oficial"}</strong>
-                          <span>{selectedPaymentQrLabel}</span>
+                          <strong>{paymentQrImage || (profile?.paymentQrUrl && !removePaymentQr) ? "Cambiar QR oficial" : "Subir QR oficial"}</strong>
+                          <span>{paymentQrStatusLabel || selectedPaymentQrLabel}</span>
                           <small>Sube la imagen oficial generada en Nequi, Daviplata o tu banco</small>
                         </span>
                       </label>
@@ -1079,6 +1143,21 @@ export function ProfileForm({
                         Este QR no lo genera Klicor. Si cambias la llave, guarda una nueva imagen oficial del QR.
                       </p>
                       {paymentQrPreviewUrl || savedPaymentQrUrl ? (
+                        <div className="payment-key-upload-actions">
+                          <button
+                            className="btn btn-secondary"
+                            type="button"
+                            onClick={() => {
+                              setPaymentQrImage(null);
+                              setRemovePaymentQr(true);
+                            }}
+                            disabled={!canEdit}
+                          >
+                            <Trash2 size={16} /> Eliminar QR actual
+                          </button>
+                        </div>
+                      ) : null}
+                      {(paymentQrPreviewUrl || savedPaymentQrUrl) && !removePaymentQr ? (
                         <div className="payment-qr-preview">
                           <img src={paymentQrPreviewUrl || savedPaymentQrUrl} alt="QR oficial de pago" />
                         </div>
@@ -1270,6 +1349,8 @@ export function ProfileForm({
             <div className="section-stack">
               <div className="appearance-grid appearance-grid-colors">
                 <ColorEditor label="Color principal" value={appearance.primaryColor} onChange={(value) => updateAppearance("primaryColor", value)} swatches={APPEARANCE_SWATCHES.primaryColor} />
+                <ColorEditor label="Prioridad 2" value={appearance.secondaryColor} onChange={(value) => updateAppearance("secondaryColor", value)} swatches={APPEARANCE_SWATCHES.secondaryColor} />
+                <ColorEditor label="Prioridad 3" value={appearance.tertiaryColor} onChange={(value) => updateAppearance("tertiaryColor", value)} swatches={APPEARANCE_SWATCHES.tertiaryColor} />
                 <ColorEditor label="Color de fondo" value={appearance.backgroundColor} onChange={(value) => updateAppearance("backgroundColor", value)} swatches={APPEARANCE_SWATCHES.backgroundColor} />
                 <ColorEditor label="Color de tarjetas" value={appearance.surfaceColor} onChange={(value) => updateAppearance("surfaceColor", value)} swatches={APPEARANCE_SWATCHES.surfaceColor} />
                 <ColorEditor label="Texto principal" value={appearance.textPrimaryColor} onChange={(value) => updateAppearance("textPrimaryColor", value)} swatches={APPEARANCE_SWATCHES.textPrimaryColor} />

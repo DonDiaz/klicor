@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { ChevronDown, ChevronUp, Copy, QrCode, X } from "lucide-react";
 import { PaymentKeyIcon } from "@/lib/link-catalog";
 
-export function PaymentKeyCard({ item, qrImageUrl = "", preview = false, buttonStyle = {}, buttonRadius = "14px" }) {
+export function PaymentKeyCard({ item, qrImageUrl = "", preview = false, buttonStyle = {}, buttonRadius = "14px", cardStyle = {} }) {
   const [copied, setCopied] = useState(false);
   const [expanded, setExpanded] = useState(preview);
   const [qrOpen, setQrOpen] = useState(false);
@@ -55,7 +55,7 @@ export function PaymentKeyCard({ item, qrImageUrl = "", preview = false, buttonS
         </button>
 
         {expanded ? (
-          <section className="payment-key-card">
+          <section className="payment-key-card" style={cardStyle}>
             <div className="payment-key-head">
               <div>
                 <strong>{item.label || "Llave Bre-B"}</strong>

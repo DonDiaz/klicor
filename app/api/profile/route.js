@@ -21,6 +21,7 @@ export async function POST(request) {
     const appearanceJson = formData.get("appearance");
     const contactCardJson = formData.get("contactCard");
     const billingProfileJson = formData.get("billingProfile");
+    const removePaymentQr = formData.get("removePaymentQr") === "true";
 
     const parsed = profileSchema.parse({
       businessName: formData.get("businessName"),
@@ -62,6 +63,7 @@ export async function POST(request) {
     const nextUser = await updateUserProfile(user.uid, parsed, {
       photo: photo?.size ? photo : null,
       paymentQrImage: paymentQrImage?.size ? paymentQrImage : null,
+      removePaymentQr,
     });
     const account = getAccountView(nextUser);
     const updatedAtMs = toDate(account.updatedAt)?.getTime() || 0;
