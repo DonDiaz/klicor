@@ -3255,6 +3255,8 @@ img { max-width: 100%; display: block; }
 }
 
 .public-social-link {
+  position: relative;
+  z-index: 1;
   width: 100%;
   min-height: 52px;
   display: inline-flex;
@@ -3637,9 +3639,6 @@ img { max-width: 100%; display: block; }
 .public-link svg { flex: 0 0 auto; }
 
 .floating-contact-button {
-  position: fixed;
-  right: max(1rem, env(safe-area-inset-right));
-  top: calc(1rem + env(safe-area-inset-top));
   width: 62px;
   height: 62px;
   border-radius: 999px;
@@ -3653,15 +3652,34 @@ img { max-width: 100%; display: block; }
   transition: transform 0.18s ease, box-shadow 0.18s ease;
 }
 
+.floating-actions-live {
+  position: fixed;
+  right: max(1rem, env(safe-area-inset-right));
+  bottom: calc(1rem + env(safe-area-inset-bottom));
+  display: grid;
+  gap: 0.7rem;
+  z-index: 120;
+}
+
+.floating-actions-preview {
+  position: absolute;
+  right: 1rem;
+  top: 1rem;
+  display: grid;
+  gap: 0.65rem;
+  z-index: 1;
+}
+
 .floating-contact-button:hover {
   transform: translateY(-2px);
 }
 
 .floating-contact-button.is-preview {
-  position: absolute;
-  right: 1rem;
-  top: 1rem;
-  z-index: 1;
+  position: static;
+}
+
+.floating-contact-button.is-secondary {
+  border-color: rgba(91, 33, 182, 0.18);
 }
 
 @media (min-width: 900px) {
@@ -3679,7 +3697,7 @@ img { max-width: 100%; display: block; }
       inset 0 0 0 1px rgba(255, 255, 255, 0.04);
   }
 
-  .public-page:not(.preview-page) .floating-contact-live {
+  .public-page:not(.preview-page) .floating-actions-live {
     display: none;
   }
 }

@@ -1,8 +1,9 @@
-import { Globe, Save } from "lucide-react";
+import { Globe, Save, Share2 } from "lucide-react";
 import { buildLandingLayout } from "@/lib/landing-layout";
 import { resolveContactCardData } from "@/lib/contact-card";
 import { getContrastRatio, hexToRgba, normalizeAppearance } from "@/lib/theme-system";
 import { PaymentMethodsCard } from "@/components/payment-methods-card";
+import { PublicFloatingActions } from "@/components/public-floating-actions";
 
 const NAME_SIZE_MAP = {
   s: "1.6rem",
@@ -304,36 +305,60 @@ export function LandingView({ user, preview = false }) {
         </div>
       </section>
 
-      {contactCard.shouldShow ? (
-        preview ? (
+      {preview ? (
+        <div
+          className="floating-actions-preview"
+          style={{
+            color: resolveReadableText(appearance.primaryColor, appearance.buttonTextColor, appearance.textPrimaryColor),
+          }}
+        >
+          {contactCard.shouldShow ? (
+            <div
+              className="floating-contact-button is-preview"
+              style={{
+                background: appearance.primaryColor,
+                color: resolveReadableText(appearance.primaryColor, appearance.buttonTextColor, appearance.textPrimaryColor),
+                boxShadow: `0 20px 44px ${hexToRgba(appearance.primaryColor, 0.32)}`,
+              }}
+              aria-label="Guardar contacto"
+              title="Guardar contacto"
+            >
+              <Save size={20} />
+            </div>
+          ) : null}
           <div
-            className="floating-contact-button is-preview"
+            className="floating-contact-button is-preview is-secondary"
             style={{
-              background: appearance.primaryColor,
-              color: resolveReadableText(appearance.primaryColor, appearance.buttonTextColor, appearance.textPrimaryColor),
-              boxShadow: `0 20px 44px ${hexToRgba(appearance.primaryColor, 0.32)}`,
+              background: hexToRgba(appearance.surfaceColor, 0.9),
+              color: appearance.primaryColor,
+              boxShadow: `0 16px 32px ${hexToRgba("#0B1020", 0.12)}`,
             }}
-            aria-label="Guardar contacto"
-            title="Guardar contacto"
+            aria-label="Compartir"
+            title="Compartir"
           >
-            <Save size={20} />
+            <Share2 size={20} />
           </div>
-        ) : (
-          <a
-            className="floating-contact-button floating-contact-live"
-            style={{
-              background: appearance.primaryColor,
-              color: resolveReadableText(appearance.primaryColor, appearance.buttonTextColor, appearance.textPrimaryColor),
-              boxShadow: `0 20px 44px ${hexToRgba(appearance.primaryColor, 0.32)}`,
-            }}
-            href={`/api/analytics/click?username=${user.username}&button=contact_card`}
-            aria-label="Guardar contacto"
-            title="Guardar contacto"
-          >
-            <Save size={20} />
-          </a>
-        )
-      ) : null}
+        </div>
+      ) : (
+        <div className="floating-actions-live">
+          {contactCard.shouldShow ? (
+            <a
+              className="floating-contact-button floating-contact-live"
+              style={{
+                background: appearance.primaryColor,
+                color: resolveReadableText(appearance.primaryColor, appearance.buttonTextColor, appearance.textPrimaryColor),
+                boxShadow: `0 20px 44px ${hexToRgba(appearance.primaryColor, 0.32)}`,
+              }}
+              href={`/api/analytics/click?username=${user.username}&button=contact_card`}
+              aria-label="Guardar contacto"
+              title="Guardar contacto"
+            >
+              <Save size={20} />
+            </a>
+          ) : null}
+          <PublicFloatingActions businessName={user.businessName} shareLabel="Compartir" />
+        </div>
+      )}
     </main>
   );
 }
