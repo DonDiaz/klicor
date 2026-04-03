@@ -3080,7 +3080,7 @@ img { max-width: 100%; display: block; }
   align-items: center;
   justify-content: center;
   position: relative;
-  padding: 2rem 1rem;
+  padding: 1.35rem 1rem;
   background: linear-gradient(180deg, #F8FAFC, #EEF2FF);
 }
 
@@ -3107,23 +3107,23 @@ img { max-width: 100%; display: block; }
 }
 
 .public-business-card {
-  gap: 1.1rem;
+  gap: 0.8rem;
 }
 
 .public-hero {
-  gap: 0.95rem;
+  gap: 0.6rem;
 }
 
 .public-hero-copy {
-  gap: 0.2rem;
+  gap: 0.1rem;
 }
 
 .public-category-label {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 0.45rem;
-  font-size: 0.86rem;
+  margin-bottom: 0.2rem;
+  font-size: 0.8rem;
   font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -3135,15 +3135,15 @@ img { max-width: 100%; display: block; }
 }
 
 .public-headline {
-  font-size: 1.2rem;
-  line-height: 1.3;
+  font-size: 1.08rem;
+  line-height: 1.22;
   font-weight: 700;
 }
 
 .public-subheadline {
-  margin-top: 0.3rem;
+  margin-top: 0.05rem;
   color: var(--text-secondary);
-  line-height: 1.6;
+  line-height: 1.4;
 }
 
 .public-content-stack {
@@ -3151,19 +3151,19 @@ img { max-width: 100%; display: block; }
 }
 
 .public-accent-bar {
-  height: 6px;
-  width: 88px;
-  margin: 0 auto 1.25rem;
+  height: 5px;
+  width: 72px;
+  margin: 0 auto 0.7rem;
   border-radius: 999px;
   background: var(--accent);
 }
 
 .avatar {
-  width: 104px;
-  height: 104px;
+  width: 88px;
+  height: 88px;
   border-radius: 999px;
   object-fit: cover;
-  margin: 0 auto 1rem;
+  margin: 0 auto 0.55rem;
   border: 3px solid rgba(91, 33, 182, 0.12);
 }
 
@@ -3171,6 +3171,40 @@ img { max-width: 100%; display: block; }
 .public-secondary-actions {
   display: grid;
   gap: 0.75rem;
+}
+
+@media (max-width: 640px) {
+  .public-page {
+    padding: 1rem 0.85rem;
+  }
+
+  .public-business-card {
+    gap: 0.72rem;
+  }
+
+  .public-accent-bar {
+    width: 64px;
+    margin-bottom: 0.55rem;
+  }
+
+  .avatar {
+    width: 82px;
+    height: 82px;
+    margin-bottom: 0.45rem;
+  }
+
+  .public-category-label {
+    font-size: 0.76rem;
+    margin-bottom: 0.16rem;
+  }
+
+  .public-headline {
+    font-size: 0.98rem;
+  }
+
+  .public-subheadline {
+    font-size: 0.98rem;
+  }
 }
 
 .public-section {

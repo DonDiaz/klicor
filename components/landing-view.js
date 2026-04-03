@@ -141,7 +141,7 @@ export function LandingView({ user, preview = false }) {
             </span>
             <h1
               style={{
-                marginBottom: ".45rem",
+                marginBottom: ".2rem",
                 color: appearance.textPrimaryColor,
                 fontSize: NAME_SIZE_MAP[appearance.nameSize],
                 fontWeight: NAME_WEIGHT_MAP[appearance.nameWeight],
