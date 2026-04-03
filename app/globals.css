@@ -405,6 +405,17 @@ html[data-theme="dark"] .cloud-console-preview .payment-key-card {
   border-color: rgba(148, 163, 184, 0.12);
 }
 
+html[data-theme="dark"] .public-section,
+html[data-theme="dark"] .public-social-link {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(148, 163, 184, 0.12);
+}
+
+html[data-theme="dark"] .public-link-secondary {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-primary);
+}
+
 html[data-theme="dark"] .auth-entry-badges span {
   background: rgba(15, 23, 42, 0.82);
   border-color: rgba(148, 163, 184, 0.14);
@@ -3085,6 +3096,30 @@ img { max-width: 100%; display: block; }
   text-align: center;
 }
 
+.public-business-card,
+.public-hero,
+.public-content-stack,
+.public-main-actions,
+.public-secondary-actions,
+.public-section,
+.public-section-head,
+.public-social-strip,
+.public-hero-copy {
+  display: grid;
+}
+
+.public-business-card {
+  gap: 1.1rem;
+}
+
+.public-hero {
+  gap: 0.95rem;
+}
+
+.public-hero-copy {
+  gap: 0.2rem;
+}
+
 .public-category-label {
   display: inline-flex;
   align-items: center;
@@ -3113,6 +3148,10 @@ img { max-width: 100%; display: block; }
   line-height: 1.6;
 }
 
+.public-content-stack {
+  gap: 1rem;
+}
+
 .public-accent-bar {
   height: 6px;
   width: 88px;
@@ -3130,10 +3169,60 @@ img { max-width: 100%; display: block; }
   border: 3px solid rgba(91, 33, 182, 0.12);
 }
 
-.public-links {
+.public-main-actions,
+.public-secondary-actions {
   display: grid;
   gap: 0.75rem;
-  margin-top: 1.5rem;
+}
+
+.public-section {
+  gap: 0.85rem;
+  padding: 1rem;
+  border-radius: 18px;
+  border: 1px solid rgba(100, 116, 139, 0.12);
+  background: rgba(255, 255, 255, 0.08);
+  text-align: left;
+}
+
+.public-section-social {
+  text-align: center;
+}
+
+.public-section-head {
+  gap: 0.18rem;
+}
+
+.public-section-head strong {
+  font-size: 0.98rem;
+  letter-spacing: -0.02em;
+}
+
+.public-section-head span {
+  color: var(--text-secondary);
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+
+.public-social-strip {
+  grid-template-columns: repeat(auto-fit, minmax(50px, 1fr));
+  gap: 0.7rem;
+}
+
+.public-social-link {
+  width: 100%;
+  min-height: 52px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16px;
+  border: 1px solid rgba(100, 116, 139, 0.16);
+  background: rgba(255, 255, 255, 0.5);
+  transition: transform 0.18s ease, background-color 0.18s ease;
+}
+
+.public-social-link:hover {
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.72);
 }
 
 .payment-key-shell {
@@ -3342,6 +3431,10 @@ img { max-width: 100%; display: block; }
 .public-link:hover {
   background: var(--primary-hover);
   transform: translateY(-1px);
+}
+
+.public-link-secondary {
+  justify-content: flex-start;
 }
 
 .public-link svg { flex: 0 0 auto; }

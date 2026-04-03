@@ -1,7 +1,6 @@
 import { Globe, Save } from "lucide-react";
-import { resolveBusinessIdentityCopy, resolveBusinessLinkLabel, sortLinksByBusinessCategory } from "@/lib/business-categories";
+import { buildLandingLayout } from "@/lib/landing-layout";
 import { resolveContactCardData } from "@/lib/contact-card";
-import { LINK_CATALOG_MAP } from "@/lib/link-catalog";
 import { hexToRgba, normalizeAppearance } from "@/lib/theme-system";
 import { PaymentKeyCard } from "@/components/payment-key-card";
 
@@ -33,15 +32,38 @@ const AVATAR_RADIUS_MAP = {
   "soft-square": "16px",
 };
 
-export function LandingView({ user, preview = false }) {
-  const links = user.profileLinks || [];
-  const paymentKey = links.find((item) => item.type === "payment_key");
-  const visibleLinks = sortLinksByBusinessCategory(
-    links.filter((item) => item.type !== "payment_key"),
-    user.businessCategory,
+function renderAction({ item, preview, buttonStyle, buttonRadius, user, className = "public-link" }) {
+  const Icon = item.icon || Globe;
+  const content = (
+    <>
+      <Icon size={18} />
+      <span>{item.displayLabel}</span>
+    </>
   );
+
+  if (preview) {
+    return (
+      <div className={className} style={{ ...buttonStyle, borderRadius: buttonRadius }} key={item.id}>
+        {content}
+      </div>
+    );
+  }
+
+  return (
+    <a
+      className={className}
+      style={{ ...buttonStyle, borderRadius: buttonRadius }}
+      key={item.id}
+      href={`/api/analytics/click?username=${user.username}&button=${item.type}&linkId=${encodeURIComponent(item.id)}`}
+    >
+      {content}
+    </a>
+  );
+}
+
+export function LandingView({ user, preview = false }) {
+  const layout = buildLandingLayout(user);
   const contactCard = resolveContactCardData(user);
-  const businessIdentity = resolveBusinessIdentityCopy(user);
   const paymentQrUrl = user.paymentQrUrl
     ? preview
       ? user.paymentQrUrl
@@ -64,7 +86,7 @@ export function LandingView({ user, preview = false }) {
     boxShadow: SHADOW_MAP[appearance.cardShadow],
   };
 
-  const buttonStyle = appearance.buttonStyle === "outline"
+  const primaryButtonStyle = appearance.buttonStyle === "outline"
     ? {
         background: "transparent",
         color: appearance.primaryColor,
@@ -85,81 +107,157 @@ export function LandingView({ user, preview = false }) {
           boxShadow: `0 14px 28px ${hexToRgba(appearance.primaryColor, 0.22)}`,
         };
 
+  const secondaryButtonStyle = {
+    background: hexToRgba(appearance.primaryColor, 0.08),
+    color: appearance.textPrimaryColor,
+    border: `1px solid ${hexToRgba(appearance.primaryColor, 0.18)}`,
+    boxShadow: "none",
+  };
+
   return (
     <main className={preview ? "preview-page" : "public-page"} style={{ background: pageBackground }}>
-      <section className="public-card" style={cardStyle}>
-        <div className="public-accent-bar" style={{ background: appearance.primaryColor }} />
-        {user.photo ? (
-          <img
-            className="avatar"
-            src={user.photo}
-            alt={user.businessName}
-            loading="eager"
-            decoding="async"
-            fetchPriority="high"
-            style={{ borderRadius: AVATAR_RADIUS_MAP[appearance.avatarShape] }}
-          />
-        ) : (
-          <div
-            className="avatar"
-            style={{
-              display: "grid",
-              placeItems: "center",
-              borderRadius: AVATAR_RADIUS_MAP[appearance.avatarShape],
-              background: hexToRgba(appearance.primaryColor, 0.12),
-              color: appearance.primaryColor,
-              fontSize: "2rem",
-            }}
-          >
-            {user.businessName?.slice(0, 1) || "L"}
-          </div>
-        )}
+      <section className="public-card public-business-card" style={cardStyle}>
+        <div className="public-hero">
+          <div className="public-accent-bar" style={{ background: appearance.primaryColor }} />
+          {user.photo ? (
+            <img
+              className="avatar"
+              src={user.photo}
+              alt={user.businessName}
+              loading="eager"
+              decoding="async"
+              fetchPriority="high"
+              style={{ borderRadius: AVATAR_RADIUS_MAP[appearance.avatarShape] }}
+            />
+          ) : (
+            <div
+              className="avatar"
+              style={{
+                display: "grid",
+                placeItems: "center",
+                borderRadius: AVATAR_RADIUS_MAP[appearance.avatarShape],
+                background: hexToRgba(appearance.primaryColor, 0.12),
+                color: appearance.primaryColor,
+                fontSize: "2rem",
+              }}
+            >
+              {user.businessName?.slice(0, 1) || "L"}
+            </div>
+          )}
 
-        <div style={{ textAlign: "center" }}>
-          <span className="public-category-label" style={{ color: appearance.primaryColor }}>
-            {businessIdentity.categoryLabel}
-          </span>
-          <h1
-            style={{
-              marginBottom: ".45rem",
-              color: appearance.textPrimaryColor,
-              fontSize: NAME_SIZE_MAP[appearance.nameSize],
-              fontWeight: NAME_WEIGHT_MAP[appearance.nameWeight],
-            }}
-          >
-            {user.businessName}
-          </h1>
-          <p className="public-headline" style={{ color: appearance.textPrimaryColor }}>
-            {businessIdentity.headline}
-          </p>
-          <p className="public-subheadline">{businessIdentity.subheadline}</p>
+          <div className="public-hero-copy">
+            <span className="public-category-label" style={{ color: appearance.primaryColor }}>
+              {layout.identity.categoryLabel}
+            </span>
+            <h1
+              style={{
+                marginBottom: ".45rem",
+                color: appearance.textPrimaryColor,
+                fontSize: NAME_SIZE_MAP[appearance.nameSize],
+                fontWeight: NAME_WEIGHT_MAP[appearance.nameWeight],
+              }}
+            >
+              {user.businessName}
+            </h1>
+            <p className="public-headline" style={{ color: appearance.textPrimaryColor }}>
+              {layout.identity.headline}
+            </p>
+            <p className="public-subheadline">{layout.identity.subheadline}</p>
+          </div>
         </div>
 
-        <div className="public-links">
-          {paymentKey ? (
-            <PaymentKeyCard
-              item={paymentKey}
-              qrImageUrl={paymentQrUrl}
-              preview={preview}
-              buttonStyle={buttonStyle}
-              buttonRadius={RADIUS_MAP[appearance.buttonRadius]}
-            />
+        <div className="public-content-stack">
+          <div className="public-main-actions">
+            {layout.primaryActions.length ? layout.primaryActions.map((item) =>
+              renderAction({
+                item,
+                preview,
+                buttonStyle: primaryButtonStyle,
+                buttonRadius: RADIUS_MAP[appearance.buttonRadius],
+                user,
+              }),
+            ) : preview ? (
+              <div className="public-link" style={{ ...primaryButtonStyle, borderRadius: RADIUS_MAP[appearance.buttonRadius] }}>
+                <Globe size={18} />
+                <span>Agrega tus enlaces para ver la estructura principal</span>
+              </div>
+            ) : null}
+          </div>
+
+          {layout.paymentKey ? (
+            <section className="public-section">
+              <div className="public-section-head">
+                <strong>Cobro visible</strong>
+                <span>Haz más fácil cobrar desde el mismo perfil</span>
+              </div>
+              <PaymentKeyCard
+                item={layout.paymentKey}
+                qrImageUrl={paymentQrUrl}
+                preview={preview}
+                buttonStyle={primaryButtonStyle}
+                buttonRadius={RADIUS_MAP[appearance.buttonRadius]}
+              />
+            </section>
           ) : null}
 
-          {visibleLinks.length ? visibleLinks.map((item) => {
-            const Icon = LINK_CATALOG_MAP[item.type]?.icon || Globe;
-            const content = <><Icon size={18} /><span>{resolveBusinessLinkLabel(item, user.businessCategory)}</span></>;
+          {layout.secondaryActions.length ? (
+            <section className="public-section">
+              <div className="public-section-head">
+                <strong>Más opciones</strong>
+                <span>Ubicación, sitio, catálogo y otros accesos útiles</span>
+              </div>
+              <div className="public-secondary-actions">
+                {layout.secondaryActions.map((item) =>
+                  renderAction({
+                    item,
+                    preview,
+                    buttonStyle: secondaryButtonStyle,
+                    buttonRadius: RADIUS_MAP[appearance.buttonRadius],
+                    user,
+                    className: "public-link public-link-secondary",
+                  }),
+                )}
+              </div>
+            </section>
+          ) : null}
 
-            if (preview) {
-              return <div className="public-link" style={{ ...buttonStyle, borderRadius: RADIUS_MAP[appearance.buttonRadius] }} key={item.id}>{content}</div>;
-            }
+          {layout.socialLinks.length ? (
+            <section className="public-section public-section-social">
+              <div className="public-section-head">
+                <strong>Redes</strong>
+                <span>Sigue el negocio en sus canales principales</span>
+              </div>
+              <div className="public-social-strip">
+                {layout.socialLinks.map((item) => {
+                  const Icon = item.icon || Globe;
 
-            return <a className="public-link" style={{ ...buttonStyle, borderRadius: RADIUS_MAP[appearance.buttonRadius] }} key={item.id} href={`/api/analytics/click?username=${user.username}&button=${item.type}&linkId=${encodeURIComponent(item.id)}`}>{content}</a>;
-          }) : preview ? (
-            <div className="public-link" style={{ ...buttonStyle, borderRadius: RADIUS_MAP[appearance.buttonRadius] }}>
-              <Globe size={18} />
-              <span>{paymentKey ? "Agrega más enlaces para completar tu página" : "Agrega tus enlaces para ver la vista previa"}</span>
-            </div>
+                  if (preview) {
+                    return (
+                      <div
+                        key={item.id}
+                        className="public-social-link"
+                        style={{ color: appearance.primaryColor, borderColor: hexToRgba(appearance.primaryColor, 0.16) }}
+                      >
+                        <Icon size={20} />
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <a
+                      key={item.id}
+                      className="public-social-link"
+                      style={{ color: appearance.primaryColor, borderColor: hexToRgba(appearance.primaryColor, 0.16) }}
+                      href={`/api/analytics/click?username=${user.username}&button=${item.type}&linkId=${encodeURIComponent(item.id)}`}
+                      aria-label={item.displayLabel}
+                      title={item.displayLabel}
+                    >
+                      <Icon size={20} />
+                    </a>
+                  );
+                })}
+              </div>
+            </section>
           ) : null}
         </div>
       </section>
