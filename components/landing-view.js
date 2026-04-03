@@ -264,14 +264,13 @@ export function LandingView({ user, preview = false }) {
           {layout.paymentMethods.length ? (
             <section className="public-section" style={panelStyle}>
               <div className="public-section-head">
-                <strong>Cobro visible</strong>
-                <span>Haz más fácil cobrar desde el mismo perfil</span>
+                <strong>Información de pagos</strong>
+                <span>Elige el método que prefieras para pagar</span>
               </div>
               <PaymentMethodsCard
                 methods={layout.paymentMethods}
                 qrImageUrl={paymentQrUrl}
                 preview={preview}
-                cardStyle={panelStyle}
               />
             </section>
           ) : null}

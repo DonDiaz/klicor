@@ -23,7 +23,13 @@ import {
 } from "lucide-react";
 import { apiFetch } from "@/lib/client-api";
 import { applyDefaultLinkPriorityTiers, BUSINESS_CATEGORY_OPTIONS, getDefaultPriorityTierForNewLink, isSocialLinkType, LINK_PRIORITY_LIMITS, normalizeBusinessCategory } from "@/lib/business-categories";
-import { ACCOUNT_TYPE_OPTIONS, COLOMBIA_FINANCIAL_ENTITY_OPTIONS, requiresAccountType, resolveFinancialEntityLabel } from "@/lib/colombia-financial-entities";
+import {
+  ACCOUNT_TYPE_OPTIONS,
+  COLOMBIA_FINANCIAL_ENTITY_OPTIONS,
+  requiresAccountType,
+  resolveFinancialEntityLabel,
+  usesBrebKeyField,
+} from "@/lib/colombia-financial-entities";
 import { COLOMBIA_DEPARTMENT_OPTIONS, getCitiesForDepartment, resolveCityName, resolveDepartmentName } from "@/lib/colombia-locations";
 import { resolveContactCardData } from "@/lib/contact-card";
 import { canAddLinkType, getLinkTypeCount, getLinkTypeLimit, LINK_CATALOG, LINK_CATALOG_MAP } from "@/lib/link-catalog";
@@ -140,7 +146,7 @@ const BILLING_RESPONSIBILITY_OPTIONS = [
 ];
 
 const WORKSPACE_TABS = [
-  { id: "blocks", label: "Bloques", icon: Link2 },
+  { id: "blocks", label: "Enlaces", icon: Link2 },
   { id: "design", label: "Diseño", icon: Paintbrush },
   { id: "settings", label: "Ajustes", icon: ShieldCheck },
 ];
@@ -509,10 +515,40 @@ export function ProfileForm({
     setPaymentMethods((current) => current.map((method) => {
       if (method.id !== id) return method;
       const next = { ...method, [field]: value };
-      if (field === "entityId" && !requiresAccountType(value)) {
-        next.accountType = "";
+      if (field === "entityId") {
+        if (!requiresAccountType(value)) {
+          next.accountType = "";
+        }
+
+        const currentValue = String(method.accountNumber || method.brebKey || "").trim();
+        if (usesBrebKeyField(value)) {
+          next.accountNumber = "";
+          next.brebKey = currentValue;
+        } else {
+          next.accountNumber = currentValue;
+          next.brebKey = "";
+        }
       }
       return next;
+    }));
+  }
+
+  function updatePaymentMethodValue(id, value) {
+    setPaymentMethods((current) => current.map((method) => {
+      if (method.id !== id) return method;
+      if (usesBrebKeyField(method.entityId)) {
+        return {
+          ...method,
+          accountNumber: "",
+          brebKey: value,
+        };
+      }
+
+      return {
+        ...method,
+        accountNumber: value,
+        brebKey: "",
+      };
     }));
   }
 
@@ -1086,8 +1122,8 @@ export function ProfileForm({
             <section className="dashboard-section panel workspace-panel">
               <div className="dashboard-section-head workspace-panel-head">
                 <div>
-                  <h2 className="section-title" style={{ fontSize: "1.35rem" }}>Bloques y cobros</h2>
-                  <p className="section-copy">Organiza botones, canales visibles, llave Bre-B y el bloque para guardar contacto.</p>
+                  <h2 className="section-title" style={{ fontSize: "1.35rem" }}>Enlaces y pagos</h2>
+                  <p className="section-copy">Organiza botones, canales visibles, información de pago y el bloque para guardar contacto.</p>
                 </div>
                 <span className="status-badge">{profileLinks.length} enlaces</span>
               </div>
@@ -1118,7 +1154,7 @@ export function ProfileForm({
           <div className="dashboard-section-head">
             <div>
               <h3 className="section-title" style={{ fontSize: "1.05rem" }}>Información de pago</h3>
-              <p className="section-copy">Configura hasta 2 métodos para cobrar. Puedes usar cuenta bancaria, billetera y llave Bre-B.</p>
+              <p className="section-copy">Configura hasta 2 métodos para cobrar. Puedes usar cuenta bancaria, billetera o llave Bre-B.</p>
             </div>
             <span className="status-badge">{paymentMethods.length}/2 métodos</span>
           </div>
@@ -1127,6 +1163,8 @@ export function ProfileForm({
             <div className="payment-methods-stack">
               {paymentMethods.map((method, index) => {
                 const showAccountType = requiresAccountType(method.entityId);
+                const usesBrebValue = usesBrebKeyField(method.entityId);
+                const paymentValue = usesBrebValue ? method.brebKey : method.accountNumber;
                 return (
                   <div className="link-row payment-method-row" key={method.id}>
                     <div>
@@ -1146,12 +1184,12 @@ export function ProfileForm({
                       </select>
                     </div>
                     <div>
-                      <label className="label">{showAccountType ? "Número de cuenta" : "Número o referencia"}</label>
+                      <label className="label">Número de cuenta o llave Bre-B</label>
                       <input
                         className="input"
-                        value={method.accountNumber}
-                        placeholder={showAccountType ? "Ej. 1234567890" : "Ej. 3001234567"}
-                        onChange={(e) => updatePaymentMethod(method.id, "accountNumber", e.target.value)}
+                        value={paymentValue}
+                        placeholder={usesBrebValue ? "Ej. tu-llave@breb" : showAccountType ? "Ej. 1234567890" : "Ej. 3001234567"}
+                        onChange={(e) => updatePaymentMethodValue(method.id, e.target.value)}
                         disabled={!canEdit}
                       />
                     </div>
@@ -1179,16 +1217,10 @@ export function ProfileForm({
                     ) : null}
 
                     <div className="link-row-message">
-                      <label className="label">Llave Bre-B</label>
-                      <input
-                        className="input"
-                        value={method.brebKey}
-                        placeholder="Opcional: tu llave Bre-B"
-                        onChange={(e) => updatePaymentMethod(method.id, "brebKey", e.target.value)}
-                        disabled={!canEdit}
-                      />
                       <p className="muted" style={{ marginTop: ".45rem" }}>
-                        {method.entityId ? `Método ${index + 1}: ${resolveFinancialEntityLabel(method.entityId)}.` : "Puedes dejar solo cuenta, solo llave Bre-B o ambas."}
+                        {method.entityId
+                          ? `Método ${index + 1}: ${resolveFinancialEntityLabel(method.entityId)}.`
+                          : "Selecciona una entidad para definir cómo se mostrará este método."}
                       </p>
                     </div>
                   </div>
