@@ -105,7 +105,7 @@ export function LandingView({ user, preview = false }) {
   };
 
   return (
-    <main className={preview ? "preview-page" : "public-page"} style={{ background: pageBackground }}>
+    <main className={preview ? "public-page preview-page" : "public-page"} style={{ background: pageBackground }}>
       <section className="public-card public-business-card" style={shellStyle}>
         <div className="public-hero">
           <div className="public-accent-bar" style={{ background: appearance.primaryColor }} />
