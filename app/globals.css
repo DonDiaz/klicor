@@ -2489,6 +2489,20 @@ img { max-width: 100%; display: block; }
   padding-top: 1rem;
 }
 
+.accordion-subsections {
+  gap: 0.85rem;
+}
+
+.accordion-subsection {
+  padding: 1.15rem;
+  border-radius: 20px;
+  background: var(--surface-alt);
+}
+
+.accordion-subsection.is-open {
+  box-shadow: none;
+}
+
 .section-divider {
   height: 1px;
   background: var(--border);

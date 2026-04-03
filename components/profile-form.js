@@ -143,11 +143,11 @@ function SegmentedControl({ label, value, options, onChange }) {
   );
 }
 
-function AccordionSection({ id, title, copy, openSection, onToggle, children, trailing }) {
+function AccordionSection({ id, title, copy, openSection, onToggle, children, trailing, className = "", contentClassName = "" }) {
   const isOpen = openSection === id;
 
   return (
-    <section id={`dashboard-section-${id}`} className={`dashboard-section panel accordion-section ${isOpen ? "is-open" : ""}`}>
+    <section id={`dashboard-section-${id}`} className={`dashboard-section panel accordion-section ${isOpen ? "is-open" : ""} ${className}`.trim()}>
       <button className="accordion-toggle" type="button" onClick={() => onToggle(id)} aria-expanded={isOpen}>
         <span className="accordion-toggle-copy">
           <strong className="section-title">{title}</strong>
@@ -158,7 +158,7 @@ function AccordionSection({ id, title, copy, openSection, onToggle, children, tr
           {isOpen ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
         </span>
       </button>
-      {isOpen ? <div className="accordion-content">{children}</div> : null}
+      {isOpen ? <div className={`accordion-content ${contentClassName}`.trim()}>{children}</div> : null}
     </section>
   );
 }
@@ -218,7 +218,8 @@ export function ProfileForm({
   const [alertMessage, setAlertMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [selectedType, setSelectedType] = useState("whatsapp");
-  const [openSection, setOpenSection] = useState("profile");
+  const [openSection, setOpenSection] = useState(null);
+  const [openProfileSection, setOpenProfileSection] = useState(null);
   const [presetsOpen, setPresetsOpen] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   const savedPaymentQrUrl = profile?.paymentQrUrl && profile?.username ? `/${profile.username}/payment-qr` : profile?.paymentQrUrl || "";
@@ -345,6 +346,10 @@ export function ProfileForm({
     setOpenSection((current) => (current === sectionId ? null : sectionId));
   }
 
+  function toggleProfileSection(sectionId) {
+    setOpenProfileSection((current) => (current === sectionId ? null : sectionId));
+  }
+
   function addLink() {
     const meta = LINK_CATALOG_MAP[selectedType];
     if (!selectedTypeAvailable) {
@@ -460,186 +465,202 @@ export function ProfileForm({
           onToggle={toggleSection}
           trailing={<span className={`status-badge ${recoveryProtected ? "success" : ""}`}>{recoveryProtected ? "Protegida" : "Pendiente"}</span>}
         >
-          <div className="profile-grid">
-            <div>
-              <label className="label">Nombre del negocio</label>
-              <input
-                className="input"
-                value={form.businessName}
-                onChange={(e) => setForm({ ...form, businessName: e.target.value })}
-                disabled={!canEdit}
-                required
-              />
-            </div>
-            <div>
-              <label className="label">Nombre de usuario</label>
-              <input
-                className="input"
-                value={form.username}
-                onChange={(e) => setForm({ ...form, username: e.target.value })}
-                disabled={!canEdit}
-                required
-              />
-              <p className="muted" style={{ marginTop: ".45rem" }}>Este valor cambia tu URL visible. Tu enlace anterior y tu QR se mantienen funcionando.</p>
-            </div>
-          </div>
-
-          {usernameChanged ? (
-            <div className="notice">
-              <span>Al guardar, tu URL visible se actualiza al nuevo usuario. Los enlaces anteriores y el QR siguen resolviendo a tu perfil.</span>
-            </div>
-          ) : null}
-
-          <div className="upload-inline">
-            <label className="label">Imagen del negocio</label>
-            <label className={`upload-card ${!canEdit ? "upload-card-disabled" : ""}`}>
-              <input
-                className="upload-input"
-                type="file"
-                accept="image/png,image/jpeg,image/webp"
-                onChange={(e) => setPhoto(e.target.files?.[0] || null)}
-                disabled={!canEdit}
-              />
-              <span className="upload-icon">{photo || profile?.photo ? <ImagePlus size={20} /> : <UploadCloud size={20} />}</span>
-              <span className="upload-copy">
-                <strong>{photo ? "Cambiar imagen" : "Subir imagen"}</strong>
-                <span>{selectedPhotoLabel}</span>
-                <small>PNG, JPG o WEBP hasta 2 MB</small>
-              </span>
-            </label>
-          </div>
-
-          <div className="section-divider" />
-
-          <div className="dashboard-section-head">
-            <div>
-              <h3 className="section-title" style={{ fontSize: "1.05rem" }}>Seguridad y recuperación</h3>
-              <p className="section-copy">Protege tu QR y tu enlace con un correo de respaldo y un teléfono de recuperación.</p>
-            </div>
-            <span className={`status-badge ${recoveryProtected ? "success" : ""}`}>
-              {recoveryProtected ? <ShieldCheck size={14} /> : null}
-              {recoveryProtected ? "Protegida" : "Pendiente"}
-            </span>
-          </div>
-
-          <div className="grid-3">
-            <div className="kpi">
-              <strong>Correo de respaldo</strong>
-              <p className="muted" style={{ marginTop: ".5rem" }}>{recovery?.backupEmail || "Aún no configurado"}</p>
-              <p className="muted" style={{ marginTop: ".35rem" }}>{recovery?.backupEmailVerified ? "Verificado" : "Pendiente de verificación"}</p>
-            </div>
-            <div className="kpi">
-              <strong>Teléfono de recuperación</strong>
-              <p className="muted" style={{ marginTop: ".5rem" }}>{recovery?.recoveryPhone || "Aún no configurado"}</p>
-              <p className="muted" style={{ marginTop: ".35rem" }}>{recovery?.recoveryPhoneVerified ? "Verificado" : "Guardado para siguiente fase OTP"}</p>
-            </div>
-            <div className="kpi">
-              <strong>Estado</strong>
-              <p className="muted" style={{ marginTop: ".5rem" }}>
-                {recoveryProtected ? "Tu cuenta ya tiene un método de recuperación verificado." : "Configura y verifica al menos un correo de respaldo."}
-              </p>
-            </div>
-          </div>
-
-          <div className="profile-grid">
-            <div>
-              <label className="label">Correo de respaldo</label>
-              <div className="input-with-icon">
-                <Mail size={16} />
-                <input
-                  className="input"
-                  type="email"
-                  value={recovery?.backupEmail || ""}
-                  onChange={(e) => onRecoveryFieldChange("backupEmail", e.target.value)}
-                  placeholder="respaldo@tuempresa.com"
-                />
+          <div className="section-stack accordion-subsections">
+            <AccordionSection
+              id="profile-identity"
+              title="Identidad del negocio"
+              copy="Nombre del negocio, nombre de usuario e imagen principal."
+              openSection={openProfileSection}
+              onToggle={toggleProfileSection}
+              className="accordion-subsection"
+              trailing={<span className="status-badge">{form.username || "Sin usuario"}</span>}
+            >
+              <div className="profile-grid">
+                <div>
+                  <label className="label">Nombre del negocio</label>
+                  <input
+                    className="input"
+                    value={form.businessName}
+                    onChange={(e) => setForm({ ...form, businessName: e.target.value })}
+                    disabled={!canEdit}
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="label">Nombre de usuario</label>
+                  <input
+                    className="input"
+                    value={form.username}
+                    onChange={(e) => setForm({ ...form, username: e.target.value })}
+                    disabled={!canEdit}
+                    required
+                  />
+                  <p className="muted" style={{ marginTop: ".45rem" }}>Este valor cambia tu URL visible. Tu enlace anterior y tu QR se mantienen funcionando.</p>
+                </div>
               </div>
-            </div>
-            <div>
-              <label className="label">Teléfono de recuperación</label>
-              <div className="input-with-icon">
-                <Phone size={16} />
-                <input
-                  className="input"
-                  value={recovery?.recoveryPhone || ""}
-                  onChange={(e) => onRecoveryFieldChange("recoveryPhone", e.target.value)}
-                  placeholder="+57 300 123 4567"
-                />
+
+              {usernameChanged ? (
+                <div className="notice">
+                  <span>Al guardar, tu URL visible se actualiza al nuevo usuario. Los enlaces anteriores y el QR siguen resolviendo a tu perfil.</span>
+                </div>
+              ) : null}
+
+              <div className="upload-inline">
+                <label className="label">Imagen del negocio</label>
+                <label className={`upload-card ${!canEdit ? "upload-card-disabled" : ""}`}>
+                  <input
+                    className="upload-input"
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp"
+                    onChange={(e) => setPhoto(e.target.files?.[0] || null)}
+                    disabled={!canEdit}
+                  />
+                  <span className="upload-icon">{photo || profile?.photo ? <ImagePlus size={20} /> : <UploadCloud size={20} />}</span>
+                  <span className="upload-copy">
+                    <strong>{photo ? "Cambiar imagen" : "Subir imagen"}</strong>
+                    <span>{selectedPhotoLabel}</span>
+                    <small>PNG, JPG o WEBP hasta 2 MB</small>
+                  </span>
+                </label>
               </div>
-            </div>
+            </AccordionSection>
+
+            <AccordionSection
+              id="profile-security"
+              title="Seguridad y recuperación"
+              copy="Correo de respaldo, teléfono de recuperación y verificación."
+              openSection={openProfileSection}
+              onToggle={toggleProfileSection}
+              className="accordion-subsection"
+              trailing={
+                <span className={`status-badge ${recoveryProtected ? "success" : ""}`}>
+                  {recoveryProtected ? <ShieldCheck size={14} /> : null}
+                  {recoveryProtected ? "Protegida" : "Pendiente"}
+                </span>
+              }
+            >
+              <div className="grid-3">
+                <div className="kpi">
+                  <strong>Correo de respaldo</strong>
+                  <p className="muted" style={{ marginTop: ".5rem" }}>{recovery?.backupEmail || "Aún no configurado"}</p>
+                  <p className="muted" style={{ marginTop: ".35rem" }}>{recovery?.backupEmailVerified ? "Verificado" : "Pendiente de verificación"}</p>
+                </div>
+                <div className="kpi">
+                  <strong>Teléfono de recuperación</strong>
+                  <p className="muted" style={{ marginTop: ".5rem" }}>{recovery?.recoveryPhone || "Aún no configurado"}</p>
+                  <p className="muted" style={{ marginTop: ".35rem" }}>{recovery?.recoveryPhoneVerified ? "Verificado" : "Guardado para siguiente fase OTP"}</p>
+                </div>
+                <div className="kpi">
+                  <strong>Estado</strong>
+                  <p className="muted" style={{ marginTop: ".5rem" }}>
+                    {recoveryProtected ? "Tu cuenta ya tiene un método de recuperación verificado." : "Configura y verifica al menos un correo de respaldo."}
+                  </p>
+                </div>
+              </div>
+
+              <div className="profile-grid">
+                <div>
+                  <label className="label">Correo de respaldo</label>
+                  <div className="input-with-icon">
+                    <Mail size={16} />
+                    <input
+                      className="input"
+                      type="email"
+                      value={recovery?.backupEmail || ""}
+                      onChange={(e) => onRecoveryFieldChange("backupEmail", e.target.value)}
+                      placeholder="respaldo@tuempresa.com"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="label">Teléfono de recuperación</label>
+                  <div className="input-with-icon">
+                    <Phone size={16} />
+                    <input
+                      className="input"
+                      value={recovery?.recoveryPhone || ""}
+                      onChange={(e) => onRecoveryFieldChange("recoveryPhone", e.target.value)}
+                      placeholder="+57 300 123 4567"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {!recovery?.backupEmailVerified && recovery?.backupEmail ? (
+                <div className="notice">
+                  <span>
+                    Verifica el correo de respaldo para usarlo en recuperación.
+                    {recovery?.backupEmailVerificationExpiresAt ? " El enlace actual vence pronto." : ""}
+                  </span>
+                </div>
+              ) : null}
+
+              <div className="actions">
+                <button className="btn btn-secondary" type="button" onClick={onSaveRecovery} disabled={recoveryLoading}>
+                  {recoveryLoading ? <RefreshCw size={16} /> : <Mail size={16} />}
+                  {recoveryLoading ? "Guardando..." : "Guardar recuperación"}
+                </button>
+                {recovery?.backupEmail && !recovery?.backupEmailVerified ? (
+                  <button className="btn btn-secondary" type="button" onClick={onResendRecoveryVerification} disabled={recoveryLoading}>
+                    <Send size={16} /> Reenviar verificación
+                  </button>
+                ) : null}
+              </div>
+
+              {recoveryMessage ? <p className="notice">{recoveryMessage}</p> : null}
+            </AccordionSection>
+
+            <AccordionSection
+              id="profile-subscription"
+              title="Suscripción y estado"
+              copy="Plan actual, fechas operativas y renovación."
+              openSection={openProfileSection}
+              onToggle={toggleProfileSection}
+              className="accordion-subsection"
+              trailing={
+                <span className={`status-badge ${subscriptionTone}`}>
+                  <CreditCard size={14} />
+                  {subscriptionLabel}
+                </span>
+              }
+            >
+              <div className="grid-3">
+                <div className="kpi">
+                  <strong>Valor anual</strong>
+                  <p className="muted" style={{ marginTop: ".5rem" }}>{annualPriceLabel}</p>
+                </div>
+                <div className="kpi">
+                  <strong>Período de prueba</strong>
+                  <p className="muted" style={{ marginTop: ".5rem" }}>{profile?.trialEndsAtLabel || "-"}</p>
+                </div>
+                <div className="kpi">
+                  <strong>Expira</strong>
+                  <p className="muted" style={{ marginTop: ".5rem" }}>{profile?.expiresAtLabel || "-"}</p>
+                </div>
+              </div>
+
+              <div className="kpi">
+                <strong>Estado operativo</strong>
+                <p className="muted" style={{ marginTop: ".5rem" }}>{subscriptionMessage}</p>
+              </div>
+
+              <div className="actions">
+                <button className="btn btn-primary" type="button" onClick={onCheckout} disabled={paying || !userEmailVerified}>
+                  <CreditCard size={16} /> {subscriptionActionLabel}
+                </button>
+              </div>
+
+              {checkoutConfig ? (
+                <div className="stack" style={{ gap: ".85rem" }}>
+                  <p className="muted">El proceso oficial de pago de Mercado Pago ya está listo. Si el widget no responde, puedes continuar por redirección.</p>
+                  <div id="mercadopago-checkout" />
+                  <button className="btn btn-secondary" type="button" onClick={() => { window.location.href = checkoutConfig.initPoint; }}>
+                    Abrir pago por redirección
+                  </button>
+                </div>
+              ) : null}
+            </AccordionSection>
           </div>
-
-          {!recovery?.backupEmailVerified && recovery?.backupEmail ? (
-            <div className="notice">
-              <span>
-                Verifica el correo de respaldo para usarlo en recuperación.
-                {recovery?.backupEmailVerificationExpiresAt ? " El enlace actual vence pronto." : ""}
-              </span>
-            </div>
-          ) : null}
-
-          <div className="actions">
-            <button className="btn btn-secondary" type="button" onClick={onSaveRecovery} disabled={recoveryLoading}>
-              {recoveryLoading ? <RefreshCw size={16} /> : <Mail size={16} />}
-              {recoveryLoading ? "Guardando..." : "Guardar recuperación"}
-            </button>
-            {recovery?.backupEmail && !recovery?.backupEmailVerified ? (
-              <button className="btn btn-secondary" type="button" onClick={onResendRecoveryVerification} disabled={recoveryLoading}>
-                <Send size={16} /> Reenviar verificación
-              </button>
-            ) : null}
-          </div>
-
-          {recoveryMessage ? <p className="notice">{recoveryMessage}</p> : null}
-
-          <div className="section-divider" />
-
-          <div className="dashboard-section-head">
-            <div>
-              <h3 className="section-title" style={{ fontSize: "1.05rem" }}>Suscripción y estado de cuenta</h3>
-              <p className="section-copy">Mantén visible el estado del plan dentro del contexto de la cuenta.</p>
-            </div>
-            <span className={`status-badge ${subscriptionTone}`}>
-              <CreditCard size={14} />
-              {subscriptionLabel}
-            </span>
-          </div>
-
-          <div className="grid-3">
-            <div className="kpi">
-              <strong>Valor anual</strong>
-              <p className="muted" style={{ marginTop: ".5rem" }}>{annualPriceLabel}</p>
-            </div>
-            <div className="kpi">
-              <strong>Período de prueba</strong>
-              <p className="muted" style={{ marginTop: ".5rem" }}>{profile?.trialEndsAtLabel || "-"}</p>
-            </div>
-            <div className="kpi">
-              <strong>Expira</strong>
-              <p className="muted" style={{ marginTop: ".5rem" }}>{profile?.expiresAtLabel || "-"}</p>
-            </div>
-          </div>
-
-          <div className="kpi">
-            <strong>Estado operativo</strong>
-            <p className="muted" style={{ marginTop: ".5rem" }}>{subscriptionMessage}</p>
-          </div>
-
-          <div className="actions">
-            <button className="btn btn-primary" type="button" onClick={onCheckout} disabled={paying || !userEmailVerified}>
-              <CreditCard size={16} /> {subscriptionActionLabel}
-            </button>
-          </div>
-
-          {checkoutConfig ? (
-            <div className="stack" style={{ gap: ".85rem" }}>
-              <p className="muted">El proceso oficial de pago de Mercado Pago ya está listo. Si el widget no responde, puedes continuar por redirección.</p>
-              <div id="mercadopago-checkout" />
-              <button className="btn btn-secondary" type="button" onClick={() => { window.location.href = checkoutConfig.initPoint; }}>
-                Abrir pago por redirección
-              </button>
-            </div>
-          ) : null}
         </AccordionSection>
 
         <AccordionSection
