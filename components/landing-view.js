@@ -15,12 +15,6 @@ const NAME_WEIGHT_MAP = {
   bold: 700,
 };
 
-const SHADOW_MAP = {
-  none: "none",
-  soft: "0 18px 36px rgba(15, 23, 42, 0.08)",
-  medium: "0 28px 60px rgba(15, 23, 42, 0.16)",
-};
-
 const RADIUS_MAP = {
   rounded: "14px",
   square: "10px",
@@ -75,25 +69,12 @@ export function LandingView({ user, preview = false }) {
     ? `linear-gradient(180deg, ${appearance.backgroundColor}, ${hexToRgba(appearance.primaryColor, 0.12)} 65%, ${hexToRgba("#22D3EE", 0.12)})`
     : appearance.backgroundColor;
 
-  const cardBackground = appearance.cardTransparency === "soft"
-    ? `linear-gradient(180deg, ${hexToRgba(appearance.surfaceColor, 0.9)}, ${hexToRgba(appearance.surfaceColor, 0.82)})`
-    : appearance.surfaceColor;
-
-  const cardStyle = {
-    background: cardBackground,
+  const shellStyle = {
     color: appearance.textPrimaryColor,
-    border: `1px solid ${hexToRgba(appearance.textSecondaryColor, 0.18)}`,
-    boxShadow: SHADOW_MAP[appearance.cardShadow],
+    background: "transparent",
+    border: "none",
+    boxShadow: "none",
   };
-
-  const shellStyle = preview
-    ? cardStyle
-    : {
-        color: appearance.textPrimaryColor,
-        background: "transparent",
-        border: "none",
-        boxShadow: "none",
-      };
 
   const primaryButtonStyle = appearance.buttonStyle === "outline"
     ? {
@@ -125,10 +106,7 @@ export function LandingView({ user, preview = false }) {
 
   return (
     <main className={preview ? "preview-page" : "public-page"} style={{ background: pageBackground }}>
-      <section
-        className={`public-card public-business-card${preview ? "" : " public-business-card-live"}`}
-        style={shellStyle}
-      >
+      <section className="public-card public-business-card" style={shellStyle}>
         <div className="public-hero">
           <div className="public-accent-bar" style={{ background: appearance.primaryColor }} />
           {user.photo ? (
