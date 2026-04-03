@@ -3118,17 +3118,6 @@ img { max-width: 100%; display: block; }
   gap: 0.1rem;
 }
 
-.public-category-label {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 0.2rem;
-  font-size: 0.8rem;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
 .public-headline,
 .public-subheadline {
   margin: 0;
@@ -3191,11 +3180,6 @@ img { max-width: 100%; display: block; }
     width: 82px;
     height: 82px;
     margin-bottom: 0.45rem;
-  }
-
-  .public-category-label {
-    font-size: 0.76rem;
-    margin-bottom: 0.16rem;
   }
 
   .public-headline {

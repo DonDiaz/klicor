@@ -136,9 +136,6 @@ export function LandingView({ user, preview = false }) {
           )}
 
           <div className="public-hero-copy">
-            <span className="public-category-label" style={{ color: appearance.primaryColor }}>
-              {layout.identity.categoryLabel}
-            </span>
             <h1
               style={{
                 marginBottom: ".2rem",
@@ -214,8 +211,7 @@ export function LandingView({ user, preview = false }) {
           {layout.socialLinks.length ? (
             <section className="public-section public-section-social">
               <div className="public-section-head">
-                <strong>Redes</strong>
-                <span>Sigue el negocio en sus canales principales</span>
+                <strong>Nuestros canales</strong>
               </div>
               <div className="public-social-strip">
                 {layout.socialLinks.map((item) => {
