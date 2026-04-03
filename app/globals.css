@@ -3159,13 +3159,22 @@ img { max-width: 100%; display: block; }
   background: var(--accent);
 }
 
-.avatar {
+.avatar-shell {
   width: 88px;
   height: 88px;
   border-radius: 999px;
-  object-fit: cover;
+  overflow: hidden;
   margin: 0 auto 0.55rem;
   border: 3px solid rgba(91, 33, 182, 0.12);
+}
+
+.avatar-image {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  transform: scale(1.14);
+  transform-origin: center;
 }
 
 .public-main-actions,
@@ -3188,7 +3197,7 @@ img { max-width: 100%; display: block; }
     margin-bottom: 0.55rem;
   }
 
-  .avatar {
+  .avatar-shell {
     width: 82px;
     height: 82px;
     margin-bottom: 0.45rem;

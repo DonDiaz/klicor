@@ -110,18 +110,19 @@ export function LandingView({ user, preview = false }) {
         <div className="public-hero">
           <div className="public-accent-bar" style={{ background: appearance.primaryColor }} />
           {user.photo ? (
-            <img
-              className="avatar"
-              src={user.photo}
-              alt={user.businessName}
-              loading="eager"
-              decoding="async"
-              fetchPriority="high"
-              style={{ borderRadius: AVATAR_RADIUS_MAP[appearance.avatarShape] }}
-            />
+            <span className="avatar-shell" style={{ borderRadius: AVATAR_RADIUS_MAP[appearance.avatarShape] }}>
+              <img
+                className="avatar-image"
+                src={user.photo}
+                alt={user.businessName}
+                loading="eager"
+                decoding="async"
+                fetchPriority="high"
+              />
+            </span>
           ) : (
             <div
-              className="avatar"
+              className="avatar-shell"
               style={{
                 display: "grid",
                 placeItems: "center",
