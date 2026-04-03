@@ -6,48 +6,49 @@ import { useRouter } from "next/navigation";
 import {
   isSignInWithEmailLink,
   sendSignInLinkToEmail,
-  signInWithEmailAndPassword,
   signInWithEmailLink,
   signInWithPopup,
 } from "firebase/auth";
 import {
   ArrowRight,
   CheckCircle2,
-  ChevronDown,
-  ChevronUp,
   Chrome,
-  Eye,
-  EyeOff,
-  KeyRound,
-  LockKeyhole,
   Mail,
   MailCheck,
   ShieldCheck,
 } from "lucide-react";
-import { getClientAuth, getGoogleProvider } from "@/lib/firebase-client";
+import { getClientAuth, getGoogleProvider, getMicrosoftProvider } from "@/lib/firebase-client";
 import { apiFetch } from "@/lib/client-api";
 
 const EMAIL_LINK_STORAGE_KEY = "klicor-email-link";
 
+function MicrosoftIcon() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+      <path d="M2 3.5 11 2v9H2V3.5Zm10 8h10V1l-10 1.5v9Zm-10 1h9v9.5L2 20.5v-8Zm10 0h10V23l-10-1.5v-9Z" />
+    </svg>
+  );
+}
+
 function getAuthErrorMessage(error) {
   const code = error?.code || "";
 
-  if (code === "auth/invalid-email") return "Ingresa un correo válido.";
+  if (code === "auth/invalid-email") return "Ingresa un correo valido.";
   if (code === "auth/missing-email") return "Escribe tu correo para continuar.";
-  if (code === "auth/user-not-found" || code === "auth/invalid-credential" || code === "auth/wrong-password") {
-    return "Ese correo o contraseña no coinciden.";
-  }
   if (code === "auth/too-many-requests") return "Has intentado demasiadas veces. Espera un momento e intenta de nuevo.";
-  if (code === "auth/popup-closed-by-user") return "Cerraste la ventana antes de terminar el acceso con Google.";
-  if (code === "auth/popup-blocked") return "Tu navegador bloqueó la ventana de Google. Intenta de nuevo.";
+  if (code === "auth/popup-closed-by-user") return "Cerraste la ventana antes de terminar el acceso.";
+  if (code === "auth/popup-blocked") return "Tu navegador bloqueo la ventana del proveedor. Intenta de nuevo.";
   if (code === "auth/network-request-failed") return "No pudimos conectarnos. Revisa tu internet e intenta otra vez.";
-  if (code === "auth/operation-not-allowed") return "Este método de acceso no está habilitado todavía en Firebase.";
-  if (code === "auth/unauthorized-domain") return "Este dominio todavía no está autorizado en Firebase para el acceso por correo.";
+  if (code === "auth/operation-not-allowed") return "Este metodo de acceso no esta habilitado todavia en Firebase.";
+  if (code === "auth/unauthorized-domain") return "Este dominio todavia no esta autorizado en Firebase para este acceso.";
+  if (code === "auth/account-exists-with-different-credential") {
+    return "Ese correo ya existe con otro metodo. Prueba con Google, Microsoft o con el enlace al correo.";
+  }
   if (code === "auth/unauthorized-continue-uri" || code === "auth/invalid-continue-uri") {
-    return "El acceso por correo no está bien configurado todavía.";
+    return "El acceso por correo no esta bien configurado todavia.";
   }
   if (code === "auth/expired-action-code" || code === "auth/invalid-action-code") {
-    return "El enlace ya no es válido. Pide uno nuevo.";
+    return "El enlace ya no es valido. Pide uno nuevo.";
   }
   if (code === "auth/argument-error") return "No pudimos completar el acceso con ese enlace.";
 
@@ -55,24 +56,21 @@ function getAuthErrorMessage(error) {
 }
 
 export function AuthForm({
-  initialMode = "register",
   allowRegister = true,
-  hideSwitcher = false,
   compact = false,
   title,
   description,
   submitLabel,
   googleLabel = "Continuar con Google",
+  microsoftLabel = "Continuar con Microsoft",
   onSuccess,
 }) {
   const router = useRouter();
-  const showPasswordDefault = !allowRegister && initialMode === "login";
-  const [form, setForm] = useState({ email: "", password: "" });
+  const [form, setForm] = useState({ email: "" });
   const [message, setMessage] = useState("");
   const [messageTone, setMessageTone] = useState("neutral");
   const [loading, setLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const [showPasswordLogin, setShowPasswordLogin] = useState(showPasswordDefault);
+  const [loadingAction, setLoadingAction] = useState("");
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [pendingEmailLink, setPendingEmailLink] = useState(false);
 
@@ -102,12 +100,13 @@ export function AuthForm({
 
   function ensureTermsAccepted() {
     if (!shouldRequireTerms || acceptedTerms) return true;
-    setFeedback("Debes aceptar los términos y condiciones para continuar.", "danger");
+    setFeedback("Debes aceptar los terminos y condiciones para continuar.", "danger");
     return false;
   }
 
   async function completeEmailLink(auth, email, href) {
     setLoading(true);
+    setLoadingAction("email");
     setFeedback("Estamos completando tu acceso...", "neutral");
     try {
       const credential = await signInWithEmailLink(auth, email, href);
@@ -117,6 +116,7 @@ export function AuthForm({
       setFeedback(getAuthErrorMessage(error), "danger");
     } finally {
       setLoading(false);
+      setLoadingAction("");
     }
   }
 
@@ -160,6 +160,7 @@ export function AuthForm({
     }
 
     setLoading(true);
+    setLoadingAction("email");
     setFeedback("", "neutral");
     try {
       await sendSignInLinkToEmail(auth, email, {
@@ -167,15 +168,16 @@ export function AuthForm({
         handleCodeInApp: true,
       });
       window.localStorage.setItem(EMAIL_LINK_STORAGE_KEY, email);
-      setFeedback(`Te enviamos un enlace de acceso a ${email}. Ábrelo desde tu correo para entrar.`, "success");
+      setFeedback(`Te enviamos un enlace de acceso a ${email}. Abrelo desde tu correo para entrar.`, "success");
     } catch (error) {
       setFeedback(getAuthErrorMessage(error), "danger");
     } finally {
       setLoading(false);
+      setLoadingAction("");
     }
   }
 
-  async function handleGoogle() {
+  async function handleProviderSignIn(providerName) {
     const auth = getClientAuth();
     if (!auth) return;
 
@@ -183,45 +185,27 @@ export function AuthForm({
       return;
     }
 
+    const provider = providerName === "microsoft" ? getMicrosoftProvider() : getGoogleProvider();
+
     setLoading(true);
+    setLoadingAction(providerName);
     setFeedback("", "neutral");
     try {
-      const credential = await signInWithPopup(auth, getGoogleProvider());
+      const credential = await signInWithPopup(auth, provider);
       await bootstrapSession(credential.user, { welcome: true });
     } catch (error) {
       setFeedback(getAuthErrorMessage(error), "danger");
     } finally {
       setLoading(false);
+      setLoadingAction("");
     }
   }
 
-  async function handlePasswordLogin(event) {
-    event.preventDefault();
-    const auth = getClientAuth();
-    if (!auth) return;
-
-    if (!form.email.trim() || !form.password.trim()) {
-      setFeedback("Escribe tu correo y tu contraseña para continuar.", "danger");
-      return;
-    }
-
-    setLoading(true);
-    setFeedback("", "neutral");
-    try {
-      const credential = await signInWithEmailAndPassword(auth, form.email.trim().toLowerCase(), form.password);
-      await bootstrapSession(credential.user);
-    } catch (error) {
-      setFeedback(getAuthErrorMessage(error), "danger");
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  const resolvedTitle = title || (allowRegister ? "Entra o crea tu cuenta" : "Entra a tu panel");
+  const resolvedTitle = title || "Entra o crea tu cuenta";
   const resolvedDescription = description || (
     allowRegister
-      ? "Accede con Google o recibe un enlace en tu correo. Así activas tu Klicor con menos fricción y sin depender de una contraseña."
-      : "Accede con Google, con un enlace a tu correo o, si ya la usas, con tu contraseña."
+      ? "Accede con Google, Microsoft o recibe un enlace en tu correo. Asi activas tu Klicor con menos friccion y sin depender de una contrasena."
+      : "Accede con Google, Microsoft o con un enlace a tu correo para entrar sin friccion."
   );
   const resolvedEmailButtonLabel = submitLabel || (pendingEmailLink ? "Completar acceso con correo" : "Continuar con correo");
   const messageClassName = useMemo(() => {
@@ -238,32 +222,48 @@ export function AuthForm({
             <ShieldCheck size={16} />
             Acceso unificado
           </span>
-          <h2 className="section-title auth-entry-title">
-            {resolvedTitle}
-          </h2>
+          <h2 className="section-title auth-entry-title">{resolvedTitle}</h2>
           <p className="section-copy auth-entry-description">{resolvedDescription}</p>
         </div>
 
         {!compact ? (
           <div className="auth-entry-badges">
-            <span><CheckCircle2 size={16} /> Google arriba</span>
-            <span><MailCheck size={16} /> Correo sin contraseña</span>
-            <span><KeyRound size={16} /> Contraseña solo si la necesitas</span>
+            <span><CheckCircle2 size={16} /> Google disponible</span>
+            <span><MicrosoftIcon /> Microsoft disponible</span>
+            <span><MailCheck size={16} /> Correo con enlace directo</span>
           </div>
         ) : null}
       </div>
 
       <div className="auth-method-stack">
-        <button className="btn btn-secondary auth-google-button" type="button" onClick={handleGoogle} disabled={loading}>
-          <Chrome size={18} /> {googleLabel}
-        </button>
+        <div className="auth-provider-stack">
+          <button
+            className="btn btn-secondary auth-provider-button"
+            type="button"
+            onClick={() => handleProviderSignIn("google")}
+            disabled={loading}
+          >
+            <Chrome size={18} />
+            {loading && loadingAction === "google" ? "Entrando con Google..." : googleLabel}
+          </button>
+
+          <button
+            className="btn btn-secondary auth-provider-button"
+            type="button"
+            onClick={() => handleProviderSignIn("microsoft")}
+            disabled={loading}
+          >
+            <MicrosoftIcon />
+            {loading && loadingAction === "microsoft" ? "Entrando con Microsoft..." : microsoftLabel}
+          </button>
+        </div>
 
         <div className="auth-divider">
           <span>o usa tu correo</span>
         </div>
 
         <div className="auth-email-block">
-          <label className="label">Correo electrónico</label>
+          <label className="label">Correo electronico</label>
           <div className="input-with-icon auth-email-input">
             <Mail size={18} />
             <input
@@ -272,17 +272,17 @@ export function AuthForm({
               required
               placeholder="tucorreo@negocio.com"
               value={form.email}
-              onChange={(event) => setForm((current) => ({ ...current, email: event.target.value }))}
+              onChange={(event) => setForm({ email: event.target.value })}
             />
           </div>
           <button className="btn btn-primary auth-email-button" type="button" onClick={handleEmailLink} disabled={loading}>
-            {loading && pendingEmailLink ? "Entrando..." : loading ? "Enviando..." : resolvedEmailButtonLabel}
-            {!loading ? <ArrowRight size={16} /> : null}
+            {loading && loadingAction === "email" ? (pendingEmailLink ? "Entrando..." : "Enviando...") : resolvedEmailButtonLabel}
+            {(!loading || loadingAction !== "email") ? <ArrowRight size={16} /> : null}
           </button>
           <p className="auth-hint">
             {pendingEmailLink
               ? "Usa el mismo correo con el que pediste el enlace para terminar el acceso."
-              : "Te enviaremos un enlace directo para entrar o crear tu cuenta sin contraseña."}
+              : "Te enviaremos un enlace directo para entrar o crear tu cuenta sin contrasena."}
           </p>
         </div>
 
@@ -296,64 +296,17 @@ export function AuthForm({
             <span>
               Al continuar aceptas los{" "}
               <Link className="terms-link" href="/terminos" target="_blank" rel="noreferrer">
-                Términos y condiciones
+                Terminos y condiciones
               </Link>{" "}
               y la{" "}
               <Link className="terms-link" href="/privacidad" target="_blank" rel="noreferrer">
-                Política de privacidad
+                Politica de privacidad
               </Link>.
             </span>
           </label>
         ) : (
-          <p className="auth-inline-note">Usa tu correo o Google para entrar sin fricción.</p>
+          <p className="auth-inline-note">Usa Google, Microsoft o tu correo para entrar sin friccion.</p>
         )}
-      </div>
-
-      <div className={`auth-password-card ${showPasswordLogin ? "is-open" : ""}`}>
-        <button
-          className="auth-password-toggle"
-          type="button"
-          onClick={() => setShowPasswordLogin((current) => !current)}
-          aria-expanded={showPasswordLogin}
-        >
-          <span>
-            <KeyRound size={16} />
-            ¿Ya usas contraseña?
-          </span>
-          {showPasswordLogin ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
-        </button>
-
-        {showPasswordLogin ? (
-          <form className="auth-password-form" onSubmit={handlePasswordLogin}>
-            <div>
-              <label className="label">Contraseña</label>
-              <div className="input-with-icon">
-                <LockKeyhole size={18} />
-                <input
-                  className="input input-embedded"
-                  type={showPassword ? "text" : "password"}
-                  required
-                  minLength={6}
-                  placeholder="Tu contraseña actual"
-                  value={form.password}
-                  onChange={(event) => setForm((current) => ({ ...current, password: event.target.value }))}
-                />
-                <button
-                  className="input-icon-button"
-                  type="button"
-                  onClick={() => setShowPassword((current) => !current)}
-                  aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
-                >
-                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                </button>
-              </div>
-            </div>
-
-            <button className="btn btn-secondary" disabled={loading} type="submit">
-              Entrar con contraseña
-            </button>
-          </form>
-        ) : null}
       </div>
 
       {message ? (

@@ -16,7 +16,7 @@ export default function LoginPage() {
               Entra a Klicor sin pelear con un formulario largo.
             </h1>
             <p className="lead auth-system-lead">
-              Google arriba, correo sin contraseña como camino principal y acceso clásico solo para quienes todavía lo necesitan.
+              Google y Microsoft arriba, correo con enlace como camino principal y una entrada mucho más simple para activar tu cuenta.
             </p>
           </div>
 
@@ -25,7 +25,7 @@ export default function LoginPage() {
               <div className="auth-system-step-index">01</div>
               <div>
                 <strong>Elige una entrada simple</strong>
-                <p>Continúa con Google o pide un enlace a tu correo para entrar sin contraseña.</p>
+                <p>Continúa con Google, Microsoft o pide un enlace a tu correo para entrar sin contraseña.</p>
               </div>
             </article>
             <article className="auth-system-step">

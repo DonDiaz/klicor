@@ -60,12 +60,10 @@ export function LandingLoginModal() {
           </div>
 
           <AuthForm
-            initialMode="login"
             allowRegister={false}
-            hideSwitcher
             compact
             title="Entra a tu panel"
-            description="Usa Google, un enlace a tu correo o tu contraseña si ya la venías usando."
+            description="Usa Google, Microsoft o un enlace a tu correo para entrar sin fricción."
             googleLabel="Continuar con Google"
             onSuccess={handleSuccess}
           />

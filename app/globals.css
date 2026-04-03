@@ -180,8 +180,7 @@ body {
 
   .upload-card,
   .terms-popover,
-  .auth-inline-terms,
-  .auth-password-card {
+  .auth-inline-terms {
     background: rgba(91, 33, 182, 0.12);
   }
 
@@ -374,8 +373,7 @@ html[data-theme="dark"] .home-stage-frame .marketing-demo-frame {
 
 html[data-theme="dark"] .upload-card,
 html[data-theme="dark"] .terms-popover,
-html[data-theme="dark"] .auth-inline-terms,
-html[data-theme="dark"] .auth-password-card {
+html[data-theme="dark"] .auth-inline-terms {
   background: rgba(91, 33, 182, 0.12);
 }
 
@@ -2199,7 +2197,7 @@ img { max-width: 100%; display: block; }
 .auth-entry-head,
 .auth-method-stack,
 .auth-email-block,
-.auth-password-form,
+.auth-provider-stack,
 .auth-entry-badges {
   display: grid;
   gap: 0.9rem;
@@ -2236,12 +2234,12 @@ img { max-width: 100%; display: block; }
   flex: 0 0 auto;
 }
 
-.auth-google-button,
+.auth-provider-button,
 .auth-email-button {
   width: 100%;
 }
 
-.auth-google-button {
+.auth-provider-button {
   min-height: 52px;
 }
 
@@ -2260,39 +2258,6 @@ img { max-width: 100%; display: block; }
   margin: 0;
   color: var(--text-secondary);
   font-size: 0.92rem;
-}
-
-.auth-password-card {
-  display: grid;
-  gap: 0;
-  border-radius: 18px;
-  border: 1px solid var(--border);
-  background: var(--surface-alt);
-  overflow: hidden;
-}
-
-.auth-password-toggle {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 1rem 1.05rem;
-  border: 0;
-  background: transparent;
-  color: var(--text-primary);
-  cursor: pointer;
-  font-weight: 700;
-}
-
-.auth-password-toggle span {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.65rem;
-}
-
-.auth-password-form {
-  padding: 0 1.05rem 1.05rem;
 }
 
 .auth-notice-success {
