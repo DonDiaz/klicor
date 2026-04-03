@@ -22,7 +22,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { apiFetch } from "@/lib/client-api";
-import { applyDefaultLinkPriorityTiers, BUSINESS_CATEGORY_OPTIONS, isSocialLinkType, LINK_PRIORITY_LIMITS, normalizeBusinessCategory } from "@/lib/business-categories";
+import { applyDefaultLinkPriorityTiers, BUSINESS_CATEGORY_OPTIONS, getDefaultPriorityTierForNewLink, isSocialLinkType, LINK_PRIORITY_LIMITS, normalizeBusinessCategory } from "@/lib/business-categories";
 import { COLOMBIA_DEPARTMENT_OPTIONS, getCitiesForDepartment, resolveCityName, resolveDepartmentName } from "@/lib/colombia-locations";
 import { resolveContactCardData } from "@/lib/contact-card";
 import { canAddLinkType, getLinkTypeCount, getLinkTypeLimit, LINK_CATALOG, LINK_CATALOG_MAP } from "@/lib/link-catalog";
@@ -436,6 +436,7 @@ export function ProfileForm({
         type: selectedType,
         label: meta.label,
         value: "",
+        priorityTier: getDefaultPriorityTierForNewLink(current, selectedType, form.businessCategory),
         message: selectedType === "whatsapp" ? "Hola, quiero información" : "",
       },
     ], form.businessCategory));

@@ -246,23 +246,6 @@ export function LandingView({ user, preview = false }) {
             </div>
           ) : null}
 
-          {layout.paymentKey ? (
-            <section className="public-section" style={panelStyle}>
-              <div className="public-section-head">
-                <strong>Cobro visible</strong>
-                <span>Haz más fácil cobrar desde el mismo perfil</span>
-              </div>
-              <PaymentKeyCard
-                item={layout.paymentKey}
-                qrImageUrl={paymentQrUrl}
-                preview={preview}
-                buttonStyle={primaryButtonStyle}
-                buttonRadius={buttonRadius}
-                cardStyle={panelStyle}
-              />
-            </section>
-          ) : null}
-
           {layout.priorityThreeActions.length ? (
             <section className="public-section" style={panelStyle}>
               <div className="public-section-head">
@@ -281,6 +264,23 @@ export function LandingView({ user, preview = false }) {
                   }),
                 )}
               </div>
+            </section>
+          ) : null}
+
+          {layout.paymentKey ? (
+            <section className="public-section" style={panelStyle}>
+              <div className="public-section-head">
+                <strong>Cobro visible</strong>
+                <span>Haz más fácil cobrar desde el mismo perfil</span>
+              </div>
+              <PaymentKeyCard
+                item={layout.paymentKey}
+                qrImageUrl={paymentQrUrl}
+                preview={preview}
+                buttonStyle={primaryButtonStyle}
+                buttonRadius={buttonRadius}
+                cardStyle={panelStyle}
+              />
             </section>
           ) : null}
 
