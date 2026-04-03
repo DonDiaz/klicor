@@ -1,13 +1,18 @@
 import Link from "next/link";
 import {
   ArrowRight,
+  BriefcaseBusiness,
   CheckCircle2,
+  HeartPulse,
   LayoutDashboard,
   Link2,
   QrCode,
   ShieldCheck,
+  ShoppingBag,
   Sparkles,
   Store,
+  TentTree,
+  UtensilsCrossed,
   Wallet,
   Workflow,
   Zap,
@@ -70,11 +75,32 @@ const capabilityBlocks = [
   },
 ];
 
-const useCases = [
-  "Negocios que venden por WhatsApp y redes",
-  "Marcas que imprimen QR en empaques o vitrinas",
-  "Emprendedores que necesitan verse más serios",
-  "Profesionales que quieren una presencia simple y clara",
+const businessCategories = [
+  {
+    title: "Comida y bebidas",
+    description: "Restaurantes, cafés, bares, repostería y domicilios que viven de pedidos rápidos y visibilidad clara.",
+    icon: UtensilsCrossed,
+  },
+  {
+    title: "Tiendas y ventas",
+    description: "Catálogos, ropa, accesorios, belleza o tecnología que venden por WhatsApp, redes y QR.",
+    icon: ShoppingBag,
+  },
+  {
+    title: "Servicios",
+    description: "Negocios que necesitan cotizar, agendar, responder dudas y centralizar la atención en un solo punto.",
+    icon: BriefcaseBusiness,
+  },
+  {
+    title: "Salud y bienestar",
+    description: "Estética, peluquería, entrenamiento, odontología y bienestar que dependen de confianza y contacto directo.",
+    icon: HeartPulse,
+  },
+  {
+    title: "Turismo y experiencias",
+    description: "Hoteles, glamping, tours, fincas y experiencias que deben mostrar ubicación, reserva y contacto rápido.",
+    icon: TentTree,
+  },
 ];
 
 export default function HomePage() {
@@ -234,20 +260,33 @@ export default function HomePage() {
       <section id="casos" className="landing-section">
         <div className="shell cloud-cases-grid">
           <div className="cloud-cases-copy">
-            <span className="pill cloud-home-soft-pill">Casos de uso</span>
-            <h2 className="landing-section-title">Sirve cuando el negocio necesita verse más claro y responder mejor.</h2>
+            <span className="pill cloud-home-soft-pill">Categorías</span>
+            <h2 className="landing-section-title">Klicor encaja mejor en cinco categorías amplias de negocio.</h2>
             <p className="section-copy">
-              No está pensado solo para creadores o bios personales. Está pensado para operación comercial simple y visible.
+              No está pensado para bios personales. Está pensado para negocios que venden, atienden o convierten desde WhatsApp, redes y QR.
             </p>
           </div>
 
           <div className="cloud-cases-list">
-            {useCases.map((item) => (
-              <div key={item} className="cloud-case-item">
-                <CheckCircle2 size={18} />
-                <span>{item}</span>
+            {businessCategories.map((item) => {
+              const Icon = item.icon;
+              return (
+                <div key={item.title} className="cloud-case-item">
+                  <Icon size={18} />
+                  <div className="cloud-case-copy">
+                    <strong>{item.title}</strong>
+                    <span>{item.description}</span>
+                  </div>
+                </div>
+              );
+            })}
+            <div className="cloud-case-item cloud-case-item-summary">
+              <CheckCircle2 size={18} />
+              <div className="cloud-case-copy">
+                <strong>Una misma lógica, distintos negocios</strong>
+                <span>La estructura cambia según la intención del negocio, pero siempre parte de un link, un QR y una página clara para actuar.</span>
               </div>
-            ))}
+            </div>
           </div>
         </div>
       </section>

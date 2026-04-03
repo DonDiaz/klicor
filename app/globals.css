@@ -1424,8 +1424,25 @@ img { max-width: 100%; display: block; }
 
 .cloud-case-item {
   gap: 0.7rem;
+  align-items: flex-start;
   padding: 0.95rem 0;
   border-bottom: 1px solid rgba(226, 232, 240, 0.88);
+}
+
+.cloud-case-copy {
+  display: grid;
+  gap: 0.18rem;
+}
+
+.cloud-case-copy strong {
+  display: block;
+  font-size: 1rem;
+  letter-spacing: -0.02em;
+}
+
+.cloud-case-copy span {
+  color: var(--text-secondary);
+  line-height: 1.55;
 }
 
 .cloud-case-item:last-child {
