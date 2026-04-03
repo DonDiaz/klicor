@@ -268,60 +268,48 @@ export function DashboardClient() {
         <Script src="https://sdk.mercadopago.com/js/v2" strategy="afterInteractive" onLoad={() => setSdkReady(true)} />
       ) : null}
 
-      <header className="dashboard-header">
-        <div className="stack" style={{ gap: ".65rem" }}>
-          <BrandLogo />
-          <div className="stack" style={{ gap: ".45rem" }}>
-            <h1 className="section-title" style={{ fontSize: "2.1rem" }}>{data.user.businessName || "Tu negocio"}</h1>
-            <p className="section-copy">Gestiona tu perfil, tus enlaces, la apariencia y tu QR en un solo lugar.</p>
+      <header className="dashboard-topbar">
+        <div className="dashboard-identity-card panel">
+          <div className="dashboard-identity-main">
+            <div className="dashboard-identity-logo">
+              <BrandLogo size={52} />
+            </div>
+            <div className="stack" style={{ gap: ".38rem" }}>
+              <strong className="dashboard-identity-name">{data.user.businessName || "Tu negocio"}</strong>
+              <span className="dashboard-identity-link">{data.publicUrl || "Configura tu link público"}</span>
+              <p className="section-copy dashboard-identity-copy">{statusSummary}</p>
+            </div>
+          </div>
+
+          <div className="dashboard-identity-meta">
+            <span className={`status-badge ${statusTone}`}>
+              {statusTone === "success" ? <CheckCircle2 size={14} /> : statusTone === "warning" ? <AlertTriangle size={14} /> : <ShieldAlert size={14} />}
+              <span>{getStatusBadgeLabel(data.user)}</span>
+            </span>
+            {isAdmin ? <Link className="btn btn-secondary" href="/admin">Panel de administración</Link> : null}
+            <button className="btn btn-secondary" type="button" onClick={handleLogout}><LogOut size={16} /> Cerrar sesión</button>
           </div>
         </div>
 
-        <div className="actions">
-          {isAdmin ? <Link className="btn btn-secondary" href="/admin">Panel de administración</Link> : null}
-          <button className="btn btn-secondary" type="button" onClick={handleLogout}><LogOut size={16} /> Cerrar sesión</button>
-        </div>
+        <section className="dashboard-action-strip panel">
+          <div className="dashboard-link-card">
+            <span className="dashboard-link-label">Link público</span>
+            <strong>{data.publicUrl || "Aún no definido"}</strong>
+          </div>
+
+          <div className="dashboard-action-group">
+            <button className="btn btn-secondary" type="button" onClick={handleCopyPublicUrl} disabled={!data.publicUrl}>
+              <Copy size={16} /> Copiar
+            </button>
+            <a className="btn btn-secondary" href={data.publicUrl || "#"} target="_blank" rel="noreferrer" aria-disabled={!data.publicUrl}>
+              <ExternalLink size={16} /> Abrir
+            </a>
+            <button className="btn btn-secondary" type="button" onClick={handleQrDownload} disabled={!data.user.qrUrl}>
+              <Download size={16} /> Descargar QR
+            </button>
+          </div>
+        </section>
       </header>
-
-      <section className="card dashboard-overview">
-        <div className="dashboard-overview-copy">
-          <span className={`status-badge ${statusTone}`}>
-            {statusTone === "success" ? <CheckCircle2 size={14} /> : statusTone === "warning" ? <AlertTriangle size={14} /> : <ShieldAlert size={14} />}
-            <span>{getStatusBadgeLabel(data.user)}</span>
-          </span>
-          <h2 className="section-title" style={{ fontSize: "1.65rem" }}>Centro operativo del perfil</h2>
-          <p className="section-copy">{statusSummary}</p>
-        </div>
-
-        <div className="dashboard-overview-grid">
-          <div className="kpi">
-            <strong>Link público</strong>
-            <p className="muted" style={{ marginTop: ".5rem" }}>{data.publicUrl || "Aún no definida"}</p>
-            {data.publicUrl ? (
-              <div className="actions" style={{ marginTop: ".85rem" }}>
-                <button className="btn btn-secondary" type="button" onClick={handleCopyPublicUrl}>
-                  <Copy size={16} /> Copiar enlace
-                </button>
-                <a className="btn btn-secondary" href={data.publicUrl} target="_blank" rel="noreferrer">
-                  <ExternalLink size={16} /> Abrir enlace
-                </a>
-              </div>
-            ) : null}
-          </div>
-
-          <div className="kpi">
-            <strong>QR oficial</strong>
-            <p className="muted" style={{ marginTop: ".5rem" }}>{data.user.qrUrl ? "Permanente aunque cambies tu nombre de usuario" : "Se genera al guardar tu nombre de usuario"}</p>
-            {data.user.qrUrl ? (
-              <div className="actions" style={{ marginTop: ".85rem" }}>
-                <button className="btn btn-secondary" type="button" onClick={handleQrDownload}>
-                  <Download size={16} /> Descargar QR
-                </button>
-              </div>
-            ) : null}
-          </div>
-        </div>
-      </section>
 
       {!user.emailVerified ? (
         <div className="notice notice-danger">

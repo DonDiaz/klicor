@@ -127,6 +127,12 @@ const BILLING_RESPONSIBILITY_OPTIONS = [
   { value: "no", label: "No" },
 ];
 
+const WORKSPACE_TABS = [
+  { id: "blocks", label: "Bloques", icon: Link2 },
+  { id: "design", label: "Diseño", icon: Paintbrush },
+  { id: "settings", label: "Ajustes", icon: ShieldCheck },
+];
+
 function ColorEditor({ label, value, onChange, swatches }) {
   return (
     <div className="appearance-control">
@@ -251,10 +257,9 @@ export function ProfileForm({
   const [alertMessage, setAlertMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [selectedType, setSelectedType] = useState("whatsapp");
-  const [openSection, setOpenSection] = useState(null);
+  const [activeWorkspace, setActiveWorkspace] = useState("blocks");
   const [openProfileSection, setOpenProfileSection] = useState(null);
   const [presetsOpen, setPresetsOpen] = useState(false);
-  const [showPreview, setShowPreview] = useState(false);
   const savedPaymentQrUrl = profile?.paymentQrUrl && profile?.username ? `/${profile.username}/payment-qr` : profile?.paymentQrUrl || "";
 
   useEffect(() => {
@@ -375,10 +380,6 @@ export function ProfileForm({
     } finally {
       setLoading(false);
     }
-  }
-
-  function toggleSection(sectionId) {
-    setOpenSection((current) => (current === sectionId ? null : sectionId));
   }
 
   function toggleProfileSection(sectionId) {
@@ -505,16 +506,52 @@ export function ProfileForm({
           </div>
         </div>
       ) : null}
-      <form className="section-stack" onSubmit={handleSubmit}>
-        <AccordionSection
-          id="profile"
-          title="Perfil"
-          copy="Actualiza identidad, seguridad y estado operativo de la cuenta."
-          openSection={openSection}
-          onToggle={toggleSection}
-          trailing={<span className={`status-badge ${recoveryProtected ? "success" : ""}`}>{recoveryProtected ? "Protegida" : "Pendiente"}</span>}
-        >
-          <div className="section-stack accordion-subsections">
+      <aside className="preview-shell preview-shell-editor">
+        <div className="preview-header preview-header-editor">
+          <div className="stack" style={{ gap: ".45rem" }}>
+            <span className="pill"><MonitorSmartphone size={16} /> Vista previa</span>
+            <h3 className="section-title" style={{ fontSize: "1.1rem" }}>Así se verá tu Klicor</h3>
+            <p className="section-copy">Edita a la derecha y revisa aquí cómo cambia tu página pública en tiempo real.</p>
+          </div>
+        </div>
+        <div className="preview-frame">
+          <LandingView user={previewUser} preview />
+        </div>
+      </aside>
+
+      <div className="editor-panel">
+        <div className="editor-tabs" role="tablist" aria-label="Navegación del editor">
+          {WORKSPACE_TABS.map((tab) => {
+            const Icon = tab.icon;
+            const isActive = activeWorkspace === tab.id;
+            return (
+              <button
+                key={tab.id}
+                className={`editor-tab ${isActive ? "is-active" : ""}`}
+                type="button"
+                role="tab"
+                aria-selected={isActive}
+                onClick={() => setActiveWorkspace(tab.id)}
+              >
+                <Icon size={17} />
+                <span>{tab.label}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        <form className="section-stack editor-panel-form" onSubmit={handleSubmit}>
+          {activeWorkspace === "settings" ? (
+            <section className="dashboard-section panel workspace-panel">
+              <div className="dashboard-section-head workspace-panel-head">
+                <div>
+                  <h2 className="section-title" style={{ fontSize: "1.35rem" }}>Ajustes del negocio</h2>
+                  <p className="section-copy">Actualiza identidad, seguridad, facturación y estado operativo de la cuenta.</p>
+                </div>
+                <span className={`status-badge ${recoveryProtected ? "success" : ""}`}>{recoveryProtected ? "Protegida" : "Pendiente"}</span>
+              </div>
+
+              <div className="section-stack accordion-subsections">
             <AccordionSection
               id="profile-identity"
               title="Identidad del negocio"
@@ -903,16 +940,20 @@ export function ProfileForm({
               ) : null}
             </AccordionSection>
           </div>
-        </AccordionSection>
+            </section>
+          ) : null}
 
-        <AccordionSection
-          id="links"
-          title="Enlaces y cobros"
-          copy="Administra redes, contacto, llave Bre-B y canales visibles de tu negocio."
-          openSection={openSection}
-          onToggle={toggleSection}
-          trailing={<span className="status-badge">{profileLinks.length} enlaces</span>}
-        >
+          {activeWorkspace === "blocks" ? (
+            <section className="dashboard-section panel workspace-panel">
+              <div className="dashboard-section-head workspace-panel-head">
+                <div>
+                  <h2 className="section-title" style={{ fontSize: "1.35rem" }}>Bloques y cobros</h2>
+                  <p className="section-copy">Organiza botones, canales visibles, llave Bre-B y el bloque para guardar contacto.</p>
+                </div>
+                <span className="status-badge">{profileLinks.length} enlaces</span>
+              </div>
+
+              <div className="section-stack">
           <div className="link-toolbar">
             <select className="select" value={selectedType} onChange={(e) => setSelectedType(e.target.value)} disabled={!canEdit}>
               {LINK_CATALOG.map((item) => (
@@ -1100,16 +1141,21 @@ export function ProfileForm({
               </div>
             </div>
           ) : null}
-        </AccordionSection>
+              </div>
+            </section>
+          ) : null}
 
-        <AccordionSection
-          id="appearance"
-          title="Apariencia"
-          copy="Usa un preajuste o abre el modo avanzado para personalizar con control."
-          openSection={openSection}
-          onToggle={toggleSection}
-          trailing={<span className="status-badge">{appearance.advancedEnabled ? "Avanzado" : "Preajuste"}</span>}
-        >
+          {activeWorkspace === "design" ? (
+            <section className="dashboard-section panel workspace-panel">
+              <div className="dashboard-section-head workspace-panel-head">
+                <div>
+                  <h2 className="section-title" style={{ fontSize: "1.35rem" }}>Diseño de la página</h2>
+                  <p className="section-copy">Elige un preajuste y luego ajusta colores, botones y personalidad visual del perfil.</p>
+                </div>
+                <span className="status-badge">{appearance.advancedEnabled ? "Avanzado" : "Preajuste"}</span>
+              </div>
+
+              <div className="section-stack">
           <div className="dashboard-section-head">
             <div>
               <h3 className="section-title" style={{ fontSize: "1.05rem" }}>Diseño de la página</h3>
@@ -1205,7 +1251,9 @@ export function ProfileForm({
               <RotateCcw size={16} /> Restablecer
             </button>
           </div>
-        </AccordionSection>
+              </div>
+            </section>
+          ) : null}
 
         <div className="actions editor-form-footer">
           <button className="btn btn-primary" type="submit" disabled={loading || !canEdit || appearanceWarnings.length > 0}>
@@ -1216,30 +1264,7 @@ export function ProfileForm({
 
         {message ? <p className="notice">{message}</p> : null}
       </form>
-
-      <aside className="preview-shell">
-        <div className="preview-header preview-header-compact">
-          <div className="stack" style={{ gap: ".45rem" }}>
-            <span className="pill"><MonitorSmartphone size={16} /> Vista previa real</span>
-            <p className="section-copy">Ábrela solo cuando quieras revisar el resultado final de la página.</p>
-          </div>
-          <button className="btn btn-secondary" type="button" onClick={() => setShowPreview((current) => !current)}>
-            {showPreview ? "Ocultar vista previa" : "Mostrar vista previa"}
-          </button>
-        </div>
-        {showPreview ? (
-          <div className="preview-frame">
-            <LandingView user={previewUser} preview />
-          </div>
-        ) : (
-          <div className="preview-frame preview-frame-placeholder">
-            <div className="preview-placeholder-card">
-              <strong>Vista previa en reposo</strong>
-              <p className="section-copy">La mantenemos cerrada al inicio para que el editor cargue más ligero y el panel se sienta más ordenado.</p>
-            </div>
-          </div>
-        )}
-      </aside>
+    </div>
     </div>
   );
 }
