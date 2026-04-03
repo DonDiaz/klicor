@@ -2,7 +2,7 @@ import { Globe, Save } from "lucide-react";
 import { buildLandingLayout } from "@/lib/landing-layout";
 import { resolveContactCardData } from "@/lib/contact-card";
 import { getContrastRatio, hexToRgba, normalizeAppearance } from "@/lib/theme-system";
-import { PaymentKeyCard } from "@/components/payment-key-card";
+import { PaymentMethodsCard } from "@/components/payment-methods-card";
 
 const NAME_SIZE_MAP = {
   s: "1.6rem",
@@ -261,18 +261,16 @@ export function LandingView({ user, preview = false }) {
             </div>
           ) : null}
 
-          {layout.paymentKey ? (
+          {layout.paymentMethods.length ? (
             <section className="public-section" style={panelStyle}>
               <div className="public-section-head">
                 <strong>Cobro visible</strong>
                 <span>Haz más fácil cobrar desde el mismo perfil</span>
               </div>
-              <PaymentKeyCard
-                item={layout.paymentKey}
+              <PaymentMethodsCard
+                methods={layout.paymentMethods}
                 qrImageUrl={paymentQrUrl}
                 preview={preview}
-                buttonStyle={primaryButtonStyle}
-                buttonRadius={buttonRadius}
                 cardStyle={panelStyle}
               />
             </section>

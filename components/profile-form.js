@@ -23,9 +23,11 @@ import {
 } from "lucide-react";
 import { apiFetch } from "@/lib/client-api";
 import { applyDefaultLinkPriorityTiers, BUSINESS_CATEGORY_OPTIONS, getDefaultPriorityTierForNewLink, isSocialLinkType, LINK_PRIORITY_LIMITS, normalizeBusinessCategory } from "@/lib/business-categories";
+import { ACCOUNT_TYPE_OPTIONS, COLOMBIA_FINANCIAL_ENTITY_OPTIONS, requiresAccountType, resolveFinancialEntityLabel } from "@/lib/colombia-financial-entities";
 import { COLOMBIA_DEPARTMENT_OPTIONS, getCitiesForDepartment, resolveCityName, resolveDepartmentName } from "@/lib/colombia-locations";
 import { resolveContactCardData } from "@/lib/contact-card";
 import { canAddLinkType, getLinkTypeCount, getLinkTypeLimit, LINK_CATALOG, LINK_CATALOG_MAP } from "@/lib/link-catalog";
+import { normalizePaymentMethods } from "@/lib/payment-methods";
 import { APPEARANCE_DEFAULTS, APPEARANCE_PRESETS, APPEARANCE_SWATCHES, getAppearanceSuggestions, getAppearanceWarnings, normalizeAppearance } from "@/lib/theme-system";
 
 const LandingView = dynamic(
@@ -46,7 +48,9 @@ function normalizeLinks(profile) {
   const category = normalizeBusinessCategory(profile?.businessCategory);
 
   if (Array.isArray(profile?.profileLinks) && profile.profileLinks.length) {
-    return applyDefaultLinkPriorityTiers(profile.profileLinks.map((item) => ({
+    return applyDefaultLinkPriorityTiers(profile.profileLinks
+      .filter((item) => item?.type !== "payment_key")
+      .map((item) => ({
       id: item.id,
       type: item.type,
       label: item.label,
@@ -59,6 +63,7 @@ function normalizeLinks(profile) {
   const legacy = profile?.links || {};
   return applyDefaultLinkPriorityTiers(
     Object.entries(legacy)
+      .filter(([type]) => type !== "payment_key")
       .filter(([, value]) => value)
       .map(([type, value], index) => ({
         id: `${type}-${index}`,
@@ -272,6 +277,7 @@ export function ProfileForm({
   const [paymentQrImage, setPaymentQrImage] = useState(null);
   const [paymentQrPreviewUrl, setPaymentQrPreviewUrl] = useState("");
   const [removePaymentQr, setRemovePaymentQr] = useState(false);
+  const [paymentMethods, setPaymentMethods] = useState(normalizePaymentMethods(profile?.paymentMethods, profile?.profileLinks, profile?.paymentQrUrl));
   const [contactCard, setContactCard] = useState(normalizeContactCard(profile));
   const [billingProfile, setBillingProfile] = useState(normalizeBillingProfile(profile));
   const [message, setMessage] = useState("");
@@ -296,6 +302,7 @@ export function ProfileForm({
     setPhoto(null);
     setPaymentQrImage(null);
     setRemovePaymentQr(false);
+    setPaymentMethods(normalizePaymentMethods(profile?.paymentMethods, profile?.profileLinks, profile?.paymentQrUrl));
     setContactCard(normalizeContactCard(profile));
     setBillingProfile(normalizeBillingProfile(profile));
     setAlertMessage("");
@@ -338,6 +345,7 @@ export function ProfileForm({
     businessSubheadline: form.businessSubheadline,
     photo: photoPreviewUrl || profile?.photo || "",
     paymentQrUrl: removePaymentQr ? "" : paymentQrPreviewUrl || savedPaymentQrUrl,
+    paymentMethods,
     contactCardEnabled: contactCard.enabled,
     contactCardName: contactCard.name,
     contactCardTitle: contactCard.title,
@@ -350,10 +358,11 @@ export function ProfileForm({
         ...item,
         url: normalizeLinkUrl(item),
       })),
-  }), [appearance, contactCard.enabled, contactCard.name, contactCard.phone, contactCard.title, contactCard.whatsappLinkId, form.businessCategory, form.businessHeadline, form.businessName, form.businessSubheadline, form.username, paymentQrPreviewUrl, photoPreviewUrl, profile?.photo, profile?.publicLinkId, profileLinks, removePaymentQr, savedPaymentQrUrl]);
+  }), [appearance, contactCard.enabled, contactCard.name, contactCard.phone, contactCard.title, contactCard.whatsappLinkId, form.businessCategory, form.businessHeadline, form.businessName, form.businessSubheadline, form.username, paymentMethods, paymentQrPreviewUrl, photoPreviewUrl, profile?.photo, profile?.publicLinkId, profileLinks, removePaymentQr, savedPaymentQrUrl]);
 
   const appearanceWarnings = useMemo(() => getAppearanceWarnings(appearance), [appearance]);
   const appearanceSuggestions = useMemo(() => getAppearanceSuggestions(appearance), [appearance]);
+  const availableLinkTypes = useMemo(() => LINK_CATALOG.filter((item) => item.type !== "payment_key"), []);
   const selectedTypeLimit = getLinkTypeLimit(selectedType);
   const selectedTypeCount = getLinkTypeCount(profileLinks, selectedType);
   const selectedTypeAvailable = canAddLinkType(profileLinks, selectedType);
@@ -391,6 +400,7 @@ export function ProfileForm({
       body.append("businessHeadline", form.businessHeadline);
       body.append("businessSubheadline", form.businessSubheadline);
       body.append("profileLinks", JSON.stringify(profileLinks));
+      body.append("paymentMethods", JSON.stringify(paymentMethods));
       body.append("appearance", JSON.stringify(appearance));
       body.append("contactCard", JSON.stringify(contactCard));
       body.append("billingProfile", JSON.stringify(billingProfile));
@@ -473,6 +483,41 @@ export function ProfileForm({
 
       return current.map((item) => (item.id === id ? { ...item, priorityTier: tier } : item));
     });
+  }
+
+  function addPaymentMethod() {
+    setPaymentMethods((current) => {
+      if (current.length >= 2) {
+        setAlertMessage("Solo puedes configurar hasta 2 métodos de pago.");
+        return current;
+      }
+
+      return [
+        ...current,
+        {
+          id: `payment-method-${Date.now()}`,
+          entityId: "",
+          accountType: "",
+          accountNumber: "",
+          brebKey: "",
+        },
+      ];
+    });
+  }
+
+  function updatePaymentMethod(id, field, value) {
+    setPaymentMethods((current) => current.map((method) => {
+      if (method.id !== id) return method;
+      const next = { ...method, [field]: value };
+      if (field === "entityId" && !requiresAccountType(value)) {
+        next.accountType = "";
+      }
+      return next;
+    }));
+  }
+
+  function removePaymentMethod(id) {
+    setPaymentMethods((current) => current.filter((method) => method.id !== id));
   }
 
   function applyPreset(presetId) {
@@ -1050,7 +1095,7 @@ export function ProfileForm({
               <div className="section-stack">
           <div className="link-toolbar">
             <select className="select" value={selectedType} onChange={(e) => setSelectedType(e.target.value)} disabled={!canEdit}>
-              {LINK_CATALOG.map((item) => (
+              {availableLinkTypes.map((item) => (
                 <option key={item.type} value={item.type}>
                   {item.label}
                   {getLinkTypeCount(profileLinks, item.type) >= getLinkTypeLimit(item.type) ? " - limite alcanzado" : ""}
@@ -1063,14 +1108,148 @@ export function ProfileForm({
           </div>
 
           <p className="muted">
-            {selectedType === "payment_key"
-              ? "Usa este tipo para mostrar una llave de pago con botones para copiar y ver el QR en tu página."
-              : null}
-            {selectedType === "payment_key" ? " " : ""}
             {selectedType === "whatsapp"
               ? `WhatsApp permite hasta ${selectedTypeLimit} enlaces. Ya tienes ${selectedTypeCount}.`
               : `${LINK_CATALOG_MAP[selectedType]?.label || "Esta red"} permite solo ${selectedTypeLimit} enlace. Ya tienes ${selectedTypeCount}.`}
           </p>
+
+          <div className="section-divider" />
+
+          <div className="dashboard-section-head">
+            <div>
+              <h3 className="section-title" style={{ fontSize: "1.05rem" }}>Información de pago</h3>
+              <p className="section-copy">Configura hasta 2 métodos para cobrar. Puedes usar cuenta bancaria, billetera y llave Bre-B.</p>
+            </div>
+            <span className="status-badge">{paymentMethods.length}/2 métodos</span>
+          </div>
+
+          <div className="section-stack">
+            <div className="payment-methods-stack">
+              {paymentMethods.map((method, index) => {
+                const showAccountType = requiresAccountType(method.entityId);
+                return (
+                  <div className="link-row payment-method-row" key={method.id}>
+                    <div>
+                      <label className="label">Entidad</label>
+                      <select
+                        className="select"
+                        value={method.entityId}
+                        onChange={(e) => updatePaymentMethod(method.id, "entityId", e.target.value)}
+                        disabled={!canEdit}
+                      >
+                        <option value="">Selecciona una entidad</option>
+                        {COLOMBIA_FINANCIAL_ENTITY_OPTIONS.map((option) => (
+                          <option key={`${method.id}-${option.value}`} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="label">{showAccountType ? "Número de cuenta" : "Número o referencia"}</label>
+                      <input
+                        className="input"
+                        value={method.accountNumber}
+                        placeholder={showAccountType ? "Ej. 1234567890" : "Ej. 3001234567"}
+                        onChange={(e) => updatePaymentMethod(method.id, "accountNumber", e.target.value)}
+                        disabled={!canEdit}
+                      />
+                    </div>
+                    <button className="btn btn-secondary link-remove" type="button" onClick={() => removePaymentMethod(method.id)} disabled={!canEdit}>
+                      <Trash2 size={16} />
+                    </button>
+
+                    {showAccountType ? (
+                      <div className="link-row-message">
+                        <label className="label">Tipo de cuenta</label>
+                        <select
+                          className="select"
+                          value={method.accountType}
+                          onChange={(e) => updatePaymentMethod(method.id, "accountType", e.target.value)}
+                          disabled={!canEdit}
+                        >
+                          <option value="">Selecciona el tipo</option>
+                          {ACCOUNT_TYPE_OPTIONS.map((option) => (
+                            <option key={`${method.id}-${option.value}`} value={option.value}>
+                              {option.label}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    ) : null}
+
+                    <div className="link-row-message">
+                      <label className="label">Llave Bre-B</label>
+                      <input
+                        className="input"
+                        value={method.brebKey}
+                        placeholder="Opcional: tu llave Bre-B"
+                        onChange={(e) => updatePaymentMethod(method.id, "brebKey", e.target.value)}
+                        disabled={!canEdit}
+                      />
+                      <p className="muted" style={{ marginTop: ".45rem" }}>
+                        {method.entityId ? `Método ${index + 1}: ${resolveFinancialEntityLabel(method.entityId)}.` : "Puedes dejar solo cuenta, solo llave Bre-B o ambas."}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="payment-method-toolbar">
+              <button className="btn btn-secondary" type="button" onClick={addPaymentMethod} disabled={!canEdit || paymentMethods.length >= 2}>
+                <Plus size={16} /> Agregar método de pago
+              </button>
+              <p className="muted">Puedes configurar hasta 2 métodos visibles en tu página.</p>
+            </div>
+
+            <div className="payment-key-upload">
+              <label className="label">QR oficial del banco o billetera</label>
+              <label className={`upload-card ${!canEdit ? "upload-card-disabled" : ""}`}>
+                <input
+                  className="upload-input"
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0] || null;
+                    setPaymentQrImage(file);
+                    if (file) {
+                      setRemovePaymentQr(false);
+                    }
+                  }}
+                  disabled={!canEdit}
+                />
+                <span className="upload-icon">{paymentQrImage || (profile?.paymentQrUrl && !removePaymentQr) ? <ImagePlus size={20} /> : <UploadCloud size={20} />}</span>
+                <span className="upload-copy">
+                  <strong>{paymentQrImage || (profile?.paymentQrUrl && !removePaymentQr) ? "Cambiar QR oficial" : "Subir QR oficial"}</strong>
+                  <span>{paymentQrStatusLabel || selectedPaymentQrLabel}</span>
+                  <small>Este QR puede acompañar tu bloque de pagos cuando tengas una imagen oficial.</small>
+                </span>
+              </label>
+              {(paymentQrPreviewUrl || savedPaymentQrUrl) ? (
+                <div className="payment-key-upload-actions">
+                  <button
+                    className="btn btn-secondary"
+                    type="button"
+                    onClick={() => {
+                      setPaymentQrImage(null);
+                      setRemovePaymentQr(true);
+                    }}
+                    disabled={!canEdit}
+                  >
+                    <Trash2 size={16} /> Eliminar QR actual
+                  </button>
+                </div>
+              ) : null}
+              {(paymentQrPreviewUrl || savedPaymentQrUrl) && !removePaymentQr ? (
+                <div className="payment-qr-preview">
+                  <img src={paymentQrPreviewUrl || savedPaymentQrUrl} alt="QR oficial de pago" />
+                </div>
+              ) : null}
+            </div>
+          </div>
+
+          <div className="section-divider" />
 
           <div className="stack">
             {profileLinks.length ? profileLinks.map((item) => {
@@ -1114,55 +1293,6 @@ export function ProfileForm({
                         </select>
                         <p className="muted">Prioridad 1 admite 1 botón y prioridad 2 admite hasta 2.</p>
                       </div>
-                    </div>
-                  ) : null}
-                  {item.type === "payment_key" ? (
-                    <div className="link-row-message payment-key-upload">
-                      <label className="label">QR oficial del banco o billetera</label>
-                      <label className={`upload-card ${!canEdit ? "upload-card-disabled" : ""}`}>
-                        <input
-                          className="upload-input"
-                          type="file"
-                          accept="image/png,image/jpeg,image/webp"
-                          onChange={(e) => {
-                            const file = e.target.files?.[0] || null;
-                            setPaymentQrImage(file);
-                            if (file) {
-                              setRemovePaymentQr(false);
-                            }
-                          }}
-                          disabled={!canEdit}
-                        />
-                        <span className="upload-icon">{paymentQrImage || (profile?.paymentQrUrl && !removePaymentQr) ? <ImagePlus size={20} /> : <UploadCloud size={20} />}</span>
-                        <span className="upload-copy">
-                          <strong>{paymentQrImage || (profile?.paymentQrUrl && !removePaymentQr) ? "Cambiar QR oficial" : "Subir QR oficial"}</strong>
-                          <span>{paymentQrStatusLabel || selectedPaymentQrLabel}</span>
-                          <small>Sube la imagen oficial generada en Nequi, Daviplata o tu banco</small>
-                        </span>
-                      </label>
-                      <p className="muted payment-key-upload-copy">
-                        Este QR no lo genera Klicor. Si cambias la llave, guarda una nueva imagen oficial del QR.
-                      </p>
-                      {paymentQrPreviewUrl || savedPaymentQrUrl ? (
-                        <div className="payment-key-upload-actions">
-                          <button
-                            className="btn btn-secondary"
-                            type="button"
-                            onClick={() => {
-                              setPaymentQrImage(null);
-                              setRemovePaymentQr(true);
-                            }}
-                            disabled={!canEdit}
-                          >
-                            <Trash2 size={16} /> Eliminar QR actual
-                          </button>
-                        </div>
-                      ) : null}
-                      {(paymentQrPreviewUrl || savedPaymentQrUrl) && !removePaymentQr ? (
-                        <div className="payment-qr-preview">
-                          <img src={paymentQrPreviewUrl || savedPaymentQrUrl} alt="QR oficial de pago" />
-                        </div>
-                      ) : null}
                     </div>
                   ) : null}
                 </div>

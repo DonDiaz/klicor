@@ -21,6 +21,7 @@ export async function POST(request) {
     const appearanceJson = formData.get("appearance");
     const contactCardJson = formData.get("contactCard");
     const billingProfileJson = formData.get("billingProfile");
+    const paymentMethodsJson = formData.get("paymentMethods");
     const removePaymentQr = formData.get("removePaymentQr") === "true";
 
     const parsed = profileSchema.parse({
@@ -30,6 +31,7 @@ export async function POST(request) {
       businessHeadline: formData.get("businessHeadline"),
       businessSubheadline: formData.get("businessSubheadline"),
       profileLinks: JSON.parse(typeof linksJson === "string" ? linksJson : "[]"),
+      paymentMethods: JSON.parse(typeof paymentMethodsJson === "string" ? paymentMethodsJson : "[]"),
       appearance: JSON.parse(typeof appearanceJson === "string" ? appearanceJson : "{}"),
       contactCard: typeof contactCardJson === "string"
         ? JSON.parse(contactCardJson)
