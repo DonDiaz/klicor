@@ -95,6 +95,30 @@ function normalizeContactCard(profile) {
   };
 }
 
+function normalizeBillingProfile(profile) {
+  return {
+    legalName: profile?.billingProfile?.legalName || "",
+    documentType: profile?.billingProfile?.documentType || "nit",
+    documentNumber: profile?.billingProfile?.documentNumber || "",
+    verificationDigit: profile?.billingProfile?.verificationDigit || "",
+    taxResponsibility: profile?.billingProfile?.taxResponsibility || "",
+    billingEmail: profile?.billingProfile?.billingEmail || "",
+    billingPhone: profile?.billingProfile?.billingPhone || "",
+    address: profile?.billingProfile?.address || "",
+    city: profile?.billingProfile?.city || "",
+    department: profile?.billingProfile?.department || "",
+    country: profile?.billingProfile?.country || "Colombia",
+  };
+}
+
+const BILLING_DOCUMENT_OPTIONS = [
+  { value: "nit", label: "NIT" },
+  { value: "cc", label: "Cédula de ciudadanía" },
+  { value: "ce", label: "Cédula de extranjería" },
+  { value: "passport", label: "Pasaporte" },
+  { value: "other", label: "Otro" },
+];
+
 function ColorEditor({ label, value, onChange, swatches }) {
   return (
     <div className="appearance-control">
@@ -214,6 +238,7 @@ export function ProfileForm({
   const [paymentQrImage, setPaymentQrImage] = useState(null);
   const [paymentQrPreviewUrl, setPaymentQrPreviewUrl] = useState("");
   const [contactCard, setContactCard] = useState(normalizeContactCard(profile));
+  const [billingProfile, setBillingProfile] = useState(normalizeBillingProfile(profile));
   const [message, setMessage] = useState("");
   const [alertMessage, setAlertMessage] = useState("");
   const [loading, setLoading] = useState(false);
@@ -234,6 +259,7 @@ export function ProfileForm({
     setPhoto(null);
     setPaymentQrImage(null);
     setContactCard(normalizeContactCard(profile));
+    setBillingProfile(normalizeBillingProfile(profile));
     setAlertMessage("");
   }, [profile]);
 
@@ -323,6 +349,7 @@ export function ProfileForm({
       body.append("profileLinks", JSON.stringify(profileLinks));
       body.append("appearance", JSON.stringify(appearance));
       body.append("contactCard", JSON.stringify(contactCard));
+      body.append("billingProfile", JSON.stringify(billingProfile));
       if (photo) body.append("photo", photo);
       if (paymentQrImage) body.append("paymentQrImage", paymentQrImage);
 
@@ -424,6 +451,9 @@ export function ProfileForm({
   const usernameChanged = Boolean(profile?.username) && form.username.trim() && form.username.trim() !== profile.username;
   const recoveryProtected = Boolean(recovery?.backupEmailVerified);
   const contactCardEnabled = Boolean(contactCard.enabled);
+  const billingProfileConfigured = Boolean(billingProfile.legalName && billingProfile.documentType && billingProfile.documentNumber);
+  const billingProfileStarted = Object.values(billingProfile).some((value) => String(value || "").trim());
+  const billingDocumentTypeLabel = BILLING_DOCUMENT_OPTIONS.find((item) => item.value === billingProfile.documentType)?.label || "Documento";
   const subscriptionTone = getSubscriptionTone(profile?.status);
   const subscriptionLabel = getSubscriptionLabel(profile?.status);
   const subscriptionMessage = getSubscriptionMessage(profile?.status);
@@ -608,6 +638,175 @@ export function ProfileForm({
               </div>
 
               {recoveryMessage ? <p className="notice">{recoveryMessage}</p> : null}
+            </AccordionSection>
+
+            <AccordionSection
+              id="profile-billing"
+              title="Información del negocio para facturación"
+              copy="Datos privados para ayudarte a emitir la factura electrónica manualmente."
+              openSection={openProfileSection}
+              onToggle={toggleProfileSection}
+              className="accordion-subsection"
+              trailing={
+                <span className={`status-badge ${billingProfileConfigured ? "success" : ""}`}>
+                  {billingProfileConfigured ? "Lista" : billingProfileStarted ? "Parcial" : "Pendiente"}
+                </span>
+              }
+            >
+              <div className="notice">
+                <span>Estos datos no se muestran en tu página pública. Son solo de apoyo interno para facturación manual.</span>
+              </div>
+
+              <div className="grid-3">
+                <div className="kpi">
+                  <strong>Razón social</strong>
+                  <p className="muted" style={{ marginTop: ".5rem" }}>{billingProfile.legalName || "Aún no configurada"}</p>
+                </div>
+                <div className="kpi">
+                  <strong>Documento</strong>
+                  <p className="muted" style={{ marginTop: ".5rem" }}>
+                    {billingProfile.documentNumber ? `${billingDocumentTypeLabel} ${billingProfile.documentNumber}` : "Aún no configurado"}
+                  </p>
+                </div>
+                <div className="kpi">
+                  <strong>Ubicación fiscal</strong>
+                  <p className="muted" style={{ marginTop: ".5rem" }}>
+                    {[billingProfile.city, billingProfile.department].filter(Boolean).join(", ") || "Aún no configurada"}
+                  </p>
+                </div>
+              </div>
+
+              <div className="profile-grid">
+                <div>
+                  <label className="label">Razón social o nombre legal</label>
+                  <input
+                    className="input"
+                    value={billingProfile.legalName}
+                    onChange={(e) => setBillingProfile((current) => ({ ...current, legalName: e.target.value }))}
+                    placeholder="Nombre legal del negocio o persona"
+                    disabled={!canEdit}
+                  />
+                </div>
+                <div>
+                  <label className="label">Tipo de documento</label>
+                  <select
+                    className="select"
+                    value={billingProfile.documentType}
+                    onChange={(e) => setBillingProfile((current) => ({ ...current, documentType: e.target.value }))}
+                    disabled={!canEdit}
+                  >
+                    {BILLING_DOCUMENT_OPTIONS.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="profile-grid">
+                <div>
+                  <label className="label">Número de documento</label>
+                  <input
+                    className="input"
+                    value={billingProfile.documentNumber}
+                    onChange={(e) => setBillingProfile((current) => ({ ...current, documentNumber: e.target.value }))}
+                    placeholder="900123456 o 1234567890"
+                    disabled={!canEdit}
+                  />
+                </div>
+                <div>
+                  <label className="label">Dígito de verificación</label>
+                  <input
+                    className="input"
+                    value={billingProfile.verificationDigit}
+                    onChange={(e) => setBillingProfile((current) => ({ ...current, verificationDigit: e.target.value }))}
+                    placeholder="Opcional, si aplica"
+                    disabled={!canEdit}
+                  />
+                </div>
+              </div>
+
+              <div className="profile-grid">
+                <div>
+                  <label className="label">Correo de facturación</label>
+                  <input
+                    className="input"
+                    type="email"
+                    value={billingProfile.billingEmail}
+                    onChange={(e) => setBillingProfile((current) => ({ ...current, billingEmail: e.target.value }))}
+                    placeholder="facturacion@tuempresa.com"
+                    disabled={!canEdit}
+                  />
+                </div>
+                <div>
+                  <label className="label">Teléfono de facturación</label>
+                  <input
+                    className="input"
+                    value={billingProfile.billingPhone}
+                    onChange={(e) => setBillingProfile((current) => ({ ...current, billingPhone: e.target.value }))}
+                    placeholder="+57 300 123 4567"
+                    disabled={!canEdit}
+                  />
+                </div>
+              </div>
+
+              <div className="profile-grid">
+                <div>
+                  <label className="label">Dirección fiscal</label>
+                  <input
+                    className="input"
+                    value={billingProfile.address}
+                    onChange={(e) => setBillingProfile((current) => ({ ...current, address: e.target.value }))}
+                    placeholder="Calle 10 # 20-30"
+                    disabled={!canEdit}
+                  />
+                </div>
+                <div>
+                  <label className="label">Responsabilidad o régimen</label>
+                  <input
+                    className="input"
+                    value={billingProfile.taxResponsibility}
+                    onChange={(e) => setBillingProfile((current) => ({ ...current, taxResponsibility: e.target.value }))}
+                    placeholder="Responsable de IVA, no responsable, régimen simple..."
+                    disabled={!canEdit}
+                  />
+                </div>
+              </div>
+
+              <div className="profile-grid">
+                <div>
+                  <label className="label">Ciudad o municipio</label>
+                  <input
+                    className="input"
+                    value={billingProfile.city}
+                    onChange={(e) => setBillingProfile((current) => ({ ...current, city: e.target.value }))}
+                    placeholder="Bogotá, Medellín, Cali..."
+                    disabled={!canEdit}
+                  />
+                </div>
+                <div>
+                  <label className="label">Departamento</label>
+                  <input
+                    className="input"
+                    value={billingProfile.department}
+                    onChange={(e) => setBillingProfile((current) => ({ ...current, department: e.target.value }))}
+                    placeholder="Cundinamarca, Antioquia..."
+                    disabled={!canEdit}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="label">País</label>
+                <input
+                  className="input"
+                  value={billingProfile.country}
+                  onChange={(e) => setBillingProfile((current) => ({ ...current, country: e.target.value }))}
+                  placeholder="Colombia"
+                  disabled={!canEdit}
+                />
+              </div>
             </AccordionSection>
 
             <AccordionSection

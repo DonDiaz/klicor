@@ -20,6 +20,7 @@ export async function POST(request) {
     const linksJson = formData.get("profileLinks");
     const appearanceJson = formData.get("appearance");
     const contactCardJson = formData.get("contactCard");
+    const billingProfileJson = formData.get("billingProfile");
 
     const parsed = profileSchema.parse({
       businessName: formData.get("businessName"),
@@ -29,6 +30,21 @@ export async function POST(request) {
       contactCard: typeof contactCardJson === "string"
         ? JSON.parse(contactCardJson)
         : { enabled: false, name: "", title: "", whatsappLinkId: "", phone: "" },
+      billingProfile: typeof billingProfileJson === "string"
+        ? JSON.parse(billingProfileJson)
+        : {
+          legalName: "",
+          documentType: "nit",
+          documentNumber: "",
+          verificationDigit: "",
+          taxResponsibility: "",
+          billingEmail: "",
+          billingPhone: "",
+          address: "",
+          city: "",
+          department: "",
+          country: "Colombia",
+        },
     });
 
     const warnings = getAppearanceWarnings(parsed.appearance);
