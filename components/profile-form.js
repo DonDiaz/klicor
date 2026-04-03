@@ -34,7 +34,7 @@ const LandingView = dynamic(
       <div className="preview-frame preview-frame-placeholder">
         <div className="preview-placeholder-card">
           <strong>Cargando vista previa</strong>
-          <p className="section-copy">Preparamos la representaciÃ³n real de tu pÃ¡gina pÃºblica.</p>
+          <p className="section-copy">Preparamos la representación real de tu página pública.</p>
         </div>
       </div>
     ),
@@ -60,7 +60,7 @@ function normalizeLinks(profile) {
       type,
       label: LINK_CATALOG_MAP[type]?.label || "Enlace",
       value,
-      message: type === "whatsapp" ? "Hola, quiero informaciÃ³n" : "",
+      message: type === "whatsapp" ? "Hola, quiero información" : "",
     }));
 }
 
@@ -71,7 +71,7 @@ function normalizeLinkUrl(item) {
   const meta = LINK_CATALOG_MAP[item.type];
   if (meta?.kind === "phone") {
     const digits = raw.replace(/\D/g, "");
-    const message = (item.message || "Hola, quiero informaciÃ³n").trim();
+    const message = (item.message || "Hola, quiero información").trim();
     return digits ? `https://wa.me/${digits}?text=${encodeURIComponent(message)}` : "";
   }
 
@@ -116,8 +116,8 @@ function normalizeBillingProfile(profile) {
 
 const BILLING_DOCUMENT_OPTIONS = [
   { value: "nit", label: "NIT" },
-  { value: "cc", label: "CÃ©dula de ciudadanÃ­a" },
-  { value: "ce", label: "CÃ©dula de extranjerÃ­a" },
+  { value: "cc", label: "Cédula de ciudadanía" },
+  { value: "ce", label: "Cédula de extranjería" },
   { value: "passport", label: "Pasaporte" },
   { value: "other", label: "Otro" },
 ];
@@ -203,7 +203,7 @@ function getSubscriptionTone(status) {
 }
 
 function getSubscriptionLabel(status) {
-  if (status === "trial") return "PerÃ­odo de prueba";
+  if (status === "trial") return "Período de prueba";
   if (status === "active") return "Activa";
   if (status === "grace_period") return "Vencida con plazo";
   if (status === "suspended") return "Suspendida";
@@ -211,11 +211,11 @@ function getSubscriptionLabel(status) {
 }
 
 function getSubscriptionMessage(status) {
-  if (status === "trial") return "Tu cuenta sigue activa y puedes editar mientras termina el perÃ­odo de prueba.";
-  if (status === "active") return "Tu cuenta estÃ¡ operativa y lista para seguir compartiendo y cobrando.";
-  if (status === "grace_period") return "Tu cuenta requiere renovaciÃ³n para no perder ediciÃ³n durante el plazo de gracia.";
+  if (status === "trial") return "Tu cuenta sigue activa y puedes editar mientras termina el período de prueba.";
+  if (status === "active") return "Tu cuenta está operativa y lista para seguir compartiendo y cobrando.";
+  if (status === "grace_period") return "Tu cuenta requiere renovación para no perder edición durante el plazo de gracia.";
   if (status === "suspended") return "Tu cuenta necesita registrar el pago para volver a operar con normalidad.";
-  return "Revisa el estado de tu cuenta para mantener la operaciÃ³n del perfil.";
+  return "Revisa el estado de tu cuenta para mantener la operación del perfil.";
 }
 
 export function ProfileForm({
@@ -338,7 +338,7 @@ export function ProfileForm({
   async function handleSubmit(event) {
     event.preventDefault();
     if (!canEdit) {
-      setAlertMessage("Tu cuenta no permite ediciÃ³n en este momento.");
+      setAlertMessage("Tu cuenta no permite edición en este momento.");
       return;
     }
 
@@ -403,7 +403,7 @@ export function ProfileForm({
         type: selectedType,
         label: meta.label,
         value: "",
-        message: selectedType === "whatsapp" ? "Hola, quiero informaciÃ³n" : "",
+        message: selectedType === "whatsapp" ? "Hola, quiero información" : "",
       },
     ]);
   }
@@ -450,12 +450,12 @@ export function ProfileForm({
     });
   }
 
-  const selectedPhotoLabel = photo ? photo.name : profile?.photo ? "Imagen actual cargada" : "AÃºn no has elegido imagen";
+  const selectedPhotoLabel = photo ? photo.name : profile?.photo ? "Imagen actual cargada" : "Aún no has elegido imagen";
   const selectedPaymentQrLabel = paymentQrImage
     ? paymentQrImage.name
     : profile?.paymentQrUrl
       ? "QR oficial cargado"
-      : "AÃºn no has cargado un QR oficial";
+      : "Aún no has cargado un QR oficial";
   const usernameChanged = Boolean(profile?.username) && form.username.trim() && form.username.trim() !== profile.username;
   const recoveryProtected = Boolean(recovery?.backupEmailVerified);
   const contactCardEnabled = Boolean(contactCard.enabled);
@@ -576,8 +576,8 @@ export function ProfileForm({
 
             <AccordionSection
               id="profile-security"
-              title="Seguridad y recuperaciÃ³n"
-              copy="Correo de respaldo, telÃ©fono de recuperaciÃ³n y verificaciÃ³n."
+              title="Seguridad y recuperación"
+              copy="Correo de respaldo, teléfono de recuperación y verificación."
               openSection={openProfileSection}
               onToggle={toggleProfileSection}
               className="accordion-subsection"
@@ -591,18 +591,18 @@ export function ProfileForm({
               <div className="grid-3">
                 <div className="kpi">
                   <strong>Correo de respaldo</strong>
-                  <p className="muted" style={{ marginTop: ".5rem" }}>{recovery?.backupEmail || "AÃºn no configurado"}</p>
-                  <p className="muted" style={{ marginTop: ".35rem" }}>{recovery?.backupEmailVerified ? "Verificado" : "Pendiente de verificaciÃ³n"}</p>
+                  <p className="muted" style={{ marginTop: ".5rem" }}>{recovery?.backupEmail || "Aún no configurado"}</p>
+                  <p className="muted" style={{ marginTop: ".35rem" }}>{recovery?.backupEmailVerified ? "Verificado" : "Pendiente de verificación"}</p>
                 </div>
                 <div className="kpi">
-                  <strong>TelÃ©fono de recuperaciÃ³n</strong>
-                  <p className="muted" style={{ marginTop: ".5rem" }}>{recovery?.recoveryPhone || "AÃºn no configurado"}</p>
+                  <strong>Teléfono de recuperación</strong>
+                  <p className="muted" style={{ marginTop: ".5rem" }}>{recovery?.recoveryPhone || "Aún no configurado"}</p>
                   <p className="muted" style={{ marginTop: ".35rem" }}>{recovery?.recoveryPhoneVerified ? "Verificado" : "Guardado para siguiente fase OTP"}</p>
                 </div>
                 <div className="kpi">
                   <strong>Estado</strong>
                   <p className="muted" style={{ marginTop: ".5rem" }}>
-                    {recoveryProtected ? "Tu cuenta ya tiene un mÃ©todo de recuperaciÃ³n verificado." : "Configura y verifica al menos un correo de respaldo."}
+                    {recoveryProtected ? "Tu cuenta ya tiene un método de recuperación verificado." : "Configura y verifica al menos un correo de respaldo."}
                   </p>
                 </div>
               </div>
@@ -622,7 +622,7 @@ export function ProfileForm({
                   </div>
                 </div>
                 <div>
-                  <label className="label">TelÃ©fono de recuperaciÃ³n</label>
+                  <label className="label">Teléfono de recuperación</label>
                   <div className="input-with-icon">
                     <Phone size={16} />
                     <input
@@ -638,7 +638,7 @@ export function ProfileForm({
               {!recovery?.backupEmailVerified && recovery?.backupEmail ? (
                 <div className="notice">
                   <span>
-                    Verifica el correo de respaldo para usarlo en recuperaciÃ³n.
+                    Verifica el correo de respaldo para usarlo en recuperación.
                     {recovery?.backupEmailVerificationExpiresAt ? " El enlace actual vence pronto." : ""}
                   </span>
                 </div>
@@ -647,11 +647,11 @@ export function ProfileForm({
               <div className="actions">
                 <button className="btn btn-secondary" type="button" onClick={onSaveRecovery} disabled={recoveryLoading}>
                   {recoveryLoading ? <RefreshCw size={16} /> : <Mail size={16} />}
-                  {recoveryLoading ? "Guardando..." : "Guardar recuperaciÃ³n"}
+                  {recoveryLoading ? "Guardando..." : "Guardar recuperación"}
                 </button>
                 {recovery?.backupEmail && !recovery?.backupEmailVerified ? (
                   <button className="btn btn-secondary" type="button" onClick={onResendRecoveryVerification} disabled={recoveryLoading}>
-                    <Send size={16} /> Reenviar verificaciÃ³n
+                    <Send size={16} /> Reenviar verificación
                   </button>
                 ) : null}
               </div>
@@ -661,8 +661,8 @@ export function ProfileForm({
 
             <AccordionSection
               id="profile-billing"
-              title="InformaciÃ³n del negocio para facturaciÃ³n"
-              copy="Datos privados para ayudarte a emitir la factura electrÃ³nica manualmente."
+              title="Información del negocio para facturación"
+              copy="Datos privados para ayudarte a emitir la factura electrónica manualmente."
               openSection={openProfileSection}
               onToggle={toggleProfileSection}
               className="accordion-subsection"
@@ -673,31 +673,31 @@ export function ProfileForm({
               }
             >
               <div className="notice">
-                <span>Estos datos no se muestran en tu pÃ¡gina pÃºblica. Son solo de apoyo interno para facturaciÃ³n manual.</span>
+                <span>Estos datos no se muestran en tu página pública. Son solo de apoyo interno para facturación manual.</span>
               </div>
 
               <div className="grid-3">
                 <div className="kpi">
-                  <strong>RazÃ³n social</strong>
-                  <p className="muted" style={{ marginTop: ".5rem" }}>{billingProfile.legalName || "AÃºn no configurada"}</p>
+                  <strong>Razón social</strong>
+                  <p className="muted" style={{ marginTop: ".5rem" }}>{billingProfile.legalName || "Aún no configurada"}</p>
                 </div>
                 <div className="kpi">
                   <strong>Documento</strong>
                   <p className="muted" style={{ marginTop: ".5rem" }}>
-                    {billingProfile.documentNumber ? `${billingDocumentTypeLabel} ${billingProfile.documentNumber}` : "AÃºn no configurado"}
+                    {billingProfile.documentNumber ? `${billingDocumentTypeLabel} ${billingProfile.documentNumber}` : "Aún no configurado"}
                   </p>
                 </div>
                 <div className="kpi">
-                  <strong>UbicaciÃ³n fiscal</strong>
+                  <strong>Ubicación fiscal</strong>
                   <p className="muted" style={{ marginTop: ".5rem" }}>
-                    {[billingProfile.city, billingProfile.department].filter(Boolean).join(", ") || "AÃºn no configurada"}
+                    {[billingProfile.city, billingProfile.department].filter(Boolean).join(", ") || "Aún no configurada"}
                   </p>
                 </div>
               </div>
 
               <div className="profile-grid">
                 <div>
-                  <label className="label">RazÃ³n social o nombre legal</label>
+                  <label className="label">Razón social o nombre legal</label>
                   <input
                     className="input"
                     value={billingProfile.legalName}
@@ -725,7 +725,7 @@ export function ProfileForm({
 
               <div className="profile-grid">
                 <div>
-                  <label className="label">NÃºmero de documento</label>
+                  <label className="label">Número de documento</label>
                   <input
                     className="input"
                     value={billingProfile.documentNumber}
@@ -735,7 +735,7 @@ export function ProfileForm({
                   />
                 </div>
                 <div>
-                  <label className="label">DÃ­gito de verificaciÃ³n</label>
+                  <label className="label">Dígito de verificación</label>
                   <input
                     className="input"
                     value={billingProfile.verificationDigit}
@@ -748,7 +748,7 @@ export function ProfileForm({
 
               <div className="profile-grid">
                 <div>
-                  <label className="label">Correo de facturaciÃ³n</label>
+                  <label className="label">Correo de facturación</label>
                   <input
                     className="input"
                     type="email"
@@ -759,7 +759,7 @@ export function ProfileForm({
                   />
                 </div>
                 <div>
-                  <label className="label">TelÃ©fono de facturaciÃ³n</label>
+                  <label className="label">Teléfono de facturación</label>
                   <input
                     className="input"
                     value={billingProfile.billingPhone}
@@ -772,7 +772,7 @@ export function ProfileForm({
 
               <div className="profile-grid">
                 <div>
-                  <label className="label">DirecciÃ³n fiscal</label>
+                  <label className="label">Dirección fiscal</label>
                   <input
                     className="input"
                     value={billingProfile.address}
@@ -841,7 +841,7 @@ export function ProfileForm({
               </div>
 
               <div>
-                <label className="label">PaÃ­s</label>
+                <label className="label">País</label>
                 <input
                   className="input"
                   value={billingProfile.country}
@@ -854,8 +854,8 @@ export function ProfileForm({
 
             <AccordionSection
               id="profile-subscription"
-              title="SuscripciÃ³n y estado"
-              copy="Plan actual, fechas operativas y renovaciÃ³n."
+              title="Suscripción y estado"
+              copy="Plan actual, fechas operativas y renovación."
               openSection={openProfileSection}
               onToggle={toggleProfileSection}
               className="accordion-subsection"
@@ -872,7 +872,7 @@ export function ProfileForm({
                   <p className="muted" style={{ marginTop: ".5rem" }}>{annualPriceLabel}</p>
                 </div>
                 <div className="kpi">
-                  <strong>PerÃ­odo de prueba</strong>
+                  <strong>Período de prueba</strong>
                   <p className="muted" style={{ marginTop: ".5rem" }}>{profile?.trialEndsAtLabel || "-"}</p>
                 </div>
                 <div className="kpi">
@@ -894,10 +894,10 @@ export function ProfileForm({
 
               {checkoutConfig ? (
                 <div className="stack" style={{ gap: ".85rem" }}>
-                  <p className="muted">El proceso oficial de pago de Mercado Pago ya estÃ¡ listo. Si el widget no responde, puedes continuar por redirecciÃ³n.</p>
+                  <p className="muted">El proceso oficial de pago de Mercado Pago ya está listo. Si el widget no responde, puedes continuar por redirección.</p>
                   <div id="mercadopago-checkout" />
                   <button className="btn btn-secondary" type="button" onClick={() => { window.location.href = checkoutConfig.initPoint; }}>
-                    Abrir pago por redirecciÃ³n
+                    Abrir pago por redirección
                   </button>
                 </div>
               ) : null}
@@ -929,7 +929,7 @@ export function ProfileForm({
 
           <p className="muted">
             {selectedType === "payment_key"
-              ? "Usa este tipo para mostrar una llave de pago con botones para copiar y ver el QR en tu pÃ¡gina."
+              ? "Usa este tipo para mostrar una llave de pago con botones para copiar y ver el QR en tu página."
               : null}
             {selectedType === "payment_key" ? " " : ""}
             {selectedType === "whatsapp"
@@ -948,7 +948,7 @@ export function ProfileForm({
                   </div>
                   <div>
                     <label className="label">
-                      {meta.kind === "phone" ? "NÃºmero" : meta.kind === "text" ? "Llave" : meta.kind === "email" ? "Correo" : "URL"}
+                      {meta.kind === "phone" ? "Número" : meta.kind === "text" ? "Llave" : meta.kind === "email" ? "Correo" : "URL"}
                     </label>
                     <input className="input" value={item.value} placeholder={meta.placeholder} onChange={(e) => updateLink(item.id, "value", e.target.value)} disabled={!canEdit} />
                   </div>
@@ -958,7 +958,7 @@ export function ProfileForm({
                   {item.type === "whatsapp" ? (
                     <div className="link-row-message">
                       <label className="label">Mensaje inicial</label>
-                      <input className="input" value={item.message || ""} placeholder="Hola, quiero informaciÃ³n" onChange={(e) => updateLink(item.id, "message", e.target.value)} disabled={!canEdit} />
+                      <input className="input" value={item.message || ""} placeholder="Hola, quiero información" onChange={(e) => updateLink(item.id, "message", e.target.value)} disabled={!canEdit} />
                     </div>
                   ) : null}
                   {item.type === "payment_key" ? (
@@ -993,8 +993,8 @@ export function ProfileForm({
               );
             }) : (
               <div className="kpi">
-                <strong>Sin enlaces todavÃ­a</strong>
-                <p className="muted" style={{ marginTop: ".5rem" }}>Agrega tu primer canal para empezar a construir tu pÃ¡gina pÃºblica.</p>
+                <strong>Sin enlaces todavía</strong>
+                <p className="muted" style={{ marginTop: ".5rem" }}>Agrega tu primer canal para empezar a construir tu página pública.</p>
               </div>
             )}
           </div>
@@ -1003,7 +1003,7 @@ export function ProfileForm({
           <div className="dashboard-section-head">
             <div>
               <h3 className="section-title" style={{ fontSize: "1.05rem" }}>Guardar contacto</h3>
-              <p className="section-copy">Decide si tu pÃ¡gina mostrarÃ¡ un botÃ³n para guardar tu negocio como contacto.</p>
+              <p className="section-copy">Decide si tu página mostrará un botón para guardar tu negocio como contacto.</p>
             </div>
             <span className={`status-badge ${contactCardEnabled ? "success" : ""}`}>
               {contactCardEnabled ? <Link2 size={14} /> : null}
@@ -1019,8 +1019,8 @@ export function ProfileForm({
               disabled={!canEdit}
             />
             <span className="toggle-copy">
-              <strong>Mostrar botÃ³n Guardar contacto en mi pÃ¡gina</strong>
-              <small>Klicor generarÃ¡ una vCard simple con tus datos pÃºblicos si lo activas.</small>
+              <strong>Mostrar botón Guardar contacto en mi página</strong>
+              <small>Klicor generará una vCard simple con tus datos públicos si lo activas.</small>
             </span>
           </label>
 
@@ -1036,7 +1036,7 @@ export function ProfileForm({
                     placeholder={form.businessName || "Tu negocio"}
                     disabled={!canEdit}
                   />
-                  <p className="muted" style={{ marginTop: ".45rem" }}>Si lo dejas vacÃ­o, usamos el nombre del negocio.</p>
+                  <p className="muted" style={{ marginTop: ".45rem" }}>Si lo dejas vacío, usamos el nombre del negocio.</p>
                 </div>
                 <div>
                   <label className="label">Cargo o rol</label>
@@ -1044,7 +1044,7 @@ export function ProfileForm({
                     className="input"
                     value={contactCard.title}
                     onChange={(e) => setContactCard((current) => ({ ...current, title: e.target.value }))}
-                    placeholder="Gerente, asesor, mÃ©dico, fotÃ³grafo..."
+                    placeholder="Gerente, asesor, médico, fotógrafo..."
                     disabled={!canEdit}
                   />
                 </div>
@@ -1066,11 +1066,11 @@ export function ProfileForm({
                       </option>
                     ))}
                   </select>
-                  <p className="muted" style={{ marginTop: ".45rem" }}>Ese nÃºmero se guardarÃ¡ dentro del contacto.</p>
+                  <p className="muted" style={{ marginTop: ".45rem" }}>Ese número se guardará dentro del contacto.</p>
                 </div>
               ) : (
                 <div>
-                  <label className="label">TelÃ©fono del contacto</label>
+                  <label className="label">Teléfono del contacto</label>
                   <input
                     className="input"
                     value={contactCard.phone}
@@ -1078,7 +1078,7 @@ export function ProfileForm({
                     placeholder="+57 300 123 4567"
                     disabled={!canEdit}
                   />
-                  <p className="muted" style={{ marginTop: ".45rem" }}>Como no tienes WhatsApp agregado, puedes escribir un nÃºmero pÃºblico manual.</p>
+                  <p className="muted" style={{ marginTop: ".45rem" }}>Como no tienes WhatsApp agregado, puedes escribir un número público manual.</p>
                 </div>
               )}
 
@@ -1089,12 +1089,12 @@ export function ProfileForm({
                 </div>
                 <div className="kpi">
                   <strong>Web del contacto</strong>
-                  <p className="muted" style={{ marginTop: ".5rem" }}>{websiteLink?.value || "Usaremos tu pÃ¡gina de Klicor si no agregas un sitio web"}</p>
+                  <p className="muted" style={{ marginTop: ".5rem" }}>{websiteLink?.value || "Usaremos tu página de Klicor si no agregas un sitio web"}</p>
                 </div>
                 <div className="kpi">
                   <strong>Estado</strong>
                   <p className="muted" style={{ marginTop: ".5rem" }}>
-                    {contactCardPreview.shouldShow ? "El botÃ³n Guardar contacto ya quedarÃ­a listo en tu pÃ¡gina." : "Completa los datos para que el contacto tenga al menos un canal Ãºtil."}
+                    {contactCardPreview.shouldShow ? "El botón Guardar contacto ya quedaría listo en tu página." : "Completa los datos para que el contacto tenga al menos un canal útil."}
                   </p>
                 </div>
               </div>
@@ -1112,7 +1112,7 @@ export function ProfileForm({
         >
           <div className="dashboard-section-head">
             <div>
-              <h3 className="section-title" style={{ fontSize: "1.05rem" }}>DiseÃ±o de la pÃ¡gina</h3>
+              <h3 className="section-title" style={{ fontSize: "1.05rem" }}>Diseño de la página</h3>
               <p className="section-copy">Mantenemos el estilo guiado para que tu Klicor se vea clara y legible.</p>
             </div>
             <button
@@ -1120,7 +1120,7 @@ export function ProfileForm({
               type="button"
               onClick={() => setAppearance((current) => ({ ...current, advancedEnabled: !current.advancedEnabled }))}
             >
-              <Paintbrush size={16} /> Personalizar diseÃ±o
+              <Paintbrush size={16} /> Personalizar diseño
             </button>
           </div>
 
@@ -1128,7 +1128,7 @@ export function ProfileForm({
             <button className="accordion-toggle" type="button" onClick={() => setPresetsOpen((current) => !current)} aria-expanded={presetsOpen}>
               <span className="accordion-toggle-copy">
                 <strong className="section-title" style={{ fontSize: "1rem" }}>Estilos predefinidos</strong>
-                <span className="section-copy">Elige una combinaciÃ³n lista para empezar mÃ¡s rÃ¡pido.</span>
+                <span className="section-copy">Elige una combinación lista para empezar más rápido.</span>
               </span>
               <span className="accordion-toggle-meta">
                 <span className="status-badge">{APPEARANCE_PRESETS.length} opciones</span>
@@ -1176,13 +1176,13 @@ export function ProfileForm({
               </div>
 
               <div className="appearance-grid">
-                <SegmentedControl label="Fondo" value={appearance.backgroundStyle} options={[{ label: "SÃ³lido", value: "solid" }, { label: "Degradado", value: "gradient" }]} onChange={(value) => updateAppearance("backgroundStyle", value)} />
-                <SegmentedControl label="BotÃ³n" value={appearance.buttonStyle} options={[{ label: "SÃ³lido", value: "solid" }, { label: "Contorno", value: "outline" }, { label: "Suave", value: "soft" }]} onChange={(value) => updateAppearance("buttonStyle", value)} />
-                <SegmentedControl label="Borde del botÃ³n" value={appearance.buttonRadius} options={[{ label: "Redondeado", value: "rounded" }, { label: "MÃ¡s recto", value: "square" }]} onChange={(value) => updateAppearance("buttonRadius", value)} />
-                <SegmentedControl label="Tarjeta" value={appearance.cardTransparency} options={[{ label: "SÃ³lida", value: "solid" }, { label: "Transparencia leve", value: "soft" }]} onChange={(value) => updateAppearance("cardTransparency", value)} />
+                <SegmentedControl label="Fondo" value={appearance.backgroundStyle} options={[{ label: "Sólido", value: "solid" }, { label: "Degradado", value: "gradient" }]} onChange={(value) => updateAppearance("backgroundStyle", value)} />
+                <SegmentedControl label="Botón" value={appearance.buttonStyle} options={[{ label: "Sólido", value: "solid" }, { label: "Contorno", value: "outline" }, { label: "Suave", value: "soft" }]} onChange={(value) => updateAppearance("buttonStyle", value)} />
+                <SegmentedControl label="Borde del botón" value={appearance.buttonRadius} options={[{ label: "Redondeado", value: "rounded" }, { label: "Más recto", value: "square" }]} onChange={(value) => updateAppearance("buttonRadius", value)} />
+                <SegmentedControl label="Tarjeta" value={appearance.cardTransparency} options={[{ label: "Sólida", value: "solid" }, { label: "Transparencia leve", value: "soft" }]} onChange={(value) => updateAppearance("cardTransparency", value)} />
                 <SegmentedControl label="Sombra" value={appearance.cardShadow} options={[{ label: "Ninguna", value: "none" }, { label: "Suave", value: "soft" }, { label: "Media", value: "medium" }]} onChange={(value) => updateAppearance("cardShadow", value)} />
                 <SegmentedControl label="Forma de imagen" value={appearance.avatarShape} options={[{ label: "Circular", value: "circle" }, { label: "Redondeada", value: "rounded" }, { label: "Cuadrado suave", value: "soft-square" }]} onChange={(value) => updateAppearance("avatarShape", value)} />
-                <SegmentedControl label="TamaÃ±o del nombre" value={appearance.nameSize} options={[{ label: "S", value: "s" }, { label: "M", value: "m" }, { label: "L", value: "l" }]} onChange={(value) => updateAppearance("nameSize", value)} />
+                <SegmentedControl label="Tamaño del nombre" value={appearance.nameSize} options={[{ label: "S", value: "s" }, { label: "M", value: "m" }, { label: "L", value: "l" }]} onChange={(value) => updateAppearance("nameSize", value)} />
                 <SegmentedControl label="Peso del nombre" value={appearance.nameWeight} options={[{ label: "Regular", value: "regular" }, { label: "Negrita", value: "bold" }]} onChange={(value) => updateAppearance("nameWeight", value)} />
               </div>
             </div>
@@ -1221,7 +1221,7 @@ export function ProfileForm({
         <div className="preview-header preview-header-compact">
           <div className="stack" style={{ gap: ".45rem" }}>
             <span className="pill"><MonitorSmartphone size={16} /> Vista previa real</span>
-            <p className="section-copy">Ãbrela solo cuando quieras revisar el resultado final de la pÃ¡gina.</p>
+            <p className="section-copy">Ábrela solo cuando quieras revisar el resultado final de la página.</p>
           </div>
           <button className="btn btn-secondary" type="button" onClick={() => setShowPreview((current) => !current)}>
             {showPreview ? "Ocultar vista previa" : "Mostrar vista previa"}
@@ -1235,7 +1235,7 @@ export function ProfileForm({
           <div className="preview-frame preview-frame-placeholder">
             <div className="preview-placeholder-card">
               <strong>Vista previa en reposo</strong>
-              <p className="section-copy">La mantenemos cerrada al inicio para que el editor cargue mÃ¡s ligero y el panel se sienta mÃ¡s ordenado.</p>
+              <p className="section-copy">La mantenemos cerrada al inicio para que el editor cargue más ligero y el panel se sienta más ordenado.</p>
             </div>
           </div>
         )}
