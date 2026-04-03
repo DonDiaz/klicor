@@ -127,11 +127,6 @@ function renderAction({ item, preview, buttonStyle, buttonRadius, user, classNam
 export function LandingView({ user, preview = false }) {
   const layout = buildLandingLayout(user);
   const contactCard = resolveContactCardData(user);
-  const paymentQrUrl = user.paymentQrUrl
-    ? preview
-      ? user.paymentQrUrl
-      : `/${user.username}/payment-qr`
-    : "";
   const appearance = normalizeAppearance(user.settings);
   const panelStyle = buildPanelStyle(appearance);
   const primaryButtonStyle = buildPrimaryButtonStyle(appearance);
@@ -262,17 +257,11 @@ export function LandingView({ user, preview = false }) {
           ) : null}
 
           {layout.paymentMethods.length ? (
-            <section className="public-section" style={panelStyle}>
-              <div className="public-section-head">
-                <strong>Información de pagos</strong>
-                <span>Elige el método que prefieras para pagar</span>
-              </div>
-              <PaymentMethodsCard
-                methods={layout.paymentMethods}
-                qrImageUrl={paymentQrUrl}
-                preview={preview}
-              />
-            </section>
+            <PaymentMethodsCard
+              methods={layout.paymentMethods}
+              preview={preview}
+              sectionStyle={panelStyle}
+            />
           ) : null}
 
           {layout.socialLinks.length ? (

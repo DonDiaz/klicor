@@ -280,10 +280,9 @@ export function ProfileForm({
   const [appearance, setAppearance] = useState(normalizeAppearance(profile?.settings || APPEARANCE_DEFAULTS));
   const [photo, setPhoto] = useState(null);
   const [photoPreviewUrl, setPhotoPreviewUrl] = useState("");
-  const [paymentQrImage, setPaymentQrImage] = useState(null);
-  const [paymentQrPreviewUrl, setPaymentQrPreviewUrl] = useState("");
-  const [removePaymentQr, setRemovePaymentQr] = useState(false);
-  const [paymentMethods, setPaymentMethods] = useState(normalizePaymentMethods(profile?.paymentMethods, profile?.profileLinks, profile?.paymentQrUrl));
+  const [paymentMethods, setPaymentMethods] = useState(
+    normalizePaymentMethods(profile?.paymentMethods, profile?.profileLinks, profile?.paymentQrUrl, profile?.paymentQrPath),
+  );
   const [contactCard, setContactCard] = useState(normalizeContactCard(profile));
   const [billingProfile, setBillingProfile] = useState(normalizeBillingProfile(profile));
   const [message, setMessage] = useState("");
@@ -293,8 +292,6 @@ export function ProfileForm({
   const [activeWorkspace, setActiveWorkspace] = useState("blocks");
   const [openProfileSection, setOpenProfileSection] = useState(null);
   const [presetsOpen, setPresetsOpen] = useState(false);
-  const savedPaymentQrUrl = profile?.paymentQrUrl && profile?.username ? `/${profile.username}/payment-qr` : profile?.paymentQrUrl || "";
-
   useEffect(() => {
     setForm({
       businessName: profile?.businessName || "",
@@ -306,9 +303,7 @@ export function ProfileForm({
     setProfileLinks(normalizeLinks(profile));
     setAppearance(normalizeAppearance(profile?.settings || APPEARANCE_DEFAULTS));
     setPhoto(null);
-    setPaymentQrImage(null);
-    setRemovePaymentQr(false);
-    setPaymentMethods(normalizePaymentMethods(profile?.paymentMethods, profile?.profileLinks, profile?.paymentQrUrl));
+    setPaymentMethods(normalizePaymentMethods(profile?.paymentMethods, profile?.profileLinks, profile?.paymentQrUrl, profile?.paymentQrPath));
     setContactCard(normalizeContactCard(profile));
     setBillingProfile(normalizeBillingProfile(profile));
     setAlertMessage("");
@@ -328,20 +323,6 @@ export function ProfileForm({
     };
   }, [photo]);
 
-  useEffect(() => {
-    if (!paymentQrImage) {
-      setPaymentQrPreviewUrl("");
-      return;
-    }
-
-    const nextUrl = URL.createObjectURL(paymentQrImage);
-    setPaymentQrPreviewUrl(nextUrl);
-
-    return () => {
-      URL.revokeObjectURL(nextUrl);
-    };
-  }, [paymentQrImage]);
-
   const previewUser = useMemo(() => ({
     publicLinkId: profile?.publicLinkId || "",
     businessName: form.businessName || "Tu negocio",
@@ -350,8 +331,11 @@ export function ProfileForm({
     businessHeadline: form.businessHeadline,
     businessSubheadline: form.businessSubheadline,
     photo: photoPreviewUrl || profile?.photo || "",
-    paymentQrUrl: removePaymentQr ? "" : paymentQrPreviewUrl || savedPaymentQrUrl,
-    paymentMethods,
+    paymentMethods: paymentMethods.map((method) => ({
+      ...method,
+      qrImageUrl: method.removeQr ? "" : method.qrPreviewUrl || method.qrImageUrl || "",
+      qrPath: method.removeQr ? "" : method.qrPath || "",
+    })),
     contactCardEnabled: contactCard.enabled,
     contactCardName: contactCard.name,
     contactCardTitle: contactCard.title,
@@ -364,7 +348,7 @@ export function ProfileForm({
         ...item,
         url: normalizeLinkUrl(item),
       })),
-  }), [appearance, contactCard.enabled, contactCard.name, contactCard.phone, contactCard.title, contactCard.whatsappLinkId, form.businessCategory, form.businessHeadline, form.businessName, form.businessSubheadline, form.username, paymentMethods, paymentQrPreviewUrl, photoPreviewUrl, profile?.photo, profile?.publicLinkId, profileLinks, removePaymentQr, savedPaymentQrUrl]);
+  }), [appearance, contactCard.enabled, contactCard.name, contactCard.phone, contactCard.title, contactCard.whatsappLinkId, form.businessCategory, form.businessHeadline, form.businessName, form.businessSubheadline, form.username, paymentMethods, photoPreviewUrl, profile?.photo, profile?.publicLinkId, profileLinks]);
 
   const appearanceWarnings = useMemo(() => getAppearanceWarnings(appearance), [appearance]);
   const appearanceSuggestions = useMemo(() => getAppearanceSuggestions(appearance), [appearance]);
@@ -406,13 +390,21 @@ export function ProfileForm({
       body.append("businessHeadline", form.businessHeadline);
       body.append("businessSubheadline", form.businessSubheadline);
       body.append("profileLinks", JSON.stringify(profileLinks));
-      body.append("paymentMethods", JSON.stringify(paymentMethods));
+      body.append("paymentMethods", JSON.stringify(paymentMethods.map(({ qrFile, qrPreviewUrl, removeQr, ...method }) => ({
+        ...method,
+        qrImageUrl: removeQr ? "" : method.qrImageUrl || "",
+        qrPath: removeQr ? "" : method.qrPath || "",
+      }))));
       body.append("appearance", JSON.stringify(appearance));
       body.append("contactCard", JSON.stringify(contactCard));
       body.append("billingProfile", JSON.stringify(billingProfile));
-      body.append("removePaymentQr", removePaymentQr ? "true" : "false");
+      body.append("removePaymentQrIds", JSON.stringify(paymentMethods.filter((method) => method.removeQr).map((method) => method.id)));
       if (photo) body.append("photo", photo);
-      if (paymentQrImage) body.append("paymentQrImage", paymentQrImage);
+      paymentMethods.forEach((method) => {
+        if (method.qrFile) {
+          body.append(`paymentQrImage:${method.id}`, method.qrFile);
+        }
+      });
 
       const data = await apiFetch("/api/profile", {
         method: "POST",
@@ -553,7 +545,47 @@ export function ProfileForm({
   }
 
   function removePaymentMethod(id) {
-    setPaymentMethods((current) => current.filter((method) => method.id !== id));
+    setPaymentMethods((current) => {
+      const target = current.find((method) => method.id === id);
+      if (target?.qrPreviewUrl?.startsWith?.("blob:")) {
+        URL.revokeObjectURL(target.qrPreviewUrl);
+      }
+      return current.filter((method) => method.id !== id);
+    });
+  }
+
+  function updatePaymentMethodQr(id, file) {
+    if (!file) return;
+
+    setPaymentMethods((current) => current.map((method) => {
+      if (method.id !== id) return method;
+      if (method.qrPreviewUrl?.startsWith?.("blob:")) {
+        URL.revokeObjectURL(method.qrPreviewUrl);
+      }
+      return {
+        ...method,
+        qrFile: file,
+        qrPreviewUrl: URL.createObjectURL(file),
+        removeQr: false,
+      };
+    }));
+  }
+
+  function removePaymentMethodQr(id) {
+    setPaymentMethods((current) => current.map((method) => {
+      if (method.id !== id) return method;
+      if (method.qrPreviewUrl?.startsWith?.("blob:")) {
+        URL.revokeObjectURL(method.qrPreviewUrl);
+      }
+      return {
+        ...method,
+        qrFile: null,
+        qrPreviewUrl: "",
+        qrImageUrl: "",
+        qrPath: "",
+        removeQr: true,
+      };
+    }));
   }
 
   function applyPreset(presetId) {
@@ -584,12 +616,6 @@ export function ProfileForm({
   }
 
   const selectedPhotoLabel = photo ? photo.name : profile?.photo ? "Imagen actual cargada" : "Aún no has elegido imagen";
-  const selectedPaymentQrLabel = paymentQrImage
-    ? paymentQrImage.name
-    : profile?.paymentQrUrl
-      ? "QR oficial cargado"
-      : "Aún no has cargado un QR oficial";
-  const paymentQrStatusLabel = removePaymentQr ? "El QR actual se eliminará al guardar" : selectedPaymentQrLabel;
   const usernameChanged = Boolean(profile?.username) && form.username.trim() && form.username.trim() !== profile.username;
   const recoveryProtected = Boolean(recovery?.backupEmailVerified);
   const contactCardEnabled = Boolean(contactCard.enabled);
@@ -1216,6 +1242,35 @@ export function ProfileForm({
                       </div>
                     ) : null}
 
+                    <div className="link-row-message payment-method-secondary-row">
+                      {showAccountType ? <span /> : <span />}
+                      {method.entityId ? (
+                        <div className="payment-method-qr-group">
+                          <label className={`payment-method-qr-chip ${!canEdit ? "payment-method-qr-chip-disabled" : ""}`}>
+                            <input
+                              className="upload-input"
+                              type="file"
+                              accept="image/png,image/jpeg,image/webp"
+                              onChange={(e) => updatePaymentMethodQr(method.id, e.target.files?.[0] || null)}
+                              disabled={!canEdit}
+                            />
+                            {method.qrPreviewUrl || method.qrImageUrl ? <ImagePlus size={14} /> : <UploadCloud size={14} />}
+                            <span>{method.qrPreviewUrl || method.qrImageUrl ? "Cambiar QR" : "Subir QR"}</span>
+                          </label>
+                          {(method.qrPreviewUrl || method.qrImageUrl) ? (
+                            <button
+                              className="btn btn-secondary payment-method-qr-remove"
+                              type="button"
+                              onClick={() => removePaymentMethodQr(method.id)}
+                              disabled={!canEdit}
+                            >
+                              <Trash2 size={14} /> Quitar
+                            </button>
+                          ) : null}
+                        </div>
+                      ) : null}
+                    </div>
+
                     <div className="link-row-message">
                       <p className="muted" style={{ marginTop: ".45rem" }}>
                         {method.entityId
@@ -1235,6 +1290,7 @@ export function ProfileForm({
               <p className="muted">Puedes configurar hasta 2 métodos visibles en tu página.</p>
             </div>
 
+            {false ? (
             <div className="payment-key-upload">
               <label className="label">QR oficial del banco o billetera</label>
               <label className={`upload-card ${!canEdit ? "upload-card-disabled" : ""}`}>
@@ -1279,6 +1335,7 @@ export function ProfileForm({
                 </div>
               ) : null}
             </div>
+            ) : null}
           </div>
 
           <div className="section-divider" />

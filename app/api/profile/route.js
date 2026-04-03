@@ -22,7 +22,7 @@ export async function POST(request) {
     const contactCardJson = formData.get("contactCard");
     const billingProfileJson = formData.get("billingProfile");
     const paymentMethodsJson = formData.get("paymentMethods");
-    const removePaymentQr = formData.get("removePaymentQr") === "true";
+    const removePaymentQrIdsJson = formData.get("removePaymentQrIds");
 
     const parsed = profileSchema.parse({
       businessName: formData.get("businessName"),
@@ -61,11 +61,21 @@ export async function POST(request) {
     await validateProfileLinksSafety(parsed.profileLinks);
 
     const photo = formData.get("photo");
-    const paymentQrImage = formData.get("paymentQrImage");
+    const paymentQrImagesByMethod = {};
+    for (const [key, value] of formData.entries()) {
+      if (!key.startsWith("paymentQrImage:")) continue;
+      const methodId = key.slice("paymentQrImage:".length);
+      if (methodId && value?.size) {
+        paymentQrImagesByMethod[methodId] = value;
+      }
+    }
+
     const nextUser = await updateUserProfile(user.uid, parsed, {
       photo: photo?.size ? photo : null,
-      paymentQrImage: paymentQrImage?.size ? paymentQrImage : null,
-      removePaymentQr,
+      paymentQrImagesByMethod,
+      removePaymentQrIds: typeof removePaymentQrIdsJson === "string"
+        ? JSON.parse(removePaymentQrIdsJson)
+        : [],
     });
     const account = getAccountView(nextUser);
     const updatedAtMs = toDate(account.updatedAt)?.getTime() || 0;
