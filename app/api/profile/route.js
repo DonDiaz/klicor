@@ -25,6 +25,9 @@ export async function POST(request) {
     const parsed = profileSchema.parse({
       businessName: formData.get("businessName"),
       username: formData.get("username"),
+      businessCategory: formData.get("businessCategory"),
+      businessHeadline: formData.get("businessHeadline"),
+      businessSubheadline: formData.get("businessSubheadline"),
       profileLinks: JSON.parse(typeof linksJson === "string" ? linksJson : "[]"),
       appearance: JSON.parse(typeof appearanceJson === "string" ? appearanceJson : "{}"),
       contactCard: typeof contactCardJson === "string"

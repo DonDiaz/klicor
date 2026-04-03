@@ -22,6 +22,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { apiFetch } from "@/lib/client-api";
+import { BUSINESS_CATEGORY_OPTIONS, normalizeBusinessCategory } from "@/lib/business-categories";
 import { COLOMBIA_DEPARTMENT_OPTIONS, getCitiesForDepartment, resolveCityName, resolveDepartmentName } from "@/lib/colombia-locations";
 import { resolveContactCardData } from "@/lib/contact-card";
 import { canAddLinkType, getLinkTypeCount, getLinkTypeLimit, LINK_CATALOG, LINK_CATALOG_MAP } from "@/lib/link-catalog";
@@ -244,6 +245,9 @@ export function ProfileForm({
   const [form, setForm] = useState({
     businessName: profile?.businessName || "",
     username: profile?.username || "",
+    businessCategory: normalizeBusinessCategory(profile?.businessCategory),
+    businessHeadline: profile?.businessHeadline || "",
+    businessSubheadline: profile?.businessSubheadline || "",
   });
   const [profileLinks, setProfileLinks] = useState(normalizeLinks(profile));
   const [appearance, setAppearance] = useState(normalizeAppearance(profile?.settings || APPEARANCE_DEFAULTS));
@@ -266,6 +270,9 @@ export function ProfileForm({
     setForm({
       businessName: profile?.businessName || "",
       username: profile?.username || "",
+      businessCategory: normalizeBusinessCategory(profile?.businessCategory),
+      businessHeadline: profile?.businessHeadline || "",
+      businessSubheadline: profile?.businessSubheadline || "",
     });
     setProfileLinks(normalizeLinks(profile));
     setAppearance(normalizeAppearance(profile?.settings || APPEARANCE_DEFAULTS));
@@ -308,6 +315,9 @@ export function ProfileForm({
     publicLinkId: profile?.publicLinkId || "",
     businessName: form.businessName || "Tu negocio",
     username: form.username || "tu-usuario",
+    businessCategory: form.businessCategory,
+    businessHeadline: form.businessHeadline,
+    businessSubheadline: form.businessSubheadline,
     photo: photoPreviewUrl || profile?.photo || "",
     paymentQrUrl: paymentQrPreviewUrl || savedPaymentQrUrl,
     contactCardEnabled: contactCard.enabled,
@@ -322,7 +332,7 @@ export function ProfileForm({
         ...item,
         url: normalizeLinkUrl(item),
       })),
-  }), [appearance, contactCard.enabled, contactCard.name, contactCard.phone, contactCard.title, contactCard.whatsappLinkId, form.businessName, form.username, paymentQrPreviewUrl, photoPreviewUrl, profile?.photo, profile?.publicLinkId, profileLinks, savedPaymentQrUrl]);
+  }), [appearance, contactCard.enabled, contactCard.name, contactCard.phone, contactCard.title, contactCard.whatsappLinkId, form.businessCategory, form.businessHeadline, form.businessName, form.businessSubheadline, form.username, paymentQrPreviewUrl, photoPreviewUrl, profile?.photo, profile?.publicLinkId, profileLinks, savedPaymentQrUrl]);
 
   const appearanceWarnings = useMemo(() => getAppearanceWarnings(appearance), [appearance]);
   const appearanceSuggestions = useMemo(() => getAppearanceSuggestions(appearance), [appearance]);
@@ -359,6 +369,9 @@ export function ProfileForm({
       const body = new FormData();
       body.append("businessName", form.businessName);
       body.append("username", form.username);
+      body.append("businessCategory", form.businessCategory);
+      body.append("businessHeadline", form.businessHeadline);
+      body.append("businessSubheadline", form.businessSubheadline);
       body.append("profileLinks", JSON.stringify(profileLinks));
       body.append("appearance", JSON.stringify(appearance));
       body.append("contactCard", JSON.stringify(contactCard));
@@ -583,6 +596,48 @@ export function ProfileForm({
                   />
                   <p className="muted" style={{ marginTop: ".45rem" }}>Este valor cambia tu URL visible. Tu enlace anterior y tu QR se mantienen funcionando.</p>
                 </div>
+              </div>
+
+              <div className="profile-grid">
+                <div>
+                  <label className="label">Categoría del negocio</label>
+                  <select
+                    className="select"
+                    value={form.businessCategory}
+                    onChange={(e) => setForm({ ...form, businessCategory: e.target.value })}
+                    disabled={!canEdit}
+                  >
+                    {BUSINESS_CATEGORY_OPTIONS.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="label">Título comercial</label>
+                  <input
+                    className="input"
+                    value={form.businessHeadline}
+                    onChange={(e) => setForm({ ...form, businessHeadline: e.target.value })}
+                    placeholder="Ejemplo: Pedidos, menú y atención en un solo link y un QR"
+                    disabled={!canEdit}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="label">Frase de apoyo</label>
+                <input
+                  className="input"
+                  value={form.businessSubheadline}
+                  onChange={(e) => setForm({ ...form, businessSubheadline: e.target.value })}
+                  placeholder="Ejemplo: Haz tus pedidos aquí."
+                  disabled={!canEdit}
+                />
+                <p className="muted" style={{ marginTop: ".45rem" }}>
+                  Si lo dejas vacío, Klicor usará un texto sugerido según la categoría de tu negocio.
+                </p>
               </div>
 
               {usernameChanged ? (

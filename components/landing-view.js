@@ -1,4 +1,5 @@
 import { Globe, Save } from "lucide-react";
+import { resolveBusinessIdentityCopy, resolveBusinessLinkLabel, sortLinksByBusinessCategory } from "@/lib/business-categories";
 import { resolveContactCardData } from "@/lib/contact-card";
 import { LINK_CATALOG_MAP } from "@/lib/link-catalog";
 import { hexToRgba, normalizeAppearance } from "@/lib/theme-system";
@@ -35,8 +36,12 @@ const AVATAR_RADIUS_MAP = {
 export function LandingView({ user, preview = false }) {
   const links = user.profileLinks || [];
   const paymentKey = links.find((item) => item.type === "payment_key");
-  const visibleLinks = links.filter((item) => item.type !== "payment_key");
+  const visibleLinks = sortLinksByBusinessCategory(
+    links.filter((item) => item.type !== "payment_key"),
+    user.businessCategory,
+  );
   const contactCard = resolveContactCardData(user);
+  const businessIdentity = resolveBusinessIdentityCopy(user);
   const paymentQrUrl = user.paymentQrUrl
     ? preview
       ? user.paymentQrUrl
@@ -111,9 +116,12 @@ export function LandingView({ user, preview = false }) {
         )}
 
         <div style={{ textAlign: "center" }}>
+          <span className="public-category-label" style={{ color: appearance.primaryColor }}>
+            {businessIdentity.categoryLabel}
+          </span>
           <h1
             style={{
-              marginBottom: 0,
+              marginBottom: ".45rem",
               color: appearance.textPrimaryColor,
               fontSize: NAME_SIZE_MAP[appearance.nameSize],
               fontWeight: NAME_WEIGHT_MAP[appearance.nameWeight],
@@ -121,6 +129,10 @@ export function LandingView({ user, preview = false }) {
           >
             {user.businessName}
           </h1>
+          <p className="public-headline" style={{ color: appearance.textPrimaryColor }}>
+            {businessIdentity.headline}
+          </p>
+          <p className="public-subheadline">{businessIdentity.subheadline}</p>
         </div>
 
         <div className="public-links">
@@ -136,7 +148,7 @@ export function LandingView({ user, preview = false }) {
 
           {visibleLinks.length ? visibleLinks.map((item) => {
             const Icon = LINK_CATALOG_MAP[item.type]?.icon || Globe;
-            const content = <><Icon size={18} /><span>{item.label}</span></>;
+            const content = <><Icon size={18} /><span>{resolveBusinessLinkLabel(item, user.businessCategory)}</span></>;
 
             if (preview) {
               return <div className="public-link" style={{ ...buttonStyle, borderRadius: RADIUS_MAP[appearance.buttonRadius] }} key={item.id}>{content}</div>;
