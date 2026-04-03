@@ -86,6 +86,15 @@ export function LandingView({ user, preview = false }) {
     boxShadow: SHADOW_MAP[appearance.cardShadow],
   };
 
+  const shellStyle = preview
+    ? cardStyle
+    : {
+        color: appearance.textPrimaryColor,
+        background: "transparent",
+        border: "none",
+        boxShadow: "none",
+      };
+
   const primaryButtonStyle = appearance.buttonStyle === "outline"
     ? {
         background: "transparent",
@@ -116,7 +125,10 @@ export function LandingView({ user, preview = false }) {
 
   return (
     <main className={preview ? "preview-page" : "public-page"} style={{ background: pageBackground }}>
-      <section className="public-card public-business-card" style={cardStyle}>
+      <section
+        className={`public-card public-business-card${preview ? "" : " public-business-card-live"}`}
+        style={shellStyle}
+      >
         <div className="public-hero">
           <div className="public-accent-bar" style={{ background: appearance.primaryColor }} />
           {user.photo ? (
