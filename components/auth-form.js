@@ -111,7 +111,7 @@ export function AuthForm({
     try {
       const credential = await signInWithEmailLink(auth, email, href);
       window.localStorage.removeItem(EMAIL_LINK_STORAGE_KEY);
-      await bootstrapSession(credential.user);
+      await bootstrapSession(credential.user, { welcome: true });
     } catch (error) {
       setFeedback(getAuthErrorMessage(error), "danger");
     } finally {
