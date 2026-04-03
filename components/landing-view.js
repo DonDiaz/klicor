@@ -247,24 +247,18 @@ export function LandingView({ user, preview = false }) {
           ) : null}
 
           {layout.priorityThreeActions.length ? (
-            <section className="public-section" style={panelStyle}>
-              <div className="public-section-head">
-                <strong>Más opciones</strong>
-                <span>Ubicación, sitio, catálogo y otros accesos útiles</span>
-              </div>
-              <div className="public-secondary-actions">
-                {layout.priorityThreeActions.map((item) =>
-                  renderAction({
-                    item,
-                    preview,
-                    buttonStyle: tertiaryButtonStyle,
-                    buttonRadius,
-                    user,
-                    className: "public-link public-link-secondary public-link-priority-3",
-                  }),
-                )}
-              </div>
-            </section>
+            <div className="public-secondary-actions public-priority-three-actions">
+              {layout.priorityThreeActions.map((item) =>
+                renderAction({
+                  item,
+                  preview,
+                  buttonStyle: tertiaryButtonStyle,
+                  buttonRadius,
+                  user,
+                  className: "public-link public-link-secondary public-link-priority-3",
+                }),
+              )}
+            </div>
           ) : null}
 
           {layout.paymentKey ? (
