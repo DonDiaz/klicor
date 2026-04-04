@@ -121,6 +121,7 @@ export default function HomePage() {
               triggerLabel="Crear mi Klicor"
               triggerClassName="btn btn-primary"
               allowRegister
+              align="start"
               title="Crea tu Klicor"
               description="Regístrate con Google, Microsoft o correo y entra directo a tu panel."
             />
@@ -287,6 +288,7 @@ export default function HomePage() {
               triggerLabel="Crear mi Klicor"
               triggerClassName="btn btn-primary"
               allowRegister
+              align="start"
               title="Crea tu Klicor"
               description="Regístrate con Google, Microsoft o correo y entra directo a tu panel."
             />

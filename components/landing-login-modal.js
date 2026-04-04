@@ -6,13 +6,14 @@ import { X } from "lucide-react";
 import { AuthForm } from "@/components/auth-form";
 
 export function LandingLoginModal({
-  triggerLabel = "Iniciar sesión",
+  triggerLabel = "Iniciar sesion",
   triggerClassName = "landing-login-trigger",
   allowRegister = false,
   title,
   description,
   googleLabel,
   microsoftLabel,
+  align = "end",
 }) {
   const router = useRouter();
   const titleId = useId();
@@ -46,9 +47,10 @@ export function LandingLoginModal({
       </button>
 
       {open ? (
-        <div className="landing-modal-backdrop" onMouseDown={() => setOpen(false)}>
+        <>
+          <div className="landing-modal-backdrop" onMouseDown={() => setOpen(false)} />
           <div
-            className="landing-modal-shell"
+            className={`landing-modal-shell landing-modal-shell-${align}`}
             role="dialog"
             aria-modal="true"
             aria-labelledby={titleId}
@@ -67,15 +69,15 @@ export function LandingLoginModal({
               title={title || (allowRegister ? "Crea tu Klicor" : "Entra a tu panel")}
               description={description || (
                 allowRegister
-                  ? "Regístrate con Google, Microsoft o correo y entra directo a tu panel."
-                  : "Usa Google, Microsoft o un enlace a tu correo para entrar sin fricción."
+                  ? "Registrate con Google, Microsoft o correo y entra directo a tu panel."
+                  : "Usa Google, Microsoft o un enlace a tu correo para entrar sin friccion."
               )}
               googleLabel={googleLabel || (allowRegister ? "Crear con Google" : "Continuar con Google")}
               microsoftLabel={microsoftLabel || (allowRegister ? "Crear con Microsoft" : "Continuar con Microsoft")}
               onSuccess={handleSuccess}
             />
           </div>
-        </div>
+        </>
       ) : null}
     </div>
   );
