@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import {
+  deleteAdminUserAccount,
   extendAdminUserAccess,
   getAdminUserDetail,
   registerAdminManualPayment,
@@ -49,6 +50,10 @@ export async function PATCH(request, { params }) {
     if (action === "register_payment") {
       const parsed = adminManualPaymentSchema.parse(body);
       return NextResponse.json(await registerAdminManualPayment(params.uid, parsed, auth.user));
+    }
+
+    if (action === "delete_user") {
+      return NextResponse.json(await deleteAdminUserAccount(params.uid, auth.user));
     }
 
     return NextResponse.json({ error: "Acción administrativa no soportada" }, { status: 400 });

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { CalendarClock, CreditCard, ExternalLink, History, Mail, Phone, Shield, X } from "lucide-react";
+import { CalendarClock, CreditCard, ExternalLink, History, Mail, Phone, Shield, Trash2, X } from "lucide-react";
 import { ADMIN_ACCOUNT_STATUS_OPTIONS, ADMIN_ORIGIN_OPTIONS, ADMIN_PLAN_OPTIONS } from "@/lib/admin-config";
 import { BUSINESS_CATEGORY_OPTIONS } from "@/lib/business-categories";
 import { apiFetch } from "@/lib/client-api";
@@ -13,7 +13,7 @@ function getSettingsDefaults(settings = {}) {
   };
 }
 
-export function AdminUserDrawer({ token, detail, settings, onClose, onUpdated }) {
+export function AdminUserDrawer({ token, detail, settings, onClose, onUpdated, onDeleted }) {
   const user = detail?.user;
   const [detailsForm, setDetailsForm] = useState(null);
   const [accessForm, setAccessForm] = useState(null);
@@ -73,6 +73,34 @@ export function AdminUserDrawer({ token, detail, settings, onClose, onUpdated })
       });
       setMessage(successMessage);
       onUpdated(updated);
+    } catch (nextError) {
+      setError(nextError.message);
+    } finally {
+      setBusyAction("");
+    }
+  }
+
+  async function handleDeleteAccount() {
+    if (!user?.uid) return;
+
+    const confirmed = window.confirm(
+      `¿Eliminar por completo la cuenta "${user.businessName || user.email || user.uid}"?\n\nEsta acción borrará el acceso, el perfil y sus archivos para que puedas volver a registrarte en limpio.`
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      setBusyAction("delete_user");
+      setError("");
+      setMessage("");
+      await apiFetch(`/api/admin/users/${user.uid}`, {
+        method: "PATCH",
+        token,
+        body: { action: "delete_user" },
+      });
+      onDeleted?.(user.uid);
     } catch (nextError) {
       setError(nextError.message);
     } finally {
@@ -383,6 +411,29 @@ export function AdminUserDrawer({ token, detail, settings, onClose, onUpdated })
                 </div>
               </article>
             )) : <p className="muted">Todavía no hay eventos registrados.</p>}
+          </div>
+        </section>
+
+        <section className="panel admin-drawer-section">
+          <div className="admin-section-heading">
+            <h4>Eliminar cuenta</h4>
+            <p className="muted">Ideal para borrar cuentas de prueba y volver a registrar el mismo correo desde cero.</p>
+          </div>
+
+          <p className="notice notice-danger" style={{ marginBottom: "1rem" }}>
+            Esta acción elimina la cuenta en autenticación, el perfil y los archivos asociados del usuario.
+          </p>
+
+          <div className="actions">
+            <button
+              className="btn btn-danger"
+              type="button"
+              disabled={busyAction === "delete_user"}
+              onClick={handleDeleteAccount}
+            >
+              <Trash2 size={16} />
+              {busyAction === "delete_user" ? "Eliminando..." : "Eliminar cuenta"}
+            </button>
           </div>
         </section>
 

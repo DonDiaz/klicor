@@ -670,6 +670,10 @@ export function AdminPanel({ token, initialData, adminUser }) {
             setSelectedDetail(updatedDetail);
             await refreshPanel(updatedDetail?.user?.uid || "");
           }}
+          onDeleted={async () => {
+            setSelectedDetail(null);
+            await refreshPanel();
+          }}
         />
       ) : null}
     </div>
