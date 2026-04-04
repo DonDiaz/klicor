@@ -1,11 +1,8 @@
 import Link from "next/link";
 import {
-  ArrowRight,
   BriefcaseBusiness,
   CheckCircle2,
   HeartPulse,
-  LayoutDashboard,
-  Link2,
   QrCode,
   ShieldCheck,
   ShoppingBag,
@@ -20,24 +17,6 @@ import {
 import { BrandLogo } from "@/components/brand-logo";
 import { LandingLoginModal } from "@/components/landing-login-modal";
 import { MarketingPreview } from "@/components/marketing-preview";
-
-const commandCards = [
-  {
-    title: "Página pública",
-    text: "Una presencia clara para compartir en bio, QR, tarjetas y puntos físicos.",
-    icon: Link2,
-  },
-  {
-    title: "Cobro visible",
-    text: "Llave Bre-B y QR oficial del banco o billetera cuando el negocio lo necesite.",
-    icon: Wallet,
-  },
-  {
-    title: "Control operativo",
-    text: "Dashboard para editar enlaces, branding, QR y contacto sin depender de soporte.",
-    icon: LayoutDashboard,
-  },
-];
 
 const platformFlow = [
   {
@@ -135,9 +114,13 @@ export default function HomePage() {
           </p>
 
           <div className="actions">
-            <Link className="btn btn-primary" href="/login">
-              Crear mi Klicor <ArrowRight size={16} />
-            </Link>
+            <LandingLoginModal
+              triggerLabel="Crear mi Klicor"
+              triggerClassName="btn btn-primary"
+              allowRegister
+              title="Crea tu Klicor"
+              description="Regístrate con Google, Microsoft o correo y entra directo a tu panel."
+            />
           </div>
 
           <div className="cloud-home-proof">
@@ -147,36 +130,9 @@ export default function HomePage() {
           </div>
         </div>
 
-        <div className="cloud-home-console">
-          <div className="cloud-console-head">
-            <div>
-              <strong>Centro de presencia</strong>
-              <span>Una lectura más clara del producto y su operación.</span>
-            </div>
-            <span className="cloud-console-badge">Producto en acción</span>
-          </div>
-
-          <div className="cloud-console-grid">
-            <div className="cloud-console-preview">
-              <MarketingPreview />
-            </div>
-
-            <div className="cloud-console-stack">
-              {commandCards.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <article key={item.title} className="cloud-console-card">
-                    <div className="cloud-console-card-top">
-                      <div className="cloud-console-icon">
-                        <Icon size={18} />
-                      </div>
-                      <strong>{item.title}</strong>
-                    </div>
-                    <p>{item.text}</p>
-                  </article>
-                );
-              })}
-            </div>
+        <div className="cloud-home-console cloud-home-console-media">
+          <div className="cloud-console-preview">
+            <MarketingPreview />
           </div>
         </div>
       </section>
@@ -324,9 +280,13 @@ export default function HomePage() {
             </p>
           </div>
           <div className="actions">
-            <Link className="btn btn-primary" href="/login">
-              Crear mi Klicor <ArrowRight size={16} />
-            </Link>
+            <LandingLoginModal
+              triggerLabel="Crear mi Klicor"
+              triggerClassName="btn btn-primary"
+              allowRegister
+              title="Crea tu Klicor"
+              description="Regístrate con Google, Microsoft o correo y entra directo a tu panel."
+            />
           </div>
         </div>
       </section>
