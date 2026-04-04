@@ -367,9 +367,14 @@ export function DashboardClient() {
           <DashboardOnboarding
             token={token}
             profile={data.user}
-            onCompleted={(userData) => {
-              handleUserSaved(userData);
-              setDismissOnboarding(false);
+            onCompleted={async (userData) => {
+              handleUserSaved({
+                ...userData,
+                onboardingCompleted: true,
+              });
+              setDismissOnboarding(true);
+              router.replace("/dashboard");
+              router.refresh();
             }}
             onSkip={() => setDismissOnboarding(true)}
           />

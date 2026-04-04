@@ -276,7 +276,7 @@ export function DashboardOnboarding({ token, profile, onCompleted, onSkip }) {
         isFormData: true,
       });
 
-      onCompleted(response.user);
+      await onCompleted?.(response.user);
     } catch (nextError) {
       setError(nextError.message || "No pudimos terminar la configuracion inicial.");
     } finally {
