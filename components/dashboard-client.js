@@ -8,6 +8,9 @@ import Script from "next/script";
 import {
   AlertTriangle,
   CheckCircle2,
+  Copy,
+  Download,
+  ExternalLink,
   LogOut,
   Send,
   ShieldAlert,
