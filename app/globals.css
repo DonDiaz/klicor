@@ -3408,12 +3408,13 @@ html[data-theme="dark"] .admin-sidebar-note {
 
 .dashboard-preview-mobile-stage {
   width: 100%;
-  height: clamp(460px, 68svh, 720px);
-  min-height: clamp(460px, 68svh, 720px);
+  height: clamp(520px, 78svh, 760px);
+  min-height: clamp(520px, 78svh, 760px);
   overflow: hidden;
+  margin-inline: auto;
 }
 
-.dashboard-preview-mobile-stage .preview-page {
+.preview-shell-editor .dashboard-preview-mobile-stage .preview-page {
   min-height: 100%;
   height: 100%;
   padding: 0.75rem 0.52rem;
@@ -3426,10 +3427,109 @@ html[data-theme="dark"] .admin-sidebar-note {
   -ms-overflow-style: none;
 }
 
-.dashboard-preview-mobile-stage .public-card {
+.preview-shell-editor .dashboard-preview-mobile-stage .public-card {
   width: 100%;
-  min-height: auto;
+  min-height: 100%;
   margin: 0;
+}
+
+.preview-shell-editor .dashboard-preview-mobile-stage .public-business-card {
+  gap: 0.78rem;
+  align-content: start;
+}
+
+.preview-shell-editor .dashboard-preview-mobile-stage .public-hero {
+  gap: 0.5rem;
+}
+
+.preview-shell-editor .dashboard-preview-mobile-stage .public-accent-bar {
+  width: 64px;
+  height: 4px;
+  margin-bottom: 0.5rem;
+}
+
+.preview-shell-editor .dashboard-preview-mobile-stage .avatar-shell {
+  width: 82px;
+  height: 82px;
+  margin-bottom: 0.45rem;
+  border-width: 2px;
+}
+
+.preview-shell-editor .dashboard-preview-mobile-stage .public-headline {
+  font-size: 0.98rem;
+  line-height: 1.22;
+}
+
+.preview-shell-editor .dashboard-preview-mobile-stage .public-subheadline {
+  font-size: 0.96rem;
+  line-height: 1.36;
+}
+
+.preview-shell-editor .dashboard-preview-mobile-stage .public-content-stack {
+  gap: 0.9rem;
+}
+
+.preview-shell-editor .dashboard-preview-mobile-stage .public-main-actions,
+.preview-shell-editor .dashboard-preview-mobile-stage .public-priority-two-actions,
+.preview-shell-editor .dashboard-preview-mobile-stage .public-secondary-actions {
+  gap: 0.7rem;
+}
+
+.preview-shell-editor .dashboard-preview-mobile-stage .public-link {
+  min-height: 48px;
+  padding: 0.88rem 0.95rem;
+  gap: 0.55rem;
+  border-radius: 13px;
+  font-size: 0.96rem;
+}
+
+.preview-shell-editor .dashboard-preview-mobile-stage .public-section {
+  gap: 0.8rem;
+  padding: 0.95rem;
+  border-radius: 18px;
+}
+
+.preview-shell-editor .dashboard-preview-mobile-stage .public-social-strip {
+  grid-template-columns: repeat(auto-fit, minmax(48px, 1fr));
+  gap: 0.65rem;
+}
+
+.preview-shell-editor .dashboard-preview-mobile-stage .public-social-link {
+  min-height: 48px;
+  border-radius: 14px;
+}
+
+.preview-shell-editor .dashboard-preview-mobile-stage .payment-info-toggle-copy strong,
+.preview-shell-editor .dashboard-preview-mobile-stage .payment-method-title-line strong,
+.preview-shell-editor .dashboard-preview-mobile-stage .public-section-head strong {
+  font-size: 0.94rem;
+}
+
+.preview-shell-editor .dashboard-preview-mobile-stage .payment-info-toggle-copy span,
+.preview-shell-editor .dashboard-preview-mobile-stage .payment-method-reveal span {
+  font-size: 0.88rem;
+}
+
+.preview-shell-editor .dashboard-preview-mobile-stage .payment-method-card {
+  gap: 0.68rem;
+  padding: 0.86rem;
+  border-radius: 16px;
+}
+
+.preview-shell-editor .dashboard-preview-mobile-stage .payment-method-icon-button {
+  width: 34px;
+  height: 34px;
+}
+
+.preview-shell-editor .dashboard-preview-mobile-stage .floating-actions-preview {
+  right: 0.85rem;
+  top: 0.85rem;
+  gap: 0.58rem;
+}
+
+.preview-shell-editor .dashboard-preview-mobile-stage .floating-contact-button {
+  width: 52px;
+  height: 52px;
 }
 
 .preview-shell-editor .preview-page {
