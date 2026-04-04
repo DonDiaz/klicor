@@ -4,6 +4,8 @@ import { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import {
   AlertTriangle,
+  ChevronLeft,
+  ChevronRight,
   CreditCard,
   ChevronDown,
   ChevronUp,
@@ -151,6 +153,12 @@ const WORKSPACE_TABS = [
   { id: "settings", label: "Ajustes", icon: ShieldCheck },
 ];
 
+const DASHBOARD_NAV_ITEMS = [
+  { id: "blocks", label: "Enlaces", icon: Link2, copy: "Botones, pagos y contacto" },
+  { id: "design", label: "Diseño", icon: Paintbrush, copy: "Temas, colores y estilos" },
+  { id: "settings", label: "Perfil", icon: ShieldCheck, copy: "Identidad, seguridad y cuenta" },
+];
+
 function ColorEditor({ label, value, onChange, swatches }) {
   return (
     <div className="appearance-control">
@@ -290,6 +298,7 @@ export function ProfileForm({
   const [loading, setLoading] = useState(false);
   const [selectedType, setSelectedType] = useState("whatsapp");
   const [activeWorkspace, setActiveWorkspace] = useState("blocks");
+  const [navCollapsed, setNavCollapsed] = useState(false);
   const [openProfileSection, setOpenProfileSection] = useState(null);
   const [presetsOpen, setPresetsOpen] = useState(false);
   useEffect(() => {
@@ -648,7 +657,7 @@ export function ProfileForm({
       : "Activar plan";
 
   return (
-    <div className="editor-layout">
+    <div className={`editor-layout ${navCollapsed ? "is-nav-collapsed" : ""}`}>
       {alertMessage ? (
         <div className="dashboard-alert-backdrop" role="alertdialog" aria-modal="true" aria-label="Alerta del editor">
           <div className="dashboard-alert-card">
@@ -665,7 +674,47 @@ export function ProfileForm({
           </div>
         </div>
       ) : null}
-      <aside className="preview-shell preview-shell-editor">
+      <aside className={`editor-sidebar panel ${navCollapsed ? "is-collapsed" : ""}`}>
+        <div className="editor-sidebar-top">
+          <button
+            className="editor-sidebar-toggle"
+            type="button"
+            onClick={() => setNavCollapsed((current) => !current)}
+            aria-label={navCollapsed ? "Mostrar menú lateral" : "Ocultar menú lateral"}
+            title={navCollapsed ? "Mostrar menú lateral" : "Ocultar menú lateral"}
+          >
+            {navCollapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
+            <span>{navCollapsed ? "Mostrar" : "Ocultar"}</span>
+          </button>
+        </div>
+
+        <nav className="editor-sidebar-nav" aria-label="Navegación del editor">
+          {DASHBOARD_NAV_ITEMS.map((tab) => {
+            const Icon = tab.icon;
+            const isActive = activeWorkspace === tab.id;
+            return (
+              <button
+                key={tab.id}
+                className={`editor-sidebar-item ${isActive ? "is-active" : ""}`}
+                type="button"
+                onClick={() => setActiveWorkspace(tab.id)}
+                aria-current={isActive ? "page" : undefined}
+                title={tab.label}
+              >
+                <span className="editor-sidebar-item-icon">
+                  <Icon size={18} />
+                </span>
+                <span className="editor-sidebar-item-copy">
+                  <strong>{tab.label}</strong>
+                  <small>{tab.copy}</small>
+                </span>
+              </button>
+            );
+          })}
+        </nav>
+      </aside>
+
+      <aside className="preview-shell preview-shell-editor preview-shell-workspace">
         <div className="preview-header preview-header-editor">
           <div className="stack" style={{ gap: ".45rem" }}>
             <span className="pill"><MonitorSmartphone size={16} /> Vista previa</span>
@@ -673,14 +722,14 @@ export function ProfileForm({
             <p className="section-copy">Edita a la derecha y revisa aquí cómo cambia tu página pública en tiempo real.</p>
           </div>
         </div>
-        <div className="preview-frame">
+        <div className="preview-frame preview-frame-editor">
           <LandingView user={previewUser} preview />
         </div>
       </aside>
 
       <div className="editor-panel">
         <div className="editor-tabs" role="tablist" aria-label="Navegación del editor">
-          {WORKSPACE_TABS.map((tab) => {
+          {DASHBOARD_NAV_ITEMS.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeWorkspace === tab.id;
             return (
