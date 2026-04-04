@@ -3655,7 +3655,7 @@ img { max-width: 100%; display: block; }
 .floating-actions-live {
   position: fixed;
   right: max(1rem, env(safe-area-inset-right));
-  bottom: calc(1rem + env(safe-area-inset-bottom));
+  top: calc(1rem + env(safe-area-inset-top));
   display: grid;
   gap: 0.7rem;
   z-index: 120;
@@ -3676,10 +3676,6 @@ img { max-width: 100%; display: block; }
 
 .floating-contact-button.is-preview {
   position: static;
-}
-
-.floating-contact-button.is-secondary {
-  border-color: rgba(91, 33, 182, 0.18);
 }
 
 @media (min-width: 900px) {

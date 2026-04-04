@@ -327,11 +327,11 @@ export function LandingView({ user, preview = false }) {
             </div>
           ) : null}
           <div
-            className="floating-contact-button is-preview is-secondary"
+            className="floating-contact-button is-preview"
             style={{
-              background: hexToRgba(appearance.surfaceColor, 0.9),
-              color: appearance.primaryColor,
-              boxShadow: `0 16px 32px ${hexToRgba("#0B1020", 0.12)}`,
+              background: appearance.primaryColor,
+              color: resolveReadableText(appearance.primaryColor, appearance.buttonTextColor, appearance.textPrimaryColor),
+              boxShadow: `0 20px 44px ${hexToRgba(appearance.primaryColor, 0.32)}`,
             }}
             aria-label="Compartir"
             title="Compartir"
@@ -356,7 +356,15 @@ export function LandingView({ user, preview = false }) {
               <Save size={20} />
             </a>
           ) : null}
-          <PublicFloatingActions businessName={user.businessName} shareLabel="Compartir" />
+          <PublicFloatingActions
+            businessName={user.businessName}
+            shareLabel="Compartir"
+            style={{
+              background: appearance.primaryColor,
+              color: resolveReadableText(appearance.primaryColor, appearance.buttonTextColor, appearance.textPrimaryColor),
+              boxShadow: `0 20px 44px ${hexToRgba(appearance.primaryColor, 0.32)}`,
+            }}
+          />
         </div>
       )}
     </main>

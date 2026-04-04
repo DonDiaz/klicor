@@ -2,7 +2,11 @@
 
 import { Share2 } from "lucide-react";
 
-export function PublicFloatingActions({ businessName = "Klicor", shareLabel = "Compartir" }) {
+export function PublicFloatingActions({
+  businessName = "Klicor",
+  shareLabel = "Compartir",
+  style,
+}) {
   async function handleShare() {
     if (typeof window === "undefined") return;
 
@@ -31,6 +35,7 @@ export function PublicFloatingActions({ businessName = "Klicor", shareLabel = "C
       className="floating-contact-button floating-share-live"
       type="button"
       onClick={handleShare}
+      style={style}
       aria-label={shareLabel}
       title={shareLabel}
     >
