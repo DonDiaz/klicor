@@ -786,8 +786,6 @@ export function ProfileForm({
                 <Download size={16} /> Descargar QR
               </button>
             </div>
-            <h3 className="section-title" style={{ fontSize: "1.1rem" }}>Así se verá tu Klicor</h3>
-            <p className="section-copy">Edita a la derecha y revisa aquí cómo cambia tu página pública en tiempo real.</p>
           </div>
         </div>
         <div className="preview-frame preview-frame-editor">
