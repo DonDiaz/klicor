@@ -435,7 +435,7 @@ export function AdminPanel({ token, initialData, adminUser }) {
                             </div>
                             <div>
                               <strong>{user.businessName}</strong>
-                              <small>{user.publicUrl}</small>
+                              <small className="admin-table-link" title={user.publicUrl}>{user.publicUrl}</small>
                             </div>
                           </div>
                         </td>

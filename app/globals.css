@@ -2814,6 +2814,7 @@ img { max-width: 100%; display: block; }
   display: grid;
   grid-template-columns: 44px minmax(0, 1fr);
   gap: 0.75rem;
+  min-width: 240px;
 }
 
 .admin-table-business strong,
@@ -2825,7 +2826,14 @@ img { max-width: 100%; display: block; }
 
 .admin-table-business small {
   color: var(--text-secondary);
-  word-break: break-all;
+}
+
+.admin-table-link {
+  display: block;
+  max-width: 230px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .admin-mini-avatar,
