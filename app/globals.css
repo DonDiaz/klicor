@@ -2248,14 +2248,37 @@ img { max-width: 100%; display: block; }
 .dashboard-shell {
   width: min(1480px, calc(100% - 2rem));
   margin: 0 auto;
-  padding: 1.35rem 0 4rem;
+  padding: 1rem 0;
   display: grid;
   gap: 1rem;
+  height: 100dvh;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .dashboard-topbar {
   display: grid;
   gap: 0.85rem;
+  flex: 0 0 auto;
+}
+
+.dashboard-body {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  overflow: hidden;
+}
+
+.dashboard-body > .notice,
+.dashboard-body > .dashboard-alert,
+.dashboard-body > p.notice {
+  flex: 0 0 auto;
+}
+
+.dashboard-body > .editor-layout {
+  flex: 1 1 auto;
+  min-height: 0;
 }
 
 .dashboard-identity-card,
@@ -2507,8 +2530,10 @@ img { max-width: 100%; display: block; }
   grid-template-columns: minmax(220px, 250px) minmax(0, 1fr) minmax(320px, 360px);
   grid-template-areas: "sidebar editor preview";
   gap: 1rem;
-  align-items: start;
-  height: 80vh;
+  align-items: stretch;
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
 }
 
 .editor-layout.is-nav-collapsed {
@@ -2518,11 +2543,14 @@ img { max-width: 100%; display: block; }
 .editor-sidebar {
   grid-area: sidebar;
   display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
   gap: 1rem;
   align-self: stretch;
   padding: 1rem 0.9rem;
   border-radius: 28px;
   height: 100%;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .editor-sidebar-top {
@@ -2548,6 +2576,9 @@ img { max-width: 100%; display: block; }
 .editor-sidebar-nav {
   display: grid;
   gap: 0.55rem;
+  align-content: start;
+  min-height: 0;
+  overflow-y: auto;
 }
 
 .editor-sidebar-item {
@@ -2631,8 +2662,9 @@ img { max-width: 100%; display: block; }
   gap: 0.8rem;
   align-self: stretch;
   height: 100%;
-  max-height: 80vh;
   grid-template-rows: auto minmax(0, 1fr);
+  min-height: 0;
+  overflow: hidden;
 }
 
 .preview-header-editor {
@@ -2719,9 +2751,10 @@ img { max-width: 100%; display: block; }
 .editor-panel {
   grid-area: editor;
   display: grid;
-  gap: 0.85rem;
   min-width: 0;
   height: 100%;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .editor-panel-form {

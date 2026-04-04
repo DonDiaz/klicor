@@ -311,56 +311,58 @@ export function DashboardClient() {
         </section>
       </header>
 
-      {!user.emailVerified ? (
-        <div className="notice notice-danger">
-          <ShieldAlert size={16} />
-          <span>Debes verificar tu correo para completar el flujo comercial.</span>
-          <button className="btn btn-secondary" type="button" onClick={handleSendVerification}><Send size={16} /> Reenviar verificación</button>
-        </div>
-      ) : null}
+      <div className="dashboard-body">
+        {!user.emailVerified ? (
+          <div className="notice notice-danger">
+            <ShieldAlert size={16} />
+            <span>Debes verificar tu correo para completar el flujo comercial.</span>
+            <button className="btn btn-secondary" type="button" onClick={handleSendVerification}><Send size={16} /> Reenviar verificación</button>
+          </div>
+        ) : null}
 
-      {data.user.status === "grace_period" ? (
-        <div className="notice">
-          <AlertTriangle size={16} />
-          <span>Tu suscripción venció. Tienes 15 días sin edición antes de suspender la página.</span>
-        </div>
-      ) : null}
+        {data.user.status === "grace_period" ? (
+          <div className="notice">
+            <AlertTriangle size={16} />
+            <span>Tu suscripción venció. Tienes 15 días sin edición antes de suspender la página.</span>
+          </div>
+        ) : null}
 
-      {data.user.status === "suspended" ? (
-        <div className="notice notice-danger">
-          <ShieldAlert size={16} />
-          <span>Tu página está suspendida hasta registrar el pago anual.</span>
-        </div>
-      ) : null}
+        {data.user.status === "suspended" ? (
+          <div className="notice notice-danger">
+            <ShieldAlert size={16} />
+            <span>Tu página está suspendida hasta registrar el pago anual.</span>
+          </div>
+        ) : null}
 
-      <ProfileForm
-        token={token}
-        profile={data.user}
-        canEdit={canEdit}
-        subscriptionSettings={data.settings}
-        userEmailVerified={user.emailVerified}
-        paying={paying}
-        checkoutConfig={checkoutConfig}
-        recovery={recovery}
-        recoveryLoading={recoveryLoading}
-        recoveryMessage={recoveryMessage}
-        onRecoveryFieldChange={handleRecoveryFieldChange}
-        onSaveRecovery={saveRecoverySettings}
-        onResendRecoveryVerification={resendRecoveryVerification}
-        onCheckout={handleCheckout}
-        publicUrl={data.publicUrl}
-        onCopyPublicUrl={handleCopyPublicUrl}
-        onDownloadQr={handleQrDownload}
-        onSaved={(userData) => setData({
-          ...data,
-          user: userData,
-          publicUrl: userData.username ? `${window.location.origin}/${userData.username}` : "",
-          shareUrl: userData.shareUrl || data.shareUrl,
-          stablePublicUrl: userData.stablePublicUrl || data.stablePublicUrl,
-        })}
-      />
+        <ProfileForm
+          token={token}
+          profile={data.user}
+          canEdit={canEdit}
+          subscriptionSettings={data.settings}
+          userEmailVerified={user.emailVerified}
+          paying={paying}
+          checkoutConfig={checkoutConfig}
+          recovery={recovery}
+          recoveryLoading={recoveryLoading}
+          recoveryMessage={recoveryMessage}
+          onRecoveryFieldChange={handleRecoveryFieldChange}
+          onSaveRecovery={saveRecoverySettings}
+          onResendRecoveryVerification={resendRecoveryVerification}
+          onCheckout={handleCheckout}
+          publicUrl={data.publicUrl}
+          onCopyPublicUrl={handleCopyPublicUrl}
+          onDownloadQr={handleQrDownload}
+          onSaved={(userData) => setData({
+            ...data,
+            user: userData,
+            publicUrl: userData.username ? `${window.location.origin}/${userData.username}` : "",
+            shareUrl: userData.shareUrl || data.shareUrl,
+            stablePublicUrl: userData.stablePublicUrl || data.stablePublicUrl,
+          })}
+        />
 
-      {error ? <p className="notice">{error}</p> : null}
+        {error ? <p className="notice">{error}</p> : null}
+      </div>
     </main>
   );
 }
