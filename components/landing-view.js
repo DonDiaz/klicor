@@ -11,6 +11,12 @@ const NAME_SIZE_MAP = {
   l: "2.35rem",
 };
 
+const PREVIEW_NAME_SIZE_MAP = {
+  s: "1.22rem",
+  m: "1.46rem",
+  l: "1.7rem",
+};
+
 const NAME_WEIGHT_MAP = {
   regular: 500,
   bold: 700,
@@ -157,6 +163,7 @@ export function LandingView({ user, preview = false }) {
   };
 
   const buttonRadius = RADIUS_MAP[appearance.buttonRadius];
+  const nameSize = preview ? PREVIEW_NAME_SIZE_MAP[appearance.nameSize] : NAME_SIZE_MAP[appearance.nameSize];
 
   return (
     <main className={preview ? "public-page preview-page" : "public-page"} style={{ background: pageBackground }}>
@@ -195,7 +202,7 @@ export function LandingView({ user, preview = false }) {
               style={{
                 marginBottom: ".2rem",
                 color: appearance.textPrimaryColor,
-                fontSize: NAME_SIZE_MAP[appearance.nameSize],
+                fontSize: nameSize,
                 fontWeight: NAME_WEIGHT_MAP[appearance.nameWeight],
               }}
             >

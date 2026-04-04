@@ -3377,6 +3377,7 @@ html[data-theme="dark"] .admin-sidebar-note {
 }
 
 .dashboard-preview-fit-inner {
+  position: relative;
   display: grid;
   place-items: center;
   margin-inline: auto;
@@ -3389,7 +3390,10 @@ html[data-theme="dark"] .admin-sidebar-note {
 }
 
 .dashboard-preview-fit-stage {
-  transform-origin: top left;
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform-origin: top center;
   overflow: hidden;
 }
 
@@ -3397,13 +3401,113 @@ html[data-theme="dark"] .admin-sidebar-note {
   width: 100%;
   min-height: 100%;
   height: 100%;
-  padding: 1rem 0.72rem;
+  padding: 0.75rem 0.52rem;
 }
 
 .preview-shell-editor .public-card {
-  width: min(340px, calc(100% - 0.3rem));
+  width: min(328px, calc(100% - 0.2rem));
   min-height: 100%;
+  padding: 0.95rem 0.9rem;
+  border-radius: 22px;
   margin-inline: auto;
+}
+
+.preview-shell-editor .public-business-card {
+  gap: 0.6rem;
+}
+
+.preview-shell-editor .public-hero {
+  gap: 0.35rem;
+}
+
+.preview-shell-editor .public-accent-bar {
+  width: 52px;
+  height: 4px;
+  margin-bottom: 0.35rem;
+}
+
+.preview-shell-editor .avatar-shell {
+  width: 70px;
+  height: 70px;
+  margin-bottom: 0.25rem;
+  border-width: 2px;
+}
+
+.preview-shell-editor .public-headline {
+  font-size: 0.92rem;
+  line-height: 1.18;
+}
+
+.preview-shell-editor .public-subheadline {
+  font-size: 0.88rem;
+  line-height: 1.32;
+}
+
+.preview-shell-editor .public-content-stack {
+  gap: 0.72rem;
+}
+
+.preview-shell-editor .public-main-actions,
+.preview-shell-editor .public-priority-two-actions,
+.preview-shell-editor .public-secondary-actions {
+  gap: 0.55rem;
+}
+
+.preview-shell-editor .public-link {
+  min-height: 44px;
+  padding: 0.78rem 0.85rem;
+  gap: 0.45rem;
+  border-radius: 12px;
+  font-size: 0.9rem;
+}
+
+.preview-shell-editor .public-section {
+  gap: 0.65rem;
+  padding: 0.78rem;
+  border-radius: 16px;
+}
+
+.preview-shell-editor .public-social-strip {
+  grid-template-columns: repeat(auto-fit, minmax(42px, 1fr));
+  gap: 0.55rem;
+}
+
+.preview-shell-editor .public-social-link {
+  min-height: 44px;
+  border-radius: 12px;
+}
+
+.preview-shell-editor .payment-info-toggle-copy strong,
+.preview-shell-editor .payment-method-title-line strong,
+.preview-shell-editor .public-section-head strong {
+  font-size: 0.9rem;
+}
+
+.preview-shell-editor .payment-info-toggle-copy span,
+.preview-shell-editor .payment-method-reveal span {
+  font-size: 0.84rem;
+}
+
+.preview-shell-editor .payment-method-card {
+  gap: 0.58rem;
+  padding: 0.75rem;
+  border-radius: 14px;
+}
+
+.preview-shell-editor .payment-method-icon-button {
+  width: 32px;
+  height: 32px;
+}
+
+.preview-shell-editor .floating-actions-preview {
+  right: 0.75rem;
+  top: 0.75rem;
+  gap: 0.5rem;
+}
+
+.preview-shell-editor .floating-contact-button {
+  width: 48px;
+  height: 48px;
 }
 
 .editor-panel {
@@ -3526,7 +3630,7 @@ html[data-theme="dark"] .admin-sidebar-note {
   min-height: 0;
   overflow-y: auto;
   padding-right: 0.15rem;
-  padding-bottom: 5.5rem;
+  padding-bottom: 8rem;
   scrollbar-gutter: stable;
 }
 

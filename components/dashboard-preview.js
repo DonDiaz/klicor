@@ -26,13 +26,15 @@ export function DashboardPreview({ user }) {
     const update = () => {
       const availableWidth = Math.max((shell.clientWidth || PREVIEW_WIDTH) - 18, 0);
       const availableHeight = Math.max((shell.clientHeight || PREVIEW_HEIGHT) - 24, 0);
-      const fitScale = Math.min(availableWidth / PREVIEW_WIDTH, availableHeight / PREVIEW_HEIGHT, 1);
-      const scale = Math.max(Math.min(fitScale * PREVIEW_SAFE_SCALE, 1), 0.1);
+      const frameScale = Math.min(availableWidth / PREVIEW_WIDTH, availableHeight / PREVIEW_HEIGHT, 1);
+      const naturalHeight = Math.max(stage.scrollHeight || PREVIEW_HEIGHT, PREVIEW_HEIGHT);
+      const contentScale = Math.min(PREVIEW_HEIGHT / naturalHeight, 1);
+      const scale = Math.max(Math.min(frameScale * PREVIEW_SAFE_SCALE * contentScale, 1), 0.1);
 
       setMetrics({
         scale,
-        width: PREVIEW_WIDTH * scale,
-        height: PREVIEW_HEIGHT * scale,
+        width: PREVIEW_WIDTH * frameScale * PREVIEW_SAFE_SCALE,
+        height: PREVIEW_HEIGHT * frameScale * PREVIEW_SAFE_SCALE,
       });
     };
 
@@ -66,8 +68,7 @@ export function DashboardPreview({ user }) {
           className="dashboard-preview-fit-stage"
           style={{
             width: `${PREVIEW_WIDTH}px`,
-            height: `${PREVIEW_HEIGHT}px`,
-            transform: `scale(${metrics.scale})`,
+            transform: `translateX(-50%) scale(${metrics.scale})`,
           }}
         >
           <LandingView user={user} preview />
