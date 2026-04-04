@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { signOut } from "firebase/auth";
 import { ShieldAlert } from "lucide-react";
@@ -10,6 +11,7 @@ import { AdminPanel } from "@/components/admin-panel";
 import { useAuth } from "@/components/providers/auth-provider";
 
 export function AdminPageClient() {
+  const router = useRouter();
   const { user, loading } = useAuth();
   const [token, setToken] = useState("");
   const [accountData, setAccountData] = useState(null);
@@ -39,25 +41,26 @@ export function AdminPageClient() {
     const auth = getClientAuth();
     if (!auth) return;
     await signOut(auth);
+    router.replace("/");
   }
 
   if (loading) {
-    return <main className="shell admin-shell" style={{ padding: "4rem 0" }}><div className="panel">Cargando panel administrativo…</div></main>;
+    return <main className="shell admin-shell" style={{ padding: "4rem 0" }}><div className="panel">Cargando panel administrativo...</div></main>;
   }
 
   if (!user) {
     return (
       <main className="admin-page-shell admin-shell" style={{ padding: "2rem 0 3rem" }}>
         <div className="panel stack">
-          <p>Necesitas iniciar sesión para ver el panel administrativo.</p>
-          <Link className="btn btn-primary" href="/login">Ir al inicio de sesión</Link>
+          <p>Necesitas iniciar sesion para ver el panel administrativo.</p>
+          <Link className="btn btn-primary" href="/">Ir al inicio</Link>
         </div>
       </main>
     );
   }
 
   if (!accountData) {
-    return <main className="shell admin-shell" style={{ padding: "4rem 0" }}><div className="panel">Preparando panel administrativo…</div></main>;
+    return <main className="shell admin-shell" style={{ padding: "4rem 0" }}><div className="panel">Preparando panel administrativo...</div></main>;
   }
 
   if (accountData.user?.role !== "admin") {
@@ -71,7 +74,7 @@ export function AdminPageClient() {
           <p className="muted">Tu cuenta no tiene permisos para administrar usuarios, precios y vencimientos.</p>
           <div className="actions">
             <Link className="btn btn-secondary" href="/dashboard">Volver al dashboard</Link>
-            <button className="btn btn-secondary" type="button" onClick={handleLogout}>Cerrar sesión</button>
+            <button className="btn btn-secondary" type="button" onClick={handleLogout}>Cerrar sesion</button>
           </div>
         </div>
       </main>
@@ -82,10 +85,10 @@ export function AdminPageClient() {
     return (
       <main className="admin-page-shell admin-shell" style={{ padding: "2rem 0 3rem" }}>
         <div className="panel stack">
-          <p>{error || "Cargando datos del panel…"}</p>
+          <p>{error || "Cargando datos del panel..."}</p>
           <div className="actions">
             <Link className="btn btn-secondary" href="/dashboard">Volver al dashboard</Link>
-            <button className="btn btn-secondary" type="button" onClick={handleLogout}>Cerrar sesión</button>
+            <button className="btn btn-secondary" type="button" onClick={handleLogout}>Cerrar sesion</button>
           </div>
         </div>
       </main>

@@ -169,7 +169,7 @@ export function DashboardClient() {
     if (!auth) return;
     setLoggingOut(true);
     await signOut(auth);
-    router.replace("/login");
+    router.replace("/");
   }
 
   async function handleCopyPublicUrl() {
@@ -259,7 +259,7 @@ export function DashboardClient() {
   }
 
   if (!user) {
-    router.replace("/login");
+    router.replace("/");
     return <main className="shell page-shell"><div className="kpi">Redirigiendo al inicio de sesión...</div></main>;
   }
 
