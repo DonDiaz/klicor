@@ -3,27 +3,36 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { signOut } from "firebase/auth";
-import { getClientAuth } from "@/lib/firebase-client";
+import { ShieldAlert } from "lucide-react";
 import { apiFetch } from "@/lib/client-api";
-import { useAuth } from "@/components/providers/auth-provider";
+import { getClientAuth } from "@/lib/firebase-client";
 import { AdminPanel } from "@/components/admin-panel";
+import { useAuth } from "@/components/providers/auth-provider";
 
 export function AdminPageClient() {
   const { user, loading } = useAuth();
   const [token, setToken] = useState("");
-  const [data, setData] = useState(null);
+  const [accountData, setAccountData] = useState(null);
+  const [panelData, setPanelData] = useState(null);
   const [error, setError] = useState("");
 
   useEffect(() => {
     async function bootstrap() {
       if (!user) return;
+
       const nextToken = await user.getIdToken(true);
       setToken(nextToken);
-      const payload = await apiFetch("/api/me", { token: nextToken });
-      setData(payload);
+
+      const me = await apiFetch("/api/me", { token: nextToken });
+      setAccountData(me);
+
+      if (me.user?.role === "admin") {
+        const nextPanel = await apiFetch("/api/admin/panel", { token: nextToken });
+        setPanelData(nextPanel);
+      }
     }
 
-    bootstrap().catch((err) => setError(err.message));
+    bootstrap().catch((nextError) => setError(nextError.message));
   }, [user]);
 
   async function handleLogout() {
@@ -33,12 +42,12 @@ export function AdminPageClient() {
   }
 
   if (loading) {
-    return <main className="shell" style={{ padding: "4rem 0" }}><div className="panel">Cargando...</div></main>;
+    return <main className="shell admin-shell" style={{ padding: "4rem 0" }}><div className="panel">Cargando panel administrativo…</div></main>;
   }
 
   if (!user) {
     return (
-      <main className="shell" style={{ padding: "4rem 0" }}>
+      <main className="shell admin-shell" style={{ padding: "4rem 0" }}>
         <div className="panel stack">
           <p>Necesitas iniciar sesión para ver el panel administrativo.</p>
           <Link className="btn btn-primary" href="/login">Ir al inicio de sesión</Link>
@@ -47,38 +56,45 @@ export function AdminPageClient() {
     );
   }
 
-  if (!data) {
-    return <main className="shell" style={{ padding: "4rem 0" }}><div className="panel">Preparando panel administrativo...</div></main>;
+  if (!accountData) {
+    return <main className="shell admin-shell" style={{ padding: "4rem 0" }}><div className="panel">Preparando panel administrativo…</div></main>;
   }
 
-  if (data.user.role !== "admin") {
+  if (accountData.user?.role !== "admin") {
     return (
-      <main className="shell" style={{ padding: "4rem 0" }}>
+      <main className="shell admin-shell" style={{ padding: "4rem 0" }}>
         <div className="panel stack">
-          <h1>Acceso restringido</h1>
-          <p className="muted">Este panel solo está disponible para cuentas administradoras.</p>
-          <Link className="btn btn-secondary" href="/dashboard">Volver al panel</Link>
+          <div className="actions" style={{ alignItems: "center" }}>
+            <span className="pill"><ShieldAlert size={16} /> Acceso restringido</span>
+          </div>
+          <h1>Este panel es solo para administradores</h1>
+          <p className="muted">Tu cuenta no tiene permisos para administrar usuarios, precios y vencimientos.</p>
+          <div className="actions">
+            <Link className="btn btn-secondary" href="/dashboard">Volver al dashboard</Link>
+            <button className="btn btn-secondary" type="button" onClick={handleLogout}>Cerrar sesión</button>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  if (!panelData) {
+    return (
+      <main className="shell admin-shell" style={{ padding: "4rem 0" }}>
+        <div className="panel stack">
+          <p>{error || "Cargando datos del panel…"}</p>
+          <div className="actions">
+            <Link className="btn btn-secondary" href="/dashboard">Volver al dashboard</Link>
+            <button className="btn btn-secondary" type="button" onClick={handleLogout}>Cerrar sesión</button>
+          </div>
         </div>
       </main>
     );
   }
 
   return (
-    <main className="shell" style={{ padding: "2rem 0 4rem" }}>
-      <div className="topbar">
-        <div>
-          <span className="pill">Administración</span>
-          <h1 style={{ marginBottom: ".3rem" }}>Panel administrativo</h1>
-          <p className="muted">Gestiona el precio anual y el estado general de las cuentas.</p>
-        </div>
-        <div className="actions">
-          <Link className="btn btn-secondary" href="/dashboard">Volver al panel</Link>
-          <button className="btn btn-secondary" type="button" onClick={handleLogout}>Cerrar sesión</button>
-        </div>
-      </div>
-      <section className="card" style={{ padding: "1.5rem" }}>
-        <AdminPanel token={token} initialSettings={data.settings} initialUsers={data.adminUsers || []} />
-      </section>
+    <main className="shell admin-shell" style={{ padding: "2rem 0 3rem" }}>
+      <AdminPanel token={token} initialData={panelData} adminUser={accountData.user} />
       {error ? <p className="notice" style={{ marginTop: "1rem" }}>{error}</p> : null}
     </main>
   );
