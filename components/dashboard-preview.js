@@ -68,6 +68,7 @@ export function DashboardPreview({ user }) {
           className="dashboard-preview-fit-stage"
           style={{
             width: `${PREVIEW_WIDTH}px`,
+            height: `${PREVIEW_HEIGHT}px`,
             transform: `translateX(-50%) scale(${metrics.scale})`,
           }}
         >
