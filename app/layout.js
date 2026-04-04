@@ -57,8 +57,14 @@ export default function RootLayout({ children }) {
             (() => {
               const root = document.documentElement;
               const media = window.matchMedia("(prefers-color-scheme: dark)");
+              const storageKey = "klicor-theme-preference";
               const applyTheme = () => {
-                root.dataset.theme = media.matches ? "dark" : "light";
+                const savedTheme = window.localStorage.getItem(storageKey);
+                root.dataset.theme = savedTheme === "dark" || savedTheme === "light"
+                  ? savedTheme
+                  : media.matches
+                    ? "dark"
+                    : "light";
               };
 
               applyTheme();

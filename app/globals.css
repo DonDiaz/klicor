@@ -2471,6 +2471,10 @@ img { max-width: 100%; display: block; }
   gap: 1rem;
 }
 
+.dashboard-action-strip {
+  display: none;
+}
+
 .dashboard-identity-main,
 .dashboard-action-group {
   gap: 0.9rem;
@@ -2696,6 +2700,7 @@ img { max-width: 100%; display: block; }
   grid-template-areas: "sidebar editor preview";
   gap: 1rem;
   align-items: start;
+  height: 80vh;
 }
 
 .editor-layout.is-nav-collapsed {
@@ -2704,18 +2709,19 @@ img { max-width: 100%; display: block; }
 
 .editor-sidebar {
   grid-area: sidebar;
-  position: sticky;
-  top: 1rem;
   display: grid;
   gap: 1rem;
-  align-self: start;
+  align-self: stretch;
   padding: 1rem 0.9rem;
   border-radius: 28px;
+  height: 100%;
 }
 
 .editor-sidebar-top {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
 }
 
 .editor-sidebar-toggle {
@@ -2808,8 +2814,6 @@ img { max-width: 100%; display: block; }
 }
 
 .preview-shell {
-  position: sticky;
-  top: 1rem;
   display: grid;
   gap: 1rem;
 }
@@ -2817,7 +2821,8 @@ img { max-width: 100%; display: block; }
 .preview-shell-editor {
   grid-area: preview;
   gap: 0.8rem;
-  align-self: start;
+  align-self: stretch;
+  height: 100%;
   max-height: 80vh;
   grid-template-rows: auto minmax(0, 1fr);
 }
@@ -2826,6 +2831,41 @@ img { max-width: 100%; display: block; }
   padding: 1rem 1.05rem;
   border-radius: 24px;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(248, 250, 252, 0.86));
+}
+
+.preview-toolbar {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.preview-toolbar > .section-title,
+.preview-toolbar > .section-copy {
+  display: none;
+}
+
+.preview-link-card {
+  display: grid;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.preview-link-card strong {
+  display: block;
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.45;
+  word-break: break-word;
+}
+
+.preview-action-group {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.6rem;
+}
+
+.preview-action-group .btn {
+  min-height: 44px;
+  padding-inline: 0.85rem;
 }
 
 .preview-shell-editor .preview-frame {
@@ -2838,13 +2878,24 @@ img { max-width: 100%; display: block; }
 
 .preview-frame-editor {
   min-height: 0;
-  max-height: calc(80vh - 106px);
-  overflow: auto;
-  scrollbar-width: none;
+  overflow: hidden;
 }
 
-.preview-frame-editor::-webkit-scrollbar {
-  display: none;
+.dashboard-preview-fit-shell {
+  height: 100%;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+
+.dashboard-preview-fit-inner {
+  display: grid;
+  place-items: center;
+  margin-inline: auto;
+}
+
+.dashboard-preview-fit-stage {
+  transform-origin: top left;
 }
 
 .preview-shell-editor .preview-page {
@@ -2862,14 +2913,60 @@ img { max-width: 100%; display: block; }
   display: grid;
   gap: 0.85rem;
   min-width: 0;
+  height: 100%;
 }
 
 .editor-panel-form {
   gap: 0.85rem;
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 0.1rem;
+  scrollbar-gutter: stable;
 }
 
 .editor-tabs {
   display: none;
+}
+
+.editor-theme-toggle {
+  flex: 0 0 auto;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+}
+
+.editor-theme-toggle-track {
+  width: 56px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  padding: 3px;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.28);
+  transition: background-color 0.18s ease;
+}
+
+.editor-theme-toggle.is-active .editor-theme-toggle-track {
+  background: rgba(91, 33, 182, 0.24);
+}
+
+.editor-theme-toggle-thumb {
+  width: 26px;
+  height: 26px;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text-secondary);
+  box-shadow: 0 6px 14px rgba(15, 23, 42, 0.12);
+  transform: translateX(0);
+  transition: transform 0.18s ease, color 0.18s ease;
+}
+
+.editor-theme-toggle.is-active .editor-theme-toggle-thumb {
+  transform: translateX(24px);
+  color: var(--primary);
 }
 
 .editor-tab {
@@ -3905,10 +4002,12 @@ img { max-width: 100%; display: block; }
       "sidebar"
       "editor"
       "preview";
+    height: auto;
   }
 
   .editor-sidebar {
     position: static;
+    height: auto;
   }
 
   .editor-sidebar-nav {
@@ -3939,10 +4038,23 @@ img { max-width: 100%; display: block; }
 
   .preview-shell-editor {
     max-height: none;
+    height: auto;
   }
 
   .preview-frame-editor {
     max-height: none;
+    overflow: visible;
+  }
+
+  .preview-action-group {
+    grid-template-columns: 1fr;
+  }
+
+  .editor-panel {
+    height: auto;
+  }
+
+  .editor-panel-form {
     overflow: visible;
   }
 

@@ -6,12 +6,16 @@ import {
   AlertTriangle,
   ChevronLeft,
   ChevronRight,
+  Copy,
   CreditCard,
   ChevronDown,
   ChevronUp,
+  Download,
+  ExternalLink,
   ImagePlus,
   Link2,
   MonitorSmartphone,
+  Moon,
   Paintbrush,
   Plus,
   RefreshCw,
@@ -22,6 +26,7 @@ import {
   Phone,
   Send,
   ShieldCheck,
+  Sun,
 } from "lucide-react";
 import { apiFetch } from "@/lib/client-api";
 import { applyDefaultLinkPriorityTiers, BUSINESS_CATEGORY_OPTIONS, getDefaultPriorityTierForNewLink, isSocialLinkType, LINK_PRIORITY_LIMITS, normalizeBusinessCategory } from "@/lib/business-categories";
@@ -37,9 +42,10 @@ import { resolveContactCardData } from "@/lib/contact-card";
 import { canAddLinkType, getLinkTypeCount, getLinkTypeLimit, LINK_CATALOG, LINK_CATALOG_MAP } from "@/lib/link-catalog";
 import { normalizePaymentMethods } from "@/lib/payment-methods";
 import { APPEARANCE_DEFAULTS, APPEARANCE_PRESETS, APPEARANCE_SWATCHES, getAppearanceSuggestions, getAppearanceWarnings, normalizeAppearance } from "@/lib/theme-system";
+const THEME_STORAGE_KEY = "klicor-theme-preference";
 
-const LandingView = dynamic(
-  () => import("@/components/landing-view").then((mod) => mod.LandingView),
+const DashboardPreview = dynamic(
+  () => import("@/components/dashboard-preview").then((mod) => mod.DashboardPreview),
   {
     loading: () => (
       <div className="preview-frame preview-frame-placeholder">
@@ -276,6 +282,9 @@ export function ProfileForm({
   onSaveRecovery,
   onResendRecoveryVerification,
   onCheckout,
+  publicUrl,
+  onCopyPublicUrl,
+  onDownloadQr,
 }) {
   const [form, setForm] = useState({
     businessName: profile?.businessName || "",
@@ -299,6 +308,7 @@ export function ProfileForm({
   const [selectedType, setSelectedType] = useState("whatsapp");
   const [activeWorkspace, setActiveWorkspace] = useState("blocks");
   const [navCollapsed, setNavCollapsed] = useState(false);
+  const [darkModeEnabled, setDarkModeEnabled] = useState(false);
   const [openProfileSection, setOpenProfileSection] = useState(null);
   const [presetsOpen, setPresetsOpen] = useState(false);
   useEffect(() => {
@@ -332,6 +342,11 @@ export function ProfileForm({
     };
   }, [photo]);
 
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    setDarkModeEnabled(document.documentElement.dataset.theme === "dark");
+  }, []);
+
   const previewUser = useMemo(() => ({
     publicLinkId: profile?.publicLinkId || "",
     businessName: form.businessName || "Tu negocio",
@@ -359,6 +374,14 @@ export function ProfileForm({
       })),
   }), [appearance, contactCard.enabled, contactCard.name, contactCard.phone, contactCard.title, contactCard.whatsappLinkId, form.businessCategory, form.businessHeadline, form.businessName, form.businessSubheadline, form.username, paymentMethods, photoPreviewUrl, profile?.photo, profile?.publicLinkId, profileLinks]);
 
+  const previewPublicUrl = useMemo(() => {
+    if (publicUrl) return publicUrl;
+    const baseUrl = typeof window !== "undefined"
+      ? window.location.origin
+      : process.env.NEXT_PUBLIC_APP_URL || "https://klicor.com";
+    return form.username ? `${baseUrl}/${form.username}` : baseUrl;
+  }, [form.username, publicUrl]);
+
   const appearanceWarnings = useMemo(() => getAppearanceWarnings(appearance), [appearance]);
   const appearanceSuggestions = useMemo(() => getAppearanceSuggestions(appearance), [appearance]);
   const availableLinkTypes = useMemo(() => LINK_CATALOG.filter((item) => item.type !== "payment_key"), []);
@@ -375,6 +398,22 @@ export function ProfileForm({
     if (whatsappLinks.some((item) => item.id === contactCard.whatsappLinkId)) return;
     setContactCard((current) => ({ ...current, whatsappLinkId: "" }));
   }, [contactCard.whatsappLinkId, whatsappLinks]);
+
+  function handleThemeToggle() {
+    const nextMode = !darkModeEnabled;
+    setDarkModeEnabled(nextMode);
+    if (typeof document !== "undefined") {
+      document.documentElement.dataset.theme = nextMode ? "dark" : "light";
+    }
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem(THEME_STORAGE_KEY, nextMode ? "dark" : "light");
+    }
+  }
+
+  function handleOpenPublicUrl() {
+    if (!previewPublicUrl || typeof window === "undefined") return;
+    window.open(previewPublicUrl, "_blank", "noopener,noreferrer");
+  }
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -686,6 +725,21 @@ export function ProfileForm({
             {navCollapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
             <span>{navCollapsed ? "Mostrar" : "Ocultar"}</span>
           </button>
+          {!navCollapsed ? (
+            <button
+              className={`editor-theme-toggle ${darkModeEnabled ? "is-active" : ""}`}
+              type="button"
+              onClick={handleThemeToggle}
+              aria-label={darkModeEnabled ? "Desactivar modo oscuro" : "Activar modo oscuro"}
+              title={darkModeEnabled ? "Desactivar modo oscuro" : "Activar modo oscuro"}
+            >
+              <span className="editor-theme-toggle-track">
+                <span className="editor-theme-toggle-thumb">
+                  {darkModeEnabled ? <Moon size={14} /> : <Sun size={14} />}
+                </span>
+              </span>
+            </button>
+          ) : null}
         </div>
 
         <nav className="editor-sidebar-nav" aria-label="Navegación del editor">
@@ -716,14 +770,28 @@ export function ProfileForm({
 
       <aside className="preview-shell preview-shell-editor preview-shell-workspace">
         <div className="preview-header preview-header-editor">
-          <div className="stack" style={{ gap: ".45rem" }}>
-            <span className="pill"><MonitorSmartphone size={16} /> Vista previa</span>
+          <div className="preview-toolbar">
+            <div className="preview-link-card">
+              <span className="dashboard-link-label">Link público</span>
+              <strong>{previewPublicUrl}</strong>
+            </div>
+            <div className="preview-action-group">
+              <button className="btn btn-secondary" type="button" onClick={onCopyPublicUrl} disabled={!previewPublicUrl}>
+                <Copy size={16} /> Copiar
+              </button>
+              <button className="btn btn-secondary" type="button" onClick={handleOpenPublicUrl} disabled={!previewPublicUrl}>
+                <ExternalLink size={16} /> Abrir
+              </button>
+              <button className="btn btn-secondary" type="button" onClick={onDownloadQr} disabled={!profile?.qrUrl}>
+                <Download size={16} /> Descargar QR
+              </button>
+            </div>
             <h3 className="section-title" style={{ fontSize: "1.1rem" }}>Así se verá tu Klicor</h3>
             <p className="section-copy">Edita a la derecha y revisa aquí cómo cambia tu página pública en tiempo real.</p>
           </div>
         </div>
         <div className="preview-frame preview-frame-editor">
-          <LandingView user={previewUser} preview />
+          <DashboardPreview user={previewUser} />
         </div>
       </aside>
 

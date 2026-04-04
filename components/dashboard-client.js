@@ -8,9 +8,6 @@ import Script from "next/script";
 import {
   AlertTriangle,
   CheckCircle2,
-  Copy,
-  Download,
-  ExternalLink,
   LogOut,
   Send,
   ShieldAlert,
@@ -348,6 +345,9 @@ export function DashboardClient() {
         onSaveRecovery={saveRecoverySettings}
         onResendRecoveryVerification={resendRecoveryVerification}
         onCheckout={handleCheckout}
+        publicUrl={data.publicUrl}
+        onCopyPublicUrl={handleCopyPublicUrl}
+        onDownloadQr={handleQrDownload}
         onSaved={(userData) => setData({
           ...data,
           user: userData,
