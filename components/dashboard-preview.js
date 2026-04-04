@@ -6,10 +6,12 @@ import { LandingView } from "@/components/landing-view";
 const PREVIEW_WIDTH = 390;
 const PREVIEW_HEIGHT = 844;
 const PREVIEW_SAFE_SCALE = 0.96;
+const INLINE_PREVIEW_BREAKPOINT = 520;
 
 export function DashboardPreview({ user }) {
   const shellRef = useRef(null);
   const stageRef = useRef(null);
+  const [inlinePreview, setInlinePreview] = useState(false);
   const [metrics, setMetrics] = useState({
     scale: 1,
     width: PREVIEW_WIDTH,
@@ -24,6 +26,14 @@ export function DashboardPreview({ user }) {
     let frame = 0;
 
     const update = () => {
+      const shellWidth = shell.clientWidth || PREVIEW_WIDTH;
+      const shouldUseInlinePreview = shellWidth <= INLINE_PREVIEW_BREAKPOINT;
+      setInlinePreview(shouldUseInlinePreview);
+
+      if (shouldUseInlinePreview) {
+        return;
+      }
+
       const availableWidth = Math.max((shell.clientWidth || PREVIEW_WIDTH) - 18, 0);
       const availableHeight = Math.max((shell.clientHeight || PREVIEW_HEIGHT) - 24, 0);
       const frameScale = Math.min(availableWidth / PREVIEW_WIDTH, availableHeight / PREVIEW_HEIGHT, 1);
@@ -53,6 +63,16 @@ export function DashboardPreview({ user }) {
       observer.disconnect();
     };
   }, [user]);
+
+  if (inlinePreview) {
+    return (
+      <div ref={shellRef} className="dashboard-preview-fit-shell is-inline-preview">
+        <div className="dashboard-preview-mobile-stage">
+          <LandingView user={user} preview />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div ref={shellRef} className="dashboard-preview-fit-shell">

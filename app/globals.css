@@ -3376,6 +3376,12 @@ html[data-theme="dark"] .admin-sidebar-note {
   box-sizing: border-box;
 }
 
+.dashboard-preview-fit-shell.is-inline-preview {
+  height: auto;
+  padding: 0;
+  overflow: visible;
+}
+
 .dashboard-preview-fit-inner {
   position: relative;
   display: grid;
@@ -3396,6 +3402,24 @@ html[data-theme="dark"] .admin-sidebar-note {
   display: block;
   transform-origin: top center;
   overflow: hidden;
+}
+
+.dashboard-preview-mobile-stage {
+  width: 100%;
+}
+
+.dashboard-preview-mobile-stage .preview-page {
+  min-height: auto;
+  height: auto;
+  padding: 0;
+  border-radius: 26px;
+  overflow: hidden;
+}
+
+.dashboard-preview-mobile-stage .public-card {
+  width: 100%;
+  min-height: auto;
+  margin: 0;
 }
 
 .preview-shell-editor .preview-page {
