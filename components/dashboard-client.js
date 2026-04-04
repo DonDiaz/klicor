@@ -20,6 +20,7 @@ import { BrandLogo } from "@/components/brand-logo";
 import { getClientAuth } from "@/lib/firebase-client";
 import { apiFetch } from "@/lib/client-api";
 import { useAuth } from "@/components/providers/auth-provider";
+import { needsDashboardOnboarding } from "@/lib/dashboard-onboarding";
 
 const ProfileForm = dynamic(
   () => import("@/components/profile-form").then((mod) => mod.ProfileForm),
@@ -28,6 +29,18 @@ const ProfileForm = dynamic(
       <section className="card dashboard-section">
         <strong>Preparando editor</strong>
         <p className="section-copy">Estamos cargando tu panel de edición y la vista previa.</p>
+      </section>
+    ),
+  },
+);
+
+const DashboardOnboarding = dynamic(
+  () => import("@/components/dashboard-onboarding").then((mod) => mod.DashboardOnboarding),
+  {
+    loading: () => (
+      <section className="card dashboard-section">
+        <strong>Preparando configuracion inicial</strong>
+        <p className="section-copy">Estamos cargando el asistente para crear tu primer Klicor.</p>
       </section>
     ),
   },
@@ -70,6 +83,7 @@ export function DashboardClient() {
   });
   const [recoveryLoading, setRecoveryLoading] = useState(false);
   const [recoveryMessage, setRecoveryMessage] = useState("");
+  const [dismissOnboarding, setDismissOnboarding] = useState(false);
 
   useEffect(() => {
     async function bootstrap() {
@@ -94,6 +108,11 @@ export function DashboardClient() {
     const status = data?.user?.status;
     return status === "trial" || status === "active";
   }, [data]);
+
+  const shouldShowOnboarding = useMemo(() => {
+    if (!data?.user) return false;
+    return needsDashboardOnboarding(data.user) && !dismissOnboarding;
+  }, [data?.user, dismissOnboarding]);
 
   useEffect(() => {
     if (!sdkReady || !checkoutConfig?.preferenceId || !checkoutConfig?.publicKey) return;
@@ -262,6 +281,16 @@ export function DashboardClient() {
     }));
   }
 
+  function handleUserSaved(userData) {
+    setData((current) => ({
+      ...current,
+      user: userData,
+      publicUrl: userData.username ? `${window.location.origin}/${userData.username}` : "",
+      shareUrl: userData.shareUrl || current.shareUrl,
+      stablePublicUrl: userData.stablePublicUrl || current.stablePublicUrl,
+    }));
+  }
+
   return (
     <main className="shell dashboard-shell">
       {shouldLoadCheckoutSdk ? (
@@ -334,32 +363,38 @@ export function DashboardClient() {
           </div>
         ) : null}
 
-        <ProfileForm
-          token={token}
-          profile={data.user}
-          canEdit={canEdit}
-          subscriptionSettings={data.settings}
-          userEmailVerified={user.emailVerified}
-          paying={paying}
-          checkoutConfig={checkoutConfig}
-          recovery={recovery}
-          recoveryLoading={recoveryLoading}
-          recoveryMessage={recoveryMessage}
-          onRecoveryFieldChange={handleRecoveryFieldChange}
-          onSaveRecovery={saveRecoverySettings}
-          onResendRecoveryVerification={resendRecoveryVerification}
-          onCheckout={handleCheckout}
-          publicUrl={data.publicUrl}
-          onCopyPublicUrl={handleCopyPublicUrl}
-          onDownloadQr={handleQrDownload}
-          onSaved={(userData) => setData({
-            ...data,
-            user: userData,
-            publicUrl: userData.username ? `${window.location.origin}/${userData.username}` : "",
-            shareUrl: userData.shareUrl || data.shareUrl,
-            stablePublicUrl: userData.stablePublicUrl || data.stablePublicUrl,
-          })}
-        />
+        {shouldShowOnboarding ? (
+          <DashboardOnboarding
+            token={token}
+            profile={data.user}
+            onCompleted={(userData) => {
+              handleUserSaved(userData);
+              setDismissOnboarding(false);
+            }}
+            onSkip={() => setDismissOnboarding(true)}
+          />
+        ) : (
+          <ProfileForm
+            token={token}
+            profile={data.user}
+            canEdit={canEdit}
+            subscriptionSettings={data.settings}
+            userEmailVerified={user.emailVerified}
+            paying={paying}
+            checkoutConfig={checkoutConfig}
+            recovery={recovery}
+            recoveryLoading={recoveryLoading}
+            recoveryMessage={recoveryMessage}
+            onRecoveryFieldChange={handleRecoveryFieldChange}
+            onSaveRecovery={saveRecoverySettings}
+            onResendRecoveryVerification={resendRecoveryVerification}
+            onCheckout={handleCheckout}
+            publicUrl={data.publicUrl}
+            onCopyPublicUrl={handleCopyPublicUrl}
+            onDownloadQr={handleQrDownload}
+            onSaved={handleUserSaved}
+          />
+        )}
 
         {error ? <p className="notice">{error}</p> : null}
       </div>
