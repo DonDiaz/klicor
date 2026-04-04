@@ -107,7 +107,9 @@ export default function HomePage() {
 
           <h1 className="cloud-home-title">
             Cuando todo está en un solo lugar, todo funciona mejor.
-            <span className="cloud-home-title-brand">Klicor organiza cómo te encuentran.</span>
+            <span className="cloud-home-title-brand">
+              <span className="cloud-home-title-brand-word">Klicor</span> organiza cómo te encuentran.
+            </span>
           </h1>
 
           <p className="cloud-home-lead">

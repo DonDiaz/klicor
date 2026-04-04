@@ -973,6 +973,15 @@ img { max-width: 100%; display: block; }
   line-height: 0.86;
 }
 
+.cloud-home-title-brand-word {
+  display: inline-block;
+  background: linear-gradient(135deg, #5B21B6 12%, #22D3EE 88%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
 .cloud-home-lead {
   margin: 0;
   max-width: 42rem;
