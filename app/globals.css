@@ -1025,12 +1025,13 @@ img { max-width: 100%; display: block; }
 
 .cloud-console-preview .marketing-demo-frame {
   width: min(345px, 100%);
-  padding: 0.55rem 0.55rem 0.9rem;
-  border-radius: 38px;
-  background: linear-gradient(180deg, #111827, #0f172a);
-  border-color: rgba(148, 163, 184, 0.16);
-  box-shadow: 0 24px 52px rgba(15, 23, 42, 0.24);
+  padding: 0.2rem 0 1rem;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
   max-width: 100%;
+  overflow: visible;
 }
 
 .cloud-console-preview .marketing-demo-stage {
@@ -1038,7 +1039,8 @@ img { max-width: 100%; display: block; }
   display: grid;
   place-items: center;
   min-height: 100%;
-  padding: 0.25rem 0.2rem;
+  padding: 0.45rem 0.3rem 0.75rem;
+  overflow: visible;
 }
 
 .cloud-console-preview .marketing-demo-surface {
@@ -1061,14 +1063,14 @@ img { max-width: 100%; display: block; }
 .cloud-console-preview .marketing-demo-qr {
   position: absolute;
   z-index: 0;
-  width: min(238px, 72%);
+  width: min(270px, 82%);
   height: auto;
-  left: 12px;
-  bottom: 18px;
-  transform: rotate(-18deg);
+  left: -18px;
+  bottom: -8px;
+  transform: rotate(-14deg);
   border-radius: 28px;
-  box-shadow: 0 22px 52px rgba(11, 16, 32, 0.18);
-  opacity: 0.96;
+  box-shadow: 0 24px 56px rgba(11, 16, 32, 0.16);
+  opacity: 1;
 }
 
 .cloud-capability-card,
@@ -5077,10 +5079,10 @@ html[data-theme="dark"] .admin-sidebar-note {
   }
 
   .cloud-console-preview .marketing-demo-qr {
-    width: min(212px, 70%);
-    left: 6px;
-    bottom: 14px;
-    transform: rotate(-16deg);
+    width: min(238px, 78%);
+    left: -8px;
+    bottom: 4px;
+    transform: rotate(-13deg);
   }
 
   .cloud-final-card {
