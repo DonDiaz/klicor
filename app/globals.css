@@ -2726,12 +2726,20 @@ img { max-width: 100%; display: block; }
   display: grid;
   place-items: center;
   overflow: hidden;
+  padding: 0.85rem 0.7rem;
+  box-sizing: border-box;
 }
 
 .dashboard-preview-fit-inner {
   display: grid;
   place-items: center;
   margin-inline: auto;
+  border-radius: 42px;
+  overflow: hidden;
+  background: #0B1020;
+  box-shadow:
+    0 0 0 8px #0B1020,
+    0 22px 54px rgba(11, 16, 32, 0.26);
 }
 
 .dashboard-preview-fit-stage {
