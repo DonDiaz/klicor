@@ -1,11 +1,17 @@
-import { LandingView } from "@/components/landing-view";
-import { STATIC_DEMO_PROFILE } from "@/lib/static-demo-profile";
+import Image from "next/image";
 
 export function MarketingPreview() {
   return (
     <div className="preview-frame marketing-demo-frame">
       <div className="marketing-demo-surface">
-        <LandingView user={STATIC_DEMO_PROFILE} preview />
+        <Image
+          src="/marketing-demo-mobile.jpeg"
+          alt="Vista de Klicor en un celular"
+          width={345}
+          height={746}
+          className="marketing-demo-image"
+          priority
+        />
       </div>
     </div>
   );

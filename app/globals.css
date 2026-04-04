@@ -222,19 +222,8 @@ html[data-theme="dark"] .cloud-flow-card {
   background: rgba(15, 23, 42, 0.9);
 }
 
-html[data-theme="dark"] .cloud-console-preview .public-card {
-  background: rgba(15, 23, 42, 0.96);
-  border-color: rgba(148, 163, 184, 0.14);
-}
-
-html[data-theme="dark"] .cloud-console-preview .public-link {
-  background: var(--primary);
-  color: white;
-}
-
-html[data-theme="dark"] .cloud-console-preview .payment-method-card {
-  background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(148, 163, 184, 0.12);
+html[data-theme="dark"] .cloud-console-preview .marketing-demo-surface {
+  background: #0B1020;
 }
 
 html[data-theme="dark"] .public-section,
@@ -1062,64 +1051,30 @@ img { max-width: 100%; display: block; }
 .cloud-console-preview {
   display: flex;
   justify-content: center;
-  padding: 0.1rem 0.7rem;
+  padding: 0.2rem 0.7rem;
 }
 
 .cloud-console-preview .marketing-demo-frame {
+  width: min(345px, 100%);
+  padding: 0.55rem;
+  border-radius: 38px;
   background: linear-gradient(180deg, #111827, #0f172a);
   border-color: rgba(148, 163, 184, 0.16);
-  box-shadow: none;
+  box-shadow: 0 24px 52px rgba(15, 23, 42, 0.24);
   max-width: 100%;
 }
 
-.cloud-console-preview .preview-page {
+.cloud-console-preview .marketing-demo-surface {
+  border-radius: 30px;
+  overflow: hidden;
+  background: #ffffff;
+  aspect-ratio: 345 / 746;
+}
+
+.cloud-console-preview .marketing-demo-image {
   width: 100%;
-  min-height: 560px;
-  max-width: 350px;
-}
-
-.cloud-console-preview .public-card {
-  width: min(320px, 100%);
-  padding: 0.95rem 0.85rem;
-  border-radius: 18px;
-}
-
-.cloud-console-preview .public-accent-bar {
-  width: 72px;
-  margin-bottom: 0.9rem;
-}
-
-.cloud-console-preview .avatar {
-  width: 76px;
-  height: 76px;
-  margin-bottom: 0.75rem;
-}
-
-.cloud-console-preview h1 {
-  font-size: 1.55rem !important;
-}
-
-.cloud-console-preview .public-links {
-  gap: 0.55rem;
-  margin-top: 1rem;
-}
-
-.cloud-console-preview .public-link {
-  padding: 0.75rem 0.85rem;
-  font-size: 0.94rem;
-}
-
-.cloud-console-preview .payment-method-card {
-  gap: 0.7rem;
-  padding: 0.85rem;
-}
-
-.cloud-console-preview .payment-info-toggle {
-  padding: 0;
-}
-
-.cloud-console-preview .payment-method-actions {
-  gap: 0.5rem;
+  height: auto;
+  display: block;
 }
 
 .cloud-console-stack {
@@ -5136,9 +5091,8 @@ html[data-theme="dark"] .admin-sidebar-note {
     white-space: normal;
   }
 
-  .cloud-console-preview .preview-page {
-    min-height: 480px;
-    max-width: 100%;
+  .cloud-console-preview .marketing-demo-frame {
+    width: min(320px, 100%);
   }
 
   .cloud-console-head {
