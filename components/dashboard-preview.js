@@ -10,7 +10,6 @@ const INLINE_PREVIEW_BREAKPOINT = 520;
 
 export function DashboardPreview({ user }) {
   const shellRef = useRef(null);
-  const stageRef = useRef(null);
   const [inlinePreview, setInlinePreview] = useState(false);
   const [metrics, setMetrics] = useState({
     scale: 1,
@@ -20,8 +19,7 @@ export function DashboardPreview({ user }) {
 
   useEffect(() => {
     const shell = shellRef.current;
-    const stage = stageRef.current;
-    if (!shell || !stage) return undefined;
+    if (!shell) return undefined;
 
     let frame = 0;
 
@@ -37,9 +35,7 @@ export function DashboardPreview({ user }) {
       const availableWidth = Math.max((shell.clientWidth || PREVIEW_WIDTH) - 18, 0);
       const availableHeight = Math.max((shell.clientHeight || PREVIEW_HEIGHT) - 24, 0);
       const frameScale = Math.min(availableWidth / PREVIEW_WIDTH, availableHeight / PREVIEW_HEIGHT, 1);
-      const naturalHeight = Math.max(stage.scrollHeight || PREVIEW_HEIGHT, PREVIEW_HEIGHT);
-      const contentScale = Math.min(PREVIEW_HEIGHT / naturalHeight, 1);
-      const scale = Math.max(Math.min(frameScale * PREVIEW_SAFE_SCALE * contentScale, 1), 0.1);
+      const scale = Math.max(Math.min(frameScale * PREVIEW_SAFE_SCALE, 1), 0.1);
 
       setMetrics({
         scale,
@@ -55,7 +51,6 @@ export function DashboardPreview({ user }) {
 
     const observer = new ResizeObserver(onResize);
     observer.observe(shell);
-    observer.observe(stage);
     update();
 
     return () => {
@@ -84,7 +79,6 @@ export function DashboardPreview({ user }) {
         }}
       >
         <div
-          ref={stageRef}
           className="dashboard-preview-fit-stage"
           style={{
             width: `${PREVIEW_WIDTH}px`,
