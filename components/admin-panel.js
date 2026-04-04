@@ -7,6 +7,8 @@ import {
   CalendarClock,
   CreditCard,
   Loader2,
+  PanelLeftClose,
+  PanelLeftOpen,
   RefreshCw,
   Search,
   Settings2,
@@ -116,6 +118,7 @@ function AdminMetricCard({ label, value, emphasis = false }) {
 export function AdminPanel({ token, initialData, adminUser }) {
   const [panelData, setPanelData] = useState(initialData);
   const [section, setSection] = useState("dashboard");
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [filters, setFilters] = useState({
     search: "",
     origin: "all",
@@ -211,9 +214,18 @@ export function AdminPanel({ token, initialData, adminUser }) {
   const overdue = panelData?.renewalBuckets?.overdue || [];
 
   return (
-    <div className="admin-layout">
-      <aside className="panel admin-sidebar">
+    <div className={`admin-layout${sidebarCollapsed ? " is-sidebar-collapsed" : ""}`}>
+      <aside className="admin-sidebar">
         <div className="admin-sidebar-head">
+          <button
+            className="admin-sidebar-toggle"
+            type="button"
+            onClick={() => setSidebarCollapsed((current) => !current)}
+            aria-label={sidebarCollapsed ? "Expandir menú" : "Ocultar menú"}
+            title={sidebarCollapsed ? "Expandir menú" : "Ocultar menú"}
+          >
+            {sidebarCollapsed ? <PanelLeftOpen size={18} /> : <PanelLeftClose size={18} />}
+          </button>
           <span className="pill">Administración</span>
           <div>
             <h3>Panel de Klicor</h3>
@@ -230,6 +242,8 @@ export function AdminPanel({ token, initialData, adminUser }) {
                 className={`admin-nav-item${section === item.id ? " is-active" : ""}`}
                 type="button"
                 onClick={() => setSection(item.id)}
+                aria-label={item.label}
+                title={item.label}
               >
                 <Icon size={18} />
                 <span>

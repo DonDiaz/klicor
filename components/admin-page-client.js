@@ -47,7 +47,7 @@ export function AdminPageClient() {
 
   if (!user) {
     return (
-      <main className="shell admin-shell" style={{ padding: "4rem 0" }}>
+      <main className="admin-page-shell admin-shell" style={{ padding: "2rem 0 3rem" }}>
         <div className="panel stack">
           <p>Necesitas iniciar sesión para ver el panel administrativo.</p>
           <Link className="btn btn-primary" href="/login">Ir al inicio de sesión</Link>
@@ -62,7 +62,7 @@ export function AdminPageClient() {
 
   if (accountData.user?.role !== "admin") {
     return (
-      <main className="shell admin-shell" style={{ padding: "4rem 0" }}>
+      <main className="admin-page-shell admin-shell" style={{ padding: "2rem 0 3rem" }}>
         <div className="panel stack">
           <div className="actions" style={{ alignItems: "center" }}>
             <span className="pill"><ShieldAlert size={16} /> Acceso restringido</span>
@@ -80,7 +80,7 @@ export function AdminPageClient() {
 
   if (!panelData) {
     return (
-      <main className="shell admin-shell" style={{ padding: "4rem 0" }}>
+      <main className="admin-page-shell admin-shell" style={{ padding: "2rem 0 3rem" }}>
         <div className="panel stack">
           <p>{error || "Cargando datos del panel…"}</p>
           <div className="actions">
@@ -93,7 +93,7 @@ export function AdminPageClient() {
   }
 
   return (
-    <main className="shell admin-shell" style={{ padding: "2rem 0 3rem" }}>
+    <main className="admin-page-shell admin-shell" style={{ padding: "1rem 0 2rem" }}>
       <AdminPanel token={token} initialData={panelData} adminUser={accountData.user} />
       {error ? <p className="notice" style={{ marginTop: "1rem" }}>{error}</p> : null}
     </main>

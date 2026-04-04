@@ -2545,30 +2545,103 @@ img { max-width: 100%; display: block; }
   border-color: rgba(100, 116, 139, 0.16);
 }
 
+.admin-page-shell {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+}
+
 .admin-shell {
-  width: min(1520px, calc(100% - 2rem));
+  width: 100%;
+  max-width: none;
+  margin: 0;
 }
 
 .admin-layout {
   display: grid;
-  grid-template-columns: 300px minmax(0, 1fr);
-  gap: 1.25rem;
-  align-items: start;
+  grid-template-columns: 290px minmax(0, 1fr);
+  gap: 0;
+  align-items: stretch;
   position: relative;
+  min-height: calc(100vh - 3rem);
+}
+
+.admin-layout.is-sidebar-collapsed {
+  grid-template-columns: 92px minmax(0, 1fr);
 }
 
 .admin-sidebar {
   position: sticky;
-  top: 1.5rem;
-  padding: 1.25rem;
+  top: 0;
+  padding: 1.1rem 1rem;
   display: grid;
   gap: 1.25rem;
   min-height: calc(100vh - 3rem);
+  height: calc(100vh - 3rem);
+  border-right: 1px solid var(--border);
+  border-radius: 0 28px 28px 0;
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
 }
 
 .admin-sidebar-head {
   display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   gap: 0.8rem;
+  align-items: start;
+}
+
+.admin-sidebar-head > .pill,
+.admin-sidebar-head > div {
+  grid-column: 1;
+}
+
+.admin-sidebar-head > div {
+  grid-row: 2;
+}
+
+.admin-sidebar-brand {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr);
+  gap: 0.8rem;
+  align-items: center;
+}
+
+.admin-sidebar-brand div {
+  display: grid;
+  gap: 0.1rem;
+}
+
+.admin-sidebar-brand strong {
+  font-size: 1rem;
+  letter-spacing: -0.03em;
+}
+
+.admin-sidebar-brand small {
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+}
+
+.admin-sidebar-toggle {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--surface-alt);
+  color: inherit;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.18s ease, border-color 0.18s ease;
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  justify-self: end;
+}
+
+.admin-sidebar-toggle:hover {
+  background: rgba(91, 33, 182, 0.05);
+  border-color: rgba(91, 33, 182, 0.14);
 }
 
 .admin-sidebar-head h3,
@@ -2581,6 +2654,7 @@ img { max-width: 100%; display: block; }
 .admin-nav {
   display: grid;
   gap: 0.5rem;
+  align-content: start;
 }
 
 .admin-nav-item {
@@ -2641,6 +2715,41 @@ img { max-width: 100%; display: block; }
 
 .admin-main {
   min-width: 0;
+  padding: 0 1.5rem;
+}
+
+.admin-layout.is-sidebar-collapsed .admin-sidebar {
+  padding-inline: 0.7rem;
+}
+
+.admin-layout.is-sidebar-collapsed .admin-sidebar-head {
+  grid-template-columns: 1fr;
+  justify-items: center;
+}
+
+.admin-layout.is-sidebar-collapsed .admin-sidebar-head > .pill,
+.admin-layout.is-sidebar-collapsed .admin-sidebar-head > div,
+.admin-layout.is-sidebar-collapsed .admin-nav-item span,
+.admin-layout.is-sidebar-collapsed .admin-sidebar-note div {
+  display: none;
+}
+
+.admin-layout.is-sidebar-collapsed .admin-sidebar-toggle {
+  grid-column: 1;
+  grid-row: 1;
+  justify-self: center;
+}
+
+.admin-layout.is-sidebar-collapsed .admin-nav-item {
+  grid-template-columns: 1fr;
+  justify-items: center;
+  padding-inline: 0.7rem;
+}
+
+.admin-layout.is-sidebar-collapsed .admin-sidebar-note {
+  grid-template-columns: 1fr;
+  justify-items: center;
+  padding-inline: 0.7rem;
 }
 
 .admin-metric-grid {
@@ -4730,6 +4839,10 @@ html[data-theme="dark"] .admin-sidebar-note {
     grid-template-columns: 260px minmax(0, 1fr);
   }
 
+  .admin-layout.is-sidebar-collapsed {
+    grid-template-columns: 84px minmax(0, 1fr);
+  }
+
   .admin-inline-filters {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
@@ -4749,7 +4862,10 @@ html[data-theme="dark"] .admin-sidebar-note {
 
   .admin-sidebar {
     position: static;
+    height: auto;
     min-height: auto;
+    border-radius: 24px;
+    border-right: 1px solid var(--border);
   }
 
   .admin-metric-grid,
@@ -4764,8 +4880,9 @@ html[data-theme="dark"] .admin-sidebar-note {
 }
 
 @media (max-width: 760px) {
-  .admin-shell {
-    width: min(100%, calc(100% - 1rem));
+  .admin-shell,
+  .admin-page-shell {
+    width: 100%;
   }
 
   .admin-metric-grid,
