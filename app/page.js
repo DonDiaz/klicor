@@ -106,7 +106,8 @@ export default function HomePage() {
           </span>
 
           <h1 className="cloud-home-title">
-            <span className="cloud-home-title-brand">Klicor</span> organiza la presencia pública de tu negocio como un sistema, no como una bio improvisada.
+            Cuando todo está en un solo lugar, todo funciona mejor.
+            <span className="cloud-home-title-brand">Klicor organiza cómo te encuentran.</span>
           </h1>
 
           <p className="cloud-home-lead">
