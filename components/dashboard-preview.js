@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { LandingView } from "@/components/landing-view";
 
 const PREVIEW_WIDTH = 390;
+const PREVIEW_SAFE_SCALE = 0.92;
 
 export function DashboardPreview({ user }) {
   const shellRef = useRef(null);
@@ -22,11 +23,12 @@ export function DashboardPreview({ user }) {
     let frame = 0;
 
     const update = () => {
-      const availableWidth = shell.clientWidth || PREVIEW_WIDTH;
-      const availableHeight = shell.clientHeight || 640;
+      const availableWidth = Math.max((shell.clientWidth || PREVIEW_WIDTH) - 18, 0);
+      const availableHeight = Math.max((shell.clientHeight || 640) - 24, 0);
       const naturalWidth = stage.scrollWidth || PREVIEW_WIDTH;
       const naturalHeight = stage.scrollHeight || 640;
-      const scale = Math.min(availableWidth / naturalWidth, availableHeight / naturalHeight, 1);
+      const fitScale = Math.min(availableWidth / naturalWidth, availableHeight / naturalHeight, 1);
+      const scale = Math.max(Math.min(fitScale * PREVIEW_SAFE_SCALE, 1), 0.1);
 
       setMetrics({
         scale,
