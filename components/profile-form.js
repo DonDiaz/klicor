@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import {
@@ -24,11 +25,13 @@ import {
   UploadCloud,
   Mail,
   Phone,
+  LogOut,
   Send,
   ShieldCheck,
   Sun,
 } from "lucide-react";
 import { apiFetch } from "@/lib/client-api";
+import { BrandLogo } from "@/components/brand-logo";
 import { applyDefaultLinkPriorityTiers, BUSINESS_CATEGORY_OPTIONS, getDefaultPriorityTierForNewLink, isSocialLinkType, LINK_PRIORITY_LIMITS, normalizeBusinessCategory } from "@/lib/business-categories";
 import {
   ACCOUNT_TYPE_OPTIONS,
@@ -271,6 +274,7 @@ export function ProfileForm({
   profile,
   onSaved,
   canEdit,
+  isAdmin = false,
   subscriptionSettings,
   userEmailVerified,
   paying,
@@ -285,6 +289,7 @@ export function ProfileForm({
   publicUrl,
   onCopyPublicUrl,
   onDownloadQr,
+  onLogout,
 }) {
   const [form, setForm] = useState({
     businessName: profile?.businessName || "",
@@ -766,7 +771,51 @@ export function ProfileForm({
             );
           })}
         </nav>
+
+        <div className="editor-sidebar-footer">
+          {isAdmin ? (
+            <Link className="editor-sidebar-utility" href="/admin" title="Panel de administración">
+              <span className="editor-sidebar-item-icon">
+                <ShieldCheck size={18} />
+              </span>
+              <span className="editor-sidebar-item-copy">
+                <strong>Panel admin</strong>
+                <small>Usuarios y configuración</small>
+              </span>
+            </Link>
+          ) : null}
+
+          <button className="editor-sidebar-utility" type="button" onClick={onLogout} title="Cerrar sesión">
+            <span className="editor-sidebar-item-icon">
+              <LogOut size={18} />
+            </span>
+            <span className="editor-sidebar-item-copy">
+              <strong>Cerrar sesión</strong>
+              <small>Salir del panel</small>
+            </span>
+          </button>
+        </div>
       </aside>
+
+      <section className="editor-topbar panel">
+        <div className="dashboard-identity-main">
+          <div className="dashboard-identity-logo">
+            <BrandLogo size={48} />
+          </div>
+          <div className="stack" style={{ gap: ".32rem" }}>
+            <strong className="dashboard-identity-name">{profile?.businessName || "Tu negocio"}</strong>
+            <span className="dashboard-identity-link">{previewPublicUrl || "Configura tu link público"}</span>
+            <p className="section-copy dashboard-identity-copy">{subscriptionMessage}</p>
+          </div>
+        </div>
+
+        <div className="dashboard-identity-meta">
+          <span className={`status-badge ${subscriptionTone}`}>
+            {subscriptionTone === "success" ? <ShieldCheck size={14} /> : null}
+            <span>{subscriptionLabel}</span>
+          </span>
+        </div>
+      </section>
 
       <aside className="preview-shell preview-shell-editor preview-shell-workspace">
         <div className="preview-header preview-header-editor">

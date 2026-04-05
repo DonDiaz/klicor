@@ -2,21 +2,14 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import dynamic from "next/dynamic";
 import Script from "next/script";
 import {
   AlertTriangle,
-  CheckCircle2,
-  Copy,
-  Download,
-  ExternalLink,
-  LogOut,
   Send,
   ShieldAlert,
 } from "lucide-react";
 import { sendEmailVerification, signOut } from "firebase/auth";
-import { BrandLogo } from "@/components/brand-logo";
 import { getClientAuth } from "@/lib/firebase-client";
 import { apiFetch } from "@/lib/client-api";
 import { useAuth } from "@/components/providers/auth-provider";
@@ -383,6 +376,7 @@ export function DashboardClient() {
             token={token}
             profile={data.user}
             canEdit={canEdit}
+            isAdmin={isAdmin}
             subscriptionSettings={data.settings}
             userEmailVerified={user.emailVerified}
             paying={paying}
@@ -397,6 +391,7 @@ export function DashboardClient() {
             publicUrl={data.publicUrl}
             onCopyPublicUrl={handleCopyPublicUrl}
             onDownloadQr={handleQrDownload}
+            onLogout={handleLogout}
             onSaved={handleUserSaved}
           />
         )}

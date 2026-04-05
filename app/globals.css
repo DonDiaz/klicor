@@ -2251,9 +2251,7 @@ img { max-width: 100%; display: block; }
 }
 
 .dashboard-topbar {
-  display: grid;
-  gap: 0.85rem;
-  flex: 0 0 auto;
+  display: none;
 }
 
 .dashboard-body {
@@ -3132,7 +3130,10 @@ html[data-theme="dark"] .admin-sidebar-note {
 .editor-layout {
   display: grid;
   grid-template-columns: minmax(220px, 250px) minmax(0, 1fr) minmax(320px, 360px);
-  grid-template-areas: "sidebar editor preview";
+  grid-template-areas:
+    "sidebar topbar preview"
+    "sidebar editor preview";
+  grid-template-rows: auto minmax(0, 1fr);
   gap: 1rem;
   align-items: stretch;
   min-height: 0;
@@ -3147,7 +3148,7 @@ html[data-theme="dark"] .admin-sidebar-note {
 .editor-sidebar {
   grid-area: sidebar;
   display: grid;
-  grid-template-rows: auto minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr) auto;
   gap: 1rem;
   align-self: stretch;
   padding: 1rem 0.9rem;
@@ -3183,6 +3184,34 @@ html[data-theme="dark"] .admin-sidebar-note {
   align-content: start;
   min-height: 0;
   overflow-y: auto;
+}
+
+.editor-sidebar-footer {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.editor-sidebar-utility {
+  width: 100%;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.9rem 0.95rem;
+  border: 1px solid transparent;
+  border-radius: 20px;
+  background: rgba(15, 23, 42, 0.03);
+  color: var(--text-secondary);
+  text-align: left;
+  cursor: pointer;
+  text-decoration: none;
+  transition: border-color 0.18s ease, background-color 0.18s ease, transform 0.18s ease;
+}
+
+.editor-sidebar-utility:hover {
+  transform: translateY(-1px);
+  border-color: rgba(91, 33, 182, 0.12);
+  background: rgba(91, 33, 182, 0.04);
 }
 
 .editor-sidebar-item {
@@ -3252,8 +3281,25 @@ html[data-theme="dark"] .admin-sidebar-note {
   padding-inline: 0.45rem;
 }
 
+.editor-sidebar.is-collapsed .editor-sidebar-utility {
+  grid-template-columns: 1fr;
+  justify-items: center;
+  padding-inline: 0.45rem;
+}
+
 .editor-sidebar.is-collapsed .editor-sidebar-top {
   justify-content: center;
+}
+
+.editor-topbar {
+  grid-area: topbar;
+  padding: 1rem 1.1rem;
+  border-radius: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-width: 0;
 }
 
 .preview-shell {
@@ -4908,6 +4954,7 @@ html[data-theme="dark"] .admin-sidebar-note {
   .editor-layout.is-nav-collapsed {
     grid-template-columns: 1fr;
     grid-template-areas:
+      "topbar"
       "sidebar"
       "editor"
       "preview";
@@ -4921,6 +4968,10 @@ html[data-theme="dark"] .admin-sidebar-note {
     height: auto;
     min-height: 0;
     overflow: visible;
+  }
+
+  .editor-sidebar-footer {
+    grid-template-columns: 1fr;
   }
 
   .editor-sidebar-nav {
