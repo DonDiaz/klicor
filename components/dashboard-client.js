@@ -251,7 +251,11 @@ export function DashboardClient() {
   function handleUserSaved(userData) {
     setData((current) => ({
       ...current,
-      user: userData,
+      user: {
+        ...current.user,
+        ...userData,
+        billingProfile: userData.billingProfile || current.user?.billingProfile || {},
+      },
       publicUrl: userData.username ? `${window.location.origin}/${userData.username}` : "",
       shareUrl: userData.shareUrl || current.shareUrl,
       stablePublicUrl: userData.stablePublicUrl || current.stablePublicUrl,

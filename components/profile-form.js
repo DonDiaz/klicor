@@ -31,7 +31,6 @@ import {
   X,
 } from "lucide-react";
 import { apiFetch } from "@/lib/client-api";
-import { BrandLogo } from "@/components/brand-logo";
 import { applyDefaultLinkPriorityTiers, BUSINESS_CATEGORY_OPTIONS, getDefaultPriorityTierForNewLink, isSocialLinkType, LINK_PRIORITY_LIMITS, normalizeBusinessCategory } from "@/lib/business-categories";
 import {
   ACCOUNT_TYPE_OPTIONS,
@@ -704,6 +703,7 @@ export function ProfileForm({
     : profile?.status === "active"
       ? "Renovar plan"
       : "Activar plan";
+  const dashboardLogoSrc = photoPreviewUrl || profile?.photo || "/klicor-icon.png";
   const topbarStatusLabel =
     profile?.status === "trial"
       ? "Período de prueba"
@@ -830,7 +830,7 @@ export function ProfileForm({
         </button>
         <div className="editor-topbar-brand">
           <div className="dashboard-identity-logo">
-            <BrandLogo size={48} />
+            <img className="dashboard-identity-logo-image" src={dashboardLogoSrc} alt={form.businessName || profile?.businessName || "Logo del negocio"} />
           </div>
         </div>
 
@@ -1089,7 +1089,7 @@ export function ProfileForm({
             <AccordionSection
               id="profile-billing"
               title="Información del negocio para facturación"
-              copy="Datos privados para ayudarte a emitir la factura electrónica manualmente."
+              copy="Datos privados para ayudarte a emitir la factura electrónica."
               openSection={openProfileSection}
               onToggle={toggleProfileSection}
               className="accordion-subsection"
@@ -1100,7 +1100,7 @@ export function ProfileForm({
               }
             >
               <div className="notice">
-                <span>Estos datos no se muestran en tu página pública. Son solo de apoyo interno para facturación manual.</span>
+                <span>Estos datos no se muestran en tu página pública. Son solo de apoyo interno para facturación electrónica.</span>
               </div>
 
               <div className="grid-3">
@@ -1209,7 +1209,7 @@ export function ProfileForm({
                   />
                 </div>
                 <div>
-                  <label className="label">Responsabilidad</label>
+                  <label className="label">Responsable de IVA</label>
                   <select
                     className="select"
                     value={billingProfile.taxResponsibility}
