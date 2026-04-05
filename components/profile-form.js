@@ -5,8 +5,6 @@ import { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import {
   AlertTriangle,
-  ChevronLeft,
-  ChevronRight,
   Copy,
   CreditCard,
   ChevronDown,
@@ -312,7 +310,7 @@ export function ProfileForm({
   const [loading, setLoading] = useState(false);
   const [selectedType, setSelectedType] = useState("whatsapp");
   const [activeWorkspace, setActiveWorkspace] = useState("blocks");
-  const [navCollapsed, setNavCollapsed] = useState(true);
+  const navCollapsed = true;
   const [darkModeEnabled, setDarkModeEnabled] = useState(false);
   const [openProfileSection, setOpenProfileSection] = useState(null);
   const [presetsOpen, setPresetsOpen] = useState(false);
@@ -721,30 +719,18 @@ export function ProfileForm({
       <aside className={`editor-sidebar panel ${navCollapsed ? "is-collapsed" : ""}`}>
         <div className="editor-sidebar-top">
           <button
-            className="editor-sidebar-toggle"
+            className={`editor-theme-toggle ${darkModeEnabled ? "is-active" : ""}`}
             type="button"
-            onClick={() => setNavCollapsed((current) => !current)}
-            aria-label={navCollapsed ? "Mostrar menú lateral" : "Ocultar menú lateral"}
-            title={navCollapsed ? "Mostrar menú lateral" : "Ocultar menú lateral"}
+            onClick={handleThemeToggle}
+            aria-label={darkModeEnabled ? "Desactivar modo oscuro" : "Activar modo oscuro"}
+            title={darkModeEnabled ? "Desactivar modo oscuro" : "Activar modo oscuro"}
           >
-            {navCollapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
-            <span>{navCollapsed ? "Mostrar" : "Ocultar"}</span>
-          </button>
-          {!navCollapsed ? (
-            <button
-              className={`editor-theme-toggle ${darkModeEnabled ? "is-active" : ""}`}
-              type="button"
-              onClick={handleThemeToggle}
-              aria-label={darkModeEnabled ? "Desactivar modo oscuro" : "Activar modo oscuro"}
-              title={darkModeEnabled ? "Desactivar modo oscuro" : "Activar modo oscuro"}
-            >
-              <span className="editor-theme-toggle-track">
-                <span className="editor-theme-toggle-thumb">
-                  {darkModeEnabled ? <Moon size={14} /> : <Sun size={14} />}
-                </span>
+            <span className="editor-theme-toggle-track">
+              <span className="editor-theme-toggle-thumb">
+                {darkModeEnabled ? <Moon size={14} /> : <Sun size={14} />}
               </span>
-            </button>
-          ) : null}
+            </span>
+          </button>
         </div>
 
         <nav className="editor-sidebar-nav" aria-label="Navegación del editor">

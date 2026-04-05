@@ -3176,22 +3176,9 @@ html[data-theme="dark"] .admin-sidebar-note {
 
 .editor-sidebar-top {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   gap: 0.75rem;
-}
-
-.editor-sidebar-toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.55rem;
-  min-height: 42px;
-  padding: 0.65rem 0.85rem;
-  border-radius: 14px;
-  border: 1px solid var(--border);
-  background: var(--surface-alt);
-  color: var(--text-secondary);
-  cursor: pointer;
 }
 
 .editor-sidebar-nav {
@@ -3286,7 +3273,6 @@ html[data-theme="dark"] .admin-sidebar-note {
   padding-inline: 0.55rem;
 }
 
-.editor-sidebar.is-collapsed .editor-sidebar-toggle span,
 .editor-sidebar.is-collapsed .editor-sidebar-item-copy {
   display: none;
 }
@@ -3314,10 +3300,8 @@ html[data-theme="dark"] .admin-sidebar-note {
   box-shadow: 0 24px 60px rgba(15, 23, 42, 0.18);
 }
 
-.editor-sidebar.is-collapsed:hover .editor-sidebar-toggle span,
 .editor-sidebar.is-collapsed:hover .editor-sidebar-item-copy,
 .editor-sidebar.is-collapsed:hover .editor-sidebar-utility .editor-sidebar-item-copy,
-.editor-sidebar.is-collapsed:focus-within .editor-sidebar-toggle span,
 .editor-sidebar.is-collapsed:focus-within .editor-sidebar-item-copy,
 .editor-sidebar.is-collapsed:focus-within .editor-sidebar-utility .editor-sidebar-item-copy {
   display: grid;
@@ -3334,7 +3318,7 @@ html[data-theme="dark"] .admin-sidebar-note {
 
 .editor-sidebar.is-collapsed:hover .editor-sidebar-top,
 .editor-sidebar.is-collapsed:focus-within .editor-sidebar-top {
-  justify-content: space-between;
+  justify-content: center;
 }
 
 .editor-topbar {
@@ -5044,10 +5028,6 @@ html[data-theme="dark"] .admin-sidebar-note {
 
   .editor-sidebar.is-collapsed {
     padding-inline: 0.9rem;
-  }
-
-  .editor-sidebar.is-collapsed .editor-sidebar-toggle span {
-    display: inline;
   }
 
   .editor-sidebar.is-collapsed .editor-sidebar-item-copy {
