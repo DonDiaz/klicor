@@ -312,7 +312,7 @@ export function ProfileForm({
   const [loading, setLoading] = useState(false);
   const [selectedType, setSelectedType] = useState("whatsapp");
   const [activeWorkspace, setActiveWorkspace] = useState("blocks");
-  const [navCollapsed, setNavCollapsed] = useState(false);
+  const [navCollapsed, setNavCollapsed] = useState(true);
   const [darkModeEnabled, setDarkModeEnabled] = useState(false);
   const [openProfileSection, setOpenProfileSection] = useState(null);
   const [presetsOpen, setPresetsOpen] = useState(false);
