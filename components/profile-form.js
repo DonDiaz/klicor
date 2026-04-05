@@ -704,6 +704,12 @@ export function ProfileForm({
     : profile?.status === "active"
       ? "Renovar plan"
       : "Activar plan";
+  const topbarStatusLabel =
+    profile?.status === "trial"
+      ? "Período de prueba"
+      : profile?.status === "active"
+        ? "Activo"
+        : subscriptionLabel;
 
   function handleWorkspaceSelect(workspaceId) {
     setActiveWorkspace(workspaceId);
@@ -822,21 +828,16 @@ export function ProfileForm({
         >
           <Menu size={18} />
         </button>
-        <div className="dashboard-identity-main">
+        <div className="editor-topbar-brand">
           <div className="dashboard-identity-logo">
             <BrandLogo size={48} />
-          </div>
-          <div className="stack" style={{ gap: ".32rem" }}>
-            <strong className="dashboard-identity-name">{profile?.businessName || "Tu negocio"}</strong>
-            <span className="dashboard-identity-link">{previewPublicUrl || "Configura tu link público"}</span>
-            <p className="section-copy dashboard-identity-copy">{subscriptionMessage}</p>
           </div>
         </div>
 
         <div className="dashboard-identity-meta">
           <span className={`status-badge ${subscriptionTone}`}>
             {subscriptionTone === "success" ? <ShieldCheck size={14} /> : null}
-            <span>{subscriptionLabel}</span>
+            <span>{topbarStatusLabel}</span>
           </span>
         </div>
       </section>
