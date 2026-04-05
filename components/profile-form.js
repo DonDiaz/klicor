@@ -11,10 +11,10 @@ import {
   ChevronUp,
   Download,
   ExternalLink,
+  FileText,
   ImagePlus,
   Link2,
   Menu,
-  MonitorSmartphone,
   Moon,
   Paintbrush,
   Plus,
@@ -28,6 +28,7 @@ import {
   Send,
   ShieldCheck,
   Sun,
+  UserRound,
   X,
 } from "lucide-react";
 import { apiFetch } from "@/lib/client-api";
@@ -164,7 +165,10 @@ const WORKSPACE_TABS = [
 const DASHBOARD_NAV_ITEMS = [
   { id: "blocks", label: "Enlaces", icon: Link2, copy: "Botones, pagos y contacto" },
   { id: "design", label: "Diseño", icon: Paintbrush, copy: "Temas, colores y estilos" },
-  { id: "settings", label: "Perfil", icon: ShieldCheck, copy: "Identidad, seguridad y cuenta" },
+  { id: "profile", label: "Perfil", icon: UserRound, copy: "Nombre, usuario e imagen principal" },
+  { id: "security", label: "Seguridad", icon: ShieldCheck, copy: "Recuperacion y verificacion" },
+  { id: "billing", label: "Facturacion", icon: FileText, copy: "Datos para facturacion electronica" },
+  { id: "subscription", label: "Suscripcion", icon: CreditCard, copy: "Plan, pagos y vencimiento" },
 ];
 
 function ColorEditor({ label, value, onChange, swatches }) {
@@ -314,7 +318,7 @@ export function ProfileForm({
   const navCollapsed = true;
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [darkModeEnabled, setDarkModeEnabled] = useState(false);
-  const [openProfileSection, setOpenProfileSection] = useState(null);
+  const [openProfileSection, setOpenProfileSection] = useState("profile-identity");
   const [presetsOpen, setPresetsOpen] = useState(false);
   useEffect(() => {
     setForm({
@@ -354,6 +358,20 @@ export function ProfileForm({
 
   useEffect(() => {
     setMobileNavOpen(false);
+  }, [activeWorkspace]);
+
+  useEffect(() => {
+    const workspaceSectionMap = {
+      profile: "profile-identity",
+      security: "profile-security",
+      billing: "profile-billing",
+      subscription: "profile-subscription",
+    };
+
+    const nextSection = workspaceSectionMap[activeWorkspace];
+    if (nextSection) {
+      setOpenProfileSection(nextSection);
+    }
   }, [activeWorkspace]);
 
   const previewUser = useMemo(() => ({
@@ -893,17 +911,47 @@ export function ProfileForm({
         </div>
 
         <form className="section-stack editor-panel-form" onSubmit={handleSubmit}>
-          {activeWorkspace === "settings" ? (
+          {["profile", "security", "billing", "subscription"].includes(activeWorkspace) ? (
             <section className="dashboard-section panel workspace-panel">
               <div className="dashboard-section-head workspace-panel-head">
                 <div>
-                  <h2 className="section-title" style={{ fontSize: "1.35rem" }}>Ajustes del negocio</h2>
-                  <p className="section-copy">Actualiza identidad, seguridad, facturación y estado operativo de la cuenta.</p>
+                  <h2 className="section-title" style={{ fontSize: "1.35rem" }}>
+                    {activeWorkspace === "profile"
+                      ? "Perfil del negocio"
+                      : activeWorkspace === "security"
+                        ? "Seguridad y recuperacion"
+                        : activeWorkspace === "billing"
+                          ? "Facturacion electronica"
+                          : "Suscripcion y estado"}
+                  </h2>
+                  <p className="section-copy">
+                    {activeWorkspace === "profile"
+                      ? "Actualiza nombre, usuario, categoria, imagen y mensaje principal de tu Klicor."
+                      : activeWorkspace === "security"
+                        ? "Configura correo de respaldo, telefono de recuperacion y verificacion."
+                        : activeWorkspace === "billing"
+                          ? "Datos privados para ayudarte a emitir la factura electronica."
+                          : "Plan actual, fechas operativas y acceso a renovacion."}
+                  </p>
                 </div>
-                <span className={`status-badge ${recoveryProtected ? "success" : ""}`}>{recoveryProtected ? "Protegida" : "Pendiente"}</span>
+                {activeWorkspace === "profile" ? (
+                  <span className="status-badge">{form.username || "Sin usuario"}</span>
+                ) : activeWorkspace === "security" ? (
+                  <span className={`status-badge ${recoveryProtected ? "success" : ""}`}>{recoveryProtected ? "Protegida" : "Pendiente"}</span>
+                ) : activeWorkspace === "billing" ? (
+                  <span className={`status-badge ${billingProfileConfigured ? "success" : ""}`}>
+                    {billingProfileConfigured ? "Lista" : billingProfileStarted ? "Parcial" : "Pendiente"}
+                  </span>
+                ) : (
+                  <span className={`status-badge ${subscriptionTone}`}>
+                    <CreditCard size={14} />
+                    {subscriptionLabel}
+                  </span>
+                )}
               </div>
 
               <div className="section-stack accordion-subsections">
+            {activeWorkspace === "profile" ? (
             <AccordionSection
               id="profile-identity"
               title="Identidad del negocio"
@@ -1004,7 +1052,9 @@ export function ProfileForm({
                 </label>
               </div>
             </AccordionSection>
+            ) : null}
 
+            {activeWorkspace === "security" ? (
             <AccordionSection
               id="profile-security"
               title="Seguridad y recuperación"
@@ -1089,7 +1139,9 @@ export function ProfileForm({
 
               {recoveryMessage ? <p className="notice">{recoveryMessage}</p> : null}
             </AccordionSection>
+            ) : null}
 
+            {activeWorkspace === "billing" ? (
             <AccordionSection
               id="profile-billing"
               title="Información del negocio para facturación"
@@ -1282,7 +1334,9 @@ export function ProfileForm({
                 />
               </div>
             </AccordionSection>
+            ) : null}
 
+            {activeWorkspace === "subscription" ? (
             <AccordionSection
               id="profile-subscription"
               title="Suscripción y estado"
@@ -1333,6 +1387,7 @@ export function ProfileForm({
                 </div>
               ) : null}
             </AccordionSection>
+            ) : null}
           </div>
             </section>
           ) : null}
