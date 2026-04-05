@@ -13,6 +13,7 @@ import {
   ExternalLink,
   ImagePlus,
   Link2,
+  Menu,
   MonitorSmartphone,
   Moon,
   Paintbrush,
@@ -27,6 +28,7 @@ import {
   Send,
   ShieldCheck,
   Sun,
+  X,
 } from "lucide-react";
 import { apiFetch } from "@/lib/client-api";
 import { BrandLogo } from "@/components/brand-logo";
@@ -311,6 +313,7 @@ export function ProfileForm({
   const [selectedType, setSelectedType] = useState("whatsapp");
   const [activeWorkspace, setActiveWorkspace] = useState("blocks");
   const navCollapsed = true;
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [darkModeEnabled, setDarkModeEnabled] = useState(false);
   const [openProfileSection, setOpenProfileSection] = useState(null);
   const [presetsOpen, setPresetsOpen] = useState(false);
@@ -349,6 +352,10 @@ export function ProfileForm({
     if (typeof document === "undefined") return;
     setDarkModeEnabled(document.documentElement.dataset.theme === "dark");
   }, []);
+
+  useEffect(() => {
+    setMobileNavOpen(false);
+  }, [activeWorkspace]);
 
   const previewUser = useMemo(() => ({
     publicLinkId: profile?.publicLinkId || "",
@@ -698,8 +705,21 @@ export function ProfileForm({
       ? "Renovar plan"
       : "Activar plan";
 
+  function handleWorkspaceSelect(workspaceId) {
+    setActiveWorkspace(workspaceId);
+    setMobileNavOpen(false);
+  }
+
   return (
     <div className={`editor-layout ${navCollapsed ? "is-nav-collapsed" : ""}`}>
+      {mobileNavOpen ? (
+        <button
+          className="editor-sidebar-backdrop"
+          type="button"
+          aria-label="Cerrar menú lateral"
+          onClick={() => setMobileNavOpen(false)}
+        />
+      ) : null}
       {alertMessage ? (
         <div className="dashboard-alert-backdrop" role="alertdialog" aria-modal="true" aria-label="Alerta del editor">
           <div className="dashboard-alert-card">
@@ -716,8 +736,17 @@ export function ProfileForm({
           </div>
         </div>
       ) : null}
-      <aside className={`editor-sidebar panel ${navCollapsed ? "is-collapsed" : ""}`}>
+      <aside className={`editor-sidebar panel ${navCollapsed ? "is-collapsed" : ""} ${mobileNavOpen ? "is-mobile-open" : ""}`}>
         <div className="editor-sidebar-top">
+          <button
+            className="editor-sidebar-close"
+            type="button"
+            onClick={() => setMobileNavOpen(false)}
+            aria-label="Cerrar menú lateral"
+            title="Cerrar menú lateral"
+          >
+            <X size={18} />
+          </button>
           <button
             className={`editor-theme-toggle ${darkModeEnabled ? "is-active" : ""}`}
             type="button"
@@ -742,7 +771,7 @@ export function ProfileForm({
                 key={tab.id}
                 className={`editor-sidebar-item ${isActive ? "is-active" : ""}`}
                 type="button"
-                onClick={() => setActiveWorkspace(tab.id)}
+                onClick={() => handleWorkspaceSelect(tab.id)}
                 aria-current={isActive ? "page" : undefined}
                 title={tab.label}
               >
@@ -760,7 +789,7 @@ export function ProfileForm({
 
         <div className="editor-sidebar-footer">
           {isAdmin ? (
-            <Link className="editor-sidebar-utility" href="/admin" title="Panel de administración">
+            <Link className="editor-sidebar-utility" href="/admin" title="Panel de administración" onClick={() => setMobileNavOpen(false)}>
               <span className="editor-sidebar-item-icon">
                 <ShieldCheck size={18} />
               </span>
@@ -784,6 +813,15 @@ export function ProfileForm({
       </aside>
 
       <section className="editor-topbar panel">
+        <button
+          className="editor-mobile-menu-button"
+          type="button"
+          onClick={() => setMobileNavOpen(true)}
+          aria-label="Abrir menú lateral"
+          title="Abrir menú lateral"
+        >
+          <Menu size={18} />
+        </button>
         <div className="dashboard-identity-main">
           <div className="dashboard-identity-logo">
             <BrandLogo size={48} />
