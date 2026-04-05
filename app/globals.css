@@ -5338,6 +5338,33 @@ html[data-theme="dark"] .admin-sidebar-note {
 }
 
 @media (max-width: 760px) {
+  .editor-topbar {
+    min-height: 72px;
+    gap: 0.75rem;
+  }
+
+  .editor-topbar-brand .brand-logo {
+    gap: 0;
+  }
+
+  .editor-topbar-brand .brand-logo-text {
+    display: none;
+  }
+
+  .editor-topbar-brand .brand-logo-badge {
+    width: 40px !important;
+    height: 40px !important;
+    border-radius: 16px;
+  }
+
+  .editor-topbar .status-badge {
+    max-width: min(46vw, 180px);
+    justify-content: center;
+    text-align: center;
+    line-height: 1.2;
+    padding-inline: 0.7rem;
+  }
+
   .admin-shell,
   .admin-page-shell {
     width: 100%;
