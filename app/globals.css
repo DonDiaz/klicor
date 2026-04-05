@@ -3468,8 +3468,9 @@ html[data-theme="dark"] .admin-sidebar-note {
 
 .dashboard-preview-mobile-stage {
   width: 100%;
-  height: clamp(520px, 78svh, 760px);
-  min-height: clamp(520px, 78svh, 760px);
+  height: 100svh;
+  min-height: 100svh;
+  max-height: 100svh;
   overflow: hidden;
   margin-inline: auto;
 }
