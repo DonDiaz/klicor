@@ -704,6 +704,7 @@ export function ProfileForm({
       ? "Renovar plan"
       : "Activar plan";
   const dashboardLogoSrc = photoPreviewUrl || profile?.photo || "/klicor-icon.png";
+  const dashboardBusinessName = form.businessName?.trim() || profile?.businessName || "Tu negocio";
   const topbarStatusLabel =
     profile?.status === "trial"
       ? "Período de prueba"
@@ -830,7 +831,10 @@ export function ProfileForm({
         </button>
         <div className="editor-topbar-brand">
           <div className="dashboard-identity-logo">
-            <img className="dashboard-identity-logo-image" src={dashboardLogoSrc} alt={form.businessName || profile?.businessName || "Logo del negocio"} />
+            <img className="dashboard-identity-logo-image" src={dashboardLogoSrc} alt={dashboardBusinessName} />
+          </div>
+          <div className="editor-topbar-brand-copy">
+            <strong className="editor-topbar-business-name">{dashboardBusinessName}</strong>
           </div>
         </div>
 
