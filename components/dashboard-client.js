@@ -4,11 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import Script from "next/script";
-import {
-  AlertTriangle,
-  Send,
-  ShieldAlert,
-} from "lucide-react";
+import { AlertTriangle, Send, ShieldAlert } from "lucide-react";
 import { sendEmailVerification, signOut } from "firebase/auth";
 import { getClientAuth } from "@/lib/firebase-client";
 import { apiFetch } from "@/lib/client-api";
@@ -21,7 +17,7 @@ const ProfileForm = dynamic(
     loading: () => (
       <section className="card dashboard-section">
         <strong>Preparando editor</strong>
-        <p className="section-copy">Estamos cargando tu panel de edición y la vista previa.</p>
+        <p className="section-copy">Estamos cargando tu panel de edicion y la vista previa.</p>
       </section>
     ),
   },
@@ -38,23 +34,6 @@ const DashboardOnboarding = dynamic(
     ),
   },
 );
-
-function getStatusTone(status) {
-  if (status === "active" || status === "trial") return "success";
-  if (status === "grace_period") return "warning";
-  if (status === "suspended") return "danger";
-  return "";
-}
-
-function getPlanLabel(plan) {
-  if (plan === "annual") return "anual";
-  return plan || "-";
-}
-
-function getStatusBadgeLabel(user) {
-  if (user?.status === "trial") return "Período de prueba";
-  return `${getPlanLabel(user?.plan)} - ${user?.status}`;
-}
 
 export function DashboardClient() {
   const router = useRouter();
@@ -154,7 +133,7 @@ export function DashboardClient() {
     const auth = getClientAuth();
     if (!auth?.currentUser) return;
     await sendEmailVerification(auth.currentUser);
-    setError("Te reenviamos el correo de verificación.");
+    setError("Te reenviamos el correo de verificacion.");
   }
 
   async function handleLogout() {
@@ -221,8 +200,8 @@ export function DashboardClient() {
       }));
       setRecoveryMessage(
         response.verificationSent
-          ? "Guardamos tus datos y enviamos la verificación al correo de respaldo."
-          : "Datos de recuperación actualizados.",
+          ? "Guardamos tus datos y enviamos la verificacion al correo de respaldo."
+          : "Datos de recuperacion actualizados.",
       );
     } catch (nextError) {
       setRecoveryMessage(nextError.message);
@@ -239,7 +218,7 @@ export function DashboardClient() {
         method: "PUT",
         token,
       });
-      setRecoveryMessage("Reenviamos la verificación al correo de respaldo.");
+      setRecoveryMessage("Reenviamos la verificacion al correo de respaldo.");
     } catch (nextError) {
       setRecoveryMessage(nextError.message);
     } finally {
@@ -253,7 +232,7 @@ export function DashboardClient() {
 
   if (!user) {
     router.replace("/");
-    return <main className="shell page-shell"><div className="kpi">Redirigiendo al inicio de sesión...</div></main>;
+    return <main className="shell page-shell"><div className="kpi">Redirigiendo al inicio...</div></main>;
   }
 
   if (!data) {
@@ -261,12 +240,7 @@ export function DashboardClient() {
   }
 
   const isAdmin = data.user.role === "admin";
-  const statusTone = getStatusTone(data.user.status);
-  const statusSummary = statusTone === "success"
-    ? "Tu cuenta está lista para editar, compartir y cobrar."
-    : statusTone === "warning"
-      ? "Tu cuenta necesita renovación para no perder edición."
-      : "Tu cuenta requiere una acción para volver a operar con normalidad.";
+
   function handleRecoveryFieldChange(field, value) {
     setRecovery((current) => ({
       ...current,
@@ -290,69 +264,28 @@ export function DashboardClient() {
         <Script src="https://sdk.mercadopago.com/js/v2" strategy="afterInteractive" onLoad={() => setSdkReady(true)} />
       ) : null}
 
-      <header className="dashboard-topbar">
-        <div className="dashboard-identity-card panel">
-          <div className="dashboard-identity-main">
-            <div className="dashboard-identity-logo">
-              <BrandLogo size={52} />
-            </div>
-            <div className="stack" style={{ gap: ".38rem" }}>
-              <strong className="dashboard-identity-name">{data.user.businessName || "Tu negocio"}</strong>
-              <span className="dashboard-identity-link">{data.publicUrl || "Configura tu link público"}</span>
-              <p className="section-copy dashboard-identity-copy">{statusSummary}</p>
-            </div>
-          </div>
-
-          <div className="dashboard-identity-meta">
-            <span className={`status-badge ${statusTone}`}>
-              {statusTone === "success" ? <CheckCircle2 size={14} /> : statusTone === "warning" ? <AlertTriangle size={14} /> : <ShieldAlert size={14} />}
-              <span>{getStatusBadgeLabel(data.user)}</span>
-            </span>
-            {isAdmin ? <Link className="btn btn-secondary" href="/admin">Panel de administración</Link> : null}
-            <button className="btn btn-secondary" type="button" onClick={handleLogout}><LogOut size={16} /> Cerrar sesión</button>
-          </div>
-        </div>
-
-        <section className="dashboard-action-strip panel">
-          <div className="dashboard-link-card">
-            <span className="dashboard-link-label">Link público</span>
-            <strong>{data.publicUrl || "Aún no definido"}</strong>
-          </div>
-
-          <div className="dashboard-action-group">
-            <button className="btn btn-secondary" type="button" onClick={handleCopyPublicUrl} disabled={!data.publicUrl}>
-              <Copy size={16} /> Copiar
-            </button>
-            <a className="btn btn-secondary" href={data.publicUrl || "#"} target="_blank" rel="noreferrer" aria-disabled={!data.publicUrl}>
-              <ExternalLink size={16} /> Abrir
-            </a>
-            <button className="btn btn-secondary" type="button" onClick={handleQrDownload} disabled={!data.user.qrUrl}>
-              <Download size={16} /> Descargar QR
-            </button>
-          </div>
-        </section>
-      </header>
-
       <div className="dashboard-body">
         {!user.emailVerified ? (
           <div className="notice notice-danger">
             <ShieldAlert size={16} />
             <span>Debes verificar tu correo para completar el flujo comercial.</span>
-            <button className="btn btn-secondary" type="button" onClick={handleSendVerification}><Send size={16} /> Reenviar verificación</button>
+            <button className="btn btn-secondary" type="button" onClick={handleSendVerification}>
+              <Send size={16} /> Reenviar verificacion
+            </button>
           </div>
         ) : null}
 
         {data.user.status === "grace_period" ? (
           <div className="notice">
             <AlertTriangle size={16} />
-            <span>Tu suscripción venció. Tienes 15 días sin edición antes de suspender la página.</span>
+            <span>Tu suscripcion vencio. Tienes 15 dias sin edicion antes de suspender la pagina.</span>
           </div>
         ) : null}
 
         {data.user.status === "suspended" ? (
           <div className="notice notice-danger">
             <ShieldAlert size={16} />
-            <span>Tu página está suspendida hasta registrar el pago anual.</span>
+            <span>Tu pagina esta suspendida hasta registrar el pago anual.</span>
           </div>
         ) : null}
 
