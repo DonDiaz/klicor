@@ -2,6 +2,7 @@
 
 import { useMemo, useState, useTransition } from "react";
 import {
+  ChevronDown,
   ChevronRight,
   LoaderCircle,
   MessageCircle,
@@ -26,15 +27,15 @@ function formatCurrency(value, currency = "COP") {
   }).format(Number(value || 0));
 }
 
-function buildOrderMessage({ businessName, items, total, customer, heading }) {
+function buildOrderMessage({ businessName, items, total, customer, heading, currency }) {
   const lines = [`${heading} para ${businessName}`, "Productos:", ""];
 
   items.forEach((item) => {
-    lines.push(`${item.quantity} x ${item.name} = ${formatCurrency(item.price * item.quantity)}`);
+    lines.push(`${item.quantity} x ${item.name} = ${formatCurrency(item.price * item.quantity, currency)}`);
   });
 
   lines.push("");
-  lines.push(`Total: ${formatCurrency(total)}`);
+  lines.push(`Total: ${formatCurrency(total, currency)}`);
   lines.push("");
   lines.push("Cliente:");
   lines.push(`Nombre: ${customer.customerName}`);
@@ -87,6 +88,55 @@ function ProductCard({
   );
 }
 
+function ProductsGrid({
+  bootstrap,
+  preview,
+  products,
+  pagination,
+  isPending,
+  onAdd,
+  onConsult,
+  onLoadMore,
+  emptyLabel,
+}) {
+  return (
+    <div className="commerce-products-section">
+      <div className="commerce-products-grid">
+        {products.map((product) => (
+          <ProductCard
+            key={product.id}
+            product={product}
+            preview={preview}
+            currency={bootstrap.config.currency}
+            supportsCart={bootstrap.supportsCart}
+            onAdd={onAdd}
+            onConsult={onConsult}
+          />
+        ))}
+
+        {!products.length ? (
+          <div className="commerce-empty-state commerce-products-empty">
+            <strong>{emptyLabel}</strong>
+            <p>Publica productos desde tu dashboard para verlos aquí.</p>
+          </div>
+        ) : null}
+      </div>
+
+      {pagination.hasMore ? (
+        <button
+          className="btn btn-secondary commerce-load-more"
+          type="button"
+          onClick={onLoadMore}
+          disabled={preview || isPending}
+        >
+          {isPending ? <LoaderCircle size={16} className="spin" /> : <ChevronRight size={16} />}
+          Cargar más
+        </button>
+      ) : null}
+    </div>
+  );
+}
+
 export function CommercePublicView({ bootstrap, preview = false }) {
   const appearance = normalizeAppearance(bootstrap.business.settings);
   const fontFamily = FONT_FAMILY_STYLE_MAP[appearance.fontFamily] || FONT_FAMILY_STYLE_MAP.inter;
@@ -113,14 +163,11 @@ export function CommercePublicView({ bootstrap, preview = false }) {
   });
   const [isPending, startTransition] = useTransition();
 
-  const selectedCategory = useMemo(
-    () => bootstrap.categories.find((item) => item.id === selection.categoryId) || null,
-    [bootstrap.categories, selection.categoryId],
-  );
   const cartTotal = useMemo(
     () => cartItems.reduce((accumulator, item) => accumulator + (Number(item.price || 0) * item.quantity), 0),
     [cartItems],
   );
+
   const cartCount = useMemo(
     () => cartItems.reduce((accumulator, item) => accumulator + item.quantity, 0),
     [cartItems],
@@ -142,6 +189,13 @@ export function CommercePublicView({ bootstrap, preview = false }) {
     "--commerce-muted": appearance.textSecondaryColor,
   };
 
+  function resetOpenState() {
+    setSelection({ categoryId: "", subcategoryId: "" });
+    setSubcategories([]);
+    setProducts([]);
+    setPagination({ hasMore: false, nextCursor: null });
+  }
+
   function applyChunk(nextSelection, nextChunk, append = false) {
     const key = `${nextSelection.categoryId}:${nextSelection.subcategoryId}`;
     const nextState = {
@@ -160,7 +214,7 @@ export function CommercePublicView({ bootstrap, preview = false }) {
     }));
   }
 
-  function loadChunk(nextSelection, append = false, after = null) {
+  function loadChunk(nextSelection, { append = false, after = null } = {}) {
     if (preview) return;
     const cacheKey = `${nextSelection.categoryId}:${nextSelection.subcategoryId}`;
     if (!append && cache[cacheKey]) {
@@ -188,20 +242,31 @@ export function CommercePublicView({ bootstrap, preview = false }) {
     });
   }
 
-  function handleSelectCategory(category) {
-    const nextSelection = {
+  function handleToggleCategory(category) {
+    if (selection.categoryId === category.id) {
+      resetOpenState();
+      return;
+    }
+
+    loadChunk({
       categoryId: category.id,
-      subcategoryId: category.hasSubcategories ? (category.subcategories?.[0]?.id || "") : "",
-    };
-    loadChunk(nextSelection);
+      subcategoryId: category.hasSubcategories ? "" : "",
+    });
   }
 
-  function handleSelectSubcategory(subcategoryId) {
-    const nextSelection = {
+  function handleToggleSubcategory(subcategoryId) {
+    if (!selection.categoryId) return;
+    if (selection.subcategoryId === subcategoryId) {
+      setSelection((current) => ({ ...current, subcategoryId: "" }));
+      setProducts([]);
+      setPagination({ hasMore: false, nextCursor: null });
+      return;
+    }
+
+    loadChunk({
       categoryId: selection.categoryId,
       subcategoryId,
-    };
-    loadChunk(nextSelection);
+    });
   }
 
   function handleAddToCart(product) {
@@ -234,6 +299,7 @@ export function CommercePublicView({ bootstrap, preview = false }) {
       items: cartItems,
       total: cartTotal,
       customer,
+      currency: bootstrap.config.currency,
     });
     window.open(buildWhatsappLink(bootstrap.orderWhatsapp, message), "_blank", "noopener,noreferrer");
   }
@@ -261,65 +327,88 @@ export function CommercePublicView({ bootstrap, preview = false }) {
           {bootstrap.business.businessSubheadline ? <p className="commerce-subheadline">{bootstrap.business.businessSubheadline}</p> : null}
         </header>
 
-        <section className="commerce-categories">
-          {bootstrap.categories.map((category) => (
-            <button
-              key={category.id}
-              className={`commerce-chip ${selection.categoryId === category.id ? "is-active" : ""}`}
-              type="button"
-              onClick={() => handleSelectCategory(category)}
-            >
-              {category.name}
-            </button>
-          ))}
-        </section>
+        <section className="commerce-accordion-list">
+          {bootstrap.categories.map((category) => {
+            const isCategoryOpen = selection.categoryId === category.id;
+            const showDirectProducts = isCategoryOpen && !category.hasSubcategories;
 
-        {selectedCategory?.hasSubcategories && subcategories.length ? (
-          <section className="commerce-subcategories">
-            {subcategories.map((subcategory) => (
-              <button
-                key={subcategory.id}
-                className={`commerce-subchip ${selection.subcategoryId === subcategory.id ? "is-active" : ""}`}
-                type="button"
-                onClick={() => handleSelectSubcategory(subcategory.id)}
-              >
-                {subcategory.name}
-              </button>
-            ))}
-          </section>
-        ) : null}
+            return (
+              <article key={category.id} className={`commerce-accordion-card ${isCategoryOpen ? "is-open" : ""}`.trim()}>
+                <button className="commerce-accordion-trigger" type="button" onClick={() => handleToggleCategory(category)}>
+                  <span className="commerce-accordion-trigger-copy">
+                    <strong>{category.name}</strong>
+                    <small>
+                      {category.hasSubcategories
+                        ? formatCount(category.subcategoryCount, "subcategorías")
+                        : formatCount(category.productCount, "productos")}
+                    </small>
+                  </span>
+                  <ChevronDown className={`commerce-accordion-chevron ${isCategoryOpen ? "is-open" : ""}`.trim()} size={18} />
+                </button>
 
-        <section className="commerce-products">
-          {products.map((product) => (
-            <ProductCard
-              key={product.id}
-              product={product}
-              preview={preview}
-              currency={bootstrap.config.currency}
-              supportsCart={bootstrap.supportsCart}
-              onAdd={handleAddToCart}
-              onConsult={handleDirectConsult}
-            />
-          ))}
+                {isCategoryOpen ? (
+                  <div className="commerce-accordion-body">
+                    {category.hasSubcategories ? (
+                      <>
+                        <div className="commerce-subaccordion-list">
+                          {subcategories.map((subcategory) => {
+                            const isSubcategoryOpen = selection.subcategoryId === subcategory.id;
 
-          {!products.length ? (
-            <div className="commerce-empty-state">
-              <strong>{bootstrap.modeMeta.emptyLabel}</strong>
-              <p>Publica categorías y productos desde tu dashboard para verlos aquí.</p>
-            </div>
-          ) : null}
+                            return (
+                              <article key={subcategory.id} className={`commerce-subaccordion-card ${isSubcategoryOpen ? "is-open" : ""}`.trim()}>
+                                <button className="commerce-subaccordion-trigger" type="button" onClick={() => handleToggleSubcategory(subcategory.id)}>
+                                  <span className="commerce-accordion-trigger-copy">
+                                    <strong>{subcategory.name}</strong>
+                                    <small>{formatCount(subcategory.productCount, "productos")}</small>
+                                  </span>
+                                  <ChevronDown className={`commerce-accordion-chevron ${isSubcategoryOpen ? "is-open" : ""}`.trim()} size={18} />
+                                </button>
 
-          {pagination.hasMore ? (
-            <button
-              className="btn btn-secondary commerce-load-more"
-              type="button"
-              onClick={() => loadChunk(selection, true, pagination.nextCursor)}
-              disabled={preview || isPending}
-            >
-              {isPending ? <LoaderCircle size={16} className="spin" /> : <ChevronRight size={16} />}
-              Cargar más
-            </button>
-          ) : null}
+                                {isSubcategoryOpen ? (
+                                  <div className="commerce-subaccordion-body">
+                                    <ProductsGrid
+                                      bootstrap={bootstrap}
+                                      preview={preview}
+                                      products={products}
+                                      pagination={pagination}
+                                      isPending={isPending}
+                                      onAdd={handleAddToCart}
+                                      onConsult={handleDirectConsult}
+                                      onLoadMore={() => loadChunk(selection, { append: true, after: pagination.nextCursor })}
+                                      emptyLabel={bootstrap.modeMeta.emptyLabel}
+                                    />
+                                  </div>
+                                ) : null}
+                              </article>
+                            );
+                          })}
+                        </div>
+
+                        {!selection.subcategoryId ? (
+                          <div className="commerce-empty-state commerce-subcategory-empty">
+                            <strong>Selecciona una subcategoría</strong>
+                            <p>Abre una subcategoría para ver sus productos.</p>
+                          </div>
+                        ) : null}
+                      </>
+                    ) : (
+                      <ProductsGrid
+                        bootstrap={bootstrap}
+                        preview={preview}
+                        products={showDirectProducts ? products : []}
+                        pagination={showDirectProducts ? pagination : { hasMore: false, nextCursor: null }}
+                        isPending={isPending}
+                        onAdd={handleAddToCart}
+                        onConsult={handleDirectConsult}
+                        onLoadMore={() => loadChunk(selection, { append: true, after: pagination.nextCursor })}
+                        emptyLabel={bootstrap.modeMeta.emptyLabel}
+                      />
+                    )}
+                  </div>
+                ) : null}
+              </article>
+            );
+          })}
         </section>
       </section>
 

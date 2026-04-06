@@ -104,6 +104,8 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
   const [editingCategoryId, setEditingCategoryId] = useState("");
   const [editingCategoryName, setEditingCategoryName] = useState("");
   const [productEditor, setProductEditor] = useState(null);
+  const [expandedCategoryId, setExpandedCategoryId] = useState("");
+  const [expandedSubcategoryIds, setExpandedSubcategoryIds] = useState({});
 
   const categories = state?.categories || [];
   const modeMeta = resolveCommerceModeMeta(configForm.activeMode);
@@ -123,6 +125,30 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
       .catch((nextError) => setError(nextError.message))
       .finally(() => setLoading(false));
   }, [active, token]);
+
+  useEffect(() => {
+    if (!categories.length) {
+      setExpandedCategoryId("");
+      setExpandedSubcategoryIds({});
+      return;
+    }
+
+    setExpandedCategoryId((current) => (
+      categories.some((category) => category.id === current) ? current : categories[0].id
+    ));
+
+    setExpandedSubcategoryIds((current) => {
+      const next = {};
+      categories.forEach((category) => {
+        if (!category.subcategories?.length) return;
+        const currentSubcategory = current[category.id];
+        next[category.id] = category.subcategories.some((subcategory) => subcategory.id === currentSubcategory)
+          ? currentSubcategory
+          : category.subcategories[0].id;
+      });
+      return next;
+    });
+  }, [categories]);
 
   useEffect(() => {
     if (!onPreviewDataChange) return;
@@ -232,93 +258,148 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
             </div>
           </section>
 
-          {categories.map((category) => (
-            <section key={category.id} className="commerce-category-card">
-              <div className="commerce-category-head">
-                <div>
-                  {editingCategoryId === category.id ? (
-                    <div className="commerce-inline-edit">
-                      <input className="input" value={editingCategoryName} onChange={(event) => setEditingCategoryName(event.target.value)} />
-                      <button className="btn btn-secondary" type="button" onClick={() => { runAction("update_category", { id: category.id, name: editingCategoryName }); setEditingCategoryId(""); }} disabled={!editingCategoryName.trim()}>
-                        Guardar
+          {categories.map((category) => {
+            const isCategoryOpen = expandedCategoryId === category.id;
+            const isSubcategoryOpen = (subcategoryId) => expandedSubcategoryIds[category.id] === subcategoryId;
+
+            return (
+              <section key={category.id} className="commerce-category-card">
+                <div className="commerce-category-head">
+                  <div>
+                    {editingCategoryId === category.id ? (
+                      <div className="commerce-inline-edit">
+                        <input className="input" value={editingCategoryName} onChange={(event) => setEditingCategoryName(event.target.value)} />
+                        <button
+                          className="btn btn-secondary"
+                          type="button"
+                          onClick={() => {
+                            runAction("update_category", { id: category.id, name: editingCategoryName });
+                            setEditingCategoryId("");
+                          }}
+                          disabled={!editingCategoryName.trim()}
+                        >
+                          Guardar
+                        </button>
+                      </div>
+                    ) : (
+                      <>
+                        <strong>{category.name}</strong>
+                        <div className="commerce-inline-metadata">
+                          <span>{formatCount(category.subcategoryCount, "subcategorías")}</span>
+                          <span>{formatCount(category.productCount, "productos")}</span>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                  <div className="commerce-inline-actions">
+                    <button type="button" onClick={() => runAction("move_category", { categoryId: category.id, direction: "up" })}><ChevronUp size={16} /></button>
+                    <button type="button" onClick={() => runAction("move_category", { categoryId: category.id, direction: "down" })}><ChevronDown size={16} /></button>
+                    <button type="button" onClick={() => { setEditingCategoryId(category.id); setEditingCategoryName(category.name); }}><Pencil size={16} /></button>
+                    <button type="button" onClick={() => runAction("delete_category", { categoryId: category.id })}><Trash2 size={16} /></button>
+                    <button
+                      className="commerce-accordion-toggle"
+                      type="button"
+                      onClick={() => setExpandedCategoryId((current) => (current === category.id ? "" : category.id))}
+                      title={isCategoryOpen ? "Recoger categoría" : "Expandir categoría"}
+                    >
+                      {isCategoryOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                    </button>
+                  </div>
+                </div>
+
+                {isCategoryOpen ? (
+                  <div className="commerce-admin-accordion-body">
+                    <div className="commerce-admin-inline-create">
+                      <input
+                        className="input"
+                        value={subcategoryDrafts[category.id] || ""}
+                        onChange={(event) => setSubcategoryDrafts((current) => ({ ...current, [category.id]: event.target.value }))}
+                        placeholder={`Nueva ${modeMeta.subcategoryLabel.toLowerCase().slice(0, -1)}`}
+                      />
+                      <button
+                        className="btn btn-secondary"
+                        type="button"
+                        onClick={() => {
+                          const value = subcategoryDrafts[category.id] || "";
+                          runAction("create_subcategory", { categoryId: category.id, name: value });
+                          setSubcategoryDrafts((current) => ({ ...current, [category.id]: "" }));
+                        }}
+                        disabled={!String(subcategoryDrafts[category.id] || "").trim()}
+                      >
+                        <Plus size={16} /> Agregar subcategoría
+                      </button>
+                      <button className="btn btn-primary" type="button" onClick={() => setProductEditor({ mode: configForm.activeMode, categoryId: category.id, subcategoryId: "", name: "", description: "", price: "", visible: true, imageFile: null, id: "" })}>
+                        <ImagePlus size={16} /> Agregar producto
                       </button>
                     </div>
-                  ) : (
-                    <>
-                      <strong>{category.name}</strong>
-                      <div className="commerce-inline-metadata">
-                        <span>{formatCount(category.subcategoryCount, "subcategorías")}</span>
-                        <span>{formatCount(category.productCount, "productos")}</span>
-                      </div>
-                    </>
-                  )}
-                </div>
-                <div className="commerce-inline-actions">
-                  <button type="button" onClick={() => runAction("move_category", { categoryId: category.id, direction: "up" })}><ChevronUp size={16} /></button>
-                  <button type="button" onClick={() => runAction("move_category", { categoryId: category.id, direction: "down" })}><ChevronDown size={16} /></button>
-                  <button type="button" onClick={() => { setEditingCategoryId(category.id); setEditingCategoryName(category.name); }}><Pencil size={16} /></button>
-                  <button type="button" onClick={() => runAction("delete_category", { categoryId: category.id })}><Trash2 size={16} /></button>
-                </div>
-              </div>
 
-              <div className="commerce-admin-inline-create">
-                <input
-                  className="input"
-                  value={subcategoryDrafts[category.id] || ""}
-                  onChange={(event) => setSubcategoryDrafts((current) => ({ ...current, [category.id]: event.target.value }))}
-                  placeholder={`Nueva ${modeMeta.subcategoryLabel.toLowerCase().slice(0, -1)}`}
-                />
-                <button
-                  className="btn btn-secondary"
-                  type="button"
-                  onClick={() => {
-                    const value = subcategoryDrafts[category.id] || "";
-                    runAction("create_subcategory", { categoryId: category.id, name: value });
-                    setSubcategoryDrafts((current) => ({ ...current, [category.id]: "" }));
-                  }}
-                  disabled={!String(subcategoryDrafts[category.id] || "").trim()}
-                >
-                  <Plus size={16} /> Agregar subcategoría
-                </button>
-                <button className="btn btn-primary" type="button" onClick={() => setProductEditor({ mode: configForm.activeMode, categoryId: category.id, subcategoryId: "", name: "", description: "", price: "", visible: true, imageFile: null, id: "" })}>
-                  <ImagePlus size={16} /> Agregar producto
-                </button>
-              </div>
+                    {category.subcategories?.length ? (
+                      <div className="commerce-subcategory-list">
+                        {category.subcategories.map((subcategory) => (
+                          <div className="commerce-subcategory-card" key={subcategory.id}>
+                            <div className="commerce-subcategory-head">
+                              <div>
+                                <strong>{subcategory.name}</strong>
+                                <small>{formatCount(subcategory.productCount, "productos")}</small>
+                              </div>
+                              <div className="commerce-inline-actions">
+                                <button type="button" onClick={() => runAction("move_subcategory", { subcategoryId: subcategory.id, direction: "up" })}><ChevronUp size={16} /></button>
+                                <button type="button" onClick={() => runAction("move_subcategory", { subcategoryId: subcategory.id, direction: "down" })}><ChevronDown size={16} /></button>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const nextName = window.prompt("Nuevo nombre de la subcategoría", subcategory.name);
+                                    if (!nextName || nextName === subcategory.name) return;
+                                    runAction("update_subcategory", {
+                                      id: subcategory.id,
+                                      categoryId: category.id,
+                                      name: nextName,
+                                    });
+                                  }}
+                                >
+                                  <Pencil size={16} />
+                                </button>
+                                <button type="button" onClick={() => runAction("delete_subcategory", { subcategoryId: subcategory.id })}><Trash2 size={16} /></button>
+                                <button
+                                  className="commerce-accordion-toggle"
+                                  type="button"
+                                  onClick={() => setExpandedSubcategoryIds((current) => ({
+                                    ...current,
+                                    [category.id]: current[category.id] === subcategory.id ? "" : subcategory.id,
+                                  }))}
+                                  title={isSubcategoryOpen(subcategory.id) ? "Recoger subcategoría" : "Expandir subcategoría"}
+                                >
+                                  {isSubcategoryOpen(subcategory.id) ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                                </button>
+                              </div>
+                            </div>
 
-              {category.subcategories?.length ? (
-                <div className="commerce-subcategory-list">
-                  {category.subcategories.map((subcategory) => (
-                    <div className="commerce-subcategory-card" key={subcategory.id}>
-                      <div className="commerce-subcategory-head">
-                        <div>
-                          <strong>{subcategory.name}</strong>
-                          <small>{formatCount(subcategory.productCount, "productos")}</small>
-                        </div>
-                        <div className="commerce-inline-actions">
-                          <button type="button" onClick={() => runAction("move_subcategory", { subcategoryId: subcategory.id, direction: "up" })}><ChevronUp size={16} /></button>
-                          <button type="button" onClick={() => runAction("move_subcategory", { subcategoryId: subcategory.id, direction: "down" })}><ChevronDown size={16} /></button>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              const nextName = window.prompt("Nuevo nombre de la subcategoría", subcategory.name);
-                              if (!nextName || nextName === subcategory.name) return;
-                              runAction("update_subcategory", {
-                                id: subcategory.id,
-                                categoryId: category.id,
-                                name: nextName,
-                              });
-                            }}
-                          >
-                            <Pencil size={16} />
-                          </button>
-                          <button type="button" onClick={() => runAction("delete_subcategory", { subcategoryId: subcategory.id })}><Trash2 size={16} /></button>
-                        </div>
+                            {isSubcategoryOpen(subcategory.id) ? (
+                              <div className="commerce-admin-accordion-body">
+                                <button className="btn btn-secondary" type="button" onClick={() => setProductEditor({ mode: configForm.activeMode, categoryId: category.id, subcategoryId: subcategory.id, name: "", description: "", price: "", visible: true, imageFile: null, id: "" })}>
+                                  <Plus size={16} /> Agregar producto aquí
+                                </button>
+                                <div className="commerce-admin-product-list">
+                                  {subcategory.products?.map((product) => (
+                                    <ProductRow
+                                      key={product.id}
+                                      product={product}
+                                      mode={configForm.activeMode}
+                                      onEdit={(nextProduct) => setProductEditor({ ...nextProduct, imageFile: null })}
+                                      onToggleVisibility={(productId, visible) => runAction("toggle_product_visibility", { productId, visible })}
+                                      onMove={(productId, direction) => runAction("move_product", { productId, direction })}
+                                      onDelete={(productId) => runAction("delete_product", { productId })}
+                                    />
+                                  ))}
+                                </div>
+                              </div>
+                            ) : null}
+                          </div>
+                        ))}
                       </div>
-                      <button className="btn btn-secondary" type="button" onClick={() => setProductEditor({ mode: configForm.activeMode, categoryId: category.id, subcategoryId: subcategory.id, name: "", description: "", price: "", visible: true, imageFile: null, id: "" })}>
-                        <Plus size={16} /> Agregar producto aquí
-                      </button>
+                    ) : (
                       <div className="commerce-admin-product-list">
-                        {subcategory.products?.map((product) => (
+                        {category.products?.map((product) => (
                           <ProductRow
                             key={product.id}
                             product={product}
@@ -330,26 +411,12 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
                           />
                         ))}
                       </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="commerce-admin-product-list">
-                  {category.products?.map((product) => (
-                    <ProductRow
-                      key={product.id}
-                      product={product}
-                      mode={configForm.activeMode}
-                      onEdit={(nextProduct) => setProductEditor({ ...nextProduct, imageFile: null })}
-                      onToggleVisibility={(productId, visible) => runAction("toggle_product_visibility", { productId, visible })}
-                      onMove={(productId, direction) => runAction("move_product", { productId, direction })}
-                      onDelete={(productId) => runAction("delete_product", { productId })}
-                    />
-                  ))}
-                </div>
-              )}
-            </section>
-          ))}
+                    )}
+                  </div>
+                ) : null}
+              </section>
+            );
+          })}
 
           {!categories.length ? (
             <div className="commerce-empty-state">
