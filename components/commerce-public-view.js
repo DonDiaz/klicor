@@ -15,6 +15,7 @@ import {
 import { FONT_FAMILY_STYLE_MAP } from "@/app/fonts";
 import { PublicFloatingActions } from "@/components/public-floating-actions";
 import { apiFetch } from "@/lib/client-api";
+import { resolveCommerceModeMeta } from "@/lib/commerce-config";
 import { buildWhatsappLink } from "@/lib/utils";
 import { hexToRgba, normalizeAppearance } from "@/lib/theme-system";
 
@@ -99,6 +100,8 @@ function ProductsGrid({
   onLoadMore,
   emptyLabel,
 }) {
+  const currency = bootstrap?.config?.currency || "COP";
+  const supportsCart = Boolean(bootstrap?.supportsCart);
   return (
     <div className="commerce-products-section">
       <div className="commerce-products-grid">
@@ -107,8 +110,8 @@ function ProductsGrid({
             key={product.id}
             product={product}
             preview={preview}
-            currency={bootstrap.config.currency}
-            supportsCart={bootstrap.supportsCart}
+            currency={currency}
+            supportsCart={supportsCart}
             onAdd={onAdd}
             onConsult={onConsult}
           />
@@ -138,17 +141,30 @@ function ProductsGrid({
 }
 
 export function CommercePublicView({ bootstrap, preview = false }) {
+  const safeBusiness = {
+    businessName: bootstrap?.business?.businessName || "Tu negocio",
+    businessHeadline: bootstrap?.business?.businessHeadline || "",
+    businessSubheadline: bootstrap?.business?.businessSubheadline || "",
+    photo: bootstrap?.business?.photo || "",
+    settings: bootstrap?.business?.settings || {},
+    username: bootstrap?.business?.username || "",
+  };
+  const safeConfig = {
+    currency: bootstrap?.config?.currency || "COP",
+  };
+  const safeModeMeta = bootstrap?.modeMeta || resolveCommerceModeMeta(bootstrap?.mode || "");
+  const safeInitialSelection = bootstrap?.initialSelection || { categoryId: "", subcategoryId: "" };
   const categories = Array.isArray(bootstrap?.categories) ? bootstrap.categories : [];
   const initialSubcategories = Array.isArray(bootstrap?.initialSubcategories) ? bootstrap.initialSubcategories : [];
   const initialProducts = Array.isArray(bootstrap?.initialProducts) ? bootstrap.initialProducts : [];
-  const appearance = normalizeAppearance(bootstrap.business.settings);
+  const appearance = normalizeAppearance(safeBusiness.settings);
   const fontFamily = FONT_FAMILY_STYLE_MAP[appearance.fontFamily] || FONT_FAMILY_STYLE_MAP.inter;
-  const [selection, setSelection] = useState(bootstrap.initialSelection || { categoryId: "", subcategoryId: "" });
+  const [selection, setSelection] = useState(safeInitialSelection);
   const [subcategories, setSubcategories] = useState(initialSubcategories);
   const [products, setProducts] = useState(initialProducts);
   const [pagination, setPagination] = useState(bootstrap.initialPagination || { hasMore: false, nextCursor: null });
   const [cache, setCache] = useState(() => ({
-    [`${bootstrap.initialSelection.categoryId}:${bootstrap.initialSelection.subcategoryId}`]: {
+    [`${safeInitialSelection.categoryId}:${safeInitialSelection.subcategoryId}`]: {
       subcategories: initialSubcategories,
       products: initialProducts,
       hasMore: bootstrap.initialPagination?.hasMore || false,
@@ -231,7 +247,7 @@ export function CommercePublicView({ bootstrap, preview = false }) {
 
     startTransition(async () => {
       const params = new URLSearchParams({
-        mode: bootstrap.mode,
+        mode: bootstrap?.mode || "",
         categoryId: nextSelection.categoryId,
       });
       if (nextSelection.subcategoryId) {
@@ -240,7 +256,7 @@ export function CommercePublicView({ bootstrap, preview = false }) {
       if (after !== null && after !== undefined && after !== "") {
         params.set("after", String(after));
       }
-      const response = await apiFetch(`/api/public/commerce/${bootstrap.business.username}?${params.toString()}`);
+      const response = await apiFetch(`/api/public/commerce/${safeBusiness.username}?${params.toString()}`);
       applyChunk(nextSelection, response.data, append);
     });
   }
@@ -289,20 +305,20 @@ export function CommercePublicView({ bootstrap, preview = false }) {
   }
 
   function handleDirectConsult(product) {
-    if (preview || !bootstrap.orderWhatsapp) return;
-    const message = encodeURIComponent(`Hola, quiero información sobre ${product.name} en ${bootstrap.business.businessName}.`);
+    if (preview || !bootstrap?.orderWhatsapp) return;
+    const message = encodeURIComponent(`Hola, quiero información sobre ${product.name} en ${safeBusiness.businessName}.`);
     window.open(`https://wa.me/${bootstrap.orderWhatsapp}?text=${message}`, "_blank", "noopener,noreferrer");
   }
 
   function handleCheckout() {
-    if (preview || !bootstrap.orderWhatsapp || !cartItems.length) return;
+    if (preview || !bootstrap?.orderWhatsapp || !cartItems.length) return;
     const message = buildOrderMessage({
-      businessName: bootstrap.business.businessName,
-      heading: bootstrap.modeMeta.checkoutVerb,
+      businessName: safeBusiness.businessName,
+      heading: safeModeMeta.checkoutVerb,
       items: cartItems,
       total: cartTotal,
       customer,
-      currency: bootstrap.config.currency,
+      currency: safeConfig.currency,
     });
     window.open(buildWhatsappLink(bootstrap.orderWhatsapp, message), "_blank", "noopener,noreferrer");
   }
@@ -311,23 +327,23 @@ export function CommercePublicView({ bootstrap, preview = false }) {
     <main className={`commerce-page ${preview ? "is-preview" : ""}`} style={rootStyle}>
       {!preview ? (
         <div className="commerce-floating-actions">
-          <PublicFloatingActions businessName={bootstrap.business.businessName} style={{ background: appearance.primaryColor, color: "#FFFFFF" }} />
+          <PublicFloatingActions businessName={safeBusiness.businessName} style={{ background: appearance.primaryColor, color: "#FFFFFF" }} />
         </div>
       ) : null}
 
       <section className="commerce-shell">
         <header className="commerce-header">
-          {bootstrap.business.photo ? (
-            <img className="commerce-avatar" src={bootstrap.business.photo} alt={bootstrap.business.businessName} />
+          {safeBusiness.photo ? (
+            <img className="commerce-avatar" src={safeBusiness.photo} alt={safeBusiness.businessName} />
           ) : (
-            <div className="commerce-avatar commerce-avatar-fallback">{bootstrap.business.businessName?.slice(0, 1) || "K"}</div>
+            <div className="commerce-avatar commerce-avatar-fallback">{safeBusiness.businessName?.slice(0, 1) || "K"}</div>
           )}
-          <span className="commerce-mode-badge">{bootstrap.modeMeta.label}</span>
-          <h1>{bootstrap.business.businessName}</h1>
+          <span className="commerce-mode-badge">{safeModeMeta.label}</span>
+          <h1>{safeBusiness.businessName}</h1>
           <p className="commerce-headline">
-            {bootstrap.business.businessHeadline || bootstrap.modeMeta.publicHeadlineFallback}
+            {safeBusiness.businessHeadline || safeModeMeta.publicHeadlineFallback}
           </p>
-          {bootstrap.business.businessSubheadline ? <p className="commerce-subheadline">{bootstrap.business.businessSubheadline}</p> : null}
+          {safeBusiness.businessSubheadline ? <p className="commerce-subheadline">{safeBusiness.businessSubheadline}</p> : null}
         </header>
 
         <section className="commerce-accordion-list">
@@ -379,7 +395,7 @@ export function CommercePublicView({ bootstrap, preview = false }) {
                                       onAdd={handleAddToCart}
                                       onConsult={handleDirectConsult}
                                       onLoadMore={() => loadChunk(selection, { append: true, after: pagination.nextCursor })}
-                                      emptyLabel={bootstrap.modeMeta.emptyLabel}
+                                      emptyLabel={safeModeMeta.emptyLabel}
                                     />
                                   </div>
                                 ) : null}
@@ -405,7 +421,7 @@ export function CommercePublicView({ bootstrap, preview = false }) {
                         onAdd={handleAddToCart}
                         onConsult={handleDirectConsult}
                         onLoadMore={() => loadChunk(selection, { append: true, after: pagination.nextCursor })}
-                        emptyLabel={bootstrap.modeMeta.emptyLabel}
+                        emptyLabel={safeModeMeta.emptyLabel}
                       />
                     )}
                   </div>
@@ -416,16 +432,16 @@ export function CommercePublicView({ bootstrap, preview = false }) {
         </section>
       </section>
 
-      {bootstrap.supportsCart && cartCount > 0 ? (
+      {bootstrap?.supportsCart && cartCount > 0 ? (
         <button className="commerce-cart-fab" type="button" onClick={() => setCartOpen(true)} disabled={preview}>
           <ShoppingCart size={18} />
           <span>{cartCount}</span>
-          <strong>{formatCurrency(cartTotal, bootstrap.config.currency)}</strong>
+          <strong>{formatCurrency(cartTotal, safeConfig.currency)}</strong>
         </button>
       ) : null}
 
-      {cartOpen && bootstrap.supportsCart ? (
-        <div className="commerce-modal-backdrop" role="dialog" aria-modal="true" aria-label={bootstrap.modeMeta.cartLabel}>
+      {cartOpen && bootstrap?.supportsCart ? (
+        <div className="commerce-modal-backdrop" role="dialog" aria-modal="true" aria-label={safeModeMeta.cartLabel}>
           <div className="commerce-modal-card">
             <button className="commerce-modal-close" type="button" onClick={() => { setCartOpen(false); setCheckoutStep("cart"); }}>
               <X size={18} />
@@ -434,7 +450,7 @@ export function CommercePublicView({ bootstrap, preview = false }) {
             {checkoutStep === "cart" ? (
               <>
                 <div className="commerce-modal-head">
-                  <strong>{bootstrap.modeMeta.cartLabel}</strong>
+                  <strong>{safeModeMeta.cartLabel}</strong>
                   <span>{cartCount} productos</span>
                 </div>
                 <div className="commerce-cart-list">
@@ -442,7 +458,7 @@ export function CommercePublicView({ bootstrap, preview = false }) {
                     <article className="commerce-cart-row" key={item.id}>
                       <div>
                         <strong>{item.name}</strong>
-                        <span>{formatCurrency(item.price, bootstrap.config.currency)}</span>
+                        <span>{formatCurrency(item.price, safeConfig.currency)}</span>
                       </div>
                       <div className="commerce-cart-qty">
                         <button type="button" onClick={() => handleCartQuantity(item.id, -1)}>
@@ -458,7 +474,7 @@ export function CommercePublicView({ bootstrap, preview = false }) {
                 </div>
                 <div className="commerce-cart-total">
                   <span>Total</span>
-                  <strong>{formatCurrency(cartTotal, bootstrap.config.currency)}</strong>
+                  <strong>{formatCurrency(cartTotal, safeConfig.currency)}</strong>
                 </div>
                 <button className="btn btn-primary" type="button" onClick={() => setCheckoutStep("details")}>
                   Continuar pedido
@@ -480,7 +496,7 @@ export function CommercePublicView({ bootstrap, preview = false }) {
                   <button className="btn btn-secondary" type="button" onClick={() => setCheckoutStep("cart")}>
                     Volver
                   </button>
-                  <button className="btn btn-primary" type="button" onClick={handleCheckout} disabled={!customer.customerName || !customer.address || !customer.phone || !bootstrap.orderWhatsapp}>
+                  <button className="btn btn-primary" type="button" onClick={handleCheckout} disabled={!customer.customerName || !customer.address || !customer.phone || !bootstrap?.orderWhatsapp}>
                     <ShoppingBag size={16} /> Enviar a WhatsApp
                   </button>
                 </div>
