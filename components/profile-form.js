@@ -6,6 +6,7 @@ import dynamic from "next/dynamic";
 import {
   AlertTriangle,
   Copy,
+  ShoppingBag,
   CreditCard,
   ChevronDown,
   ChevronUp,
@@ -69,6 +70,18 @@ const DashboardPreview = dynamic(
           <p className="section-copy">Preparamos la representación real de tu página pública.</p>
         </div>
       </div>
+    ),
+  },
+);
+
+const CommerceWorkspace = dynamic(
+  () => import("@/components/commerce-workspace").then((mod) => mod.CommerceWorkspace),
+  {
+    loading: () => (
+      <section className="card dashboard-section">
+        <strong>Cargando presencia comercial</strong>
+        <p className="section-copy">Preparamos categorías, productos y la vista pública comercial.</p>
+      </section>
     ),
   },
 );
@@ -168,14 +181,9 @@ const BILLING_RESPONSIBILITY_OPTIONS = [
   { value: "no", label: "No" },
 ];
 
-const WORKSPACE_TABS = [
-  { id: "blocks", label: "Enlaces", icon: Link2 },
-  { id: "design", label: "Diseño", icon: Paintbrush },
-  { id: "settings", label: "Ajustes", icon: ShieldCheck },
-];
-
 const DASHBOARD_NAV_ITEMS = [
   { id: "blocks", label: "Enlaces", icon: Link2, copy: "Botones, pagos y contacto" },
+  { id: "commerce", label: "Comercio", icon: ShoppingBag, copy: "Tienda, menú o catálogo" },
   { id: "design", label: "Diseño", icon: Paintbrush, copy: "Temas, colores y estilos" },
   { id: "profile", label: "Perfil", icon: UserRound, copy: "Nombre, usuario e imagen principal" },
   { id: "security", label: "Seguridad", icon: ShieldCheck, copy: "Recuperación y verificación" },
@@ -355,6 +363,7 @@ export function ProfileForm({
   const [darkModeEnabled, setDarkModeEnabled] = useState(false);
   const [openProfileSection, setOpenProfileSection] = useState("profile-identity");
   const [openDesignSection, setOpenDesignSection] = useState("design-themes");
+  const [commercePreviewData, setCommercePreviewData] = useState(null);
   useEffect(() => {
     setForm({
       businessName: profile?.businessName || "",
@@ -371,6 +380,7 @@ export function ProfileForm({
     setContactCard(normalizeContactCard(profile));
     setBillingProfile(normalizeBillingProfile(profile));
     setAlertMessage("");
+    setCommercePreviewData(null);
   }, [profile]);
 
   useEffect(() => {
@@ -467,12 +477,18 @@ export function ProfileForm({
   }), [appearance, contactCard.enabled, contactCard.name, contactCard.phone, contactCard.title, contactCard.whatsappLinkId, form.businessCategory, form.businessHeadline, form.businessName, form.businessSubheadline, form.username, paymentMethods, photoPreviewUrl, profile?.photo, profile?.publicLinkId, profileLinks]);
 
   const previewPublicUrl = useMemo(() => {
+    if (activeWorkspace === "commerce" && commercePreviewData?.publicUrl) {
+      const baseUrl = typeof window !== "undefined"
+        ? window.location.origin
+        : process.env.NEXT_PUBLIC_APP_URL || "https://klicor.com";
+      return `${baseUrl}${commercePreviewData.publicUrl}`;
+    }
     if (publicUrl) return publicUrl;
     const baseUrl = typeof window !== "undefined"
       ? window.location.origin
       : process.env.NEXT_PUBLIC_APP_URL || "https://klicor.com";
     return form.username ? `${baseUrl}/${form.username}` : baseUrl;
-  }, [form.username, publicUrl]);
+  }, [activeWorkspace, commercePreviewData?.publicUrl, form.username, publicUrl]);
 
   const appearanceWarnings = useMemo(() => getAppearanceWarnings(appearance), [appearance]);
   const appearanceSuggestions = useMemo(() => getAppearanceSuggestions(appearance), [appearance]);
@@ -964,7 +980,11 @@ export function ProfileForm({
           </div>
         </div>
         <div className="preview-frame preview-frame-editor">
-          <DashboardPreview user={previewUser} />
+          <DashboardPreview
+            user={previewUser}
+            previewMode={activeWorkspace === "commerce" && commercePreviewData?.mode ? "commerce" : "landing"}
+            commerceBootstrap={commercePreviewData}
+          />
         </div>
       </aside>
 
@@ -1471,6 +1491,16 @@ export function ProfileForm({
             </section>
           ) : null}
 
+          {activeWorkspace === "commerce" ? (
+            <CommerceWorkspace
+              token={token}
+              profile={{ ...profile, ...previewUser, uid: profile?.uid || profile?.id }}
+              active={activeWorkspace === "commerce"}
+              canEdit={canEdit}
+              onPreviewDataChange={setCommercePreviewData}
+            />
+          ) : null}
+
           {activeWorkspace === "blocks" ? (
             <section className="dashboard-section panel workspace-panel">
               <div className="dashboard-section-head workspace-panel-head">
@@ -1948,14 +1978,18 @@ export function ProfileForm({
               </div>
             </section>
           ) : null}
-        <div className="actions editor-form-footer">
-          <button className="btn btn-primary" type="submit" disabled={loading || !canEdit || appearanceWarnings.length > 0}>
-            {loading ? <RefreshCw size={16} /> : null}
-            Guardar cambios
-          </button>
-        </div>
+        {activeWorkspace !== "commerce" ? (
+          <>
+            <div className="actions editor-form-footer">
+              <button className="btn btn-primary" type="submit" disabled={loading || !canEdit || appearanceWarnings.length > 0}>
+                {loading ? <RefreshCw size={16} /> : null}
+                Guardar cambios
+              </button>
+            </div>
 
-        {message ? <p className="notice">{message}</p> : null}
+            {message ? <p className="notice">{message}</p> : null}
+          </>
+        ) : null}
       </form>
     </div>
     </div>

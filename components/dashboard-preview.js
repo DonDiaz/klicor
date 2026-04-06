@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { CommercePublicView } from "@/components/commerce-public-view";
 import { LandingView } from "@/components/landing-view";
 
 const PREVIEW_WIDTH = 390;
@@ -8,7 +9,7 @@ const PREVIEW_HEIGHT = 844;
 const PREVIEW_SAFE_SCALE = 0.96;
 const MOBILE_INLINE_PREVIEW_BREAKPOINT = 760;
 
-export function DashboardPreview({ user }) {
+export function DashboardPreview({ user, previewMode = "landing", commerceBootstrap = null }) {
   const shellRef = useRef(null);
   const [inlinePreview, setInlinePreview] = useState(false);
   const [metrics, setMetrics] = useState({
@@ -63,7 +64,11 @@ export function DashboardPreview({ user }) {
     return (
       <div ref={shellRef} className="dashboard-preview-fit-shell is-inline-preview">
         <div className="dashboard-preview-mobile-stage">
-          <LandingView user={user} preview />
+          {previewMode === "commerce" && commerceBootstrap ? (
+            <CommercePublicView bootstrap={commerceBootstrap} preview />
+          ) : (
+            <LandingView user={user} preview />
+          )}
         </div>
       </div>
     );
@@ -86,7 +91,11 @@ export function DashboardPreview({ user }) {
             transform: `translateX(-50%) scale(${metrics.scale})`,
           }}
         >
-          <LandingView user={user} preview />
+          {previewMode === "commerce" && commerceBootstrap ? (
+            <CommercePublicView bootstrap={commerceBootstrap} preview />
+          ) : (
+            <LandingView user={user} preview />
+          )}
         </div>
       </div>
     </div>
