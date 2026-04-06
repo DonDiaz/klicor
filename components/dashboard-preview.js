@@ -6,7 +6,7 @@ import { LandingView } from "@/components/landing-view";
 const PREVIEW_WIDTH = 390;
 const PREVIEW_HEIGHT = 844;
 const PREVIEW_SAFE_SCALE = 0.96;
-const INLINE_PREVIEW_BREAKPOINT = 520;
+const MOBILE_INLINE_PREVIEW_BREAKPOINT = 760;
 
 export function DashboardPreview({ user }) {
   const shellRef = useRef(null);
@@ -24,8 +24,8 @@ export function DashboardPreview({ user }) {
     let frame = 0;
 
     const update = () => {
-      const shellWidth = shell.clientWidth || PREVIEW_WIDTH;
-      const shouldUseInlinePreview = shellWidth <= INLINE_PREVIEW_BREAKPOINT;
+      const viewportWidth = window.innerWidth || shell.clientWidth || PREVIEW_WIDTH;
+      const shouldUseInlinePreview = viewportWidth < MOBILE_INLINE_PREVIEW_BREAKPOINT;
       setInlinePreview(shouldUseInlinePreview);
 
       if (shouldUseInlinePreview) {

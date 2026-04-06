@@ -19,6 +19,7 @@ export async function POST(request) {
     const formData = await request.formData();
     const linksJson = formData.get("profileLinks");
     const appearanceJson = formData.get("appearance");
+    const customThemesJson = formData.get("customThemes");
     const contactCardJson = formData.get("contactCard");
     const billingProfileJson = formData.get("billingProfile");
     const paymentMethodsJson = formData.get("paymentMethods");
@@ -33,6 +34,7 @@ export async function POST(request) {
       profileLinks: JSON.parse(typeof linksJson === "string" ? linksJson : "[]"),
       paymentMethods: JSON.parse(typeof paymentMethodsJson === "string" ? paymentMethodsJson : "[]"),
       appearance: JSON.parse(typeof appearanceJson === "string" ? appearanceJson : "{}"),
+      customThemes: JSON.parse(typeof customThemesJson === "string" ? customThemesJson : "[]"),
       contactCard: typeof contactCardJson === "string"
         ? JSON.parse(contactCardJson)
         : { enabled: false, name: "", title: "", whatsappLinkId: "", phone: "" },

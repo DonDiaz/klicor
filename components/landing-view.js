@@ -33,6 +33,24 @@ const AVATAR_RADIUS_MAP = {
   "soft-square": "16px",
 };
 
+const FONT_FAMILY_MAP = {
+  modern: '"Inter", "Segoe UI", sans-serif',
+  friendly: '"Nunito", "Trebuchet MS", "Segoe UI", sans-serif',
+  editorial: '"Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif',
+  strong: '"Arial Black", "Aptos", "Segoe UI", sans-serif',
+};
+
+const SOCIAL_BRAND_STYLES = {
+  whatsapp: { background: "#25D366", color: "#FFFFFF" },
+  website: { background: "#0EA5E9", color: "#FFFFFF" },
+  facebook: { background: "#1877F2", color: "#FFFFFF" },
+  email: { background: "#60A5FA", color: "#FFFFFF" },
+  instagram: { background: "#C13584", color: "#FFFFFF" },
+  tiktok: { background: "#111827", color: "#FFFFFF" },
+  youtube: { background: "#7C3AED", color: "#FFFFFF" },
+  maps: { background: "#4F46E5", color: "#FFFFFF" },
+};
+
 function resolveReadableText(background, preferred, fallback) {
   return getContrastRatio(background, preferred) >= 4.5 ? preferred : fallback;
 }
@@ -102,6 +120,41 @@ function buildTertiaryButtonStyle(appearance) {
   };
 }
 
+function buildSocialStyle(appearance, type) {
+  if (appearance.socialStyle === "brand-circles") {
+    const brandStyle = SOCIAL_BRAND_STYLES[type] || {
+      background: appearance.primaryColor,
+      color: resolveReadableText(appearance.primaryColor, "#FFFFFF", appearance.buttonTextColor),
+    };
+
+    return {
+      color: brandStyle.color,
+      borderColor: hexToRgba("#FFFFFF", 0.18),
+      background: brandStyle.background,
+      boxShadow: `0 12px 28px ${hexToRgba(brandStyle.background, 0.24)}`,
+    };
+  }
+
+  const socialAccent = getContrastRatio(appearance.surfaceColor, appearance.primaryColor) >= 3
+    ? appearance.primaryColor
+    : appearance.secondaryColor;
+
+  const isDarkPreset = appearance.presetId === "midnight";
+
+  return {
+    color: isDarkPreset ? appearance.secondaryColor : socialAccent,
+    borderColor: hexToRgba(isDarkPreset ? appearance.secondaryColor : socialAccent, isDarkPreset ? 0.32 : 0.16),
+    background: isDarkPreset
+      ? hexToRgba("#FFFFFF", 0.08)
+      : hexToRgba(appearance.surfaceColor, appearance.cardTransparency === "solid" ? 0.9 : 0.58),
+    boxShadow: appearance.cardShadow === "none"
+      ? "none"
+      : appearance.cardShadow === "soft"
+        ? `0 10px 24px ${hexToRgba("#0B1020", 0.06)}`
+        : `0 16px 32px ${hexToRgba("#0B1020", 0.1)}`,
+  };
+}
+
 function renderAction({ item, preview, buttonStyle, buttonRadius, user, className = "public-link" }) {
   const Icon = item.icon || Globe;
   const content = (
@@ -139,6 +192,7 @@ export function LandingView({ user, preview = false }) {
   const primaryButtonStyle = buildPrimaryButtonStyle(appearance);
   const secondaryButtonStyle = buildSecondaryButtonStyle(appearance);
   const tertiaryButtonStyle = buildTertiaryButtonStyle(appearance);
+  const fontFamily = FONT_FAMILY_MAP[appearance.fontFamily] || FONT_FAMILY_MAP.modern;
 
   const pageBackground = appearance.backgroundStyle === "gradient"
     ? `linear-gradient(180deg, ${appearance.backgroundColor}, ${hexToRgba(appearance.primaryColor, 0.12)} 65%, ${hexToRgba(appearance.secondaryColor, 0.12)})`
@@ -151,22 +205,14 @@ export function LandingView({ user, preview = false }) {
     boxShadow: "none",
   };
 
-  const socialStyle = {
-    color: appearance.primaryColor,
-    borderColor: hexToRgba(appearance.primaryColor, 0.16),
-    background: hexToRgba(appearance.surfaceColor, appearance.cardTransparency === "solid" ? 0.9 : 0.58),
-    boxShadow: appearance.cardShadow === "none"
-      ? "none"
-      : appearance.cardShadow === "soft"
-        ? `0 10px 24px ${hexToRgba("#0B1020", 0.06)}`
-        : `0 16px 32px ${hexToRgba("#0B1020", 0.1)}`,
-  };
-
   const buttonRadius = RADIUS_MAP[appearance.buttonRadius];
   const nameSize = preview ? PREVIEW_NAME_SIZE_MAP[appearance.nameSize] : NAME_SIZE_MAP[appearance.nameSize];
 
   return (
-    <main className={preview ? "public-page preview-page" : "public-page"} style={{ background: pageBackground }}>
+    <main
+      className={`${preview ? "public-page preview-page" : "public-page"} ${appearance.socialStyle === "brand-circles" ? "public-page-social-circles" : ""}`}
+      style={{ background: pageBackground, fontFamily }}
+    >
       <section className={`public-card public-business-card${preview ? "" : " public-card-live"}`} style={shellStyle}>
         <div className="public-hero">
           <div className="public-accent-bar" style={{ background: appearance.primaryColor }} />
@@ -277,15 +323,17 @@ export function LandingView({ user, preview = false }) {
               <div className="public-section-head">
                 <strong>Nuestros canales</strong>
               </div>
-              <div className="public-social-strip">
+              <div className={`public-social-strip ${appearance.socialStyle === "brand-circles" ? "is-brand-circles" : ""}`}>
                 {layout.socialLinks.map((item) => {
                   const Icon = item.icon || Globe;
+                  const socialStyle = buildSocialStyle(appearance, item.type);
+                  const socialClassName = `public-social-link ${appearance.socialStyle === "brand-circles" ? "is-brand-circle" : ""}`;
 
                   if (preview) {
                     return (
                       <div
                         key={item.id}
-                        className="public-social-link"
+                        className={socialClassName}
                         style={socialStyle}
                       >
                         <Icon size={20} />
@@ -296,7 +344,7 @@ export function LandingView({ user, preview = false }) {
                   return (
                     <a
                       key={item.id}
-                      className="public-social-link"
+                      className={socialClassName}
                       style={socialStyle}
                       href={`/api/analytics/click?username=${user.username}&button=${item.type}&linkId=${encodeURIComponent(item.id)}`}
                       aria-label={item.displayLabel}

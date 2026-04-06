@@ -27,6 +27,7 @@ import {
   ONBOARDING_STEPS,
   updateOnboardingActionSlots,
 } from "@/lib/dashboard-onboarding";
+import { generateThemeFromLogoFile, mergeGeneratedTheme } from "@/lib/logo-theme";
 import { APPEARANCE_PRESETS } from "@/lib/theme-system";
 import { sanitizeSlug } from "@/lib/utils";
 
@@ -105,9 +106,30 @@ export function DashboardOnboarding({ token, profile, onCompleted, onSkip }) {
   const currentStep = ONBOARDING_STEPS[stepIndex];
   const currentTemplate = useMemo(() => getBusinessCategoryTemplate(wizard.businessCategory), [wizard.businessCategory]);
   const previewUser = useMemo(() => buildOnboardingPreviewUser(wizard, profile), [profile, wizard]);
+  const availableThemes = useMemo(() => {
+    const usedIds = new Set();
+    return [...wizard.customThemes, ...APPEARANCE_PRESETS].filter((theme) => {
+      const themeId = String(theme?.id || "");
+      if (!themeId || usedIds.has(themeId)) return false;
+      usedIds.add(themeId);
+      return true;
+    });
+  }, [wizard.customThemes]);
 
   function updateWizardField(field, value) {
-    setWizard((current) => ({ ...current, [field]: value }));
+    setWizard((current) => ({
+      ...current,
+      [field]: value,
+      ...(field === "businessName"
+        ? {
+          customThemes: current.customThemes.map((theme) => (
+            theme.id === "generated-logo-theme"
+              ? { ...theme, name: value ? `Tema ${value}` : "Tema de tu negocio" }
+              : theme
+          )),
+        }
+        : {}),
+    }));
   }
 
   function handleCategorySelect(nextCategory) {
@@ -141,7 +163,7 @@ export function DashboardOnboarding({ token, profile, onCompleted, onSkip }) {
     }));
   }
 
-  function updatePhoto(file) {
+  async function updatePhoto(file) {
     setWizard((current) => {
       if (current.photoUrl?.startsWith("blob:")) {
         URL.revokeObjectURL(current.photoUrl);
@@ -161,6 +183,26 @@ export function DashboardOnboarding({ token, profile, onCompleted, onSkip }) {
         photoUrl: URL.createObjectURL(file),
       };
     });
+
+    if (!file) {
+      setWizard((current) => ({
+        ...current,
+        customThemes: mergeGeneratedTheme(current.customThemes, null, current.businessName),
+      }));
+      return;
+    }
+
+    try {
+      const generatedTheme = await generateThemeFromLogoFile(file, wizard.businessName);
+      if (!generatedTheme) return;
+
+      setWizard((current) => ({
+        ...current,
+        customThemes: mergeGeneratedTheme(current.customThemes, generatedTheme, current.businessName),
+      }));
+    } catch {
+      // If the image cannot be analyzed we simply keep the rest of the flow working.
+    }
   }
 
   function updatePaymentMethod(methodId, field, value) {
@@ -255,6 +297,7 @@ export function DashboardOnboarding({ token, profile, onCompleted, onSkip }) {
       body.append("profileLinks", JSON.stringify(payload.profileLinks));
       body.append("paymentMethods", JSON.stringify(payload.paymentMethods));
       body.append("appearance", JSON.stringify(payload.appearance));
+      body.append("customThemes", JSON.stringify(payload.customThemes));
       body.append("contactCard", JSON.stringify(payload.contactCard));
       body.append("billingProfile", JSON.stringify(payload.billingProfile));
       body.append("removePaymentQrIds", JSON.stringify([]));
@@ -536,10 +579,10 @@ export function DashboardOnboarding({ token, profile, onCompleted, onSkip }) {
           {currentStep.id === "design" ? (
             <div className="section-stack">
               <div className="notice">
-                <span>Elige un tema base. Despues podras personalizar colores y detalles desde el editor.</span>
+                <span>Elige un tema base. Si tu logo ya tiene colores fuertes, te sugerimos un tema privado para tu negocio.</span>
               </div>
               <div className="appearance-presets onboarding-theme-grid">
-                {APPEARANCE_PRESETS.map((preset) => (
+                {availableThemes.map((preset) => (
                   <button
                     key={preset.id}
                     className={`appearance-preset ${wizard.appearance.presetId === preset.id ? "is-active" : ""}`}
@@ -558,6 +601,7 @@ export function DashboardOnboarding({ token, profile, onCompleted, onSkip }) {
                       <i style={{ background: preset.appearance.surfaceColor }} />
                     </span>
                     <strong>{preset.name}</strong>
+                    {preset.id === "generated-logo-theme" ? <small>Tema sugerido desde tu logo</small> : null}
                   </button>
                 ))}
               </div>

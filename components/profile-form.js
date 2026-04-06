@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
@@ -44,7 +44,18 @@ import { COLOMBIA_DEPARTMENT_OPTIONS, getCitiesForDepartment, resolveCityName, r
 import { resolveContactCardData } from "@/lib/contact-card";
 import { canAddLinkType, getLinkTypeCount, getLinkTypeLimit, LINK_CATALOG, LINK_CATALOG_MAP } from "@/lib/link-catalog";
 import { normalizePaymentMethods } from "@/lib/payment-methods";
-import { APPEARANCE_DEFAULTS, APPEARANCE_PRESETS, APPEARANCE_SWATCHES, getAppearanceSuggestions, getAppearanceWarnings, normalizeAppearance } from "@/lib/theme-system";
+import { generateThemeFromLogoFile, mergeGeneratedTheme } from "@/lib/logo-theme";
+import {
+  APPEARANCE_DEFAULTS,
+  APPEARANCE_FONT_OPTIONS,
+  APPEARANCE_PRESETS,
+  APPEARANCE_SWATCHES,
+  SOCIAL_STYLE_OPTIONS,
+  getAppearanceSuggestions,
+  getAppearanceWarnings,
+  normalizeAppearance,
+  normalizeCustomThemes,
+} from "@/lib/theme-system";
 const THEME_STORAGE_KEY = "klicor-theme-preference";
 
 const DashboardPreview = dynamic(
@@ -54,7 +65,7 @@ const DashboardPreview = dynamic(
       <div className="preview-frame preview-frame-placeholder">
         <div className="preview-placeholder-card">
           <strong>Cargando vista previa</strong>
-          <p className="section-copy">Preparamos la representación real de tu página pública.</p>
+          <p className="section-copy">Preparamos la representaciÃ³n real de tu pÃ¡gina pÃºblica.</p>
         </div>
       </div>
     ),
@@ -87,7 +98,7 @@ function normalizeLinks(profile) {
         type,
         label: LINK_CATALOG_MAP[type]?.label || "Enlace",
         value,
-        message: type === "whatsapp" ? "Hola, quiero información" : "",
+        message: type === "whatsapp" ? "Hola, quiero informaciÃ³n" : "",
       })),
     category,
   );
@@ -100,7 +111,7 @@ function normalizeLinkUrl(item) {
   const meta = LINK_CATALOG_MAP[item.type];
   if (meta?.kind === "phone") {
     const digits = raw.replace(/\D/g, "");
-    const message = (item.message || "Hola, quiero información").trim();
+    const message = (item.message || "Hola, quiero informaciÃ³n").trim();
     return digits ? `https://wa.me/${digits}?text=${encodeURIComponent(message)}` : "";
   }
 
@@ -145,8 +156,8 @@ function normalizeBillingProfile(profile) {
 
 const BILLING_DOCUMENT_OPTIONS = [
   { value: "nit", label: "NIT" },
-  { value: "cc", label: "Cédula de ciudadanía" },
-  { value: "ce", label: "Cédula de extranjería" },
+  { value: "cc", label: "CÃ©dula de ciudadanÃ­a" },
+  { value: "ce", label: "CÃ©dula de extranjerÃ­a" },
   { value: "passport", label: "Pasaporte" },
   { value: "other", label: "Otro" },
 ];
@@ -158,13 +169,13 @@ const BILLING_RESPONSIBILITY_OPTIONS = [
 
 const WORKSPACE_TABS = [
   { id: "blocks", label: "Enlaces", icon: Link2 },
-  { id: "design", label: "Diseño", icon: Paintbrush },
+  { id: "design", label: "DiseÃ±o", icon: Paintbrush },
   { id: "settings", label: "Ajustes", icon: ShieldCheck },
 ];
 
 const DASHBOARD_NAV_ITEMS = [
   { id: "blocks", label: "Enlaces", icon: Link2, copy: "Botones, pagos y contacto" },
-  { id: "design", label: "Diseño", icon: Paintbrush, copy: "Temas, colores y estilos" },
+  { id: "design", label: "DiseÃ±o", icon: Paintbrush, copy: "Temas, colores y estilos" },
   { id: "profile", label: "Perfil", icon: UserRound, copy: "Nombre, usuario e imagen principal" },
   { id: "security", label: "Seguridad", icon: ShieldCheck, copy: "Recuperacion y verificacion" },
   { id: "billing", label: "Facturacion", icon: FileText, copy: "Datos para facturacion electronica" },
@@ -257,7 +268,7 @@ function getSubscriptionTone(status) {
 }
 
 function getSubscriptionLabel(status) {
-  if (status === "trial") return "Período de prueba";
+  if (status === "trial") return "PerÃ­odo de prueba";
   if (status === "active") return "Activa";
   if (status === "grace_period") return "Vencida con plazo";
   if (status === "suspended") return "Suspendida";
@@ -265,11 +276,11 @@ function getSubscriptionLabel(status) {
 }
 
 function getSubscriptionMessage(status) {
-  if (status === "trial") return "Tu cuenta sigue activa y puedes editar mientras termina el período de prueba.";
-  if (status === "active") return "Tu cuenta está operativa y lista para seguir compartiendo y cobrando.";
-  if (status === "grace_period") return "Tu cuenta requiere renovación para no perder edición durante el plazo de gracia.";
+  if (status === "trial") return "Tu cuenta sigue activa y puedes editar mientras termina el perÃ­odo de prueba.";
+  if (status === "active") return "Tu cuenta estÃ¡ operativa y lista para seguir compartiendo y cobrando.";
+  if (status === "grace_period") return "Tu cuenta requiere renovaciÃ³n para no perder ediciÃ³n durante el plazo de gracia.";
   if (status === "suspended") return "Tu cuenta necesita registrar el pago para volver a operar con normalidad.";
-  return "Revisa el estado de tu cuenta para mantener la operación del perfil.";
+  return "Revisa el estado de tu cuenta para mantener la operaciÃ³n del perfil.";
 }
 
 export function ProfileForm({
@@ -303,6 +314,7 @@ export function ProfileForm({
   });
   const [profileLinks, setProfileLinks] = useState(normalizeLinks(profile));
   const [appearance, setAppearance] = useState(normalizeAppearance(profile?.settings || APPEARANCE_DEFAULTS));
+  const [customThemes, setCustomThemes] = useState(normalizeCustomThemes(profile?.customThemes));
   const [photo, setPhoto] = useState(null);
   const [photoPreviewUrl, setPhotoPreviewUrl] = useState("");
   const [paymentMethods, setPaymentMethods] = useState(
@@ -319,7 +331,7 @@ export function ProfileForm({
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [darkModeEnabled, setDarkModeEnabled] = useState(false);
   const [openProfileSection, setOpenProfileSection] = useState("profile-identity");
-  const [presetsOpen, setPresetsOpen] = useState(false);
+  const [openDesignSection, setOpenDesignSection] = useState("design-themes");
   useEffect(() => {
     setForm({
       businessName: profile?.businessName || "",
@@ -330,6 +342,7 @@ export function ProfileForm({
     });
     setProfileLinks(normalizeLinks(profile));
     setAppearance(normalizeAppearance(profile?.settings || APPEARANCE_DEFAULTS));
+    setCustomThemes(normalizeCustomThemes(profile?.customThemes));
     setPhoto(null);
     setPaymentMethods(normalizePaymentMethods(profile?.paymentMethods, profile?.profileLinks, profile?.paymentQrUrl, profile?.paymentQrPath));
     setContactCard(normalizeContactCard(profile));
@@ -350,6 +363,35 @@ export function ProfileForm({
       URL.revokeObjectURL(nextUrl);
     };
   }, [photo]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function syncGeneratedTheme() {
+      if (!photo) {
+        setCustomThemes((current) => current.map((theme) => (
+          theme.id === "generated-logo-theme"
+            ? { ...theme, name: form.businessName ? `Tema ${form.businessName}` : "Tema de tu negocio" }
+            : theme
+        )));
+        return;
+      }
+
+      try {
+        const generatedTheme = await generateThemeFromLogoFile(photo, form.businessName);
+        if (!generatedTheme || cancelled) return;
+        setCustomThemes((current) => mergeGeneratedTheme(current, generatedTheme, form.businessName));
+      } catch {
+        // Keep existing custom themes even if the logo cannot be analyzed.
+      }
+    }
+
+    syncGeneratedTheme();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [photo, form.businessName]);
 
   useEffect(() => {
     if (typeof document === "undefined") return;
@@ -411,6 +453,15 @@ export function ProfileForm({
 
   const appearanceWarnings = useMemo(() => getAppearanceWarnings(appearance), [appearance]);
   const appearanceSuggestions = useMemo(() => getAppearanceSuggestions(appearance), [appearance]);
+  const availableThemes = useMemo(() => {
+    const usedIds = new Set();
+    return [...customThemes, ...APPEARANCE_PRESETS].filter((theme) => {
+      const themeId = String(theme?.id || "");
+      if (!themeId || usedIds.has(themeId)) return false;
+      usedIds.add(themeId);
+      return true;
+    });
+  }, [customThemes]);
   const availableLinkTypes = useMemo(() => LINK_CATALOG.filter((item) => item.type !== "payment_key"), []);
   const selectedTypeLimit = getLinkTypeLimit(selectedType);
   const selectedTypeCount = getLinkTypeCount(profileLinks, selectedType);
@@ -445,7 +496,7 @@ export function ProfileForm({
   async function handleSubmit(event) {
     event.preventDefault();
     if (!canEdit) {
-      setAlertMessage("Tu cuenta no permite edición en este momento.");
+      setAlertMessage("Tu cuenta no permite ediciÃ³n en este momento.");
       return;
     }
 
@@ -471,6 +522,7 @@ export function ProfileForm({
         qrPath: removeQr ? "" : method.qrPath || "",
       }))));
       body.append("appearance", JSON.stringify(appearance));
+      body.append("customThemes", JSON.stringify(customThemes));
       body.append("contactCard", JSON.stringify(contactCard));
       body.append("billingProfile", JSON.stringify(billingProfile));
       body.append("removePaymentQrIds", JSON.stringify(paymentMethods.filter((method) => method.removeQr).map((method) => method.id)));
@@ -501,6 +553,10 @@ export function ProfileForm({
     setOpenProfileSection((current) => (current === sectionId ? null : sectionId));
   }
 
+  function toggleDesignSection(sectionId) {
+    setOpenDesignSection((current) => (current === sectionId ? null : sectionId));
+  }
+
   function addLink() {
     const meta = LINK_CATALOG_MAP[selectedType];
     if (!selectedTypeAvailable) {
@@ -520,7 +576,7 @@ export function ProfileForm({
         label: meta.label,
         value: "",
         priorityTier: getDefaultPriorityTierForNewLink(current, selectedType, form.businessCategory),
-        message: selectedType === "whatsapp" ? "Hola, quiero información" : "",
+        message: selectedType === "whatsapp" ? "Hola, quiero informaciÃ³n" : "",
       },
     ], form.businessCategory));
   }
@@ -550,7 +606,7 @@ export function ProfileForm({
 
       const tierCount = current.filter((item) => item.id !== id && canConfigureActionPriority(item.type) && Number(item.priorityTier || 3) === tier).length;
       if (tierCount >= maxAllowed) {
-        setAlertMessage(tier === 1 ? "Solo puedes tener 1 botón en prioridad 1." : "Solo puedes tener hasta 2 botones en prioridad 2.");
+        setAlertMessage(tier === 1 ? "Solo puedes tener 1 botÃ³n en prioridad 1." : "Solo puedes tener hasta 2 botones en prioridad 2.");
         return current;
       }
 
@@ -561,7 +617,7 @@ export function ProfileForm({
   function addPaymentMethod() {
     setPaymentMethods((current) => {
       if (current.length >= 2) {
-        setAlertMessage("Solo puedes configurar hasta 2 métodos de pago.");
+        setAlertMessage("Solo puedes configurar hasta 2 mÃ©todos de pago.");
         return current;
       }
 
@@ -664,7 +720,7 @@ export function ProfileForm({
   }
 
   function applyPreset(presetId) {
-    const preset = APPEARANCE_PRESETS.find((item) => item.id === presetId);
+    const preset = [...customThemes, ...APPEARANCE_PRESETS].find((item) => item.id === presetId);
     if (!preset) return;
     setAppearance(normalizeAppearance({
       presetId: preset.id,
@@ -682,7 +738,7 @@ export function ProfileForm({
   }
 
   function resetAppearance() {
-    const targetPreset = APPEARANCE_PRESETS.find((item) => item.id === appearance.presetId) || APPEARANCE_PRESETS[0];
+    const targetPreset = [...customThemes, ...APPEARANCE_PRESETS].find((item) => item.id === appearance.presetId) || APPEARANCE_PRESETS[0];
     setAppearance(normalizeAppearance({
       presetId: targetPreset.id,
       advancedEnabled: false,
@@ -690,7 +746,7 @@ export function ProfileForm({
     }));
   }
 
-  const selectedPhotoLabel = photo ? photo.name : profile?.photo ? "Imagen actual cargada" : "Aún no has elegido imagen";
+  const selectedPhotoLabel = photo ? photo.name : profile?.photo ? "Imagen actual cargada" : "AÃºn no has elegido imagen";
   const usernameChanged = Boolean(profile?.username) && form.username.trim() && form.username.trim() !== profile.username;
   const recoveryProtected = Boolean(recovery?.backupEmailVerified);
   const contactCardEnabled = Boolean(contactCard.enabled);
@@ -725,7 +781,7 @@ export function ProfileForm({
   const dashboardBusinessName = form.businessName?.trim() || profile?.businessName || "Tu negocio";
   const topbarStatusLabel =
     profile?.status === "trial"
-      ? "Período de prueba"
+      ? "PerÃ­odo de prueba"
       : profile?.status === "active"
         ? "Activo"
         : subscriptionLabel;
@@ -741,7 +797,7 @@ export function ProfileForm({
         <button
           className="editor-sidebar-backdrop"
           type="button"
-          aria-label="Cerrar menú lateral"
+          aria-label="Cerrar menÃº lateral"
           onClick={() => setMobileNavOpen(false)}
         />
       ) : null}
@@ -767,8 +823,8 @@ export function ProfileForm({
             className="editor-sidebar-close"
             type="button"
             onClick={() => setMobileNavOpen(false)}
-            aria-label="Cerrar menú lateral"
-            title="Cerrar menú lateral"
+            aria-label="Cerrar menÃº lateral"
+            title="Cerrar menÃº lateral"
           >
             <X size={18} />
           </button>
@@ -787,7 +843,7 @@ export function ProfileForm({
           </button>
         </div>
 
-        <nav className="editor-sidebar-nav" aria-label="Navegación del editor">
+        <nav className="editor-sidebar-nav" aria-label="NavegaciÃ³n del editor">
           {DASHBOARD_NAV_ITEMS.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeWorkspace === tab.id;
@@ -814,23 +870,23 @@ export function ProfileForm({
 
         <div className="editor-sidebar-footer">
           {isAdmin ? (
-            <Link className="editor-sidebar-utility" href="/admin" title="Panel de administración" onClick={() => setMobileNavOpen(false)}>
+            <Link className="editor-sidebar-utility" href="/admin" title="Panel de administraciÃ³n" onClick={() => setMobileNavOpen(false)}>
               <span className="editor-sidebar-item-icon">
                 <ShieldCheck size={18} />
               </span>
               <span className="editor-sidebar-item-copy">
                 <strong>Panel admin</strong>
-                <small>Usuarios y configuración</small>
+                <small>Usuarios y configuraciÃ³n</small>
               </span>
             </Link>
           ) : null}
 
-          <button className="editor-sidebar-utility" type="button" onClick={onLogout} title="Cerrar sesión">
+          <button className="editor-sidebar-utility" type="button" onClick={onLogout} title="Cerrar sesiÃ³n">
             <span className="editor-sidebar-item-icon">
               <LogOut size={18} />
             </span>
             <span className="editor-sidebar-item-copy">
-              <strong>Cerrar sesión</strong>
+              <strong>Cerrar sesiÃ³n</strong>
               <small>Salir del panel</small>
             </span>
           </button>
@@ -842,8 +898,8 @@ export function ProfileForm({
           className="editor-mobile-menu-button"
           type="button"
           onClick={() => setMobileNavOpen(true)}
-          aria-label="Abrir menú lateral"
-          title="Abrir menú lateral"
+          aria-label="Abrir menÃº lateral"
+          title="Abrir menÃº lateral"
         >
           <Menu size={18} />
         </button>
@@ -868,7 +924,7 @@ export function ProfileForm({
         <div className="preview-header preview-header-editor">
           <div className="preview-toolbar">
             <div className="preview-link-card">
-              <span className="dashboard-link-label">Link público</span>
+              <span className="dashboard-link-label">Link pÃºblico</span>
               <strong>{previewPublicUrl}</strong>
             </div>
             <div className="preview-action-group">
@@ -890,7 +946,7 @@ export function ProfileForm({
       </aside>
 
       <div className="editor-panel">
-        <div className="editor-tabs" role="tablist" aria-label="Navegación del editor">
+        <div className="editor-tabs" role="tablist" aria-label="NavegaciÃ³n del editor">
           {DASHBOARD_NAV_ITEMS.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeWorkspace === tab.id;
@@ -987,7 +1043,7 @@ export function ProfileForm({
 
               <div className="profile-grid">
                 <div>
-                  <label className="label">Categoría del negocio</label>
+                  <label className="label">CategorÃ­a del negocio</label>
                   <select
                     className="select"
                     value={form.businessCategory}
@@ -1002,12 +1058,12 @@ export function ProfileForm({
                   </select>
                 </div>
                 <div>
-                  <label className="label">Título comercial</label>
+                  <label className="label">TÃ­tulo comercial</label>
                   <input
                     className="input"
                     value={form.businessHeadline}
                     onChange={(e) => setForm({ ...form, businessHeadline: e.target.value })}
-                    placeholder="Ejemplo: Pedidos, menú y atención en un solo link y un QR"
+                    placeholder="Ejemplo: Pedidos, menÃº y atenciÃ³n en un solo link y un QR"
                     disabled={!canEdit}
                   />
                 </div>
@@ -1019,11 +1075,11 @@ export function ProfileForm({
                   className="input"
                   value={form.businessSubheadline}
                   onChange={(e) => setForm({ ...form, businessSubheadline: e.target.value })}
-                  placeholder="Ejemplo: Haz tus pedidos aquí."
+                  placeholder="Ejemplo: Haz tus pedidos aquÃ­."
                   disabled={!canEdit}
                 />
                 <p className="muted" style={{ marginTop: ".45rem" }}>
-                  Si lo dejas vacío, Klicor usará un texto sugerido según la categoría de tu negocio.
+                  Si lo dejas vacÃ­o, Klicor usarÃ¡ un texto sugerido segÃºn la categorÃ­a de tu negocio.
                 </p>
               </div>
 
@@ -1057,8 +1113,8 @@ export function ProfileForm({
             {activeWorkspace === "security" ? (
             <AccordionSection
               id="profile-security"
-              title="Seguridad y recuperación"
-              copy="Correo de respaldo, teléfono de recuperación y verificación."
+              title="Seguridad y recuperaciÃ³n"
+              copy="Correo de respaldo, telÃ©fono de recuperaciÃ³n y verificaciÃ³n."
               openSection={openProfileSection}
               onToggle={toggleProfileSection}
               className="accordion-subsection"
@@ -1072,18 +1128,18 @@ export function ProfileForm({
               <div className="grid-3">
                 <div className="kpi">
                   <strong>Correo de respaldo</strong>
-                  <p className="muted" style={{ marginTop: ".5rem" }}>{recovery?.backupEmail || "Aún no configurado"}</p>
-                  <p className="muted" style={{ marginTop: ".35rem" }}>{recovery?.backupEmailVerified ? "Verificado" : "Pendiente de verificación"}</p>
+                  <p className="muted" style={{ marginTop: ".5rem" }}>{recovery?.backupEmail || "AÃºn no configurado"}</p>
+                  <p className="muted" style={{ marginTop: ".35rem" }}>{recovery?.backupEmailVerified ? "Verificado" : "Pendiente de verificaciÃ³n"}</p>
                 </div>
                 <div className="kpi">
-                  <strong>Teléfono de recuperación</strong>
-                  <p className="muted" style={{ marginTop: ".5rem" }}>{recovery?.recoveryPhone || "Aún no configurado"}</p>
+                  <strong>TelÃ©fono de recuperaciÃ³n</strong>
+                  <p className="muted" style={{ marginTop: ".5rem" }}>{recovery?.recoveryPhone || "AÃºn no configurado"}</p>
                   <p className="muted" style={{ marginTop: ".35rem" }}>{recovery?.recoveryPhoneVerified ? "Verificado" : "Guardado para siguiente fase OTP"}</p>
                 </div>
                 <div className="kpi">
                   <strong>Estado</strong>
                   <p className="muted" style={{ marginTop: ".5rem" }}>
-                    {recoveryProtected ? "Tu cuenta ya tiene un método de recuperación verificado." : "Configura y verifica al menos un correo de respaldo."}
+                    {recoveryProtected ? "Tu cuenta ya tiene un mÃ©todo de recuperaciÃ³n verificado." : "Configura y verifica al menos un correo de respaldo."}
                   </p>
                 </div>
               </div>
@@ -1103,7 +1159,7 @@ export function ProfileForm({
                   </div>
                 </div>
                 <div>
-                  <label className="label">Teléfono de recuperación</label>
+                  <label className="label">TelÃ©fono de recuperaciÃ³n</label>
                   <div className="input-with-icon">
                     <Phone size={16} />
                     <input
@@ -1119,7 +1175,7 @@ export function ProfileForm({
               {!recovery?.backupEmailVerified && recovery?.backupEmail ? (
                 <div className="notice">
                   <span>
-                    Verifica el correo de respaldo para usarlo en recuperación.
+                    Verifica el correo de respaldo para usarlo en recuperaciÃ³n.
                     {recovery?.backupEmailVerificationExpiresAt ? " El enlace actual vence pronto." : ""}
                   </span>
                 </div>
@@ -1128,11 +1184,11 @@ export function ProfileForm({
               <div className="actions">
                 <button className="btn btn-secondary" type="button" onClick={onSaveRecovery} disabled={recoveryLoading}>
                   {recoveryLoading ? <RefreshCw size={16} /> : <Mail size={16} />}
-                  {recoveryLoading ? "Guardando..." : "Guardar recuperación"}
+                  {recoveryLoading ? "Guardando..." : "Guardar recuperaciÃ³n"}
                 </button>
                 {recovery?.backupEmail && !recovery?.backupEmailVerified ? (
                   <button className="btn btn-secondary" type="button" onClick={onResendRecoveryVerification} disabled={recoveryLoading}>
-                    <Send size={16} /> Reenviar verificación
+                    <Send size={16} /> Reenviar verificaciÃ³n
                   </button>
                 ) : null}
               </div>
@@ -1144,8 +1200,8 @@ export function ProfileForm({
             {activeWorkspace === "billing" ? (
             <AccordionSection
               id="profile-billing"
-              title="Información del negocio para facturación"
-              copy="Datos privados para ayudarte a emitir la factura electrónica."
+              title="InformaciÃ³n del negocio para facturaciÃ³n"
+              copy="Datos privados para ayudarte a emitir la factura electrÃ³nica."
               openSection={openProfileSection}
               onToggle={toggleProfileSection}
               className="accordion-subsection"
@@ -1156,31 +1212,31 @@ export function ProfileForm({
               }
             >
               <div className="notice">
-                <span>Estos datos no se muestran en tu página pública. Son solo de apoyo interno para facturación electrónica.</span>
+                <span>Estos datos no se muestran en tu pÃ¡gina pÃºblica. Son solo de apoyo interno para facturaciÃ³n electrÃ³nica.</span>
               </div>
 
               <div className="grid-3">
                 <div className="kpi">
-                  <strong>Razón social</strong>
-                  <p className="muted" style={{ marginTop: ".5rem" }}>{billingProfile.legalName || "Aún no configurada"}</p>
+                  <strong>RazÃ³n social</strong>
+                  <p className="muted" style={{ marginTop: ".5rem" }}>{billingProfile.legalName || "AÃºn no configurada"}</p>
                 </div>
                 <div className="kpi">
                   <strong>Documento</strong>
                   <p className="muted" style={{ marginTop: ".5rem" }}>
-                    {billingProfile.documentNumber ? `${billingDocumentTypeLabel} ${billingProfile.documentNumber}` : "Aún no configurado"}
+                    {billingProfile.documentNumber ? `${billingDocumentTypeLabel} ${billingProfile.documentNumber}` : "AÃºn no configurado"}
                   </p>
                 </div>
                 <div className="kpi">
-                  <strong>Ubicación fiscal</strong>
+                  <strong>UbicaciÃ³n fiscal</strong>
                   <p className="muted" style={{ marginTop: ".5rem" }}>
-                    {[billingProfile.city, billingProfile.department].filter(Boolean).join(", ") || "Aún no configurada"}
+                    {[billingProfile.city, billingProfile.department].filter(Boolean).join(", ") || "AÃºn no configurada"}
                   </p>
                 </div>
               </div>
 
               <div className="profile-grid">
                 <div>
-                  <label className="label">Razón social o nombre legal</label>
+                  <label className="label">RazÃ³n social o nombre legal</label>
                   <input
                     className="input"
                     value={billingProfile.legalName}
@@ -1208,7 +1264,7 @@ export function ProfileForm({
 
               <div className="profile-grid">
                 <div>
-                  <label className="label">Número de documento</label>
+                  <label className="label">NÃºmero de documento</label>
                   <input
                     className="input"
                     value={billingProfile.documentNumber}
@@ -1218,7 +1274,7 @@ export function ProfileForm({
                   />
                 </div>
                 <div>
-                  <label className="label">Dígito de verificación</label>
+                  <label className="label">DÃ­gito de verificaciÃ³n</label>
                   <input
                     className="input"
                     value={billingProfile.verificationDigit}
@@ -1231,7 +1287,7 @@ export function ProfileForm({
 
               <div className="profile-grid">
                 <div>
-                  <label className="label">Correo de facturación</label>
+                  <label className="label">Correo de facturaciÃ³n</label>
                   <input
                     className="input"
                     type="email"
@@ -1242,7 +1298,7 @@ export function ProfileForm({
                   />
                 </div>
                 <div>
-                  <label className="label">Teléfono de facturación</label>
+                  <label className="label">TelÃ©fono de facturaciÃ³n</label>
                   <input
                     className="input"
                     value={billingProfile.billingPhone}
@@ -1255,7 +1311,7 @@ export function ProfileForm({
 
               <div className="profile-grid">
                 <div>
-                  <label className="label">Dirección fiscal</label>
+                  <label className="label">DirecciÃ³n fiscal</label>
                   <input
                     className="input"
                     value={billingProfile.address}
@@ -1324,7 +1380,7 @@ export function ProfileForm({
               </div>
 
               <div>
-                <label className="label">País</label>
+                <label className="label">PaÃ­s</label>
                 <input
                   className="input"
                   value={billingProfile.country}
@@ -1339,8 +1395,8 @@ export function ProfileForm({
             {activeWorkspace === "subscription" ? (
             <AccordionSection
               id="profile-subscription"
-              title="Suscripción y estado"
-              copy="Plan actual, fechas operativas y renovación."
+              title="SuscripciÃ³n y estado"
+              copy="Plan actual, fechas operativas y renovaciÃ³n."
               openSection={openProfileSection}
               onToggle={toggleProfileSection}
               className="accordion-subsection"
@@ -1357,7 +1413,7 @@ export function ProfileForm({
                   <p className="muted" style={{ marginTop: ".5rem" }}>{annualPriceLabel}</p>
                 </div>
                 <div className="kpi">
-                  <strong>Período de prueba</strong>
+                  <strong>PerÃ­odo de prueba</strong>
                   <p className="muted" style={{ marginTop: ".5rem" }}>{profile?.trialEndsAtLabel || "-"}</p>
                 </div>
                 <div className="kpi">
@@ -1379,10 +1435,10 @@ export function ProfileForm({
 
               {checkoutConfig ? (
                 <div className="stack" style={{ gap: ".85rem" }}>
-                  <p className="muted">El proceso oficial de pago de Mercado Pago ya está listo. Si el widget no responde, puedes continuar por redirección.</p>
+                  <p className="muted">El proceso oficial de pago de Mercado Pago ya estÃ¡ listo. Si el widget no responde, puedes continuar por redirecciÃ³n.</p>
                   <div id="mercadopago-checkout" />
                   <button className="btn btn-secondary" type="button" onClick={() => { window.location.href = checkoutConfig.initPoint; }}>
-                    Abrir pago por redirección
+                    Abrir pago por redirecciÃ³n
                   </button>
                 </div>
               ) : null}
@@ -1397,7 +1453,7 @@ export function ProfileForm({
               <div className="dashboard-section-head workspace-panel-head">
                 <div>
                   <h2 className="section-title" style={{ fontSize: "1.35rem" }}>Enlaces y pagos</h2>
-                  <p className="section-copy">Organiza botones, canales visibles, información de pago y el bloque para guardar contacto.</p>
+                  <p className="section-copy">Organiza botones, canales visibles, informaciÃ³n de pago y el bloque para guardar contacto.</p>
                 </div>
                 <span className="status-badge">{profileLinks.length} enlaces</span>
               </div>
@@ -1427,10 +1483,10 @@ export function ProfileForm({
 
           <div className="dashboard-section-head">
             <div>
-              <h3 className="section-title" style={{ fontSize: "1.05rem" }}>Información de pago</h3>
-              <p className="section-copy">Configura hasta 2 métodos para cobrar. Puedes usar cuenta bancaria, billetera o llave Bre-B.</p>
+              <h3 className="section-title" style={{ fontSize: "1.05rem" }}>InformaciÃ³n de pago</h3>
+              <p className="section-copy">Configura hasta 2 mÃ©todos para cobrar. Puedes usar cuenta bancaria, billetera o llave Bre-B.</p>
             </div>
-            <span className="status-badge">{paymentMethods.length}/2 métodos</span>
+            <span className="status-badge">{paymentMethods.length}/2 mÃ©todos</span>
           </div>
 
           <div className="section-stack">
@@ -1458,7 +1514,7 @@ export function ProfileForm({
                       </select>
                     </div>
                     <div>
-                      <label className="label">Número de cuenta o llave Bre-B</label>
+                      <label className="label">NÃºmero de cuenta o llave Bre-B</label>
                       <input
                         className="input"
                         value={paymentValue}
@@ -1522,8 +1578,8 @@ export function ProfileForm({
                     <div className="link-row-message">
                       <p className="muted" style={{ marginTop: ".45rem" }}>
                         {method.entityId
-                          ? `Método ${index + 1}: ${resolveFinancialEntityLabel(method.entityId)}.`
-                          : "Selecciona una entidad para definir cómo se mostrará este método."}
+                          ? `MÃ©todo ${index + 1}: ${resolveFinancialEntityLabel(method.entityId)}.`
+                          : "Selecciona una entidad para definir cÃ³mo se mostrarÃ¡ este mÃ©todo."}
                       </p>
                     </div>
                   </div>
@@ -1533,57 +1589,11 @@ export function ProfileForm({
 
             <div className="payment-method-toolbar">
               <button className="btn btn-secondary" type="button" onClick={addPaymentMethod} disabled={!canEdit || paymentMethods.length >= 2}>
-                <Plus size={16} /> Agregar método de pago
+                <Plus size={16} /> Agregar mÃ©todo de pago
               </button>
-              <p className="muted">Puedes configurar hasta 2 métodos visibles en tu página.</p>
+              <p className="muted">Puedes configurar hasta 2 mÃ©todos visibles en tu pÃ¡gina.</p>
             </div>
 
-            {false ? (
-            <div className="payment-key-upload">
-              <label className="label">QR oficial del banco o billetera</label>
-              <label className={`upload-card ${!canEdit ? "upload-card-disabled" : ""}`}>
-                <input
-                  className="upload-input"
-                  type="file"
-                  accept="image/png,image/jpeg,image/webp"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0] || null;
-                    setPaymentQrImage(file);
-                    if (file) {
-                      setRemovePaymentQr(false);
-                    }
-                  }}
-                  disabled={!canEdit}
-                />
-                <span className="upload-icon">{paymentQrImage || (profile?.paymentQrUrl && !removePaymentQr) ? <ImagePlus size={20} /> : <UploadCloud size={20} />}</span>
-                <span className="upload-copy">
-                  <strong>{paymentQrImage || (profile?.paymentQrUrl && !removePaymentQr) ? "Cambiar QR oficial" : "Subir QR oficial"}</strong>
-                  <span>{paymentQrStatusLabel || selectedPaymentQrLabel}</span>
-                  <small>Este QR puede acompañar tu bloque de pagos cuando tengas una imagen oficial.</small>
-                </span>
-              </label>
-              {(paymentQrPreviewUrl || savedPaymentQrUrl) ? (
-                <div className="payment-key-upload-actions">
-                  <button
-                    className="btn btn-secondary"
-                    type="button"
-                    onClick={() => {
-                      setPaymentQrImage(null);
-                      setRemovePaymentQr(true);
-                    }}
-                    disabled={!canEdit}
-                  >
-                    <Trash2 size={16} /> Eliminar QR actual
-                  </button>
-                </div>
-              ) : null}
-              {(paymentQrPreviewUrl || savedPaymentQrUrl) && !removePaymentQr ? (
-                <div className="payment-qr-preview">
-                  <img src={paymentQrPreviewUrl || savedPaymentQrUrl} alt="QR oficial de pago" />
-                </div>
-              ) : null}
-            </div>
-            ) : null}
           </div>
 
           <div className="section-divider" />
@@ -1599,7 +1609,7 @@ export function ProfileForm({
                   </div>
                   <div>
                     <label className="label">
-                      {meta.kind === "phone" ? "Número" : meta.kind === "text" ? "Llave" : meta.kind === "email" ? "Correo" : "URL"}
+                      {meta.kind === "phone" ? "NÃºmero" : meta.kind === "text" ? "Llave" : meta.kind === "email" ? "Correo" : "URL"}
                     </label>
                     <input className="input" value={item.value} placeholder={meta.placeholder} onChange={(e) => updateLink(item.id, "value", e.target.value)} disabled={!canEdit} />
                   </div>
@@ -1609,12 +1619,12 @@ export function ProfileForm({
                   {item.type === "whatsapp" ? (
                     <div className="link-row-message">
                       <label className="label">Mensaje inicial</label>
-                      <input className="input" value={item.message || ""} placeholder="Hola, quiero información" onChange={(e) => updateLink(item.id, "message", e.target.value)} disabled={!canEdit} />
+                      <input className="input" value={item.message || ""} placeholder="Hola, quiero informaciÃ³n" onChange={(e) => updateLink(item.id, "message", e.target.value)} disabled={!canEdit} />
                     </div>
                   ) : null}
                   {canConfigureActionPriority(item.type) ? (
                     <div className="link-row-message">
-                      <label className="label">Prioridad del botón</label>
+                      <label className="label">Prioridad del botÃ³n</label>
                       <div className="link-priority-row">
                         <select
                           className="select"
@@ -1628,7 +1638,7 @@ export function ProfileForm({
                             </option>
                           ))}
                         </select>
-                        <p className="muted">Prioridad 1 admite 1 botón y prioridad 2 admite hasta 2.</p>
+                        <p className="muted">Prioridad 1 admite 1 botÃ³n y prioridad 2 admite hasta 2.</p>
                       </div>
                     </div>
                   ) : null}
@@ -1636,8 +1646,8 @@ export function ProfileForm({
               );
             }) : (
               <div className="kpi">
-                <strong>Sin enlaces todavía</strong>
-                <p className="muted" style={{ marginTop: ".5rem" }}>Agrega tu primer canal para empezar a construir tu página pública.</p>
+                <strong>Sin enlaces todavÃ­a</strong>
+                <p className="muted" style={{ marginTop: ".5rem" }}>Agrega tu primer canal para empezar a construir tu pÃ¡gina pÃºblica.</p>
               </div>
             )}
           </div>
@@ -1646,7 +1656,7 @@ export function ProfileForm({
           <div className="dashboard-section-head">
             <div>
               <h3 className="section-title" style={{ fontSize: "1.05rem" }}>Guardar contacto</h3>
-              <p className="section-copy">Decide si tu página mostrará un botón para guardar tu negocio como contacto.</p>
+              <p className="section-copy">Decide si tu pÃ¡gina mostrarÃ¡ un botÃ³n para guardar tu negocio como contacto.</p>
             </div>
             <span className={`status-badge ${contactCardEnabled ? "success" : ""}`}>
               {contactCardEnabled ? <Link2 size={14} /> : null}
@@ -1662,8 +1672,8 @@ export function ProfileForm({
               disabled={!canEdit}
             />
             <span className="toggle-copy">
-              <strong>Mostrar botón Guardar contacto en mi página</strong>
-              <small>Klicor generará una vCard simple con tus datos públicos si lo activas.</small>
+              <strong>Mostrar botÃ³n Guardar contacto en mi pÃ¡gina</strong>
+              <small>Klicor generarÃ¡ una vCard simple con tus datos pÃºblicos si lo activas.</small>
             </span>
           </label>
 
@@ -1679,7 +1689,7 @@ export function ProfileForm({
                     placeholder={form.businessName || "Tu negocio"}
                     disabled={!canEdit}
                   />
-                  <p className="muted" style={{ marginTop: ".45rem" }}>Si lo dejas vacío, usamos el nombre del negocio.</p>
+                  <p className="muted" style={{ marginTop: ".45rem" }}>Si lo dejas vacÃ­o, usamos el nombre del negocio.</p>
                 </div>
                 <div>
                   <label className="label">Cargo o rol</label>
@@ -1687,7 +1697,7 @@ export function ProfileForm({
                     className="input"
                     value={contactCard.title}
                     onChange={(e) => setContactCard((current) => ({ ...current, title: e.target.value }))}
-                    placeholder="Gerente, asesor, médico, fotógrafo..."
+                    placeholder="Gerente, asesor, mÃ©dico, fotÃ³grafo..."
                     disabled={!canEdit}
                   />
                 </div>
@@ -1709,11 +1719,11 @@ export function ProfileForm({
                       </option>
                     ))}
                   </select>
-                  <p className="muted" style={{ marginTop: ".45rem" }}>Ese número se guardará dentro del contacto.</p>
+                  <p className="muted" style={{ marginTop: ".45rem" }}>Ese nÃºmero se guardarÃ¡ dentro del contacto.</p>
                 </div>
               ) : (
                 <div>
-                  <label className="label">Teléfono del contacto</label>
+                  <label className="label">TelÃ©fono del contacto</label>
                   <input
                     className="input"
                     value={contactCard.phone}
@@ -1721,7 +1731,7 @@ export function ProfileForm({
                     placeholder="+57 300 123 4567"
                     disabled={!canEdit}
                   />
-                  <p className="muted" style={{ marginTop: ".45rem" }}>Como no tienes WhatsApp agregado, puedes escribir un número público manual.</p>
+                  <p className="muted" style={{ marginTop: ".45rem" }}>Como no tienes WhatsApp agregado, puedes escribir un nÃºmero pÃºblico manual.</p>
                 </div>
               )}
 
@@ -1732,12 +1742,12 @@ export function ProfileForm({
                 </div>
                 <div className="kpi">
                   <strong>Web del contacto</strong>
-                  <p className="muted" style={{ marginTop: ".5rem" }}>{websiteLink?.value || "Usaremos tu página de Klicor si no agregas un sitio web"}</p>
+                  <p className="muted" style={{ marginTop: ".5rem" }}>{websiteLink?.value || "Usaremos tu pÃ¡gina de Klicor si no agregas un sitio web"}</p>
                 </div>
                 <div className="kpi">
                   <strong>Estado</strong>
                   <p className="muted" style={{ marginTop: ".5rem" }}>
-                    {contactCardPreview.shouldShow ? "El botón Guardar contacto ya quedaría listo en tu página." : "Completa los datos para que el contacto tenga al menos un canal útil."}
+                    {contactCardPreview.shouldShow ? "El botÃ³n Guardar contacto ya quedarÃ­a listo en tu pÃ¡gina." : "Completa los datos para que el contacto tenga al menos un canal Ãºtil."}
                   </p>
                 </div>
               </div>
@@ -1752,113 +1762,170 @@ export function ProfileForm({
               <div className="dashboard-section-head workspace-panel-head">
                 <div>
                   <h2 className="section-title" style={{ fontSize: "1.35rem" }}>Diseño de la página</h2>
-                  <p className="section-copy">Elige un tema y luego ajusta colores, botones y personalidad visual del perfil.</p>
+                  <p className="section-copy">Elige un tema, una fuente y el estilo visual de tu Klicor.</p>
                 </div>
-                <span className="status-badge">{appearance.advancedEnabled ? "Avanzado" : "Tema"}</span>
+                <span className="status-badge">{appearance.advancedEnabled ? "Personalizado" : "Tema"}</span>
               </div>
 
               <div className="section-stack">
-          <div className="dashboard-section-head">
-            <div>
-              <h3 className="section-title" style={{ fontSize: "1.05rem" }}>Diseño de la página</h3>
-              <p className="section-copy">Mantenemos el estilo guiado para que tu Klicor se vea clara y legible.</p>
-            </div>
-            <button
-              className={`btn ${appearance.advancedEnabled ? "btn-primary" : "btn-secondary"}`}
-              type="button"
-              onClick={() => setAppearance((current) => ({ ...current, advancedEnabled: !current.advancedEnabled }))}
-            >
-              <Paintbrush size={16} /> Personalizar diseño
-            </button>
-          </div>
+                {availableThemes.some((theme) => theme.id === "generated-logo-theme") ? (
+                  <div className="notice">
+                    <span>Detectamos colores de tu logo y te dejamos un tema privado sugerido dentro de Temas.</span>
+                  </div>
+                ) : null}
 
-          <div className={`panel accordion-section preset-accordion ${presetsOpen ? "is-open" : ""}`}>
-            <button className="accordion-toggle" type="button" onClick={() => setPresetsOpen((current) => !current)} aria-expanded={presetsOpen}>
-              <span className="accordion-toggle-copy">
-                <strong className="section-title" style={{ fontSize: "1rem" }}>Temas</strong>
-                <span className="section-copy">Elige un tema listo para empezar más rápido.</span>
-              </span>
-              <span className="accordion-toggle-meta">
-                <span className="status-badge">{APPEARANCE_PRESETS.length} opciones</span>
-                {presetsOpen ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
-              </span>
-            </button>
+                <div className={`panel accordion-section preset-accordion ${openDesignSection === "design-themes" ? "is-open" : ""}`}>
+                  <button className="accordion-toggle" type="button" onClick={() => toggleDesignSection("design-themes")} aria-expanded={openDesignSection === "design-themes"}>
+                    <span className="accordion-toggle-copy">
+                      <strong className="section-title" style={{ fontSize: "1rem" }}>Temas</strong>
+                      <span className="section-copy">Elige un tema listo para empezar más rápido.</span>
+                    </span>
+                    <span className="accordion-toggle-meta">
+                      <span className="status-badge">{availableThemes.length} opciones</span>
+                      {openDesignSection === "design-themes" ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                    </span>
+                  </button>
 
-            {presetsOpen ? (
-              <div className="accordion-content">
-                <div className="appearance-presets">
-                  {APPEARANCE_PRESETS.map((preset) => (
-                    <button
-                      key={preset.id}
-                      className={`appearance-preset ${appearance.presetId === preset.id ? "is-active" : ""}`}
-                      type="button"
-                      onClick={() => applyPreset(preset.id)}
-                      style={{
-                        "--preset-primary": preset.appearance.primaryColor,
-                        "--preset-surface": preset.appearance.surfaceColor,
-                        "--preset-text": preset.appearance.textPrimaryColor,
-                      }}
-                    >
-                      <span className="preset-tone" />
-                      <span className="preset-swatches">
-                        <i style={{ background: preset.appearance.primaryColor }} />
-                        <i style={{ background: preset.appearance.backgroundColor }} />
-                        <i style={{ background: preset.appearance.surfaceColor }} />
-                      </span>
-                      <strong>{preset.name}</strong>
-                    </button>
-                  ))}
+                  {openDesignSection === "design-themes" ? (
+                    <div className="accordion-content">
+                      <div className="appearance-presets">
+                        {availableThemes.map((preset) => (
+                          <button
+                            key={preset.id}
+                            className={`appearance-preset ${appearance.presetId === preset.id ? "is-active" : ""}`}
+                            type="button"
+                            onClick={() => applyPreset(preset.id)}
+                            style={{
+                              "--preset-primary": preset.appearance.primaryColor,
+                              "--preset-surface": preset.appearance.surfaceColor,
+                              "--preset-text": preset.appearance.textPrimaryColor,
+                            }}
+                          >
+                            <span className="preset-tone" />
+                            <span className="preset-swatches">
+                              <i style={{ background: preset.appearance.primaryColor }} />
+                              <i style={{ background: preset.appearance.backgroundColor }} />
+                              <i style={{ background: preset.appearance.surfaceColor }} />
+                            </span>
+                            <strong>{preset.name}</strong>
+                            {preset.id === "generated-logo-theme" ? <small>Tema privado sugerido desde tu logo</small> : null}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null}
                 </div>
-              </div>
-            ) : null}
-          </div>
 
-          {appearance.advancedEnabled ? (
-            <div className="section-stack">
-              <div className="appearance-grid appearance-grid-colors">
-                <ColorEditor label="Color principal" value={appearance.primaryColor} onChange={(value) => updateAppearance("primaryColor", value)} swatches={APPEARANCE_SWATCHES.primaryColor} />
-                <ColorEditor label="Prioridad 2" value={appearance.secondaryColor} onChange={(value) => updateAppearance("secondaryColor", value)} swatches={APPEARANCE_SWATCHES.secondaryColor} />
-                <ColorEditor label="Prioridad 3" value={appearance.tertiaryColor} onChange={(value) => updateAppearance("tertiaryColor", value)} swatches={APPEARANCE_SWATCHES.tertiaryColor} />
-                <ColorEditor label="Color de fondo" value={appearance.backgroundColor} onChange={(value) => updateAppearance("backgroundColor", value)} swatches={APPEARANCE_SWATCHES.backgroundColor} />
-                <ColorEditor label="Color de tarjetas" value={appearance.surfaceColor} onChange={(value) => updateAppearance("surfaceColor", value)} swatches={APPEARANCE_SWATCHES.surfaceColor} />
-                <ColorEditor label="Texto principal" value={appearance.textPrimaryColor} onChange={(value) => updateAppearance("textPrimaryColor", value)} swatches={APPEARANCE_SWATCHES.textPrimaryColor} />
-                <ColorEditor label="Texto de botones" value={appearance.buttonTextColor} onChange={(value) => updateAppearance("buttonTextColor", value)} swatches={APPEARANCE_SWATCHES.buttonTextColor} />
-              </div>
+                <div className={`panel accordion-section preset-accordion ${openDesignSection === "design-fonts" ? "is-open" : ""}`}>
+                  <button className="accordion-toggle" type="button" onClick={() => toggleDesignSection("design-fonts")} aria-expanded={openDesignSection === "design-fonts"}>
+                    <span className="accordion-toggle-copy">
+                      <strong className="section-title" style={{ fontSize: "1rem" }}>Fuentes</strong>
+                      <span className="section-copy">Define el tono tipográfico de tu Klicor.</span>
+                    </span>
+                    <span className="accordion-toggle-meta">
+                      <span className="status-badge">
+                        {APPEARANCE_FONT_OPTIONS.find((option) => option.value === appearance.fontFamily)?.label || "Moderna"}
+                      </span>
+                      {openDesignSection === "design-fonts" ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                    </span>
+                  </button>
 
-              <div className="appearance-grid">
-                <SegmentedControl label="Fondo" value={appearance.backgroundStyle} options={[{ label: "Sólido", value: "solid" }, { label: "Degradado", value: "gradient" }]} onChange={(value) => updateAppearance("backgroundStyle", value)} />
-                <SegmentedControl label="Botón" value={appearance.buttonStyle} options={[{ label: "Sólido", value: "solid" }, { label: "Contorno", value: "outline" }, { label: "Suave", value: "soft" }]} onChange={(value) => updateAppearance("buttonStyle", value)} />
-                <SegmentedControl label="Borde del botón" value={appearance.buttonRadius} options={[{ label: "Redondeado", value: "rounded" }, { label: "Más recto", value: "square" }]} onChange={(value) => updateAppearance("buttonRadius", value)} />
-                <SegmentedControl label="Tarjeta" value={appearance.cardTransparency} options={[{ label: "Sólida", value: "solid" }, { label: "Transparencia leve", value: "soft" }]} onChange={(value) => updateAppearance("cardTransparency", value)} />
-                <SegmentedControl label="Sombra" value={appearance.cardShadow} options={[{ label: "Ninguna", value: "none" }, { label: "Suave", value: "soft" }, { label: "Media", value: "medium" }]} onChange={(value) => updateAppearance("cardShadow", value)} />
-                <SegmentedControl label="Forma de imagen" value={appearance.avatarShape} options={[{ label: "Circular", value: "circle" }, { label: "Redondeada", value: "rounded" }, { label: "Cuadrado suave", value: "soft-square" }]} onChange={(value) => updateAppearance("avatarShape", value)} />
-                <SegmentedControl label="Tamaño del nombre" value={appearance.nameSize} options={[{ label: "S", value: "s" }, { label: "M", value: "m" }, { label: "L", value: "l" }]} onChange={(value) => updateAppearance("nameSize", value)} />
-                <SegmentedControl label="Peso del nombre" value={appearance.nameWeight} options={[{ label: "Regular", value: "regular" }, { label: "Negrita", value: "bold" }]} onChange={(value) => updateAppearance("nameWeight", value)} />
-              </div>
-            </div>
-          ) : null}
+                  {openDesignSection === "design-fonts" ? (
+                    <div className="accordion-content">
+                      <SegmentedControl
+                        label="Familia tipográfica"
+                        value={appearance.fontFamily}
+                        options={APPEARANCE_FONT_OPTIONS}
+                        onChange={(value) => updateAppearance("fontFamily", value)}
+                      />
+                    </div>
+                  ) : null}
+                </div>
 
-          {appearanceWarnings.length ? (
-            <div className="notice notice-danger">
-              <span>{appearanceWarnings[0].message}</span>
-            </div>
-          ) : null}
+                <div className={`panel accordion-section preset-accordion ${openDesignSection === "design-social" ? "is-open" : ""}`}>
+                  <button className="accordion-toggle" type="button" onClick={() => toggleDesignSection("design-social")} aria-expanded={openDesignSection === "design-social"}>
+                    <span className="accordion-toggle-copy">
+                      <strong className="section-title" style={{ fontSize: "1rem" }}>Iconos de redes</strong>
+                      <span className="section-copy">Elige si prefieres tarjetas suaves o iconos circulares por marca.</span>
+                    </span>
+                    <span className="accordion-toggle-meta">
+                      <span className="status-badge">
+                        {SOCIAL_STYLE_OPTIONS.find((option) => option.value === appearance.socialStyle)?.label || "Tarjetas"}
+                      </span>
+                      {openDesignSection === "design-social" ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                    </span>
+                  </button>
 
-          {!appearanceWarnings.length && appearanceSuggestions.length ? (
-            <div className="notice">
-              <span>{appearanceSuggestions[0].message}</span>
-            </div>
-          ) : null}
+                  {openDesignSection === "design-social" ? (
+                    <div className="accordion-content">
+                      <SegmentedControl
+                        label="Estilo de iconos"
+                        value={appearance.socialStyle}
+                        options={SOCIAL_STYLE_OPTIONS}
+                        onChange={(value) => updateAppearance("socialStyle", value)}
+                      />
+                    </div>
+                  ) : null}
+                </div>
 
-          <div className="actions">
-            <button className="btn btn-secondary" type="button" onClick={resetAppearance}>
-              <RotateCcw size={16} /> Restablecer
-            </button>
-          </div>
+                <div className={`panel accordion-section preset-accordion ${openDesignSection === "design-advanced" ? "is-open" : ""}`}>
+                  <button className="accordion-toggle" type="button" onClick={() => toggleDesignSection("design-advanced")} aria-expanded={openDesignSection === "design-advanced"}>
+                    <span className="accordion-toggle-copy">
+                      <strong className="section-title" style={{ fontSize: "1rem" }}>Personalizar diseño</strong>
+                      <span className="section-copy">Ajusta colores, bordes, sombras y detalles finos del perfil.</span>
+                    </span>
+                    <span className="accordion-toggle-meta">
+                      <span className="status-badge">{appearance.advancedEnabled ? "Activo" : "Guiado"}</span>
+                      {openDesignSection === "design-advanced" ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                    </span>
+                  </button>
+
+                  {openDesignSection === "design-advanced" ? (
+                    <div className="accordion-content section-stack">
+                      <div className="appearance-grid appearance-grid-colors">
+                        <ColorEditor label="Color principal" value={appearance.primaryColor} onChange={(value) => updateAppearance("primaryColor", value)} swatches={APPEARANCE_SWATCHES.primaryColor} />
+                        <ColorEditor label="Prioridad 2" value={appearance.secondaryColor} onChange={(value) => updateAppearance("secondaryColor", value)} swatches={APPEARANCE_SWATCHES.secondaryColor} />
+                        <ColorEditor label="Prioridad 3" value={appearance.tertiaryColor} onChange={(value) => updateAppearance("tertiaryColor", value)} swatches={APPEARANCE_SWATCHES.tertiaryColor} />
+                        <ColorEditor label="Color de fondo" value={appearance.backgroundColor} onChange={(value) => updateAppearance("backgroundColor", value)} swatches={APPEARANCE_SWATCHES.backgroundColor} />
+                        <ColorEditor label="Color de tarjetas" value={appearance.surfaceColor} onChange={(value) => updateAppearance("surfaceColor", value)} swatches={APPEARANCE_SWATCHES.surfaceColor} />
+                        <ColorEditor label="Texto principal" value={appearance.textPrimaryColor} onChange={(value) => updateAppearance("textPrimaryColor", value)} swatches={APPEARANCE_SWATCHES.textPrimaryColor} />
+                        <ColorEditor label="Texto de botones" value={appearance.buttonTextColor} onChange={(value) => updateAppearance("buttonTextColor", value)} swatches={APPEARANCE_SWATCHES.buttonTextColor} />
+                      </div>
+
+                      <div className="appearance-grid">
+                        <SegmentedControl label="Fondo" value={appearance.backgroundStyle} options={[{ label: "Sólido", value: "solid" }, { label: "Degradado", value: "gradient" }]} onChange={(value) => updateAppearance("backgroundStyle", value)} />
+                        <SegmentedControl label="Botón" value={appearance.buttonStyle} options={[{ label: "Sólido", value: "solid" }, { label: "Contorno", value: "outline" }, { label: "Suave", value: "soft" }]} onChange={(value) => updateAppearance("buttonStyle", value)} />
+                        <SegmentedControl label="Borde del botón" value={appearance.buttonRadius} options={[{ label: "Redondeado", value: "rounded" }, { label: "Más recto", value: "square" }]} onChange={(value) => updateAppearance("buttonRadius", value)} />
+                        <SegmentedControl label="Tarjeta" value={appearance.cardTransparency} options={[{ label: "Sólida", value: "solid" }, { label: "Transparencia leve", value: "soft" }]} onChange={(value) => updateAppearance("cardTransparency", value)} />
+                        <SegmentedControl label="Sombra" value={appearance.cardShadow} options={[{ label: "Ninguna", value: "none" }, { label: "Suave", value: "soft" }, { label: "Media", value: "medium" }]} onChange={(value) => updateAppearance("cardShadow", value)} />
+                        <SegmentedControl label="Forma de imagen" value={appearance.avatarShape} options={[{ label: "Circular", value: "circle" }, { label: "Redondeada", value: "rounded" }, { label: "Cuadrado suave", value: "soft-square" }]} onChange={(value) => updateAppearance("avatarShape", value)} />
+                        <SegmentedControl label="Tamaño del nombre" value={appearance.nameSize} options={[{ label: "S", value: "s" }, { label: "M", value: "m" }, { label: "L", value: "l" }]} onChange={(value) => updateAppearance("nameSize", value)} />
+                        <SegmentedControl label="Peso del nombre" value={appearance.nameWeight} options={[{ label: "Regular", value: "regular" }, { label: "Negrita", value: "bold" }]} onChange={(value) => updateAppearance("nameWeight", value)} />
+                      </div>
+                    </div>
+                  ) : null}
+                </div>
+
+                {appearanceWarnings.length ? (
+                  <div className="notice notice-danger">
+                    <span>{appearanceWarnings[0].message}</span>
+                  </div>
+                ) : null}
+
+                {!appearanceWarnings.length && appearanceSuggestions.length ? (
+                  <div className="notice">
+                    <span>{appearanceSuggestions[0].message}</span>
+                  </div>
+                ) : null}
+
+                <div className="actions">
+                  <button className="btn btn-secondary" type="button" onClick={resetAppearance}>
+                    <RotateCcw size={16} /> Restablecer
+                  </button>
+                </div>
               </div>
             </section>
           ) : null}
-
         <div className="actions editor-form-footer">
           <button className="btn btn-primary" type="submit" disabled={loading || !canEdit || appearanceWarnings.length > 0}>
             {loading ? <RefreshCw size={16} /> : null}
