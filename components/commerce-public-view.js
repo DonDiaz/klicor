@@ -138,16 +138,19 @@ function ProductsGrid({
 }
 
 export function CommercePublicView({ bootstrap, preview = false }) {
+  const categories = Array.isArray(bootstrap?.categories) ? bootstrap.categories : [];
+  const initialSubcategories = Array.isArray(bootstrap?.initialSubcategories) ? bootstrap.initialSubcategories : [];
+  const initialProducts = Array.isArray(bootstrap?.initialProducts) ? bootstrap.initialProducts : [];
   const appearance = normalizeAppearance(bootstrap.business.settings);
   const fontFamily = FONT_FAMILY_STYLE_MAP[appearance.fontFamily] || FONT_FAMILY_STYLE_MAP.inter;
-  const [selection, setSelection] = useState(bootstrap.initialSelection);
-  const [subcategories, setSubcategories] = useState(bootstrap.initialSubcategories || []);
-  const [products, setProducts] = useState(bootstrap.initialProducts || []);
+  const [selection, setSelection] = useState(bootstrap.initialSelection || { categoryId: "", subcategoryId: "" });
+  const [subcategories, setSubcategories] = useState(initialSubcategories);
+  const [products, setProducts] = useState(initialProducts);
   const [pagination, setPagination] = useState(bootstrap.initialPagination || { hasMore: false, nextCursor: null });
   const [cache, setCache] = useState(() => ({
     [`${bootstrap.initialSelection.categoryId}:${bootstrap.initialSelection.subcategoryId}`]: {
-      subcategories: bootstrap.initialSubcategories || [],
-      products: bootstrap.initialProducts || [],
+      subcategories: initialSubcategories,
+      products: initialProducts,
       hasMore: bootstrap.initialPagination?.hasMore || false,
       nextCursor: bootstrap.initialPagination?.nextCursor || null,
     },
@@ -328,9 +331,10 @@ export function CommercePublicView({ bootstrap, preview = false }) {
         </header>
 
         <section className="commerce-accordion-list">
-          {bootstrap.categories.map((category) => {
+          {categories.map((category) => {
             const isCategoryOpen = selection.categoryId === category.id;
             const showDirectProducts = isCategoryOpen && !category.hasSubcategories;
+            const categorySubcategories = Array.isArray(subcategories) ? subcategories : [];
 
             return (
               <article key={category.id} className={`commerce-accordion-card ${isCategoryOpen ? "is-open" : ""}`.trim()}>
@@ -351,7 +355,7 @@ export function CommercePublicView({ bootstrap, preview = false }) {
                     {category.hasSubcategories ? (
                       <>
                         <div className="commerce-subaccordion-list">
-                          {subcategories.map((subcategory) => {
+                          {categorySubcategories.map((subcategory) => {
                             const isSubcategoryOpen = selection.subcategoryId === subcategory.id;
 
                             return (

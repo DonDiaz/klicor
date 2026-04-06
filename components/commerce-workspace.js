@@ -52,12 +52,16 @@ function ProductRow({ product, mode, onEdit, onToggleVisibility, onMove, onDelet
 
 function buildPreviewBootstrap(profile, state) {
   if (!state?.config?.activeMode) return null;
-  const firstCategory = state.categories?.[0] || null;
-  const firstSubcategory = firstCategory?.subcategories?.[0] || null;
+  const categories = Array.isArray(state?.categories) ? state.categories : [];
+  const firstCategory = categories[0] || null;
+  const firstCategorySubcategories = Array.isArray(firstCategory?.subcategories) ? firstCategory.subcategories : [];
+  const firstCategoryProducts = Array.isArray(firstCategory?.products) ? firstCategory.products : [];
+  const firstSubcategory = firstCategorySubcategories[0] || null;
+  const firstSubcategoryProducts = Array.isArray(firstSubcategory?.products) ? firstSubcategory.products : [];
   const initialProducts = firstCategory
     ? firstCategory.hasSubcategories
-      ? (firstSubcategory?.products || [])
-      : (firstCategory.products || [])
+      ? firstSubcategoryProducts
+      : firstCategoryProducts
     : [];
 
   return {
@@ -79,12 +83,12 @@ function buildPreviewBootstrap(profile, state) {
     supportsCart: state.config.activeMode !== "micatalogo",
     requiresPrice: state.config.activeMode !== "micatalogo",
     orderWhatsapp: state.config.orderWhatsapp,
-    categories: state.categories || [],
+    categories,
     initialSelection: {
       categoryId: firstCategory?.id || "",
       subcategoryId: firstSubcategory?.id || "",
     },
-    initialSubcategories: firstCategory?.subcategories || [],
+    initialSubcategories: firstCategorySubcategories,
     initialProducts,
     initialPagination: {
       hasMore: false,
@@ -107,7 +111,7 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
   const [expandedCategoryId, setExpandedCategoryId] = useState("");
   const [expandedSubcategoryIds, setExpandedSubcategoryIds] = useState({});
 
-  const categories = state?.categories || [];
+  const categories = Array.isArray(state?.categories) ? state.categories : [];
   const modeMeta = resolveCommerceModeMeta(configForm.activeMode);
 
   useEffect(() => {
@@ -160,7 +164,7 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
       id: category.id,
       name: category.name,
       hasSubcategories: category.hasSubcategories,
-      subcategories: category.subcategories || [],
+      subcategories: Array.isArray(category.subcategories) ? category.subcategories : [],
     })),
     [categories],
   );
@@ -260,6 +264,8 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
 
           {categories.map((category) => {
             const isCategoryOpen = expandedCategoryId === category.id;
+            const categorySubcategories = Array.isArray(category.subcategories) ? category.subcategories : [];
+            const categoryProducts = Array.isArray(category.products) ? category.products : [];
             const isSubcategoryOpen = (subcategoryId) => expandedSubcategoryIds[category.id] === subcategoryId;
 
             return (
@@ -333,9 +339,11 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
                       </button>
                     </div>
 
-                    {category.subcategories?.length ? (
+                    {categorySubcategories.length ? (
                       <div className="commerce-subcategory-list">
-                        {category.subcategories.map((subcategory) => (
+                        {categorySubcategories.map((subcategory) => {
+                          const subcategoryProducts = Array.isArray(subcategory.products) ? subcategory.products : [];
+                          return (
                           <div className="commerce-subcategory-card" key={subcategory.id}>
                             <div className="commerce-subcategory-head">
                               <div>
@@ -380,7 +388,7 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
                                   <Plus size={16} /> Agregar producto aquí
                                 </button>
                                 <div className="commerce-admin-product-list">
-                                  {subcategory.products?.map((product) => (
+                                  {subcategoryProducts.map((product) => (
                                     <ProductRow
                                       key={product.id}
                                       product={product}
@@ -395,11 +403,12 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
                               </div>
                             ) : null}
                           </div>
-                        ))}
+                          );
+                        })}
                       </div>
                     ) : (
                       <div className="commerce-admin-product-list">
-                        {category.products?.map((product) => (
+                        {categoryProducts.map((product) => (
                           <ProductRow
                             key={product.id}
                             product={product}
