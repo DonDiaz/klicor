@@ -1,7 +1,6 @@
 "use client";
 
-import { Component, useEffect, useRef, useState } from "react";
-import { CommercePublicView } from "@/components/commerce-public-view";
+import { useEffect, useRef, useState } from "react";
 import { LandingView } from "@/components/landing-view";
 
 const PREVIEW_WIDTH = 390;
@@ -9,40 +8,7 @@ const PREVIEW_HEIGHT = 844;
 const PREVIEW_SAFE_SCALE = 0.96;
 const MOBILE_INLINE_PREVIEW_BREAKPOINT = 760;
 
-class PreviewErrorBoundary extends Component {
-  constructor(props) {
-    super(props);
-    this.state = { hasError: false };
-  }
-
-  static getDerivedStateFromError() {
-    return { hasError: true };
-  }
-
-  componentDidUpdate(prevProps) {
-    if (
-      this.state.hasError &&
-      (prevProps.previewMode !== this.props.previewMode || prevProps.resetKey !== this.props.resetKey)
-    ) {
-      this.setState({ hasError: false });
-    }
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return (
-        <div className="preview-placeholder-card">
-          <strong>No pudimos cargar esta vista previa</strong>
-          <p className="section-copy">Recarga el módulo o guarda los cambios para regenerar la representación comercial.</p>
-        </div>
-      );
-    }
-
-    return this.props.children;
-  }
-}
-
-export function DashboardPreview({ user, previewMode = "landing", commerceBootstrap = null }) {
+export function DashboardPreview({ user }) {
   const shellRef = useRef(null);
   const [inlinePreview, setInlinePreview] = useState(false);
   const [metrics, setMetrics] = useState({
@@ -96,15 +62,9 @@ export function DashboardPreview({ user, previewMode = "landing", commerceBootst
   if (inlinePreview) {
     return (
       <div ref={shellRef} className="dashboard-preview-fit-shell is-inline-preview">
-        <PreviewErrorBoundary previewMode={previewMode} resetKey={commerceBootstrap?.mode || user?.username || ""}>
-          <div className="dashboard-preview-mobile-stage">
-            {previewMode === "commerce" && commerceBootstrap ? (
-              <CommercePublicView bootstrap={commerceBootstrap} preview />
-            ) : (
-              <LandingView user={user} preview />
-            )}
-          </div>
-        </PreviewErrorBoundary>
+        <div className="dashboard-preview-mobile-stage">
+          <LandingView user={user} preview />
+        </div>
       </div>
     );
   }
@@ -118,22 +78,16 @@ export function DashboardPreview({ user, previewMode = "landing", commerceBootst
           height: `${metrics.height}px`,
         }}
       >
-        <PreviewErrorBoundary previewMode={previewMode} resetKey={commerceBootstrap?.mode || user?.username || ""}>
-          <div
-            className="dashboard-preview-fit-stage"
-            style={{
-              width: `${PREVIEW_WIDTH}px`,
-              height: `${PREVIEW_HEIGHT}px`,
-              transform: `translateX(-50%) scale(${metrics.scale})`,
-            }}
-          >
-            {previewMode === "commerce" && commerceBootstrap ? (
-              <CommercePublicView bootstrap={commerceBootstrap} preview />
-            ) : (
-              <LandingView user={user} preview />
-            )}
-          </div>
-        </PreviewErrorBoundary>
+        <div
+          className="dashboard-preview-fit-stage"
+          style={{
+            width: `${PREVIEW_WIDTH}px`,
+            height: `${PREVIEW_HEIGHT}px`,
+            transform: `translateX(-50%) scale(${metrics.scale})`,
+          }}
+        >
+          <LandingView user={user} preview />
+        </div>
       </div>
     </div>
   );

@@ -363,7 +363,6 @@ export function ProfileForm({
   const [darkModeEnabled, setDarkModeEnabled] = useState(false);
   const [openProfileSection, setOpenProfileSection] = useState("profile-identity");
   const [openDesignSection, setOpenDesignSection] = useState("design-themes");
-  const [commercePreviewData, setCommercePreviewData] = useState(null);
   useEffect(() => {
     setForm({
       businessName: profile?.businessName || "",
@@ -380,7 +379,6 @@ export function ProfileForm({
     setContactCard(normalizeContactCard(profile));
     setBillingProfile(normalizeBillingProfile(profile));
     setAlertMessage("");
-    setCommercePreviewData(null);
   }, [profile]);
 
   useEffect(() => {
@@ -477,18 +475,12 @@ export function ProfileForm({
   }), [appearance, contactCard.enabled, contactCard.name, contactCard.phone, contactCard.title, contactCard.whatsappLinkId, form.businessCategory, form.businessHeadline, form.businessName, form.businessSubheadline, form.username, paymentMethods, photoPreviewUrl, profile?.photo, profile?.publicLinkId, profileLinks]);
 
   const previewPublicUrl = useMemo(() => {
-    if (activeWorkspace === "commerce" && commercePreviewData?.publicUrl) {
-      const baseUrl = typeof window !== "undefined"
-        ? window.location.origin
-        : process.env.NEXT_PUBLIC_APP_URL || "https://klicor.com";
-      return `${baseUrl}${commercePreviewData.publicUrl}`;
-    }
     if (publicUrl) return publicUrl;
     const baseUrl = typeof window !== "undefined"
       ? window.location.origin
       : process.env.NEXT_PUBLIC_APP_URL || "https://klicor.com";
     return form.username ? `${baseUrl}/${form.username}` : baseUrl;
-  }, [activeWorkspace, commercePreviewData?.publicUrl, form.username, publicUrl]);
+  }, [form.username, publicUrl]);
 
   const appearanceWarnings = useMemo(() => getAppearanceWarnings(appearance), [appearance]);
   const appearanceSuggestions = useMemo(() => getAppearanceSuggestions(appearance), [appearance]);
@@ -831,7 +823,7 @@ export function ProfileForm({
   }
 
   return (
-    <div className={`editor-layout ${navCollapsed ? "is-nav-collapsed" : ""}`}>
+    <div className={`editor-layout ${navCollapsed ? "is-nav-collapsed" : ""} ${activeWorkspace === "commerce" ? "is-commerce-workspace" : ""}`}>
       {mobileNavOpen ? (
         <button
           className="editor-sidebar-backdrop"
@@ -959,34 +951,32 @@ export function ProfileForm({
         </div>
       </section>
 
-      <aside className="preview-shell preview-shell-editor preview-shell-workspace">
-        <div className="preview-header preview-header-editor">
-          <div className="preview-toolbar">
-            <div className="preview-link-card">
-              <span className="dashboard-link-label">Link público</span>
-              <strong>{previewPublicUrl}</strong>
-            </div>
-            <div className="preview-action-group">
-              <button className="btn btn-secondary" type="button" onClick={onCopyPublicUrl} disabled={!previewPublicUrl}>
-                <Copy size={16} /> Copiar
-              </button>
-              <button className="btn btn-secondary" type="button" onClick={handleOpenPublicUrl} disabled={!previewPublicUrl}>
-                <ExternalLink size={16} /> Abrir
-              </button>
-              <button className="btn btn-secondary" type="button" onClick={onDownloadQr} disabled={!profile?.qrUrl}>
-                <Download size={16} /> Descargar QR
-              </button>
+      {activeWorkspace !== "commerce" ? (
+        <aside className="preview-shell preview-shell-editor preview-shell-workspace">
+          <div className="preview-header preview-header-editor">
+            <div className="preview-toolbar">
+              <div className="preview-link-card">
+                <span className="dashboard-link-label">Link público</span>
+                <strong>{previewPublicUrl}</strong>
+              </div>
+              <div className="preview-action-group">
+                <button className="btn btn-secondary" type="button" onClick={onCopyPublicUrl} disabled={!previewPublicUrl}>
+                  <Copy size={16} /> Copiar
+                </button>
+                <button className="btn btn-secondary" type="button" onClick={handleOpenPublicUrl} disabled={!previewPublicUrl}>
+                  <ExternalLink size={16} /> Abrir
+                </button>
+                <button className="btn btn-secondary" type="button" onClick={onDownloadQr} disabled={!profile?.qrUrl}>
+                  <Download size={16} /> Descargar QR
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-        <div className="preview-frame preview-frame-editor">
-          <DashboardPreview
-            user={previewUser}
-            previewMode={activeWorkspace === "commerce" && commercePreviewData?.mode ? "commerce" : "landing"}
-            commerceBootstrap={commercePreviewData}
-          />
-        </div>
-      </aside>
+          <div className="preview-frame preview-frame-editor">
+            <DashboardPreview user={previewUser} />
+          </div>
+        </aside>
+      ) : null}
 
       <div className="editor-panel">
         <div className="editor-tabs" role="tablist" aria-label="Navegación del editor">
@@ -1494,10 +1484,9 @@ export function ProfileForm({
           {activeWorkspace === "commerce" ? (
             <CommerceWorkspace
               token={token}
-              profile={{ ...profile, ...previewUser, uid: profile?.uid || profile?.id }}
+              profile={{ ...profile, ...previewUser, uid: profile?.uid || profile?.id, savedUsername: profile?.username || "" }}
               active={activeWorkspace === "commerce"}
               canEdit={canEdit}
-              onPreviewDataChange={setCommercePreviewData}
             />
           ) : null}
 

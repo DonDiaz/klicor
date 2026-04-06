@@ -4,8 +4,10 @@ import { useEffect, useMemo, useState } from "react";
 import {
   ChevronDown,
   ChevronUp,
+  Copy,
   Eye,
   EyeOff,
+  ExternalLink,
   ImagePlus,
   LoaderCircle,
   Pencil,
@@ -50,54 +52,7 @@ function ProductRow({ product, mode, onEdit, onToggleVisibility, onMove, onDelet
   );
 }
 
-function buildPreviewBootstrap(profile, state) {
-  if (!state?.config?.activeMode) return null;
-  const categories = Array.isArray(state?.categories) ? state.categories : [];
-  const firstCategory = categories[0] || null;
-  const firstCategorySubcategories = Array.isArray(firstCategory?.subcategories) ? firstCategory.subcategories : [];
-  const firstCategoryProducts = Array.isArray(firstCategory?.products) ? firstCategory.products : [];
-  const firstSubcategory = firstCategorySubcategories[0] || null;
-  const firstSubcategoryProducts = Array.isArray(firstSubcategory?.products) ? firstSubcategory.products : [];
-  const initialProducts = firstCategory
-    ? firstCategory.hasSubcategories
-      ? firstSubcategoryProducts
-      : firstCategoryProducts
-    : [];
-
-  return {
-    business: {
-      uid: profile.uid,
-      username: profile.username,
-      usernameLower: profile.usernameLower || profile.username,
-      businessName: profile.businessName,
-      businessHeadline: profile.businessHeadline,
-      businessSubheadline: profile.businessSubheadline,
-      businessCategory: profile.businessCategory,
-      photo: profile.photo,
-      settings: profile.settings,
-      profileLinks: profile.profileLinks || [],
-    },
-    config: state.config,
-    mode: state.config.activeMode,
-    modeMeta: resolveCommerceModeMeta(state.config.activeMode),
-    supportsCart: state.config.activeMode !== "micatalogo",
-    requiresPrice: state.config.activeMode !== "micatalogo",
-    orderWhatsapp: state.config.orderWhatsapp,
-    categories,
-    initialSelection: {
-      categoryId: firstCategory?.id || "",
-      subcategoryId: firstSubcategory?.id || "",
-    },
-    initialSubcategories: firstCategorySubcategories,
-    initialProducts,
-    initialPagination: {
-      hasMore: false,
-      nextCursor: null,
-    },
-  };
-}
-
-export function CommerceWorkspace({ token, profile, active = false, canEdit = true, onPreviewDataChange }) {
+export function CommerceWorkspace({ token, profile, active = false, canEdit = true }) {
   const [state, setState] = useState(null);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
@@ -113,6 +68,17 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
 
   const categories = Array.isArray(state?.categories) ? state.categories : [];
   const modeMeta = resolveCommerceModeMeta(configForm.activeMode);
+  const savedActiveMode = state?.config?.activeMode || "";
+  const savedModeMeta = resolveCommerceModeMeta(savedActiveMode || configForm.activeMode);
+  const savedUsername = profile?.savedUsername || profile?.username || "";
+  const commercePublicPath = savedActiveMode && savedUsername ? `/${savedUsername}/${savedActiveMode}` : "";
+  const commercePublicUrl = useMemo(() => {
+    if (!commercePublicPath) return "";
+    const baseUrl = typeof window !== "undefined"
+      ? window.location.origin
+      : process.env.NEXT_PUBLIC_APP_URL || "https://klicor.com";
+    return `${baseUrl}${commercePublicPath}`;
+  }, [commercePublicPath]);
 
   useEffect(() => {
     if (!active || !token) return;
@@ -154,11 +120,6 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
     });
   }, [categories]);
 
-  useEffect(() => {
-    if (!onPreviewDataChange) return;
-    onPreviewDataChange(buildPreviewBootstrap(profile, state));
-  }, [onPreviewDataChange, profile, state]);
-
   const flatCategoryOptions = useMemo(
     () => categories.map((category) => ({
       id: category.id,
@@ -198,6 +159,21 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
     } finally {
       setLoading(false);
     }
+  }
+
+  async function copyCommerceUrl() {
+    if (!commercePublicUrl || typeof navigator === "undefined") return;
+    try {
+      await navigator.clipboard.writeText(commercePublicUrl);
+      setMessage("Link comercial copiado.");
+    } catch {
+      setError("No pudimos copiar el link. Puedes abrirlo y copiarlo desde el navegador.");
+    }
+  }
+
+  function openCommerceUrl() {
+    if (!commercePublicUrl || typeof window === "undefined") return;
+    window.open(commercePublicUrl, "_blank", "noopener,noreferrer");
   }
 
   if (!active) return null;
@@ -247,6 +223,40 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
                 Límite del plan: {state?.limits?.maxCategories || 0} categorías, {state?.limits?.maxSubcategories || 0} subcategorías y {state?.limits?.maxProducts || 0} productos.
               </small>
             </article>
+          </section>
+
+          <section className="commerce-admin-card commerce-public-link-card">
+            <div className="commerce-admin-inline-head">
+              <div>
+                <strong>Link público de {savedModeMeta.label.toLowerCase()}</strong>
+                <small>
+                  {commercePublicUrl
+                    ? "Úsalo para revisar o compartir este modo comercial sin cargar una vista previa pesada en el dashboard."
+                    : "Guarda un modo activo y define tu usuario para generar el link comercial."}
+                </small>
+              </div>
+              {savedActiveMode ? <span className="status-badge">{savedModeMeta.label}</span> : null}
+            </div>
+            <div className="commerce-public-link-actions">
+              <code>{commercePublicUrl || "Aún no hay link comercial activo"}</code>
+              <div className="actions">
+                <button className="btn btn-secondary" type="button" onClick={copyCommerceUrl} disabled={!commercePublicUrl}>
+                  <Copy size={16} /> Copiar link
+                </button>
+                <button className="btn btn-primary" type="button" onClick={openCommerceUrl} disabled={!commercePublicUrl}>
+                  <ExternalLink size={16} /> Abrir link
+                </button>
+              </div>
+            </div>
+          </section>
+
+          <section className="commerce-admin-card commerce-creation-guide">
+            <strong>Orden recomendado para crear tu {savedModeMeta.label.toLowerCase()}</strong>
+            <div>
+              <span>1. Crea categorías claras</span>
+              <span>2. Agrega subcategorías solo si ayudan a ordenar</span>
+              <span>3. Crea productos con imagen liviana y precio correcto</span>
+            </div>
           </section>
 
           <section className="commerce-admin-card">
