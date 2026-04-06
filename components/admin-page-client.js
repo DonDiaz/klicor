@@ -52,7 +52,7 @@ export function AdminPageClient() {
     return (
       <main className="admin-page-shell admin-shell" style={{ padding: "2rem 0 3rem" }}>
         <div className="panel stack">
-          <p>Necesitas iniciar sesion para ver el panel administrativo.</p>
+          <p>Necesitas iniciar sesión para ver el panel administrativo.</p>
           <Link className="btn btn-primary" href="/">Ir al inicio</Link>
         </div>
       </main>
@@ -74,7 +74,7 @@ export function AdminPageClient() {
           <p className="muted">Tu cuenta no tiene permisos para administrar usuarios, precios y vencimientos.</p>
           <div className="actions">
             <Link className="btn btn-secondary" href="/dashboard">Volver al dashboard</Link>
-            <button className="btn btn-secondary" type="button" onClick={handleLogout}>Cerrar sesion</button>
+            <button className="btn btn-secondary" type="button" onClick={handleLogout}>Cerrar sesión</button>
           </div>
         </div>
       </main>
@@ -88,7 +88,7 @@ export function AdminPageClient() {
           <p>{error || "Cargando datos del panel..."}</p>
           <div className="actions">
             <Link className="btn btn-secondary" href="/dashboard">Volver al dashboard</Link>
-            <button className="btn btn-secondary" type="button" onClick={handleLogout}>Cerrar sesion</button>
+            <button className="btn btn-secondary" type="button" onClick={handleLogout}>Cerrar sesión</button>
           </div>
         </div>
       </main>

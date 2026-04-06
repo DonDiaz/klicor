@@ -33,22 +33,22 @@ function MicrosoftIcon() {
 function getAuthErrorMessage(error) {
   const code = error?.code || "";
 
-  if (code === "auth/invalid-email") return "Ingresa un correo valido.";
+  if (code === "auth/invalid-email") return "Ingresa un correo válido.";
   if (code === "auth/missing-email") return "Escribe tu correo para continuar.";
   if (code === "auth/too-many-requests") return "Has intentado demasiadas veces. Espera un momento e intenta de nuevo.";
   if (code === "auth/popup-closed-by-user") return "Cerraste la ventana antes de terminar el acceso.";
   if (code === "auth/popup-blocked") return "Tu navegador bloqueo la ventana del proveedor. Intenta de nuevo.";
   if (code === "auth/network-request-failed") return "No pudimos conectarnos. Revisa tu internet e intenta otra vez.";
-  if (code === "auth/operation-not-allowed") return "Este metodo de acceso no esta habilitado todavia en Firebase.";
-  if (code === "auth/unauthorized-domain") return "Este dominio todavia no esta autorizado en Firebase para este acceso.";
+  if (code === "auth/operation-not-allowed") return "Este método de acceso no está habilitado todavía en Firebase.";
+  if (code === "auth/unauthorized-domain") return "Este dominio todavía no está autorizado en Firebase para este acceso.";
   if (code === "auth/account-exists-with-different-credential") {
-    return "Ese correo ya existe con otro metodo. Prueba con Google, Microsoft o con el enlace al correo.";
+    return "Ese correo ya existe con otro método. Prueba con Google, Microsoft o con el enlace al correo.";
   }
   if (code === "auth/unauthorized-continue-uri" || code === "auth/invalid-continue-uri") {
-    return "El acceso por correo no esta bien configurado todavia.";
+    return "El acceso por correo no está bien configurado todavía.";
   }
   if (code === "auth/expired-action-code" || code === "auth/invalid-action-code") {
-    return "El enlace ya no es valido. Pide uno nuevo.";
+    return "El enlace ya no es válido. Pide uno nuevo.";
   }
   if (code === "auth/argument-error") return "No pudimos completar el acceso con ese enlace.";
 
@@ -100,7 +100,7 @@ export function AuthForm({
 
   function ensureTermsAccepted() {
     if (!shouldRequireTerms || acceptedTerms) return true;
-    setFeedback("Debes aceptar los terminos y condiciones para continuar.", "danger");
+      setFeedback("Debes aceptar los términos y condiciones para continuar.", "danger");
     return false;
   }
 
@@ -204,8 +204,8 @@ export function AuthForm({
   const resolvedTitle = title || "Entra o crea tu cuenta";
   const resolvedDescription = description || (
     allowRegister
-      ? "Accede con Google, Microsoft o recibe un enlace en tu correo. Asi activas tu Klicor con menos friccion y sin depender de una contrasena."
-      : "Accede con Google, Microsoft o con un enlace a tu correo para entrar sin friccion."
+      ? "Accede con Google, Microsoft o recibe un enlace en tu correo. Así activas tu Klicor con menos fricción y sin depender de una contraseña."
+      : "Accede con Google, Microsoft o con un enlace a tu correo para entrar sin fricción."
   );
   const resolvedEmailButtonLabel = submitLabel || (pendingEmailLink ? "Completar acceso con correo" : "Continuar con correo");
   const messageClassName = useMemo(() => {
@@ -263,7 +263,7 @@ export function AuthForm({
         </div>
 
         <div className="auth-email-block">
-          <label className="label">Correo electronico</label>
+          <label className="label">Correo electrónico</label>
           <div className="input-with-icon auth-email-input">
             <Mail size={18} />
             <input
@@ -282,7 +282,7 @@ export function AuthForm({
           <p className="auth-hint">
             {pendingEmailLink
               ? "Usa el mismo correo con el que pediste el enlace para terminar el acceso."
-              : "Te enviaremos un enlace directo para entrar o crear tu cuenta sin contrasena."}
+              : "Te enviaremos un enlace directo para entrar o crear tu cuenta sin contraseña."}
           </p>
         </div>
 
@@ -296,16 +296,16 @@ export function AuthForm({
             <span>
               Al continuar aceptas los{" "}
               <Link className="terms-link" href="/terminos" target="_blank" rel="noreferrer">
-                Terminos y condiciones
+                Términos y condiciones
               </Link>{" "}
               y la{" "}
               <Link className="terms-link" href="/privacidad" target="_blank" rel="noreferrer">
-                Politica de privacidad
+                Política de privacidad
               </Link>.
             </span>
           </label>
         ) : (
-          <p className="auth-inline-note">Usa Google, Microsoft o tu correo para entrar sin friccion.</p>
+          <p className="auth-inline-note">Usa Google, Microsoft o tu correo para entrar sin fricción.</p>
         )}
       </div>
 

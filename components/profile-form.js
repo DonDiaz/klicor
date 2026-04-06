@@ -45,6 +45,7 @@ import { resolveContactCardData } from "@/lib/contact-card";
 import { canAddLinkType, getLinkTypeCount, getLinkTypeLimit, LINK_CATALOG, LINK_CATALOG_MAP } from "@/lib/link-catalog";
 import { normalizePaymentMethods } from "@/lib/payment-methods";
 import { generateThemeFromLogoFile, mergeGeneratedTheme } from "@/lib/logo-theme";
+import { FONT_FAMILY_STYLE_MAP } from "@/app/fonts";
 import {
   APPEARANCE_DEFAULTS,
   APPEARANCE_FONT_OPTIONS,
@@ -65,7 +66,7 @@ const DashboardPreview = dynamic(
       <div className="preview-frame preview-frame-placeholder">
         <div className="preview-placeholder-card">
           <strong>Cargando vista previa</strong>
-          <p className="section-copy">Preparamos la representaciÃ³n real de tu pÃ¡gina pÃºblica.</p>
+          <p className="section-copy">Preparamos la representación real de tu página pública.</p>
         </div>
       </div>
     ),
@@ -98,7 +99,7 @@ function normalizeLinks(profile) {
         type,
         label: LINK_CATALOG_MAP[type]?.label || "Enlace",
         value,
-        message: type === "whatsapp" ? "Hola, quiero informaciÃ³n" : "",
+        message: type === "whatsapp" ? "Hola, quiero información" : "",
       })),
     category,
   );
@@ -111,7 +112,7 @@ function normalizeLinkUrl(item) {
   const meta = LINK_CATALOG_MAP[item.type];
   if (meta?.kind === "phone") {
     const digits = raw.replace(/\D/g, "");
-    const message = (item.message || "Hola, quiero informaciÃ³n").trim();
+    const message = (item.message || "Hola, quiero información").trim();
     return digits ? `https://wa.me/${digits}?text=${encodeURIComponent(message)}` : "";
   }
 
@@ -156,8 +157,8 @@ function normalizeBillingProfile(profile) {
 
 const BILLING_DOCUMENT_OPTIONS = [
   { value: "nit", label: "NIT" },
-  { value: "cc", label: "CÃ©dula de ciudadanÃ­a" },
-  { value: "ce", label: "CÃ©dula de extranjerÃ­a" },
+  { value: "cc", label: "Cédula de ciudadanía" },
+  { value: "ce", label: "Cédula de extranjería" },
   { value: "passport", label: "Pasaporte" },
   { value: "other", label: "Otro" },
 ];
@@ -169,17 +170,17 @@ const BILLING_RESPONSIBILITY_OPTIONS = [
 
 const WORKSPACE_TABS = [
   { id: "blocks", label: "Enlaces", icon: Link2 },
-  { id: "design", label: "DiseÃ±o", icon: Paintbrush },
+  { id: "design", label: "Diseño", icon: Paintbrush },
   { id: "settings", label: "Ajustes", icon: ShieldCheck },
 ];
 
 const DASHBOARD_NAV_ITEMS = [
   { id: "blocks", label: "Enlaces", icon: Link2, copy: "Botones, pagos y contacto" },
-  { id: "design", label: "DiseÃ±o", icon: Paintbrush, copy: "Temas, colores y estilos" },
+  { id: "design", label: "Diseño", icon: Paintbrush, copy: "Temas, colores y estilos" },
   { id: "profile", label: "Perfil", icon: UserRound, copy: "Nombre, usuario e imagen principal" },
-  { id: "security", label: "Seguridad", icon: ShieldCheck, copy: "Recuperacion y verificacion" },
-  { id: "billing", label: "Facturacion", icon: FileText, copy: "Datos para facturacion electronica" },
-  { id: "subscription", label: "Suscripcion", icon: CreditCard, copy: "Plan, pagos y vencimiento" },
+  { id: "security", label: "Seguridad", icon: ShieldCheck, copy: "Recuperación y verificación" },
+  { id: "billing", label: "Facturación", icon: FileText, copy: "Datos para facturación electrónica" },
+  { id: "subscription", label: "Suscripción", icon: CreditCard, copy: "Plan, pagos y vencimiento" },
 ];
 
 function ColorEditor({ label, value, onChange, swatches }) {
@@ -230,6 +231,28 @@ function SegmentedControl({ label, value, options, onChange }) {
   );
 }
 
+function FontPicker({ value, options, onChange }) {
+  return (
+    <div className="appearance-control">
+      <label className="label">Familia tipográfica</label>
+      <div className="font-picker-grid">
+        {options.map((option) => (
+          <button
+            key={option.value}
+            className={`font-picker-button ${value === option.value ? "is-active" : ""}`}
+            type="button"
+            onClick={() => onChange(option.value)}
+            style={{ fontFamily: FONT_FAMILY_STYLE_MAP[option.value] || FONT_FAMILY_STYLE_MAP.inter }}
+          >
+            <span className="font-picker-name">{option.label}</span>
+            <small>Aa Bb Cc 123</small>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function AccordionSection({ id, title, copy, openSection, onToggle, children, trailing, className = "", contentClassName = "" }) {
   const isOpen = openSection === id;
 
@@ -268,7 +291,7 @@ function getSubscriptionTone(status) {
 }
 
 function getSubscriptionLabel(status) {
-  if (status === "trial") return "PerÃ­odo de prueba";
+  if (status === "trial") return "Período de prueba";
   if (status === "active") return "Activa";
   if (status === "grace_period") return "Vencida con plazo";
   if (status === "suspended") return "Suspendida";
@@ -276,11 +299,11 @@ function getSubscriptionLabel(status) {
 }
 
 function getSubscriptionMessage(status) {
-  if (status === "trial") return "Tu cuenta sigue activa y puedes editar mientras termina el perÃ­odo de prueba.";
-  if (status === "active") return "Tu cuenta estÃ¡ operativa y lista para seguir compartiendo y cobrando.";
-  if (status === "grace_period") return "Tu cuenta requiere renovaciÃ³n para no perder ediciÃ³n durante el plazo de gracia.";
+  if (status === "trial") return "Tu cuenta sigue activa y puedes editar mientras termina el período de prueba.";
+  if (status === "active") return "Tu cuenta está operativa y lista para seguir compartiendo y cobrando.";
+  if (status === "grace_period") return "Tu cuenta requiere renovación para no perder edición durante el plazo de gracia.";
   if (status === "suspended") return "Tu cuenta necesita registrar el pago para volver a operar con normalidad.";
-  return "Revisa el estado de tu cuenta para mantener la operaciÃ³n del perfil.";
+  return "Revisa el estado de tu cuenta para mantener la operación del perfil.";
 }
 
 export function ProfileForm({
@@ -496,7 +519,7 @@ export function ProfileForm({
   async function handleSubmit(event) {
     event.preventDefault();
     if (!canEdit) {
-      setAlertMessage("Tu cuenta no permite ediciÃ³n en este momento.");
+      setAlertMessage("Tu cuenta no permite edición en este momento.");
       return;
     }
 
@@ -576,7 +599,7 @@ export function ProfileForm({
         label: meta.label,
         value: "",
         priorityTier: getDefaultPriorityTierForNewLink(current, selectedType, form.businessCategory),
-        message: selectedType === "whatsapp" ? "Hola, quiero informaciÃ³n" : "",
+        message: selectedType === "whatsapp" ? "Hola, quiero información" : "",
       },
     ], form.businessCategory));
   }
@@ -606,7 +629,7 @@ export function ProfileForm({
 
       const tierCount = current.filter((item) => item.id !== id && canConfigureActionPriority(item.type) && Number(item.priorityTier || 3) === tier).length;
       if (tierCount >= maxAllowed) {
-        setAlertMessage(tier === 1 ? "Solo puedes tener 1 botÃ³n en prioridad 1." : "Solo puedes tener hasta 2 botones en prioridad 2.");
+        setAlertMessage(tier === 1 ? "Solo puedes tener 1 botón en prioridad 1." : "Solo puedes tener hasta 2 botones en prioridad 2.");
         return current;
       }
 
@@ -617,7 +640,7 @@ export function ProfileForm({
   function addPaymentMethod() {
     setPaymentMethods((current) => {
       if (current.length >= 2) {
-        setAlertMessage("Solo puedes configurar hasta 2 mÃ©todos de pago.");
+        setAlertMessage("Solo puedes configurar hasta 2 métodos de pago.");
         return current;
       }
 
@@ -746,7 +769,7 @@ export function ProfileForm({
     }));
   }
 
-  const selectedPhotoLabel = photo ? photo.name : profile?.photo ? "Imagen actual cargada" : "AÃºn no has elegido imagen";
+  const selectedPhotoLabel = photo ? photo.name : profile?.photo ? "Imagen actual cargada" : "Aún no has elegido imagen";
   const usernameChanged = Boolean(profile?.username) && form.username.trim() && form.username.trim() !== profile.username;
   const recoveryProtected = Boolean(recovery?.backupEmailVerified);
   const contactCardEnabled = Boolean(contactCard.enabled);
@@ -781,7 +804,7 @@ export function ProfileForm({
   const dashboardBusinessName = form.businessName?.trim() || profile?.businessName || "Tu negocio";
   const topbarStatusLabel =
     profile?.status === "trial"
-      ? "PerÃ­odo de prueba"
+      ? "Período de prueba"
       : profile?.status === "active"
         ? "Activo"
         : subscriptionLabel;
@@ -797,7 +820,7 @@ export function ProfileForm({
         <button
           className="editor-sidebar-backdrop"
           type="button"
-          aria-label="Cerrar menÃº lateral"
+          aria-label="Cerrar menú lateral"
           onClick={() => setMobileNavOpen(false)}
         />
       ) : null}
@@ -823,8 +846,8 @@ export function ProfileForm({
             className="editor-sidebar-close"
             type="button"
             onClick={() => setMobileNavOpen(false)}
-            aria-label="Cerrar menÃº lateral"
-            title="Cerrar menÃº lateral"
+            aria-label="Cerrar menú lateral"
+            title="Cerrar menú lateral"
           >
             <X size={18} />
           </button>
@@ -843,7 +866,7 @@ export function ProfileForm({
           </button>
         </div>
 
-        <nav className="editor-sidebar-nav" aria-label="NavegaciÃ³n del editor">
+        <nav className="editor-sidebar-nav" aria-label="Navegación del editor">
           {DASHBOARD_NAV_ITEMS.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeWorkspace === tab.id;
@@ -870,23 +893,23 @@ export function ProfileForm({
 
         <div className="editor-sidebar-footer">
           {isAdmin ? (
-            <Link className="editor-sidebar-utility" href="/admin" title="Panel de administraciÃ³n" onClick={() => setMobileNavOpen(false)}>
+            <Link className="editor-sidebar-utility" href="/admin" title="Panel de administración" onClick={() => setMobileNavOpen(false)}>
               <span className="editor-sidebar-item-icon">
                 <ShieldCheck size={18} />
               </span>
               <span className="editor-sidebar-item-copy">
                 <strong>Panel admin</strong>
-                <small>Usuarios y configuraciÃ³n</small>
+                <small>Usuarios y configuración</small>
               </span>
             </Link>
           ) : null}
 
-          <button className="editor-sidebar-utility" type="button" onClick={onLogout} title="Cerrar sesiÃ³n">
+          <button className="editor-sidebar-utility" type="button" onClick={onLogout} title="Cerrar sesión">
             <span className="editor-sidebar-item-icon">
               <LogOut size={18} />
             </span>
             <span className="editor-sidebar-item-copy">
-              <strong>Cerrar sesiÃ³n</strong>
+              <strong>Cerrar sesión</strong>
               <small>Salir del panel</small>
             </span>
           </button>
@@ -898,8 +921,8 @@ export function ProfileForm({
           className="editor-mobile-menu-button"
           type="button"
           onClick={() => setMobileNavOpen(true)}
-          aria-label="Abrir menÃº lateral"
-          title="Abrir menÃº lateral"
+          aria-label="Abrir menú lateral"
+          title="Abrir menú lateral"
         >
           <Menu size={18} />
         </button>
@@ -924,7 +947,7 @@ export function ProfileForm({
         <div className="preview-header preview-header-editor">
           <div className="preview-toolbar">
             <div className="preview-link-card">
-              <span className="dashboard-link-label">Link pÃºblico</span>
+              <span className="dashboard-link-label">Link público</span>
               <strong>{previewPublicUrl}</strong>
             </div>
             <div className="preview-action-group">
@@ -946,7 +969,7 @@ export function ProfileForm({
       </aside>
 
       <div className="editor-panel">
-        <div className="editor-tabs" role="tablist" aria-label="NavegaciÃ³n del editor">
+        <div className="editor-tabs" role="tablist" aria-label="Navegación del editor">
           {DASHBOARD_NAV_ITEMS.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeWorkspace === tab.id;
@@ -975,19 +998,19 @@ export function ProfileForm({
                     {activeWorkspace === "profile"
                       ? "Perfil del negocio"
                       : activeWorkspace === "security"
-                        ? "Seguridad y recuperacion"
+                        ? "Seguridad y recuperación"
                         : activeWorkspace === "billing"
-                          ? "Facturacion electronica"
-                          : "Suscripcion y estado"}
+                          ? "Facturación electrónica"
+                          : "Suscripción y estado"}
                   </h2>
                   <p className="section-copy">
                     {activeWorkspace === "profile"
-                      ? "Actualiza nombre, usuario, categoria, imagen y mensaje principal de tu Klicor."
+                      ? "Actualiza nombre, usuario, categoría, imagen y mensaje principal de tu Klicor."
                       : activeWorkspace === "security"
-                        ? "Configura correo de respaldo, telefono de recuperacion y verificacion."
+                        ? "Configura correo de respaldo, teléfono de recuperación y verificación."
                         : activeWorkspace === "billing"
-                          ? "Datos privados para ayudarte a emitir la factura electronica."
-                          : "Plan actual, fechas operativas y acceso a renovacion."}
+                          ? "Datos privados para ayudarte a emitir la factura electrónica."
+                          : "Plan actual, fechas operativas y acceso a renovación."}
                   </p>
                 </div>
                 {activeWorkspace === "profile" ? (
@@ -1043,7 +1066,7 @@ export function ProfileForm({
 
               <div className="profile-grid">
                 <div>
-                  <label className="label">CategorÃ­a del negocio</label>
+                  <label className="label">Categoría del negocio</label>
                   <select
                     className="select"
                     value={form.businessCategory}
@@ -1058,12 +1081,12 @@ export function ProfileForm({
                   </select>
                 </div>
                 <div>
-                  <label className="label">TÃ­tulo comercial</label>
+                  <label className="label">Título comercial</label>
                   <input
                     className="input"
                     value={form.businessHeadline}
                     onChange={(e) => setForm({ ...form, businessHeadline: e.target.value })}
-                    placeholder="Ejemplo: Pedidos, menÃº y atenciÃ³n en un solo link y un QR"
+                    placeholder="Ejemplo: Pedidos, menú y atención en un solo link y un QR"
                     disabled={!canEdit}
                   />
                 </div>
@@ -1075,11 +1098,11 @@ export function ProfileForm({
                   className="input"
                   value={form.businessSubheadline}
                   onChange={(e) => setForm({ ...form, businessSubheadline: e.target.value })}
-                  placeholder="Ejemplo: Haz tus pedidos aquÃ­."
+                  placeholder="Ejemplo: Haz tus pedidos aquí."
                   disabled={!canEdit}
                 />
                 <p className="muted" style={{ marginTop: ".45rem" }}>
-                  Si lo dejas vacÃ­o, Klicor usarÃ¡ un texto sugerido segÃºn la categorÃ­a de tu negocio.
+                  Si lo dejas vacío, Klicor usará un texto sugerido según la categoría de tu negocio.
                 </p>
               </div>
 
@@ -1113,8 +1136,8 @@ export function ProfileForm({
             {activeWorkspace === "security" ? (
             <AccordionSection
               id="profile-security"
-              title="Seguridad y recuperaciÃ³n"
-              copy="Correo de respaldo, telÃ©fono de recuperaciÃ³n y verificaciÃ³n."
+              title="Seguridad y recuperación"
+              copy="Correo de respaldo, teléfono de recuperación y verificación."
               openSection={openProfileSection}
               onToggle={toggleProfileSection}
               className="accordion-subsection"
@@ -1128,18 +1151,18 @@ export function ProfileForm({
               <div className="grid-3">
                 <div className="kpi">
                   <strong>Correo de respaldo</strong>
-                  <p className="muted" style={{ marginTop: ".5rem" }}>{recovery?.backupEmail || "AÃºn no configurado"}</p>
-                  <p className="muted" style={{ marginTop: ".35rem" }}>{recovery?.backupEmailVerified ? "Verificado" : "Pendiente de verificaciÃ³n"}</p>
+                  <p className="muted" style={{ marginTop: ".5rem" }}>{recovery?.backupEmail || "Aún no configurado"}</p>
+                  <p className="muted" style={{ marginTop: ".35rem" }}>{recovery?.backupEmailVerified ? "Verificado" : "Pendiente de verificación"}</p>
                 </div>
                 <div className="kpi">
-                  <strong>TelÃ©fono de recuperaciÃ³n</strong>
-                  <p className="muted" style={{ marginTop: ".5rem" }}>{recovery?.recoveryPhone || "AÃºn no configurado"}</p>
+                  <strong>Teléfono de recuperación</strong>
+                  <p className="muted" style={{ marginTop: ".5rem" }}>{recovery?.recoveryPhone || "Aún no configurado"}</p>
                   <p className="muted" style={{ marginTop: ".35rem" }}>{recovery?.recoveryPhoneVerified ? "Verificado" : "Guardado para siguiente fase OTP"}</p>
                 </div>
                 <div className="kpi">
                   <strong>Estado</strong>
                   <p className="muted" style={{ marginTop: ".5rem" }}>
-                    {recoveryProtected ? "Tu cuenta ya tiene un mÃ©todo de recuperaciÃ³n verificado." : "Configura y verifica al menos un correo de respaldo."}
+                    {recoveryProtected ? "Tu cuenta ya tiene un método de recuperación verificado." : "Configura y verifica al menos un correo de respaldo."}
                   </p>
                 </div>
               </div>
@@ -1159,7 +1182,7 @@ export function ProfileForm({
                   </div>
                 </div>
                 <div>
-                  <label className="label">TelÃ©fono de recuperaciÃ³n</label>
+                  <label className="label">Teléfono de recuperación</label>
                   <div className="input-with-icon">
                     <Phone size={16} />
                     <input
@@ -1175,7 +1198,7 @@ export function ProfileForm({
               {!recovery?.backupEmailVerified && recovery?.backupEmail ? (
                 <div className="notice">
                   <span>
-                    Verifica el correo de respaldo para usarlo en recuperaciÃ³n.
+                    Verifica el correo de respaldo para usarlo en recuperación.
                     {recovery?.backupEmailVerificationExpiresAt ? " El enlace actual vence pronto." : ""}
                   </span>
                 </div>
@@ -1184,11 +1207,11 @@ export function ProfileForm({
               <div className="actions">
                 <button className="btn btn-secondary" type="button" onClick={onSaveRecovery} disabled={recoveryLoading}>
                   {recoveryLoading ? <RefreshCw size={16} /> : <Mail size={16} />}
-                  {recoveryLoading ? "Guardando..." : "Guardar recuperaciÃ³n"}
+                  {recoveryLoading ? "Guardando..." : "Guardar recuperación"}
                 </button>
                 {recovery?.backupEmail && !recovery?.backupEmailVerified ? (
                   <button className="btn btn-secondary" type="button" onClick={onResendRecoveryVerification} disabled={recoveryLoading}>
-                    <Send size={16} /> Reenviar verificaciÃ³n
+                    <Send size={16} /> Reenviar verificación
                   </button>
                 ) : null}
               </div>
@@ -1200,8 +1223,8 @@ export function ProfileForm({
             {activeWorkspace === "billing" ? (
             <AccordionSection
               id="profile-billing"
-              title="InformaciÃ³n del negocio para facturaciÃ³n"
-              copy="Datos privados para ayudarte a emitir la factura electrÃ³nica."
+              title="Información del negocio para facturación"
+              copy="Datos privados para ayudarte a emitir la factura electrónica."
               openSection={openProfileSection}
               onToggle={toggleProfileSection}
               className="accordion-subsection"
@@ -1212,31 +1235,31 @@ export function ProfileForm({
               }
             >
               <div className="notice">
-                <span>Estos datos no se muestran en tu pÃ¡gina pÃºblica. Son solo de apoyo interno para facturaciÃ³n electrÃ³nica.</span>
+                <span>Estos datos no se muestran en tu página pública. Son solo de apoyo interno para facturación electrónica.</span>
               </div>
 
               <div className="grid-3">
                 <div className="kpi">
-                  <strong>RazÃ³n social</strong>
-                  <p className="muted" style={{ marginTop: ".5rem" }}>{billingProfile.legalName || "AÃºn no configurada"}</p>
+                  <strong>Razón social</strong>
+                  <p className="muted" style={{ marginTop: ".5rem" }}>{billingProfile.legalName || "Aún no configurada"}</p>
                 </div>
                 <div className="kpi">
                   <strong>Documento</strong>
                   <p className="muted" style={{ marginTop: ".5rem" }}>
-                    {billingProfile.documentNumber ? `${billingDocumentTypeLabel} ${billingProfile.documentNumber}` : "AÃºn no configurado"}
+                    {billingProfile.documentNumber ? `${billingDocumentTypeLabel} ${billingProfile.documentNumber}` : "Aún no configurado"}
                   </p>
                 </div>
                 <div className="kpi">
-                  <strong>UbicaciÃ³n fiscal</strong>
+                  <strong>Ubicación fiscal</strong>
                   <p className="muted" style={{ marginTop: ".5rem" }}>
-                    {[billingProfile.city, billingProfile.department].filter(Boolean).join(", ") || "AÃºn no configurada"}
+                    {[billingProfile.city, billingProfile.department].filter(Boolean).join(", ") || "Aún no configurada"}
                   </p>
                 </div>
               </div>
 
               <div className="profile-grid">
                 <div>
-                  <label className="label">RazÃ³n social o nombre legal</label>
+                  <label className="label">Razón social o nombre legal</label>
                   <input
                     className="input"
                     value={billingProfile.legalName}
@@ -1264,7 +1287,7 @@ export function ProfileForm({
 
               <div className="profile-grid">
                 <div>
-                  <label className="label">NÃºmero de documento</label>
+                  <label className="label">Número de documento</label>
                   <input
                     className="input"
                     value={billingProfile.documentNumber}
@@ -1274,7 +1297,7 @@ export function ProfileForm({
                   />
                 </div>
                 <div>
-                  <label className="label">DÃ­gito de verificaciÃ³n</label>
+                  <label className="label">Dígito de verificación</label>
                   <input
                     className="input"
                     value={billingProfile.verificationDigit}
@@ -1287,18 +1310,18 @@ export function ProfileForm({
 
               <div className="profile-grid">
                 <div>
-                  <label className="label">Correo de facturaciÃ³n</label>
+                  <label className="label">Correo de facturación</label>
                   <input
                     className="input"
                     type="email"
                     value={billingProfile.billingEmail}
                     onChange={(e) => setBillingProfile((current) => ({ ...current, billingEmail: e.target.value }))}
-                    placeholder="facturacion@tuempresa.com"
+                    placeholder="facturación@tuempresa.com"
                     disabled={!canEdit}
                   />
                 </div>
                 <div>
-                  <label className="label">TelÃ©fono de facturaciÃ³n</label>
+                  <label className="label">Teléfono de facturación</label>
                   <input
                     className="input"
                     value={billingProfile.billingPhone}
@@ -1311,7 +1334,7 @@ export function ProfileForm({
 
               <div className="profile-grid">
                 <div>
-                  <label className="label">DirecciÃ³n fiscal</label>
+                  <label className="label">Dirección fiscal</label>
                   <input
                     className="input"
                     value={billingProfile.address}
@@ -1380,7 +1403,7 @@ export function ProfileForm({
               </div>
 
               <div>
-                <label className="label">PaÃ­s</label>
+                <label className="label">País</label>
                 <input
                   className="input"
                   value={billingProfile.country}
@@ -1395,8 +1418,8 @@ export function ProfileForm({
             {activeWorkspace === "subscription" ? (
             <AccordionSection
               id="profile-subscription"
-              title="SuscripciÃ³n y estado"
-              copy="Plan actual, fechas operativas y renovaciÃ³n."
+              title="Suscripción y estado"
+              copy="Plan actual, fechas operativas y renovación."
               openSection={openProfileSection}
               onToggle={toggleProfileSection}
               className="accordion-subsection"
@@ -1413,7 +1436,7 @@ export function ProfileForm({
                   <p className="muted" style={{ marginTop: ".5rem" }}>{annualPriceLabel}</p>
                 </div>
                 <div className="kpi">
-                  <strong>PerÃ­odo de prueba</strong>
+                  <strong>Período de prueba</strong>
                   <p className="muted" style={{ marginTop: ".5rem" }}>{profile?.trialEndsAtLabel || "-"}</p>
                 </div>
                 <div className="kpi">
@@ -1435,10 +1458,10 @@ export function ProfileForm({
 
               {checkoutConfig ? (
                 <div className="stack" style={{ gap: ".85rem" }}>
-                  <p className="muted">El proceso oficial de pago de Mercado Pago ya estÃ¡ listo. Si el widget no responde, puedes continuar por redirecciÃ³n.</p>
+                  <p className="muted">El proceso oficial de pago de Mercado Pago ya está listo. Si el widget no responde, puedes continuar por redirección.</p>
                   <div id="mercadopago-checkout" />
                   <button className="btn btn-secondary" type="button" onClick={() => { window.location.href = checkoutConfig.initPoint; }}>
-                    Abrir pago por redirecciÃ³n
+                    Abrir pago por redirección
                   </button>
                 </div>
               ) : null}
@@ -1453,7 +1476,7 @@ export function ProfileForm({
               <div className="dashboard-section-head workspace-panel-head">
                 <div>
                   <h2 className="section-title" style={{ fontSize: "1.35rem" }}>Enlaces y pagos</h2>
-                  <p className="section-copy">Organiza botones, canales visibles, informaciÃ³n de pago y el bloque para guardar contacto.</p>
+                  <p className="section-copy">Organiza botones, canales visibles, información de pago y el bloque para guardar contacto.</p>
                 </div>
                 <span className="status-badge">{profileLinks.length} enlaces</span>
               </div>
@@ -1483,10 +1506,10 @@ export function ProfileForm({
 
           <div className="dashboard-section-head">
             <div>
-              <h3 className="section-title" style={{ fontSize: "1.05rem" }}>InformaciÃ³n de pago</h3>
-              <p className="section-copy">Configura hasta 2 mÃ©todos para cobrar. Puedes usar cuenta bancaria, billetera o llave Bre-B.</p>
+              <h3 className="section-title" style={{ fontSize: "1.05rem" }}>Información de pago</h3>
+              <p className="section-copy">Configura hasta 2 métodos para cobrar. Puedes usar cuenta bancaria, billetera o llave Bre-B.</p>
             </div>
-            <span className="status-badge">{paymentMethods.length}/2 mÃ©todos</span>
+            <span className="status-badge">{paymentMethods.length}/2 métodos</span>
           </div>
 
           <div className="section-stack">
@@ -1514,7 +1537,7 @@ export function ProfileForm({
                       </select>
                     </div>
                     <div>
-                      <label className="label">NÃºmero de cuenta o llave Bre-B</label>
+                      <label className="label">Número de cuenta o llave Bre-B</label>
                       <input
                         className="input"
                         value={paymentValue}
@@ -1578,8 +1601,8 @@ export function ProfileForm({
                     <div className="link-row-message">
                       <p className="muted" style={{ marginTop: ".45rem" }}>
                         {method.entityId
-                          ? `MÃ©todo ${index + 1}: ${resolveFinancialEntityLabel(method.entityId)}.`
-                          : "Selecciona una entidad para definir cÃ³mo se mostrarÃ¡ este mÃ©todo."}
+                          ? `Método ${index + 1}: ${resolveFinancialEntityLabel(method.entityId)}.`
+                          : "Selecciona una entidad para definir cómo se mostrará este método."}
                       </p>
                     </div>
                   </div>
@@ -1589,9 +1612,9 @@ export function ProfileForm({
 
             <div className="payment-method-toolbar">
               <button className="btn btn-secondary" type="button" onClick={addPaymentMethod} disabled={!canEdit || paymentMethods.length >= 2}>
-                <Plus size={16} /> Agregar mÃ©todo de pago
+                <Plus size={16} /> Agregar método de pago
               </button>
-              <p className="muted">Puedes configurar hasta 2 mÃ©todos visibles en tu pÃ¡gina.</p>
+              <p className="muted">Puedes configurar hasta 2 métodos visibles en tu página.</p>
             </div>
 
           </div>
@@ -1609,7 +1632,7 @@ export function ProfileForm({
                   </div>
                   <div>
                     <label className="label">
-                      {meta.kind === "phone" ? "NÃºmero" : meta.kind === "text" ? "Llave" : meta.kind === "email" ? "Correo" : "URL"}
+                      {meta.kind === "phone" ? "Número" : meta.kind === "text" ? "Llave" : meta.kind === "email" ? "Correo" : "URL"}
                     </label>
                     <input className="input" value={item.value} placeholder={meta.placeholder} onChange={(e) => updateLink(item.id, "value", e.target.value)} disabled={!canEdit} />
                   </div>
@@ -1619,12 +1642,12 @@ export function ProfileForm({
                   {item.type === "whatsapp" ? (
                     <div className="link-row-message">
                       <label className="label">Mensaje inicial</label>
-                      <input className="input" value={item.message || ""} placeholder="Hola, quiero informaciÃ³n" onChange={(e) => updateLink(item.id, "message", e.target.value)} disabled={!canEdit} />
+                      <input className="input" value={item.message || ""} placeholder="Hola, quiero información" onChange={(e) => updateLink(item.id, "message", e.target.value)} disabled={!canEdit} />
                     </div>
                   ) : null}
                   {canConfigureActionPriority(item.type) ? (
                     <div className="link-row-message">
-                      <label className="label">Prioridad del botÃ³n</label>
+                      <label className="label">Prioridad del botón</label>
                       <div className="link-priority-row">
                         <select
                           className="select"
@@ -1638,7 +1661,7 @@ export function ProfileForm({
                             </option>
                           ))}
                         </select>
-                        <p className="muted">Prioridad 1 admite 1 botÃ³n y prioridad 2 admite hasta 2.</p>
+                        <p className="muted">Prioridad 1 admite 1 botón y prioridad 2 admite hasta 2.</p>
                       </div>
                     </div>
                   ) : null}
@@ -1646,8 +1669,8 @@ export function ProfileForm({
               );
             }) : (
               <div className="kpi">
-                <strong>Sin enlaces todavÃ­a</strong>
-                <p className="muted" style={{ marginTop: ".5rem" }}>Agrega tu primer canal para empezar a construir tu pÃ¡gina pÃºblica.</p>
+                <strong>Sin enlaces todavía</strong>
+                <p className="muted" style={{ marginTop: ".5rem" }}>Agrega tu primer canal para empezar a construir tu página pública.</p>
               </div>
             )}
           </div>
@@ -1656,7 +1679,7 @@ export function ProfileForm({
           <div className="dashboard-section-head">
             <div>
               <h3 className="section-title" style={{ fontSize: "1.05rem" }}>Guardar contacto</h3>
-              <p className="section-copy">Decide si tu pÃ¡gina mostrarÃ¡ un botÃ³n para guardar tu negocio como contacto.</p>
+              <p className="section-copy">Decide si tu página mostrará un botón para guardar tu negocio como contacto.</p>
             </div>
             <span className={`status-badge ${contactCardEnabled ? "success" : ""}`}>
               {contactCardEnabled ? <Link2 size={14} /> : null}
@@ -1672,8 +1695,8 @@ export function ProfileForm({
               disabled={!canEdit}
             />
             <span className="toggle-copy">
-              <strong>Mostrar botÃ³n Guardar contacto en mi pÃ¡gina</strong>
-              <small>Klicor generarÃ¡ una vCard simple con tus datos pÃºblicos si lo activas.</small>
+              <strong>Mostrar botón Guardar contacto en mi página</strong>
+              <small>Klicor generará una vCard simple con tus datos públicos si lo activas.</small>
             </span>
           </label>
 
@@ -1689,7 +1712,7 @@ export function ProfileForm({
                     placeholder={form.businessName || "Tu negocio"}
                     disabled={!canEdit}
                   />
-                  <p className="muted" style={{ marginTop: ".45rem" }}>Si lo dejas vacÃ­o, usamos el nombre del negocio.</p>
+                  <p className="muted" style={{ marginTop: ".45rem" }}>Si lo dejas vacío, usamos el nombre del negocio.</p>
                 </div>
                 <div>
                   <label className="label">Cargo o rol</label>
@@ -1697,7 +1720,7 @@ export function ProfileForm({
                     className="input"
                     value={contactCard.title}
                     onChange={(e) => setContactCard((current) => ({ ...current, title: e.target.value }))}
-                    placeholder="Gerente, asesor, mÃ©dico, fotÃ³grafo..."
+                    placeholder="Gerente, asesor, médico, fotógrafo..."
                     disabled={!canEdit}
                   />
                 </div>
@@ -1719,11 +1742,11 @@ export function ProfileForm({
                       </option>
                     ))}
                   </select>
-                  <p className="muted" style={{ marginTop: ".45rem" }}>Ese nÃºmero se guardarÃ¡ dentro del contacto.</p>
+                  <p className="muted" style={{ marginTop: ".45rem" }}>Ese número se guardará dentro del contacto.</p>
                 </div>
               ) : (
                 <div>
-                  <label className="label">TelÃ©fono del contacto</label>
+                  <label className="label">Teléfono del contacto</label>
                   <input
                     className="input"
                     value={contactCard.phone}
@@ -1731,7 +1754,7 @@ export function ProfileForm({
                     placeholder="+57 300 123 4567"
                     disabled={!canEdit}
                   />
-                  <p className="muted" style={{ marginTop: ".45rem" }}>Como no tienes WhatsApp agregado, puedes escribir un nÃºmero pÃºblico manual.</p>
+                  <p className="muted" style={{ marginTop: ".45rem" }}>Como no tienes WhatsApp agregado, puedes escribir un número público manual.</p>
                 </div>
               )}
 
@@ -1742,12 +1765,12 @@ export function ProfileForm({
                 </div>
                 <div className="kpi">
                   <strong>Web del contacto</strong>
-                  <p className="muted" style={{ marginTop: ".5rem" }}>{websiteLink?.value || "Usaremos tu pÃ¡gina de Klicor si no agregas un sitio web"}</p>
+                  <p className="muted" style={{ marginTop: ".5rem" }}>{websiteLink?.value || "Usaremos tu página de Klicor si no agregas un sitio web"}</p>
                 </div>
                 <div className="kpi">
                   <strong>Estado</strong>
                   <p className="muted" style={{ marginTop: ".5rem" }}>
-                    {contactCardPreview.shouldShow ? "El botÃ³n Guardar contacto ya quedarÃ­a listo en tu pÃ¡gina." : "Completa los datos para que el contacto tenga al menos un canal Ãºtil."}
+                    {contactCardPreview.shouldShow ? "El botón Guardar contacto ya quedaría listo en tu página." : "Completa los datos para que el contacto tenga al menos un canal útil."}
                   </p>
                 </div>
               </div>
@@ -1824,7 +1847,7 @@ export function ProfileForm({
                     </span>
                     <span className="accordion-toggle-meta">
                       <span className="status-badge">
-                        {APPEARANCE_FONT_OPTIONS.find((option) => option.value === appearance.fontFamily)?.label || "Moderna"}
+                        {APPEARANCE_FONT_OPTIONS.find((option) => option.value === appearance.fontFamily)?.label || "Inter"}
                       </span>
                       {openDesignSection === "design-fonts" ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
                     </span>
@@ -1832,8 +1855,7 @@ export function ProfileForm({
 
                   {openDesignSection === "design-fonts" ? (
                     <div className="accordion-content">
-                      <SegmentedControl
-                        label="Familia tipográfica"
+                      <FontPicker
                         value={appearance.fontFamily}
                         options={APPEARANCE_FONT_OPTIONS}
                         onChange={(value) => updateAppearance("fontFamily", value)}

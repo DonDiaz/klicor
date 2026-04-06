@@ -1,11 +1,6 @@
-import { Inter } from "next/font/google";
 import Script from "next/script";
 import "@/app/globals.css";
-
-const inter = Inter({
-  subsets: ["latin"],
-  display: "swap",
-});
+import { bodyFont, fontVariableClassName } from "@/app/fonts";
 
 export const metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://klicor.com"),
@@ -78,7 +73,7 @@ export default function RootLayout({ children }) {
           `}
         </Script>
       </head>
-      <body className={inter.className}>{children}</body>
+      <body className={`${bodyFont.className} ${fontVariableClassName}`}>{children}</body>
     </html>
   );
 }

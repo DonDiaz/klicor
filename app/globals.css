@@ -4314,6 +4314,48 @@ html[data-theme="dark"] .admin-sidebar-note {
   background: var(--surface);
 }
 
+.font-picker-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.75rem;
+}
+
+.font-picker-button {
+  display: grid;
+  gap: 0.25rem;
+  min-height: 88px;
+  padding: 0.85rem 0.95rem;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-primary);
+  text-align: left;
+  cursor: pointer;
+  transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease, background-color 180ms ease;
+}
+
+.font-picker-button:hover {
+  transform: translateY(-1px);
+  border-color: rgba(91, 33, 182, 0.22);
+  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.08);
+}
+
+.font-picker-button.is-active {
+  border-color: rgba(91, 33, 182, 0.28);
+  background: rgba(91, 33, 182, 0.08);
+  box-shadow: 0 14px 32px rgba(91, 33, 182, 0.12);
+}
+
+.font-picker-name {
+  font-size: 1.02rem;
+  font-weight: 700;
+}
+
+.font-picker-button small {
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+}
+
 .segmented-button {
   border: 0;
   background: transparent;

@@ -17,7 +17,7 @@ const ProfileForm = dynamic(
     loading: () => (
       <section className="card dashboard-section">
         <strong>Preparando editor</strong>
-        <p className="section-copy">Estamos cargando tu panel de edicion y la vista previa.</p>
+        <p className="section-copy">Estamos cargando tu panel de edición y la vista previa.</p>
       </section>
     ),
   },
@@ -28,7 +28,7 @@ const DashboardOnboarding = dynamic(
   {
     loading: () => (
       <section className="card dashboard-section">
-        <strong>Preparando configuracion inicial</strong>
+        <strong>Preparando configuración inicial</strong>
         <p className="section-copy">Estamos cargando el asistente para crear tu primer Klicor.</p>
       </section>
     ),
@@ -133,7 +133,7 @@ export function DashboardClient() {
     const auth = getClientAuth();
     if (!auth?.currentUser) return;
     await sendEmailVerification(auth.currentUser);
-    setError("Te reenviamos el correo de verificacion.");
+    setError("Te reenviamos el correo de verificación.");
   }
 
   async function handleLogout() {
@@ -200,8 +200,8 @@ export function DashboardClient() {
       }));
       setRecoveryMessage(
         response.verificationSent
-          ? "Guardamos tus datos y enviamos la verificacion al correo de respaldo."
-          : "Datos de recuperacion actualizados.",
+          ? "Guardamos tus datos y enviamos la verificación al correo de respaldo."
+          : "Datos de recuperación actualizados.",
       );
     } catch (nextError) {
       setRecoveryMessage(nextError.message);
@@ -218,7 +218,7 @@ export function DashboardClient() {
         method: "PUT",
         token,
       });
-      setRecoveryMessage("Reenviamos la verificacion al correo de respaldo.");
+      setRecoveryMessage("Reenviamos la verificación al correo de respaldo.");
     } catch (nextError) {
       setRecoveryMessage(nextError.message);
     } finally {
@@ -274,7 +274,7 @@ export function DashboardClient() {
             <ShieldAlert size={16} />
             <span>Debes verificar tu correo para completar el flujo comercial.</span>
             <button className="btn btn-secondary" type="button" onClick={handleSendVerification}>
-              <Send size={16} /> Reenviar verificacion
+              <Send size={16} /> Reenviar verificación
             </button>
           </div>
         ) : null}
@@ -282,14 +282,14 @@ export function DashboardClient() {
         {data.user.status === "grace_period" ? (
           <div className="notice">
             <AlertTriangle size={16} />
-            <span>Tu suscripcion vencio. Tienes 15 dias sin edicion antes de suspender la pagina.</span>
+            <span>Tu suscripción venció. Tienes 15 días sin edición antes de suspender la página.</span>
           </div>
         ) : null}
 
         {data.user.status === "suspended" ? (
           <div className="notice notice-danger">
             <ShieldAlert size={16} />
-            <span>Tu pagina esta suspendida hasta registrar el pago anual.</span>
+            <span>Tu página está suspendida hasta registrar el pago anual.</span>
           </div>
         ) : null}
 

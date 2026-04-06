@@ -4,6 +4,7 @@ import { resolveContactCardData } from "@/lib/contact-card";
 import { getContrastRatio, hexToRgba, normalizeAppearance } from "@/lib/theme-system";
 import { PaymentMethodsCard } from "@/components/payment-methods-card";
 import { PublicFloatingActions } from "@/components/public-floating-actions";
+import { FONT_FAMILY_STYLE_MAP } from "@/app/fonts";
 
 const NAME_SIZE_MAP = {
   s: "1.6rem",
@@ -31,13 +32,6 @@ const AVATAR_RADIUS_MAP = {
   circle: "999px",
   rounded: "24px",
   "soft-square": "16px",
-};
-
-const FONT_FAMILY_MAP = {
-  modern: '"Inter", "Segoe UI", sans-serif',
-  friendly: '"Nunito", "Trebuchet MS", "Segoe UI", sans-serif',
-  editorial: '"Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif',
-  strong: '"Arial Black", "Aptos", "Segoe UI", sans-serif',
 };
 
 const SOCIAL_BRAND_STYLES = {
@@ -192,7 +186,7 @@ export function LandingView({ user, preview = false }) {
   const primaryButtonStyle = buildPrimaryButtonStyle(appearance);
   const secondaryButtonStyle = buildSecondaryButtonStyle(appearance);
   const tertiaryButtonStyle = buildTertiaryButtonStyle(appearance);
-  const fontFamily = FONT_FAMILY_MAP[appearance.fontFamily] || FONT_FAMILY_MAP.modern;
+  const fontFamily = FONT_FAMILY_STYLE_MAP[appearance.fontFamily] || FONT_FAMILY_STYLE_MAP.inter;
 
   const pageBackground = appearance.backgroundStyle === "gradient"
     ? `linear-gradient(180deg, ${appearance.backgroundColor}, ${hexToRgba(appearance.primaryColor, 0.12)} 65%, ${hexToRgba(appearance.secondaryColor, 0.12)})`

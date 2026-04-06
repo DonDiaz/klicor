@@ -6,7 +6,7 @@ import { X } from "lucide-react";
 import { AuthForm } from "@/components/auth-form";
 
 export function LandingLoginModal({
-  triggerLabel = "Iniciar sesion",
+  triggerLabel = "Iniciar sesión",
   triggerClassName = "landing-login-trigger",
   allowRegister = false,
   title,
@@ -70,7 +70,7 @@ export function LandingLoginModal({
               description={description || (
                 allowRegister
                   ? "Registrate con Google, Microsoft o correo y entra directo a tu panel."
-                  : "Usa Google, Microsoft o un enlace a tu correo para entrar sin friccion."
+                  : "Usa Google, Microsoft o un enlace a tu correo para entrar sin fricción."
               )}
               googleLabel={googleLabel || (allowRegister ? "Crear con Google" : "Continuar con Google")}
               microsoftLabel={microsoftLabel || (allowRegister ? "Crear con Microsoft" : "Continuar con Microsoft")}
