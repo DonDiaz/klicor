@@ -21,11 +21,23 @@ import { hexToRgba, normalizeAppearance } from "@/lib/theme-system";
 
 function formatCurrency(value, currency = "COP") {
   if (value === null || value === undefined || value === "") return "";
-  return new Intl.NumberFormat("es-CO", {
-    style: "currency",
-    currency,
-    maximumFractionDigits: 0,
-  }).format(Number(value || 0));
+  try {
+    return new Intl.NumberFormat("es-CO", {
+      style: "currency",
+      currency,
+      maximumFractionDigits: 0,
+    }).format(Number(value || 0));
+  } catch {
+    return new Intl.NumberFormat("es-CO", {
+      style: "currency",
+      currency: "COP",
+      maximumFractionDigits: 0,
+    }).format(Number(value || 0));
+  }
+}
+
+function formatCount(value, label) {
+  return `${Number(value || 0) || 0} ${label}`;
 }
 
 function buildOrderMessage({ businessName, items, total, customer, heading, currency }) {
@@ -44,6 +56,57 @@ function buildOrderMessage({ businessName, items, total, customer, heading, curr
   lines.push(`Teléfono: ${customer.phone}`);
   lines.push(`Observaciones: ${customer.notes || "Sin observaciones"}`);
   return lines.join("\n");
+}
+
+function normalizePagination(value) {
+  return {
+    hasMore: Boolean(value?.hasMore),
+    nextCursor: value?.nextCursor ?? null,
+  };
+}
+
+function normalizePublicProducts(value = []) {
+  return Array.isArray(value)
+    ? value
+      .filter(Boolean)
+      .map((product, index) => ({
+        ...product,
+        id: String(product.id || `product-${index}`),
+        name: String(product.name || "Producto"),
+        description: String(product.description || ""),
+        imageUrl: String(product.imageUrl || ""),
+        imageThumbUrl: String(product.imageThumbUrl || product.imageUrl || ""),
+        price: product.price === null || product.price === undefined || product.price === "" ? null : Number(product.price || 0),
+      }))
+    : [];
+}
+
+function normalizePublicSubcategories(value = []) {
+  return Array.isArray(value)
+    ? value
+      .filter(Boolean)
+      .map((subcategory, index) => ({
+        ...subcategory,
+        id: String(subcategory.id || `subcategory-${index}`),
+        name: String(subcategory.name || "Subcategoría"),
+        productCount: Number(subcategory.productCount || 0) || 0,
+      }))
+    : [];
+}
+
+function normalizePublicCategories(value = []) {
+  return Array.isArray(value)
+    ? value
+      .filter(Boolean)
+      .map((category, index) => ({
+        ...category,
+        id: String(category.id || `category-${index}`),
+        name: String(category.name || "Categoría"),
+        hasSubcategories: Boolean(category.hasSubcategories),
+        subcategoryCount: Number(category.subcategoryCount || 0) || 0,
+        productCount: Number(category.productCount || 0) || 0,
+      }))
+    : [];
 }
 
 function ProductCard({
@@ -102,10 +165,12 @@ function ProductsGrid({
 }) {
   const currency = bootstrap?.config?.currency || "COP";
   const supportsCart = Boolean(bootstrap?.supportsCart);
+  const safeProducts = normalizePublicProducts(products);
+  const safePagination = normalizePagination(pagination);
   return (
     <div className="commerce-products-section">
       <div className="commerce-products-grid">
-        {products.map((product) => (
+        {safeProducts.map((product) => (
           <ProductCard
             key={product.id}
             product={product}
@@ -117,7 +182,7 @@ function ProductsGrid({
           />
         ))}
 
-        {!products.length ? (
+        {!safeProducts.length ? (
           <div className="commerce-empty-state commerce-products-empty">
             <strong>{emptyLabel}</strong>
             <p>Publica productos desde tu dashboard para verlos aquí.</p>
@@ -125,7 +190,7 @@ function ProductsGrid({
         ) : null}
       </div>
 
-      {pagination.hasMore ? (
+      {safePagination.hasMore ? (
         <button
           className="btn btn-secondary commerce-load-more"
           type="button"
@@ -141,34 +206,40 @@ function ProductsGrid({
 }
 
 export function CommercePublicView({ bootstrap, preview = false }) {
+  const safeBootstrap = bootstrap && typeof bootstrap === "object" ? bootstrap : {};
   const safeBusiness = {
-    businessName: bootstrap?.business?.businessName || "Tu negocio",
-    businessHeadline: bootstrap?.business?.businessHeadline || "",
-    businessSubheadline: bootstrap?.business?.businessSubheadline || "",
-    photo: bootstrap?.business?.photo || "",
-    settings: bootstrap?.business?.settings || {},
-    username: bootstrap?.business?.username || "",
+    businessName: safeBootstrap.business?.businessName || "Tu negocio",
+    businessHeadline: safeBootstrap.business?.businessHeadline || "",
+    businessSubheadline: safeBootstrap.business?.businessSubheadline || "",
+    photo: safeBootstrap.business?.photo || "",
+    settings: safeBootstrap.business?.settings || {},
+    username: safeBootstrap.business?.username || "",
   };
   const safeConfig = {
-    currency: bootstrap?.config?.currency || "COP",
+    currency: safeBootstrap.config?.currency || "COP",
   };
-  const safeModeMeta = bootstrap?.modeMeta || resolveCommerceModeMeta(bootstrap?.mode || "");
-  const safeInitialSelection = bootstrap?.initialSelection || { categoryId: "", subcategoryId: "" };
-  const categories = Array.isArray(bootstrap?.categories) ? bootstrap.categories : [];
-  const initialSubcategories = Array.isArray(bootstrap?.initialSubcategories) ? bootstrap.initialSubcategories : [];
-  const initialProducts = Array.isArray(bootstrap?.initialProducts) ? bootstrap.initialProducts : [];
+  const safeMode = safeBootstrap.mode || safeBootstrap.config?.activeMode || "";
+  const safeModeMeta = safeBootstrap.modeMeta || resolveCommerceModeMeta(safeMode);
+  const safeInitialSelection = {
+    categoryId: String(safeBootstrap.initialSelection?.categoryId || ""),
+    subcategoryId: String(safeBootstrap.initialSelection?.subcategoryId || ""),
+  };
+  const safeInitialPagination = normalizePagination(safeBootstrap.initialPagination);
+  const categories = normalizePublicCategories(safeBootstrap.categories);
+  const initialSubcategories = normalizePublicSubcategories(safeBootstrap.initialSubcategories);
+  const initialProducts = normalizePublicProducts(safeBootstrap.initialProducts);
   const appearance = normalizeAppearance(safeBusiness.settings);
   const fontFamily = FONT_FAMILY_STYLE_MAP[appearance.fontFamily] || FONT_FAMILY_STYLE_MAP.inter;
   const [selection, setSelection] = useState(safeInitialSelection);
   const [subcategories, setSubcategories] = useState(initialSubcategories);
   const [products, setProducts] = useState(initialProducts);
-  const [pagination, setPagination] = useState(bootstrap.initialPagination || { hasMore: false, nextCursor: null });
+  const [pagination, setPagination] = useState(safeInitialPagination);
   const [cache, setCache] = useState(() => ({
     [`${safeInitialSelection.categoryId}:${safeInitialSelection.subcategoryId}`]: {
       subcategories: initialSubcategories,
       products: initialProducts,
-      hasMore: bootstrap.initialPagination?.hasMore || false,
-      nextCursor: bootstrap.initialPagination?.nextCursor || null,
+      hasMore: safeInitialPagination.hasMore,
+      nextCursor: safeInitialPagination.nextCursor,
     },
   }));
   const [cartItems, setCartItems] = useState([]);
@@ -217,11 +288,14 @@ export function CommercePublicView({ bootstrap, preview = false }) {
 
   function applyChunk(nextSelection, nextChunk, append = false) {
     const key = `${nextSelection.categoryId}:${nextSelection.subcategoryId}`;
+    const nextProducts = normalizePublicProducts(nextChunk?.products);
+    const nextSubcategories = normalizePublicSubcategories(nextChunk?.subcategories);
+    const nextPagination = normalizePagination(nextChunk);
     const nextState = {
-      subcategories: nextChunk.subcategories || [],
-      products: append ? [...products, ...(nextChunk.products || [])] : (nextChunk.products || []),
-      hasMore: Boolean(nextChunk.hasMore),
-      nextCursor: nextChunk.nextCursor || null,
+      subcategories: nextSubcategories,
+      products: append ? [...normalizePublicProducts(products), ...nextProducts] : nextProducts,
+      hasMore: nextPagination.hasMore,
+      nextCursor: nextPagination.nextCursor,
     };
     setSelection(nextSelection);
     setSubcategories(nextState.subcategories);
@@ -247,7 +321,7 @@ export function CommercePublicView({ bootstrap, preview = false }) {
 
     startTransition(async () => {
       const params = new URLSearchParams({
-        mode: bootstrap?.mode || "",
+        mode: safeMode,
         categoryId: nextSelection.categoryId,
       });
       if (nextSelection.subcategoryId) {
@@ -257,7 +331,7 @@ export function CommercePublicView({ bootstrap, preview = false }) {
         params.set("after", String(after));
       }
       const response = await apiFetch(`/api/public/commerce/${safeBusiness.username}?${params.toString()}`);
-      applyChunk(nextSelection, response.data, append);
+      applyChunk(nextSelection, response?.data || {}, append);
     });
   }
 
@@ -305,13 +379,13 @@ export function CommercePublicView({ bootstrap, preview = false }) {
   }
 
   function handleDirectConsult(product) {
-    if (preview || !bootstrap?.orderWhatsapp) return;
+    if (preview || !safeBootstrap.orderWhatsapp) return;
     const message = encodeURIComponent(`Hola, quiero información sobre ${product.name} en ${safeBusiness.businessName}.`);
-    window.open(`https://wa.me/${bootstrap.orderWhatsapp}?text=${message}`, "_blank", "noopener,noreferrer");
+    window.open(`https://wa.me/${safeBootstrap.orderWhatsapp}?text=${message}`, "_blank", "noopener,noreferrer");
   }
 
   function handleCheckout() {
-    if (preview || !bootstrap?.orderWhatsapp || !cartItems.length) return;
+    if (preview || !safeBootstrap.orderWhatsapp || !cartItems.length) return;
     const message = buildOrderMessage({
       businessName: safeBusiness.businessName,
       heading: safeModeMeta.checkoutVerb,
@@ -320,7 +394,7 @@ export function CommercePublicView({ bootstrap, preview = false }) {
       customer,
       currency: safeConfig.currency,
     });
-    window.open(buildWhatsappLink(bootstrap.orderWhatsapp, message), "_blank", "noopener,noreferrer");
+    window.open(buildWhatsappLink(safeBootstrap.orderWhatsapp, message), "_blank", "noopener,noreferrer");
   }
 
   return (
@@ -387,7 +461,7 @@ export function CommercePublicView({ bootstrap, preview = false }) {
                                 {isSubcategoryOpen ? (
                                   <div className="commerce-subaccordion-body">
                                     <ProductsGrid
-                                      bootstrap={bootstrap}
+                                      bootstrap={safeBootstrap}
                                       preview={preview}
                                       products={products}
                                       pagination={pagination}
@@ -413,7 +487,7 @@ export function CommercePublicView({ bootstrap, preview = false }) {
                       </>
                     ) : (
                       <ProductsGrid
-                        bootstrap={bootstrap}
+                        bootstrap={safeBootstrap}
                         preview={preview}
                         products={showDirectProducts ? products : []}
                         pagination={showDirectProducts ? pagination : { hasMore: false, nextCursor: null }}
@@ -432,7 +506,7 @@ export function CommercePublicView({ bootstrap, preview = false }) {
         </section>
       </section>
 
-      {bootstrap?.supportsCart && cartCount > 0 ? (
+      {safeBootstrap.supportsCart && cartCount > 0 ? (
         <button className="commerce-cart-fab" type="button" onClick={() => setCartOpen(true)} disabled={preview}>
           <ShoppingCart size={18} />
           <span>{cartCount}</span>
@@ -440,7 +514,7 @@ export function CommercePublicView({ bootstrap, preview = false }) {
         </button>
       ) : null}
 
-      {cartOpen && bootstrap?.supportsCart ? (
+      {cartOpen && safeBootstrap.supportsCart ? (
         <div className="commerce-modal-backdrop" role="dialog" aria-modal="true" aria-label={safeModeMeta.cartLabel}>
           <div className="commerce-modal-card">
             <button className="commerce-modal-close" type="button" onClick={() => { setCartOpen(false); setCheckoutStep("cart"); }}>
@@ -496,7 +570,7 @@ export function CommercePublicView({ bootstrap, preview = false }) {
                   <button className="btn btn-secondary" type="button" onClick={() => setCheckoutStep("cart")}>
                     Volver
                   </button>
-                  <button className="btn btn-primary" type="button" onClick={handleCheckout} disabled={!customer.customerName || !customer.address || !customer.phone || !bootstrap?.orderWhatsapp}>
+                  <button className="btn btn-primary" type="button" onClick={handleCheckout} disabled={!customer.customerName || !customer.address || !customer.phone || !safeBootstrap.orderWhatsapp}>
                     <ShoppingBag size={16} /> Enviar a WhatsApp
                   </button>
                 </div>
