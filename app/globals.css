@@ -7260,6 +7260,14 @@ html[data-theme="dark"] .admin-sidebar-note {
     align-items: center;
   }
 
+  .commerce-board-create-with-product {
+    grid-template-columns: minmax(0, 1fr) auto auto;
+  }
+
+  .commerce-board-create-with-product .commerce-board-main-action {
+    width: auto;
+  }
+
   .commerce-board-inline-edit {
     grid-template-columns: minmax(0, 1fr) auto auto;
   }

@@ -409,6 +409,7 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
     }
 
     const selectedHasDirectProducts = directProducts(selectedCategory).length > 0;
+    const productTargetSubcategory = selectedSubcategory || selectedSubcategories[0] || null;
 
     return (
       <section className="commerce-board-panel commerce-board-section" aria-label="Subcategorías">
@@ -423,7 +424,7 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
           <strong>{countLabel(selectedSubcategories.length, "subcategoría", "subcategorías")}</strong>
         </div>
 
-        <div className="commerce-board-create">
+        <div className="commerce-board-create commerce-board-create-with-product">
           <input
             className="input"
             value={subcategoryDrafts[selectedCategory.id] || ""}
@@ -433,6 +434,9 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
           />
           <button className="btn btn-primary" type="button" onClick={() => createSubcategory(selectedCategory.id)} disabled={!canEdit || selectedHasDirectProducts || !String(subcategoryDrafts[selectedCategory.id] || "").trim() || loading}>
             <Plus size={16} /> Crear subcategoría
+          </button>
+          <button className="btn btn-secondary" type="button" onClick={() => openProductEditor(selectedCategory, productTargetSubcategory)} disabled={!canEdit || loading || !configForm.activeMode || !productTargetSubcategory}>
+            <ImagePlus size={16} /> Crear producto
           </button>
         </div>
         {selectedHasDirectProducts ? <small className="commerce-board-note">Esta categoría ya tiene productos directos.</small> : null}
@@ -503,6 +507,7 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
 
     const sectionLabel = selectedSubcategory ? `${selectedCategory.name} · ${selectedSubcategory.name}` : selectedCategory.name;
     const canAddProduct = Boolean(configForm.activeMode && selectedCategory && (!selectedSubcategories.length || selectedSubcategory || sectionMode === "products"));
+    const selectedHasDirectProducts = directProducts(selectedCategory).length > 0;
 
     return (
       <section className="commerce-board-panel commerce-board-section" aria-label="Productos">
@@ -523,9 +528,22 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
           <span>{sectionLabel}</span>
         </div>
 
-        <button className="btn btn-primary commerce-board-main-action" type="button" onClick={() => openProductEditor(selectedCategory, selectedSubcategory)} disabled={!canEdit || loading || !canAddProduct}>
-          <ImagePlus size={16} /> Agregar producto
-        </button>
+        <div className="commerce-board-create commerce-board-create-with-product commerce-board-section-actions">
+          <input
+            className="input"
+            value={subcategoryDrafts[selectedCategory.id] || ""}
+            onChange={(event) => setSubcategoryDrafts((current) => ({ ...current, [selectedCategory.id]: event.target.value }))}
+            placeholder="Nombre de la subcategoría"
+            disabled={!canEdit || selectedHasDirectProducts}
+          />
+          <button className="btn btn-secondary" type="button" onClick={() => createSubcategory(selectedCategory.id)} disabled={!canEdit || selectedHasDirectProducts || !String(subcategoryDrafts[selectedCategory.id] || "").trim() || loading}>
+            <Plus size={16} /> Crear subcategoría
+          </button>
+          <button className="btn btn-primary commerce-board-main-action" type="button" onClick={() => openProductEditor(selectedCategory, selectedSubcategory)} disabled={!canEdit || loading || !canAddProduct}>
+            <ImagePlus size={16} /> Crear producto
+          </button>
+        </div>
+        {selectedHasDirectProducts ? <small className="commerce-board-note">Esta categoría ya tiene productos directos.</small> : null}
 
         {activeProducts.length ? (
           <div className="commerce-board-products">
@@ -619,7 +637,7 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
             <X size={16} />
           </button>
           <div className="commerce-modal-head">
-            <strong>{productEditor.id ? "Editar producto" : "Agregar producto"}</strong>
+            <strong>{productEditor.id ? "Editar producto" : "Crear producto"}</strong>
             <span>{editorSubcategory ? `${editorCategory?.name || "Categoría"} · ${editorSubcategory.name}` : editorCategory?.name || "Categoría seleccionada"}</span>
           </div>
 
