@@ -6431,6 +6431,53 @@ html[data-theme="dark"] .admin-sidebar-note {
   box-shadow: 0 16px 36px var(--commerce-shadow);
 }
 
+.commerce-product-skeleton {
+  pointer-events: none;
+}
+
+.commerce-skeleton-thumb,
+.commerce-skeleton-copy span,
+.commerce-skeleton-action {
+  display: block;
+  border-radius: 8px;
+  background: linear-gradient(90deg, var(--commerce-primary-soft), var(--commerce-surface), var(--commerce-primary-soft));
+  background-size: 220% 100%;
+  animation: commerceSkeletonPulse 1.1s ease-in-out infinite;
+}
+
+.commerce-skeleton-thumb {
+  width: 72px;
+  height: 72px;
+}
+
+.commerce-skeleton-copy {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.commerce-skeleton-copy span {
+  height: 0.88rem;
+  width: min(100%, 11rem);
+}
+
+.commerce-skeleton-copy span:last-child {
+  width: min(78%, 8rem);
+}
+
+.commerce-skeleton-action {
+  min-height: 3.05rem;
+}
+
+@keyframes commerceSkeletonPulse {
+  0% {
+    background-position: 120% 0;
+  }
+
+  100% {
+    background-position: -120% 0;
+  }
+}
+
 .commerce-product-main {
   min-width: 0;
   display: grid;

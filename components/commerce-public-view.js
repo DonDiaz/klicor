@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import { useMemo, useRef, useState, useTransition } from "react";
 import {
   ChevronRight,
   LoaderCircle,
@@ -224,6 +224,30 @@ function ProductsGrid({
   );
 }
 
+function ProductsLoading() {
+  return (
+    <div className="commerce-products-section" aria-live="polite" aria-busy="true">
+      <div className="commerce-products-grid">
+        {[0, 1, 2].map((item) => (
+          <article className="commerce-product-card commerce-product-skeleton" key={item}>
+            <div className="commerce-product-main">
+              <span className="commerce-skeleton-thumb" />
+              <div className="commerce-skeleton-copy">
+                <span />
+                <span />
+              </div>
+            </div>
+            <div className="commerce-product-actions">
+              <span className="commerce-skeleton-action" />
+              <span className="commerce-skeleton-action" />
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function CommercePublicView({ bootstrap, preview = false }) {
   const safeBootstrap = bootstrap && typeof bootstrap === "object" ? bootstrap : {};
   const safeBusiness = {
@@ -264,12 +288,14 @@ export function CommercePublicView({ bootstrap, preview = false }) {
   const [productQuantities, setProductQuantities] = useState({});
   const [cartOpen, setCartOpen] = useState(false);
   const [checkoutStep, setCheckoutStep] = useState("cart");
+  const [pendingSelection, setPendingSelection] = useState(null);
   const [customer, setCustomer] = useState({
     customerName: "",
     address: "",
     phone: "",
     notes: "",
   });
+  const requestCounterRef = useRef(0);
   const [isPending, startTransition] = useTransition();
 
   const cartTotal = useMemo(
@@ -286,6 +312,7 @@ export function CommercePublicView({ bootstrap, preview = false }) {
     [categories, selection.categoryId],
   );
   const shouldShowProducts = !selectedCategory?.hasSubcategories || Boolean(selection.subcategoryId);
+  const isSectionLoading = Boolean(pendingSelection);
 
   const pageBackground = appearance.backgroundStyle === "gradient"
     ? `linear-gradient(180deg, ${appearance.backgroundColor} 0%, ${hexToRgba(appearance.tertiaryColor, 0.72)} 58%, ${hexToRgba(appearance.secondaryColor, 0.28)} 100%)`
@@ -334,6 +361,7 @@ export function CommercePublicView({ bootstrap, preview = false }) {
     setSubcategories(nextState.subcategories);
     setProducts(nextState.products);
     setPagination({ hasMore: nextState.hasMore, nextCursor: nextState.nextCursor });
+    if (!append) setPendingSelection(null);
     setCache((current) => ({
       ...current,
       [key]: nextState,
@@ -344,8 +372,12 @@ export function CommercePublicView({ bootstrap, preview = false }) {
   function loadChunk(nextSelection, { append = false, after = null } = {}) {
     if (preview) return;
     const cacheKey = `${nextSelection.categoryId}:${nextSelection.subcategoryId}`;
+    const requestId = requestCounterRef.current + 1;
+    requestCounterRef.current = requestId;
+
     if (!append && cache[cacheKey]) {
       const cached = cache[cacheKey];
+      setPendingSelection(null);
       setSelection(cached.selection || nextSelection);
       setSubcategories(cached.subcategories);
       setProducts(cached.products);
@@ -353,19 +385,34 @@ export function CommercePublicView({ bootstrap, preview = false }) {
       return;
     }
 
+    if (!append) {
+      setPendingSelection(nextSelection);
+      setSelection(nextSelection);
+      setProducts([]);
+      setPagination({ hasMore: false, nextCursor: null });
+      if (nextSelection.categoryId !== selection.categoryId) {
+        setSubcategories([]);
+      }
+    }
+
     startTransition(async () => {
-      const params = new URLSearchParams({
-        mode: safeMode,
-        categoryId: nextSelection.categoryId,
-      });
-      if (nextSelection.subcategoryId) {
-        params.set("subcategoryId", nextSelection.subcategoryId);
+      try {
+        const params = new URLSearchParams({
+          mode: safeMode,
+          categoryId: nextSelection.categoryId,
+        });
+        if (nextSelection.subcategoryId) {
+          params.set("subcategoryId", nextSelection.subcategoryId);
+        }
+        if (after !== null && after !== undefined && after !== "") {
+          params.set("after", String(after));
+        }
+        const response = await apiFetch(`/api/public/commerce/${safeBusiness.username}?${params.toString()}`);
+        if (requestId !== requestCounterRef.current) return;
+        applyChunk(nextSelection, response?.data || {}, append);
+      } catch {
+        if (requestId === requestCounterRef.current) setPendingSelection(null);
       }
-      if (after !== null && after !== undefined && after !== "") {
-        params.set("after", String(after));
-      }
-      const response = await apiFetch(`/api/public/commerce/${safeBusiness.username}?${params.toString()}`);
-      applyChunk(nextSelection, response?.data || {}, append);
     });
   }
 
@@ -510,7 +557,9 @@ export function CommercePublicView({ bootstrap, preview = false }) {
           </aside>
 
           <section className="commerce-menu-board">
-            {shouldShowProducts ? (
+            {isSectionLoading ? (
+              <ProductsLoading />
+            ) : shouldShowProducts ? (
               <ProductsGrid
                 bootstrap={safeBootstrap}
                 preview={preview}
