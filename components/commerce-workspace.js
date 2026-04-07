@@ -131,6 +131,12 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
   );
   const activeCategory = categories.find((category) => category.id === expandedCategoryId) || null;
   const activeSubcategories = Array.isArray(activeCategory?.subcategories) ? activeCategory.subcategories : [];
+  const activeSubcategoryId = activeCategory ? expandedSubcategoryIds[activeCategory.id] || "" : "";
+  const activeSubcategory = activeSubcategories.find((subcategory) => subcategory.id === activeSubcategoryId) || null;
+  const activeProducts = activeSubcategories.length
+    ? (Array.isArray(activeSubcategory?.products) ? activeSubcategory.products : [])
+    : (Array.isArray(activeCategory?.products) ? activeCategory.products : []);
+  const activeCategoryHasDirectProducts = Boolean(activeCategory && !activeSubcategories.length && activeProducts.length);
 
   async function runAction(action, payload = {}, image = null) {
     setLoading(true);
@@ -315,14 +321,16 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
             </section>
           ) : null}
 
-          {categories.map((category) => {
-            const isCategoryOpen = expandedCategoryId === category.id;
+          {activeCategory ? [activeCategory].map((category) => {
+            const isCategoryOpen = true;
             const categorySubcategories = Array.isArray(category.subcategories) ? category.subcategories : [];
             const categoryProducts = Array.isArray(category.products) ? category.products : [];
-            const isSubcategoryOpen = (subcategoryId) => expandedSubcategoryIds[category.id] === subcategoryId;
+            const isSubcategoryOpen = () => true;
+            const selectedSubcategoryId = expandedSubcategoryIds[category.id] || categorySubcategories[0]?.id || "";
+            const visibleSubcategories = categorySubcategories.filter((subcategory) => subcategory.id === selectedSubcategoryId);
 
             return (
-              <section key={category.id} className="commerce-category-card">
+              <section key={category.id} className="commerce-category-card commerce-context-card">
                 <div className="commerce-category-head">
                   <div>
                     {editingCategoryId === category.id ? (
@@ -358,8 +366,8 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
                     <button
                       className="commerce-accordion-toggle"
                       type="button"
-                      onClick={() => setExpandedCategoryId((current) => (current === category.id ? "" : category.id))}
-                      title={isCategoryOpen ? "Recoger categoría" : "Expandir categoría"}
+                      onClick={() => setExpandedCategoryId(category.id)}
+                      title="Categoría seleccionada"
                     >
                       {isCategoryOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                     </button>
@@ -374,6 +382,7 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
                         value={subcategoryDrafts[category.id] || ""}
                         onChange={(event) => setSubcategoryDrafts((current) => ({ ...current, [category.id]: event.target.value }))}
                         placeholder={`Nueva ${modeMeta.subcategoryLabel.toLowerCase().slice(0, -1)}`}
+                        disabled={activeCategoryHasDirectProducts}
                       />
                       <button
                         className="btn btn-secondary"
@@ -383,18 +392,21 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
                           runAction("create_subcategory", { categoryId: category.id, name: value });
                           setSubcategoryDrafts((current) => ({ ...current, [category.id]: "" }));
                         }}
-                        disabled={!String(subcategoryDrafts[category.id] || "").trim()}
+                        disabled={activeCategoryHasDirectProducts || !String(subcategoryDrafts[category.id] || "").trim() || loading}
                       >
                         <Plus size={16} /> Agregar subcategoría
                       </button>
-                      <button className="btn btn-primary" type="button" onClick={() => setProductEditor({ mode: configForm.activeMode, categoryId: category.id, subcategoryId: "", name: "", description: "", price: "", visible: true, imageFile: null, id: "" })}>
+                      <button className="btn btn-primary" type="button" onClick={() => setProductEditor({ mode: configForm.activeMode, categoryId: category.id, subcategoryId: "", name: "", description: "", price: "", visible: true, imageFile: null, id: "" })} disabled={Boolean(categorySubcategories.length) || loading || !configForm.activeMode}>
                         <ImagePlus size={16} /> Agregar producto
                       </button>
                     </div>
+                    {activeCategoryHasDirectProducts ? (
+                      <small className="muted">Esta categoría ya tiene productos directos. Si necesitas subcategorías, primero mueve o elimina esos productos.</small>
+                    ) : null}
 
                     {categorySubcategories.length ? (
                       <div className="commerce-subcategory-list">
-                        {categorySubcategories.map((subcategory) => {
+                        {visibleSubcategories.map((subcategory) => {
                           const subcategoryProducts = Array.isArray(subcategory.products) ? subcategory.products : [];
                           return (
                           <div className="commerce-subcategory-card" key={subcategory.id}>
@@ -426,9 +438,9 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
                                   type="button"
                                   onClick={() => setExpandedSubcategoryIds((current) => ({
                                     ...current,
-                                    [category.id]: current[category.id] === subcategory.id ? "" : subcategory.id,
+                                    [category.id]: subcategory.id,
                                   }))}
-                                  title={isSubcategoryOpen(subcategory.id) ? "Recoger subcategoría" : "Expandir subcategoría"}
+                                  title="Subcategoría seleccionada"
                                 >
                                   {isSubcategoryOpen(subcategory.id) ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                                 </button>
@@ -478,7 +490,7 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
                 ) : null}
               </section>
             );
-          })}
+          }) : null}
 
           {!categories.length ? (
             <div className="commerce-empty-state">

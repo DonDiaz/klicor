@@ -6161,6 +6161,41 @@ html[data-theme="dark"] .admin-sidebar-note {
   color: rgba(255, 255, 255, 0.74);
 }
 
+.commerce-context-card {
+  border-color: rgba(91, 33, 182, 0.18);
+  background:
+    linear-gradient(135deg, rgba(91, 33, 182, 0.055), transparent 36%),
+    rgba(255, 255, 255, 0.94);
+}
+
+.commerce-context-card .commerce-accordion-toggle {
+  display: none;
+}
+
+.commerce-context-card > .commerce-admin-accordion-body {
+  border-top: 1px solid rgba(11, 16, 32, 0.08);
+  padding-top: 0.95rem;
+}
+
+.commerce-context-card .commerce-subcategory-list {
+  gap: 0;
+}
+
+.commerce-context-card .commerce-subcategory-card {
+  background: rgba(248, 250, 252, 0.9);
+  border-color: rgba(91, 33, 182, 0.14);
+}
+
+.commerce-context-card .commerce-subcategory-card > .commerce-admin-accordion-body {
+  border-top: 1px solid rgba(11, 16, 32, 0.07);
+  padding-top: 0.85rem;
+}
+
+.commerce-context-card .commerce-admin-inline-create .btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.58;
+}
+
 .commerce-creation-guide > div {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
