@@ -6295,7 +6295,7 @@ html[data-theme="dark"] .admin-sidebar-note {
   min-height: 100svh;
   width: 100%;
   padding: 0.75rem 0.75rem 6.4rem;
-  background: linear-gradient(180deg, #f7f3ff 0%, #ffffff 58%, #f8fafc 100%);
+  background: var(--commerce-background);
 }
 
 .commerce-shell {
@@ -6313,9 +6313,9 @@ html[data-theme="dark"] .admin-sidebar-note {
   border-radius: 8px;
   padding: 0.75rem;
   text-align: left;
-  border: 1px solid rgba(109, 40, 217, 0.12);
-  background: rgba(255, 255, 255, 0.92);
-  box-shadow: 0 14px 34px rgba(17, 12, 34, 0.08);
+  border: 1px solid var(--commerce-primary-border);
+  background: var(--commerce-surface-soft);
+  box-shadow: 0 14px 34px var(--commerce-shadow);
 }
 
 .commerce-brand-lockup {
@@ -6335,7 +6335,7 @@ html[data-theme="dark"] .admin-sidebar-note {
   object-fit: cover;
   display: grid;
   place-items: center;
-  background: rgba(109, 40, 217, 0.12);
+  background: var(--commerce-primary-soft);
   color: var(--commerce-primary);
   font-size: 1.45rem;
   font-weight: 850;
@@ -6359,8 +6359,8 @@ html[data-theme="dark"] .admin-sidebar-note {
   border: 0;
   border-radius: 8px;
   background: var(--commerce-primary);
-  color: #ffffff;
-  box-shadow: 0 12px 24px rgba(109, 40, 217, 0.22);
+  color: var(--commerce-button-text);
+  box-shadow: 0 12px 24px var(--commerce-primary-shadow);
 }
 
 .commerce-shop-layout,
@@ -6397,13 +6397,13 @@ html[data-theme="dark"] .admin-sidebar-note {
   flex: 0 0 auto;
   scroll-snap-align: start;
   min-height: 2.95rem;
-  border: 1px solid rgba(109, 40, 217, 0.13);
+  border: 1px solid var(--commerce-primary-border);
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.9);
+  background: var(--commerce-surface-soft);
   color: var(--commerce-muted);
   padding: 0.7rem 0.95rem;
   font-weight: 800;
-  box-shadow: 0 10px 24px rgba(17, 12, 34, 0.06);
+  box-shadow: 0 10px 24px var(--commerce-shadow);
 }
 
 .commerce-subcategory-chip {
@@ -6415,8 +6415,8 @@ html[data-theme="dark"] .admin-sidebar-note {
 .commerce-subcategory-chip.is-active {
   background: var(--commerce-primary);
   border-color: var(--commerce-primary);
-  color: #ffffff;
-  box-shadow: 0 12px 26px rgba(109, 40, 217, 0.24);
+  color: var(--commerce-button-text);
+  box-shadow: 0 12px 26px var(--commerce-primary-shadow);
 }
 
 .commerce-product-card {
@@ -6426,9 +6426,9 @@ html[data-theme="dark"] .admin-sidebar-note {
   min-width: 0;
   border-radius: 8px;
   padding: 0.85rem;
-  border: 1px solid rgba(109, 40, 217, 0.12);
-  background: rgba(255, 255, 255, 0.94);
-  box-shadow: 0 16px 36px rgba(17, 12, 34, 0.08);
+  border: 1px solid var(--commerce-primary-border);
+  background: var(--commerce-surface-strong);
+  box-shadow: 0 16px 36px var(--commerce-shadow);
 }
 
 .commerce-product-main {
@@ -6444,7 +6444,7 @@ html[data-theme="dark"] .admin-sidebar-note {
   height: 72px;
   border-radius: 8px;
   overflow: hidden;
-  background: rgba(109, 40, 217, 0.08);
+  background: var(--commerce-primary-soft);
   color: var(--commerce-primary);
   display: grid;
   place-items: center;
@@ -6509,7 +6509,7 @@ html[data-theme="dark"] .admin-sidebar-note {
   gap: 0.65rem;
   align-items: center;
   padding-top: 0.7rem;
-  border-top: 1px solid rgba(17, 12, 34, 0.08);
+  border-top: 1px solid var(--commerce-line);
 }
 
 .commerce-quantity-stepper {
@@ -6518,9 +6518,9 @@ html[data-theme="dark"] .admin-sidebar-note {
   display: grid;
   grid-template-columns: 2.35rem minmax(0, 1fr) 2.35rem;
   align-items: center;
-  border: 1px solid rgba(109, 40, 217, 0.16);
+  border: 1px solid var(--commerce-primary-border);
   border-radius: 8px;
-  background: #ffffff;
+  background: var(--commerce-surface);
 }
 
 .commerce-quantity-stepper button {
@@ -6554,10 +6554,10 @@ html[data-theme="dark"] .admin-sidebar-note {
   border: 0;
   border-radius: 8px;
   background: var(--commerce-primary);
-  color: #ffffff;
+  color: var(--commerce-button-text);
   font-size: 1rem;
   font-weight: 850;
-  box-shadow: 0 12px 26px rgba(109, 40, 217, 0.24);
+  box-shadow: 0 12px 26px var(--commerce-primary-shadow);
 }
 
 .commerce-product-add-button.is-consult {
@@ -6571,8 +6571,8 @@ html[data-theme="dark"] .admin-sidebar-note {
 .commerce-empty-state {
   border-radius: 8px;
   padding: 1rem;
-  border: 1px solid rgba(109, 40, 217, 0.12);
-  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid var(--commerce-primary-border);
+  background: var(--commerce-surface-strong);
   text-align: center;
 }
 
@@ -6593,11 +6593,11 @@ html[data-theme="dark"] .admin-sidebar-note {
   align-items: center;
   gap: 0.65rem;
   padding: 0 0.85rem;
-  border: 1px solid rgba(255, 255, 255, 0.34);
+  border: 1px solid var(--commerce-primary-border);
   border-radius: 8px;
   background: var(--commerce-primary);
-  color: #ffffff;
-  box-shadow: 0 20px 42px rgba(76, 29, 149, 0.28);
+  color: var(--commerce-button-text);
+  box-shadow: 0 20px 42px var(--commerce-primary-shadow);
 }
 
 .commerce-order-bar span {
@@ -6615,6 +6615,8 @@ html[data-theme="dark"] .admin-sidebar-note {
 .commerce-cart-panel,
 .commerce-modal-card {
   border-radius: 8px;
+  background: var(--commerce-surface);
+  color: var(--commerce-text);
 }
 
 .commerce-cart-panel-head,
@@ -6639,7 +6641,7 @@ html[data-theme="dark"] .admin-sidebar-note {
 
 .commerce-cart-panel-row {
   padding-bottom: 0.65rem;
-  border-bottom: 1px solid rgba(17, 12, 34, 0.08);
+  border-bottom: 1px solid var(--commerce-line);
 }
 
 .commerce-cart-panel-row span {
@@ -6657,7 +6659,7 @@ html[data-theme="dark"] .admin-sidebar-note {
   border: 0;
   border-radius: 8px;
   background: var(--commerce-primary);
-  color: #ffffff;
+  color: var(--commerce-button-text);
   font-weight: 850;
 }
 
@@ -6677,8 +6679,9 @@ html[data-theme="dark"] .admin-sidebar-note {
   align-items: center;
   justify-content: space-between;
   gap: 0.9rem;
-  border: 1px solid rgba(11, 16, 32, 0.08);
+  border: 1px solid var(--commerce-line);
   padding: 0.75rem 0.85rem;
+  background: var(--commerce-surface);
 }
 
 .commerce-cart-row div:first-child {
@@ -6687,7 +6690,7 @@ html[data-theme="dark"] .admin-sidebar-note {
 }
 
 .commerce-cart-row span {
-  color: #64748b;
+  color: var(--commerce-muted);
 }
 
 .commerce-cart-qty {
@@ -6699,8 +6702,9 @@ html[data-theme="dark"] .admin-sidebar-note {
 .commerce-cart-qty button {
   width: 2rem;
   height: 2rem;
-  border: 1px solid rgba(11, 16, 32, 0.1);
-  background: white;
+  border: 1px solid var(--commerce-line);
+  background: var(--commerce-surface);
+  color: var(--commerce-text);
 }
 
 .commerce-cart-total {
@@ -6767,9 +6771,9 @@ html[data-theme="dark"] .admin-sidebar-note {
     display: grid;
     gap: 0.85rem;
     padding: 0.95rem;
-    border: 1px solid rgba(109, 40, 217, 0.12);
-    background: rgba(255, 255, 255, 0.94);
-    box-shadow: 0 16px 36px rgba(17, 12, 34, 0.08);
+    border: 1px solid var(--commerce-primary-border);
+    background: var(--commerce-surface-strong);
+    box-shadow: 0 16px 36px var(--commerce-shadow);
   }
 
   .commerce-page:not(.is-preview) .commerce-order-bar {

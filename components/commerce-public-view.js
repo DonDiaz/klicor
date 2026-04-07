@@ -16,7 +16,7 @@ import { FONT_FAMILY_STYLE_MAP } from "@/app/fonts";
 import { apiFetch } from "@/lib/client-api";
 import { resolveCommerceModeMeta } from "@/lib/commerce-config";
 import { buildWhatsappLink } from "@/lib/utils";
-import { normalizeAppearance } from "@/lib/theme-system";
+import { hexToRgba, normalizeAppearance } from "@/lib/theme-system";
 
 function formatCurrency(value, currency = "COP") {
   if (value === null || value === undefined || value === "") return "";
@@ -287,19 +287,30 @@ export function CommercePublicView({ bootstrap, preview = false }) {
   );
   const shouldShowProducts = !selectedCategory?.hasSubcategories || Boolean(selection.subcategoryId);
 
-  const pageBackground = "linear-gradient(180deg, #f7f3ff 0%, #ffffff 58%, #f8fafc 100%)";
+  const pageBackground = appearance.backgroundStyle === "gradient"
+    ? `linear-gradient(180deg, ${appearance.backgroundColor} 0%, ${hexToRgba(appearance.tertiaryColor, 0.72)} 58%, ${hexToRgba(appearance.secondaryColor, 0.28)} 100%)`
+    : appearance.backgroundColor;
 
   const rootStyle = {
     fontFamily,
     background: pageBackground,
-    color: "#17132d",
-    "--commerce-surface": "#ffffff",
-    "--commerce-primary": "#6d28d9",
-    "--commerce-primary-strong": "#5b21b6",
-    "--commerce-secondary": "#22d3ee",
-    "--commerce-tertiary": "#f7f3ff",
-    "--commerce-text": "#17132d",
-    "--commerce-muted": "#6b647c",
+    color: appearance.textPrimaryColor,
+    "--commerce-background": pageBackground,
+    "--commerce-surface": appearance.surfaceColor,
+    "--commerce-surface-soft": hexToRgba(appearance.surfaceColor, 0.92),
+    "--commerce-surface-strong": hexToRgba(appearance.surfaceColor, 0.96),
+    "--commerce-primary": appearance.primaryColor,
+    "--commerce-primary-strong": appearance.primaryColor,
+    "--commerce-primary-soft": hexToRgba(appearance.primaryColor, 0.12),
+    "--commerce-primary-border": hexToRgba(appearance.primaryColor, 0.16),
+    "--commerce-primary-shadow": hexToRgba(appearance.primaryColor, 0.24),
+    "--commerce-secondary": appearance.secondaryColor,
+    "--commerce-tertiary": appearance.tertiaryColor,
+    "--commerce-text": appearance.textPrimaryColor,
+    "--commerce-muted": appearance.textSecondaryColor,
+    "--commerce-line": hexToRgba(appearance.textPrimaryColor, 0.1),
+    "--commerce-shadow": hexToRgba(appearance.textPrimaryColor, 0.08),
+    "--commerce-button-text": appearance.buttonTextColor,
   };
 
   function applyChunk(nextSelection, nextChunk, append = false) {
