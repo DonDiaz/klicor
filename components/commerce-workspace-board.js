@@ -432,10 +432,10 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
             placeholder="Nombre de la subcategoría"
             disabled={!canEdit || selectedHasDirectProducts}
           />
-          <button className="btn btn-primary" type="button" onClick={() => createSubcategory(selectedCategory.id)} disabled={!canEdit || selectedHasDirectProducts || !String(subcategoryDrafts[selectedCategory.id] || "").trim() || loading}>
+          <button className="btn btn-primary commerce-board-subcategory-action" type="button" onClick={() => createSubcategory(selectedCategory.id)} disabled={!canEdit || selectedHasDirectProducts || !String(subcategoryDrafts[selectedCategory.id] || "").trim() || loading}>
             <Plus size={16} /> Crear subcategoría
           </button>
-          <button className="btn btn-secondary" type="button" onClick={() => openProductEditor(selectedCategory, productTargetSubcategory)} disabled={!canEdit || loading || !configForm.activeMode || !productTargetSubcategory}>
+          <button className="btn btn-secondary commerce-board-product-action" type="button" onClick={() => openProductEditor(selectedCategory, productTargetSubcategory)} disabled={!canEdit || loading || !configForm.activeMode || !productTargetSubcategory}>
             <ImagePlus size={16} /> Crear producto
           </button>
         </div>
@@ -536,10 +536,10 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
             placeholder="Nombre de la subcategoría"
             disabled={!canEdit || selectedHasDirectProducts}
           />
-          <button className="btn btn-secondary" type="button" onClick={() => createSubcategory(selectedCategory.id)} disabled={!canEdit || selectedHasDirectProducts || !String(subcategoryDrafts[selectedCategory.id] || "").trim() || loading}>
+          <button className="btn btn-secondary commerce-board-subcategory-action" type="button" onClick={() => createSubcategory(selectedCategory.id)} disabled={!canEdit || selectedHasDirectProducts || !String(subcategoryDrafts[selectedCategory.id] || "").trim() || loading}>
             <Plus size={16} /> Crear subcategoría
           </button>
-          <button className="btn btn-primary commerce-board-main-action" type="button" onClick={() => openProductEditor(selectedCategory, selectedSubcategory)} disabled={!canEdit || loading || !canAddProduct}>
+          <button className="btn btn-primary commerce-board-main-action commerce-board-product-action" type="button" onClick={() => openProductEditor(selectedCategory, selectedSubcategory)} disabled={!canEdit || loading || !canAddProduct}>
             <ImagePlus size={16} /> Crear producto
           </button>
         </div>

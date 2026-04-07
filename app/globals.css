@@ -6859,6 +6859,29 @@ html[data-theme="dark"] .admin-sidebar-note {
   gap: 0.6rem;
 }
 
+.commerce-board-create-with-product {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+}
+
+.commerce-board-create-with-product .input {
+  grid-column: 1 / -1;
+}
+
+.commerce-board-subcategory-action {
+  width: fit-content;
+  justify-self: start;
+  min-height: 38px;
+  padding: 0.55rem 0.72rem;
+  font-size: 0.86rem;
+  white-space: nowrap;
+}
+
+.commerce-board-product-action {
+  grid-column: 1 / -1;
+  width: 100%;
+}
+
 .commerce-board-row {
   display: grid;
   gap: 0.58rem;
@@ -7261,11 +7284,12 @@ html[data-theme="dark"] .admin-sidebar-note {
   }
 
   .commerce-board-create-with-product {
-    grid-template-columns: minmax(0, 1fr) auto auto;
+    grid-template-columns: minmax(0, 1fr) auto;
   }
 
-  .commerce-board-create-with-product .commerce-board-main-action {
-    width: auto;
+  .commerce-board-create-with-product .commerce-board-product-action {
+    grid-column: 1 / -1;
+    width: 100%;
   }
 
   .commerce-board-inline-edit {
