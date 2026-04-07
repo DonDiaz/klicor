@@ -98,6 +98,7 @@ function normalizePublicCategories(value = []) {
         id: String(category.id || `category-${index}`),
         name: String(category.name || "Categoría"),
         hasSubcategories: Boolean(category.hasSubcategories),
+        firstSubcategoryId: String(category.firstSubcategoryId || ""),
         subcategoryCount: Number(category.subcategoryCount || 0) || 0,
         productCount: Number(category.productCount || 0) || 0,
       }))
@@ -424,7 +425,7 @@ export function CommercePublicView({ bootstrap, preview = false }) {
     if (selection.categoryId === category.id) return;
     loadChunk({
       categoryId: category.id,
-      subcategoryId: category.hasSubcategories ? "" : "",
+      subcategoryId: category.hasSubcategories ? category.firstSubcategoryId || "" : "",
     });
   }
 
