@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState, useTransition } from "react";
+import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import {
   ChevronRight,
   LoaderCircle,
@@ -297,6 +297,7 @@ export function CommercePublicView({ bootstrap, preview = false }) {
     notes: "",
   });
   const requestCounterRef = useRef(0);
+  const prefetchedKeysRef = useRef(new Set());
   const [isPending, startTransition] = useTransition();
 
   const cartTotal = useMemo(
@@ -420,6 +421,75 @@ export function CommercePublicView({ bootstrap, preview = false }) {
       }
     });
   }
+
+  async function prefetchChunk(nextSelection, { includeSubcategories = true } = {}) {
+    if (preview) return;
+    const cacheKey = `${nextSelection.categoryId}:${nextSelection.subcategoryId}`;
+    if (cache[cacheKey] || prefetchedKeysRef.current.has(cacheKey)) return;
+    prefetchedKeysRef.current.add(cacheKey);
+
+    const params = new URLSearchParams({
+      mode: safeMode,
+      categoryId: nextSelection.categoryId,
+    });
+    if (nextSelection.subcategoryId) {
+      params.set("subcategoryId", nextSelection.subcategoryId);
+    }
+    if (!includeSubcategories) {
+      params.set("includeSubcategories", "false");
+    }
+
+    try {
+      const response = await apiFetch(`/api/public/commerce/${safeBusiness.username}?${params.toString()}`);
+      const nextChunk = response?.data || {};
+      const resolvedSelection = {
+        categoryId: String(nextChunk?.categoryId || nextSelection.categoryId || ""),
+        subcategoryId: String(nextChunk?.subcategoryId ?? nextSelection.subcategoryId ?? ""),
+      };
+      const key = `${resolvedSelection.categoryId}:${resolvedSelection.subcategoryId}`;
+      const nextPagination = normalizePagination(nextChunk);
+      const nextState = {
+        selection: resolvedSelection,
+        subcategories: normalizePublicSubcategories(nextChunk?.subcategories),
+        products: normalizePublicProducts(nextChunk?.products),
+        hasMore: nextPagination.hasMore,
+        nextCursor: nextPagination.nextCursor,
+      };
+      setCache((current) => current[key]
+        ? current
+        : {
+          ...current,
+          [key]: nextState,
+          [cacheKey]: nextState,
+        });
+    } catch {
+      prefetchedKeysRef.current.delete(cacheKey);
+    }
+  }
+
+  useEffect(() => {
+    if (preview || !safeMode || !safeBusiness.username || categories.length < 2) return undefined;
+    const currentIndex = categories.findIndex((category) => category.id === selection.categoryId);
+    if (currentIndex === -1 || currentIndex >= categories.length - 1) return undefined;
+
+    const nextCategory = categories[currentIndex + 1];
+    if (!nextCategory) return undefined;
+    const nextSelection = {
+      categoryId: nextCategory.id,
+      subcategoryId: nextCategory.hasSubcategories ? nextCategory.firstSubcategoryId || "" : "",
+    };
+    const cacheKey = `${nextSelection.categoryId}:${nextSelection.subcategoryId}`;
+    if (cache[cacheKey] || prefetchedKeysRef.current.has(cacheKey)) return undefined;
+
+    const schedulePrefetch = () => prefetchChunk(nextSelection);
+    if (typeof window !== "undefined" && "requestIdleCallback" in window) {
+      const idleId = window.requestIdleCallback(schedulePrefetch, { timeout: 1800 });
+      return () => window.cancelIdleCallback?.(idleId);
+    }
+
+    const timeoutId = window.setTimeout(schedulePrefetch, 700);
+    return () => window.clearTimeout(timeoutId);
+  }, [cache, categories, preview, safeBusiness.username, safeMode, selection.categoryId]);
 
   function handleSelectCategory(category) {
     if (selection.categoryId === category.id) return;
