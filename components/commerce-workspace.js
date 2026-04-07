@@ -1,3 +1,3 @@
 "use client";
 
-export { CommerceWorkspace } from "./commerce-workspace-redesign";
+export { CommerceWorkspace } from "./commerce-workspace-board";
