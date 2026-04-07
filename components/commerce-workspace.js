@@ -129,6 +129,8 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
     })),
     [categories],
   );
+  const activeCategory = categories.find((category) => category.id === expandedCategoryId) || null;
+  const activeSubcategories = Array.isArray(activeCategory?.subcategories) ? activeCategory.subcategories : [];
 
   async function runAction(action, payload = {}, image = null) {
     setLoading(true);
@@ -271,6 +273,47 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
               </button>
             </div>
           </section>
+
+          {categories.length ? (
+            <section className="commerce-admin-card commerce-admin-rail-card">
+              <div className="commerce-admin-inline-head">
+                <strong>Trabaja por categorías</strong>
+                <small>Desliza y elige dónde vas a editar o crear productos.</small>
+              </div>
+              <div className="commerce-admin-chip-rail" aria-label="Categorías comerciales">
+                {categories.map((category) => (
+                  <button
+                    key={category.id}
+                    className={`commerce-admin-chip ${expandedCategoryId === category.id ? "is-active" : ""}`.trim()}
+                    type="button"
+                    onClick={() => setExpandedCategoryId(category.id)}
+                  >
+                    <span>{category.name}</span>
+                    <small>{formatCount(category.productCount, "productos")}</small>
+                  </button>
+                ))}
+              </div>
+
+              {activeSubcategories.length ? (
+                <div className="commerce-admin-chip-rail is-subcategory" aria-label="Subcategorías comerciales">
+                  {activeSubcategories.map((subcategory) => (
+                    <button
+                      key={subcategory.id}
+                      className={`commerce-admin-chip ${expandedSubcategoryIds[activeCategory.id] === subcategory.id ? "is-active" : ""}`.trim()}
+                      type="button"
+                      onClick={() => setExpandedSubcategoryIds((current) => ({
+                        ...current,
+                        [activeCategory.id]: subcategory.id,
+                      }))}
+                    >
+                      <span>{subcategory.name}</span>
+                      <small>{formatCount(subcategory.productCount, "productos")}</small>
+                    </button>
+                  ))}
+                </div>
+              ) : null}
+            </section>
+          ) : null}
 
           {categories.map((category) => {
             const isCategoryOpen = expandedCategoryId === category.id;

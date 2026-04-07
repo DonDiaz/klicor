@@ -2,7 +2,6 @@
 
 import { useMemo, useState, useTransition } from "react";
 import {
-  ChevronDown,
   ChevronRight,
   LoaderCircle,
   MessageCircle,
@@ -120,13 +119,17 @@ function ProductCard({
   return (
     <article className="commerce-product-card">
       <div className="commerce-product-image-shell">
-        <img
-          className="commerce-product-image"
-          src={product.imageThumbUrl || product.imageUrl}
-          alt={product.name}
-          loading="lazy"
-          decoding="async"
-        />
+        {product.imageThumbUrl || product.imageUrl ? (
+          <img
+            className="commerce-product-image"
+            src={product.imageThumbUrl || product.imageUrl}
+            alt={product.name}
+            loading="lazy"
+            decoding="async"
+          />
+        ) : (
+          <span>{product.name.slice(0, 1)}</span>
+        )}
       </div>
       <div className="commerce-product-copy">
         <div className="commerce-product-head">
@@ -139,12 +142,12 @@ function ProductCard({
       </div>
       <div className="commerce-product-actions">
         {supportsCart ? (
-          <button className="btn btn-primary" type="button" onClick={() => onAdd(product)} disabled={preview}>
-            <Plus size={16} /> Agregar
+          <button className="commerce-product-action-button" type="button" onClick={() => onAdd(product)} disabled={preview} aria-label={`Agregar ${product.name}`}>
+            <Plus size={16} />
           </button>
         ) : (
-          <button className="btn btn-secondary" type="button" onClick={() => onConsult(product)} disabled={preview}>
-            <MessageCircle size={16} /> Consultar
+          <button className="commerce-product-action-button" type="button" onClick={() => onConsult(product)} disabled={preview} aria-label={`Consultar ${product.name}`}>
+            <MessageCircle size={16} />
           </button>
         )}
       </div>
@@ -262,6 +265,23 @@ export function CommercePublicView({ bootstrap, preview = false }) {
     () => cartItems.reduce((accumulator, item) => accumulator + item.quantity, 0),
     [cartItems],
   );
+  const selectedCategory = useMemo(
+    () => categories.find((category) => category.id === selection.categoryId) || null,
+    [categories, selection.categoryId],
+  );
+  const selectedSubcategory = useMemo(
+    () => subcategories.find((subcategory) => subcategory.id === selection.subcategoryId) || null,
+    [subcategories, selection.subcategoryId],
+  );
+  const currentSectionTitle = selectedSubcategory?.name || selectedCategory?.name || safeModeMeta.shortLabel;
+  const currentSectionCaption = selectedSubcategory
+    ? formatCount(selectedSubcategory.productCount, "productos")
+    : selectedCategory?.hasSubcategories
+      ? "Elige una subcategoría"
+      : selectedCategory
+        ? formatCount(selectedCategory.productCount, "productos")
+        : safeModeMeta.publicHeadlineFallback;
+  const shouldShowProducts = !selectedCategory?.hasSubcategories || Boolean(selection.subcategoryId);
 
   const pageBackground = appearance.backgroundStyle === "gradient"
     ? `linear-gradient(180deg, ${appearance.backgroundColor}, ${hexToRgba(appearance.primaryColor, 0.08)} 62%, ${hexToRgba(appearance.secondaryColor, 0.08)})`
@@ -278,13 +298,6 @@ export function CommercePublicView({ bootstrap, preview = false }) {
     "--commerce-text": appearance.textPrimaryColor,
     "--commerce-muted": appearance.textSecondaryColor,
   };
-
-  function resetOpenState() {
-    setSelection({ categoryId: "", subcategoryId: "" });
-    setSubcategories([]);
-    setProducts([]);
-    setPagination({ hasMore: false, nextCursor: null });
-  }
 
   function applyChunk(nextSelection, nextChunk, append = false) {
     const key = `${nextSelection.categoryId}:${nextSelection.subcategoryId}`;
@@ -335,26 +348,17 @@ export function CommercePublicView({ bootstrap, preview = false }) {
     });
   }
 
-  function handleToggleCategory(category) {
-    if (selection.categoryId === category.id) {
-      resetOpenState();
-      return;
-    }
-
+  function handleSelectCategory(category) {
+    if (selection.categoryId === category.id) return;
     loadChunk({
       categoryId: category.id,
       subcategoryId: category.hasSubcategories ? "" : "",
     });
   }
 
-  function handleToggleSubcategory(subcategoryId) {
+  function handleSelectSubcategory(subcategoryId) {
     if (!selection.categoryId) return;
-    if (selection.subcategoryId === subcategoryId) {
-      setSelection((current) => ({ ...current, subcategoryId: "" }));
-      setProducts([]);
-      setPagination({ hasMore: false, nextCursor: null });
-      return;
-    }
+    if (selection.subcategoryId === subcategoryId) return;
 
     loadChunk({
       categoryId: selection.categoryId,
@@ -420,89 +424,64 @@ export function CommercePublicView({ bootstrap, preview = false }) {
           {safeBusiness.businessSubheadline ? <p className="commerce-subheadline">{safeBusiness.businessSubheadline}</p> : null}
         </header>
 
-        <section className="commerce-accordion-list">
-          {categories.map((category) => {
-            const isCategoryOpen = selection.categoryId === category.id;
-            const showDirectProducts = isCategoryOpen && !category.hasSubcategories;
-            const categorySubcategories = Array.isArray(subcategories) ? subcategories : [];
-
-            return (
-              <article key={category.id} className={`commerce-accordion-card ${isCategoryOpen ? "is-open" : ""}`.trim()}>
-                <button className="commerce-accordion-trigger" type="button" onClick={() => handleToggleCategory(category)}>
-                  <span className="commerce-accordion-trigger-copy">
-                    <strong>{category.name}</strong>
-                    <small>
-                      {category.hasSubcategories
-                        ? formatCount(category.subcategoryCount, "subcategorías")
-                        : formatCount(category.productCount, "productos")}
-                    </small>
-                  </span>
-                  <ChevronDown className={`commerce-accordion-chevron ${isCategoryOpen ? "is-open" : ""}`.trim()} size={18} />
+        <section className="commerce-menu-board">
+          <div className="commerce-category-rail" aria-label="Categorías">
+            {categories.map((category) => {
+              const isActive = selection.categoryId === category.id;
+              return (
+                <button
+                  key={category.id}
+                  className={`commerce-category-chip ${isActive ? "is-active" : ""}`.trim()}
+                  type="button"
+                  onClick={() => handleSelectCategory(category)}
+                >
+                  <span>{category.name}</span>
                 </button>
+              );
+            })}
+          </div>
 
-                {isCategoryOpen ? (
-                  <div className="commerce-accordion-body">
-                    {category.hasSubcategories ? (
-                      <>
-                        <div className="commerce-subaccordion-list">
-                          {categorySubcategories.map((subcategory) => {
-                            const isSubcategoryOpen = selection.subcategoryId === subcategory.id;
+          {selection.categoryId && subcategories.length ? (
+            <div className="commerce-subcategory-rail" aria-label="Subcategorías">
+              {subcategories.map((subcategory) => {
+                const isActive = selection.subcategoryId === subcategory.id;
+                return (
+                  <button
+                    key={subcategory.id}
+                    className={`commerce-subcategory-chip ${isActive ? "is-active" : ""}`.trim()}
+                    type="button"
+                    onClick={() => handleSelectSubcategory(subcategory.id)}
+                  >
+                    <span>{subcategory.name}</span>
+                  </button>
+                );
+              })}
+            </div>
+          ) : null}
 
-                            return (
-                              <article key={subcategory.id} className={`commerce-subaccordion-card ${isSubcategoryOpen ? "is-open" : ""}`.trim()}>
-                                <button className="commerce-subaccordion-trigger" type="button" onClick={() => handleToggleSubcategory(subcategory.id)}>
-                                  <span className="commerce-accordion-trigger-copy">
-                                    <strong>{subcategory.name}</strong>
-                                    <small>{formatCount(subcategory.productCount, "productos")}</small>
-                                  </span>
-                                  <ChevronDown className={`commerce-accordion-chevron ${isSubcategoryOpen ? "is-open" : ""}`.trim()} size={18} />
-                                </button>
+          <div className="commerce-current-section-card">
+            <strong>{currentSectionTitle}</strong>
+            <span>{currentSectionCaption}</span>
+          </div>
 
-                                {isSubcategoryOpen ? (
-                                  <div className="commerce-subaccordion-body">
-                                    <ProductsGrid
-                                      bootstrap={safeBootstrap}
-                                      preview={preview}
-                                      products={products}
-                                      pagination={pagination}
-                                      isPending={isPending}
-                                      onAdd={handleAddToCart}
-                                      onConsult={handleDirectConsult}
-                                      onLoadMore={() => loadChunk(selection, { append: true, after: pagination.nextCursor })}
-                                      emptyLabel={safeModeMeta.emptyLabel}
-                                    />
-                                  </div>
-                                ) : null}
-                              </article>
-                            );
-                          })}
-                        </div>
-
-                        {!selection.subcategoryId ? (
-                          <div className="commerce-empty-state commerce-subcategory-empty">
-                            <strong>Selecciona una subcategoría</strong>
-                            <p>Abre una subcategoría para ver sus productos.</p>
-                          </div>
-                        ) : null}
-                      </>
-                    ) : (
-                      <ProductsGrid
-                        bootstrap={safeBootstrap}
-                        preview={preview}
-                        products={showDirectProducts ? products : []}
-                        pagination={showDirectProducts ? pagination : { hasMore: false, nextCursor: null }}
-                        isPending={isPending}
-                        onAdd={handleAddToCart}
-                        onConsult={handleDirectConsult}
-                        onLoadMore={() => loadChunk(selection, { append: true, after: pagination.nextCursor })}
-                        emptyLabel={safeModeMeta.emptyLabel}
-                      />
-                    )}
-                  </div>
-                ) : null}
-              </article>
-            );
-          })}
+          {shouldShowProducts ? (
+            <ProductsGrid
+              bootstrap={safeBootstrap}
+              preview={preview}
+              products={products}
+              pagination={pagination}
+              isPending={isPending}
+              onAdd={handleAddToCart}
+              onConsult={handleDirectConsult}
+              onLoadMore={() => loadChunk(selection, { append: true, after: pagination.nextCursor })}
+              emptyLabel={safeModeMeta.emptyLabel}
+            />
+          ) : (
+            <div className="commerce-empty-state commerce-subcategory-empty">
+              <strong>Selecciona una subcategoría</strong>
+              <p>Elige una opción del carrusel para ver sus productos.</p>
+            </div>
+          )}
         </section>
       </section>
 
