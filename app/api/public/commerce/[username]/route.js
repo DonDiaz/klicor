@@ -10,6 +10,7 @@ export async function GET(request, { params }) {
     const categoryId = String(searchParams.get("categoryId") || "").trim();
     const subcategoryId = String(searchParams.get("subcategoryId") || "").trim();
     const after = String(searchParams.get("after") || "").trim();
+    const includeSubcategories = searchParams.get("includeSubcategories") !== "false";
 
     if (!mode) {
       throw new Error("Modo comercial inválido.");
@@ -23,7 +24,7 @@ export async function GET(request, { params }) {
       return NextResponse.json({ data: bootstrap });
     }
 
-    const chunk = await getPublicCommerceChunkByUsername(username, mode, { categoryId, subcategoryId, after });
+    const chunk = await getPublicCommerceChunkByUsername(username, mode, { categoryId, subcategoryId, after, includeSubcategories });
     if (!chunk) {
       return NextResponse.json({ error: "No encontramos esa sección comercial." }, { status: 404 });
     }

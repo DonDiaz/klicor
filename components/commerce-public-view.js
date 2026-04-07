@@ -348,7 +348,8 @@ export function CommercePublicView({ bootstrap, preview = false }) {
     const key = `${resolvedSelection.categoryId}:${resolvedSelection.subcategoryId}`;
     const requestKey = `${nextSelection.categoryId}:${nextSelection.subcategoryId}`;
     const nextProducts = normalizePublicProducts(nextChunk?.products);
-    const nextSubcategories = normalizePublicSubcategories(nextChunk?.subcategories);
+    const hasSubcategoryPayload = Array.isArray(nextChunk?.subcategories);
+    const nextSubcategories = hasSubcategoryPayload ? normalizePublicSubcategories(nextChunk?.subcategories) : subcategories;
     const nextPagination = normalizePagination(nextChunk);
     const nextState = {
       selection: resolvedSelection,
@@ -369,7 +370,7 @@ export function CommercePublicView({ bootstrap, preview = false }) {
     }));
   }
 
-  function loadChunk(nextSelection, { append = false, after = null } = {}) {
+  function loadChunk(nextSelection, { append = false, after = null, includeSubcategories = true } = {}) {
     if (preview) return;
     const cacheKey = `${nextSelection.categoryId}:${nextSelection.subcategoryId}`;
     const requestId = requestCounterRef.current + 1;
@@ -404,6 +405,9 @@ export function CommercePublicView({ bootstrap, preview = false }) {
         if (nextSelection.subcategoryId) {
           params.set("subcategoryId", nextSelection.subcategoryId);
         }
+        if (!includeSubcategories) {
+          params.set("includeSubcategories", "false");
+        }
         if (after !== null && after !== undefined && after !== "") {
           params.set("after", String(after));
         }
@@ -431,6 +435,8 @@ export function CommercePublicView({ bootstrap, preview = false }) {
     loadChunk({
       categoryId: selection.categoryId,
       subcategoryId,
+    }, {
+      includeSubcategories: false,
     });
   }
 
@@ -568,7 +574,7 @@ export function CommercePublicView({ bootstrap, preview = false }) {
                 isPending={isPending}
                 onAdd={handleAddToCart}
                 onConsult={handleDirectConsult}
-                onLoadMore={() => loadChunk(selection, { append: true, after: pagination.nextCursor })}
+                onLoadMore={() => loadChunk(selection, { append: true, after: pagination.nextCursor, includeSubcategories: false })}
                 getQuantity={getProductQuantity}
                 onQuantityStep={handleProductQuantityStep}
                 emptyLabel={safeModeMeta.emptyLabel}
