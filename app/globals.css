@@ -6991,6 +6991,20 @@ html[data-theme="dark"] .admin-sidebar-note {
   font-weight: 750;
 }
 
+.commerce-board-return-categories {
+  display: none;
+  width: fit-content;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 2.35rem;
+  padding: 0 0.72rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #ffffff;
+  color: #334155;
+  font-weight: 750;
+}
+
 .commerce-board-product-summary {
   display: flex;
   flex-wrap: wrap;
@@ -7275,6 +7289,10 @@ html[data-theme="dark"] .admin-sidebar-note {
 
   .commerce-board-back {
     display: none;
+  }
+
+  .commerce-board-return-categories {
+    display: inline-flex;
   }
 
   .commerce-board-create,

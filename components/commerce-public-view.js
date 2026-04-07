@@ -239,6 +239,7 @@ export function CommercePublicView({ bootstrap, preview = false }) {
   const [pagination, setPagination] = useState(safeInitialPagination);
   const [cache, setCache] = useState(() => ({
     [`${safeInitialSelection.categoryId}:${safeInitialSelection.subcategoryId}`]: {
+      selection: safeInitialSelection,
       subcategories: initialSubcategories,
       products: initialProducts,
       hasMore: safeInitialPagination.hasMore,
@@ -300,23 +301,30 @@ export function CommercePublicView({ bootstrap, preview = false }) {
   };
 
   function applyChunk(nextSelection, nextChunk, append = false) {
-    const key = `${nextSelection.categoryId}:${nextSelection.subcategoryId}`;
+    const resolvedSelection = {
+      categoryId: String(nextChunk?.categoryId || nextSelection.categoryId || ""),
+      subcategoryId: String(nextChunk?.subcategoryId ?? nextSelection.subcategoryId ?? ""),
+    };
+    const key = `${resolvedSelection.categoryId}:${resolvedSelection.subcategoryId}`;
+    const requestKey = `${nextSelection.categoryId}:${nextSelection.subcategoryId}`;
     const nextProducts = normalizePublicProducts(nextChunk?.products);
     const nextSubcategories = normalizePublicSubcategories(nextChunk?.subcategories);
     const nextPagination = normalizePagination(nextChunk);
     const nextState = {
+      selection: resolvedSelection,
       subcategories: nextSubcategories,
       products: append ? [...normalizePublicProducts(products), ...nextProducts] : nextProducts,
       hasMore: nextPagination.hasMore,
       nextCursor: nextPagination.nextCursor,
     };
-    setSelection(nextSelection);
+    setSelection(resolvedSelection);
     setSubcategories(nextState.subcategories);
     setProducts(nextState.products);
     setPagination({ hasMore: nextState.hasMore, nextCursor: nextState.nextCursor });
     setCache((current) => ({
       ...current,
       [key]: nextState,
+      [requestKey]: nextState,
     }));
   }
 
@@ -325,7 +333,7 @@ export function CommercePublicView({ bootstrap, preview = false }) {
     const cacheKey = `${nextSelection.categoryId}:${nextSelection.subcategoryId}`;
     if (!append && cache[cacheKey]) {
       const cached = cache[cacheKey];
-      setSelection(nextSelection);
+      setSelection(cached.selection || nextSelection);
       setSubcategories(cached.subcategories);
       setProducts(cached.products);
       setPagination({ hasMore: cached.hasMore, nextCursor: cached.nextCursor });

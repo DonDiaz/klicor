@@ -506,13 +506,25 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
     }
 
     const sectionLabel = selectedSubcategory ? `${selectedCategory.name} · ${selectedSubcategory.name}` : selectedCategory.name;
-    const canAddProduct = Boolean(configForm.activeMode && selectedCategory && (!selectedSubcategories.length || selectedSubcategory || sectionMode === "products"));
+    const canAddProduct = Boolean(configForm.activeMode && selectedCategory && (!selectedSubcategories.length || selectedSubcategory));
     const selectedHasDirectProducts = directProducts(selectedCategory).length > 0;
+    const handleBackFromProducts = () => {
+      if (selectedSubcategory) {
+        setSectionMode("subcategories");
+        setMobileView("categories");
+        return;
+      }
+      if (selectedSubcategories.length) {
+        setSectionMode("subcategories");
+        return;
+      }
+      setMobileView("categories");
+    };
 
     return (
       <section className="commerce-board-panel commerce-board-section" aria-label="Productos">
-        <button className="commerce-board-back" type="button" onClick={() => selectedSubcategories.length ? setSectionMode("subcategories") : setMobileView("categories")}>
-          <ChevronLeft size={16} /> {selectedSubcategories.length ? "Subcategorías" : "Categorías"}
+        <button className="commerce-board-back" type="button" onClick={handleBackFromProducts}>
+          <ChevronLeft size={16} /> {selectedSubcategory ? "Categorías" : selectedSubcategories.length ? "Subcategorías" : "Categorías"}
         </button>
         <div className="commerce-board-panel-head">
           <div>
@@ -528,22 +540,35 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
           <span>{sectionLabel}</span>
         </div>
 
-        <div className="commerce-board-create commerce-board-create-with-product commerce-board-section-actions">
-          <input
-            className="input"
-            value={subcategoryDrafts[selectedCategory.id] || ""}
-            onChange={(event) => setSubcategoryDrafts((current) => ({ ...current, [selectedCategory.id]: event.target.value }))}
-            placeholder="Nombre de la subcategoría"
-            disabled={!canEdit || selectedHasDirectProducts}
-          />
-          <button className="btn btn-secondary commerce-board-subcategory-action" type="button" onClick={() => createSubcategory(selectedCategory.id)} disabled={!canEdit || selectedHasDirectProducts || !String(subcategoryDrafts[selectedCategory.id] || "").trim() || loading}>
-            <Plus size={16} /> Crear subcategoría
-          </button>
-          <button className="btn btn-primary commerce-board-main-action commerce-board-product-action" type="button" onClick={() => openProductEditor(selectedCategory, selectedSubcategory)} disabled={!canEdit || loading || !canAddProduct}>
-            <ImagePlus size={16} /> Crear producto
-          </button>
-        </div>
-        {selectedHasDirectProducts ? <small className="commerce-board-note">Esta categoría ya tiene productos directos.</small> : null}
+        {selectedSubcategory ? (
+          <>
+            <button className="commerce-board-return-categories" type="button" onClick={handleBackFromProducts}>
+              <ChevronLeft size={16} /> Volver a categorías
+            </button>
+            <button className="btn btn-primary commerce-board-main-action commerce-board-product-action" type="button" onClick={() => openProductEditor(selectedCategory, selectedSubcategory)} disabled={!canEdit || loading || !canAddProduct}>
+              <ImagePlus size={16} /> Crear producto
+            </button>
+          </>
+        ) : (
+          <>
+            <div className="commerce-board-create commerce-board-create-with-product commerce-board-section-actions">
+              <input
+                className="input"
+                value={subcategoryDrafts[selectedCategory.id] || ""}
+                onChange={(event) => setSubcategoryDrafts((current) => ({ ...current, [selectedCategory.id]: event.target.value }))}
+                placeholder="Nombre de la subcategoría"
+                disabled={!canEdit || selectedHasDirectProducts}
+              />
+              <button className="btn btn-secondary commerce-board-subcategory-action" type="button" onClick={() => createSubcategory(selectedCategory.id)} disabled={!canEdit || selectedHasDirectProducts || !String(subcategoryDrafts[selectedCategory.id] || "").trim() || loading}>
+                <Plus size={16} /> Crear subcategoría
+              </button>
+              <button className="btn btn-primary commerce-board-main-action commerce-board-product-action" type="button" onClick={() => openProductEditor(selectedCategory, selectedSubcategory)} disabled={!canEdit || loading || !canAddProduct}>
+                <ImagePlus size={16} /> Crear producto
+              </button>
+            </div>
+            {selectedHasDirectProducts ? <small className="commerce-board-note">Esta categoría ya tiene productos directos.</small> : null}
+          </>
+        )}
 
         {activeProducts.length ? (
           <div className="commerce-board-products">
