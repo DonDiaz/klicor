@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { X } from "lucide-react";
 import { AuthForm } from "@/components/auth-form";
 
+const LANDING_MODAL_OPEN_EVENT = "klicor:landing-modal-open";
+
 export function LandingLoginModal({
   triggerLabel = "Iniciar sesión",
   triggerClassName = "landing-login-trigger",
@@ -17,7 +19,22 @@ export function LandingLoginModal({
 }) {
   const router = useRouter();
   const titleId = useId();
+  const modalId = useId();
   const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    function handleAnotherModalOpen(event) {
+      if (event.detail !== modalId) {
+        setOpen(false);
+      }
+    }
+
+    window.addEventListener(LANDING_MODAL_OPEN_EVENT, handleAnotherModalOpen);
+
+    return () => {
+      window.removeEventListener(LANDING_MODAL_OPEN_EVENT, handleAnotherModalOpen);
+    };
+  }, [modalId]);
 
   useEffect(() => {
     if (!open) return undefined;
@@ -28,12 +45,20 @@ export function LandingLoginModal({
       }
     }
 
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
     window.addEventListener("keydown", handleEscape);
 
     return () => {
+      document.body.style.overflow = previousOverflow;
       window.removeEventListener("keydown", handleEscape);
     };
   }, [open]);
+
+  function openModal() {
+    window.dispatchEvent(new CustomEvent(LANDING_MODAL_OPEN_EVENT, { detail: modalId }));
+    setOpen(true);
+  }
 
   function handleSuccess() {
     setOpen(false);
@@ -42,7 +67,7 @@ export function LandingLoginModal({
 
   return (
     <div className="landing-login-popover">
-      <button className={triggerClassName} type="button" onClick={() => setOpen(true)}>
+      <button className={triggerClassName} type="button" onClick={openModal}>
         {triggerLabel}
       </button>
 
