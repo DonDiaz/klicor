@@ -214,7 +214,7 @@ export function LandingView({ user, preview = false }) {
             <span className="avatar-shell" style={{ borderRadius: AVATAR_RADIUS_MAP[appearance.avatarShape] }}>
               <img
                 className="avatar-image"
-                src={user.photo}
+                src={user.photoThumb || user.photo}
                 alt={user.businessName}
                 loading="eager"
                 decoding="async"

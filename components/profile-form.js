@@ -455,6 +455,7 @@ export function ProfileForm({
     businessHeadline: form.businessHeadline,
     businessSubheadline: form.businessSubheadline,
     photo: photoPreviewUrl || profile?.photo || "",
+    photoThumb: photoPreviewUrl || profile?.photoThumb || profile?.photo || "",
     paymentMethods: paymentMethods.map((method) => ({
       ...method,
       qrImageUrl: method.removeQr ? "" : method.qrPreviewUrl || method.qrImageUrl || "",
@@ -472,7 +473,7 @@ export function ProfileForm({
         ...item,
         url: normalizeLinkUrl(item),
       })),
-  }), [appearance, contactCard.enabled, contactCard.name, contactCard.phone, contactCard.title, contactCard.whatsappLinkId, form.businessCategory, form.businessHeadline, form.businessName, form.businessSubheadline, form.username, paymentMethods, photoPreviewUrl, profile?.photo, profile?.publicLinkId, profileLinks]);
+  }), [appearance, contactCard.enabled, contactCard.name, contactCard.phone, contactCard.title, contactCard.whatsappLinkId, form.businessCategory, form.businessHeadline, form.businessName, form.businessSubheadline, form.username, paymentMethods, photoPreviewUrl, profile?.photo, profile?.photoThumb, profile?.publicLinkId, profileLinks]);
 
   const previewPublicUrl = useMemo(() => {
     if (publicUrl) return publicUrl;
@@ -808,7 +809,7 @@ export function ProfileForm({
     : profile?.status === "active"
       ? "Renovar plan"
       : "Activar plan";
-  const dashboardLogoSrc = photoPreviewUrl || profile?.photo || "/klicor-icon.png";
+  const dashboardLogoSrc = photoPreviewUrl || profile?.photoThumb || profile?.photo || "/klicor-icon.png";
   const dashboardBusinessName = form.businessName?.trim() || profile?.businessName || "Tu negocio";
   const topbarStatusLabel =
     profile?.status === "trial"

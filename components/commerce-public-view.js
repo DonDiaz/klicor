@@ -253,6 +253,7 @@ export function CommercePublicView({ bootstrap, preview = false }) {
   const safeBusiness = {
     businessName: safeBootstrap.business?.businessName || "Tu negocio",
     photo: safeBootstrap.business?.photo || "",
+    photoThumb: safeBootstrap.business?.photoThumb || safeBootstrap.business?.photo || "",
     settings: safeBootstrap.business?.settings || {},
     username: safeBootstrap.business?.username || "",
   };
@@ -582,7 +583,7 @@ export function CommercePublicView({ bootstrap, preview = false }) {
         <header className="commerce-header">
           <div className="commerce-brand-lockup">
             {safeBusiness.photo ? (
-              <img className="commerce-avatar" src={safeBusiness.photo} alt={safeBusiness.businessName} />
+              <img className="commerce-avatar" src={safeBusiness.photoThumb || safeBusiness.photo} alt={safeBusiness.businessName} />
             ) : (
               <div className="commerce-avatar commerce-avatar-fallback">{safeBusiness.businessName?.slice(0, 1) || "K"}</div>
             )}
