@@ -1,8 +1,11 @@
 import { NextResponse } from "next/server";
 import { getPublicCommerceBootstrapByUsername, getPublicCommerceChunkByUsername } from "@/lib/public-commerce";
 import { normalizeCommerceMode } from "@/lib/commerce-config";
+import { createServerTiming } from "@/lib/server-timing";
 
 export async function GET(request, { params }) {
+  const timing = createServerTiming();
+
   try {
     const { username } = await params;
     const { searchParams } = new URL(request.url);
@@ -17,20 +20,48 @@ export async function GET(request, { params }) {
     }
 
     if (!categoryId && !subcategoryId) {
-      const bootstrap = await getPublicCommerceBootstrapByUsername(username, mode);
+      const bootstrap = await timing.measure(
+        "bootstrap",
+        () => getPublicCommerceBootstrapByUsername(username, mode),
+        "public-commerce",
+      );
       if (!bootstrap) {
-        return NextResponse.json({ error: "No encontramos ese comercio." }, { status: 404 });
+        const payload = { error: "No encontramos ese comercio." };
+        return NextResponse.json(payload, {
+          status: 404,
+          headers: timing.headers(payload),
+        });
       }
-      return NextResponse.json({ data: bootstrap });
+
+      const payload = { data: bootstrap };
+      return NextResponse.json(payload, {
+        headers: timing.headers(payload),
+      });
     }
 
-    const chunk = await getPublicCommerceChunkByUsername(username, mode, { categoryId, subcategoryId, after, includeSubcategories });
+    const chunk = await timing.measure(
+      "chunk",
+      () => getPublicCommerceChunkByUsername(username, mode, { categoryId, subcategoryId, after, includeSubcategories }),
+      includeSubcategories ? "with-subcategories" : "products-only",
+    );
+
     if (!chunk) {
-      return NextResponse.json({ error: "No encontramos esa sección comercial." }, { status: 404 });
+      const payload = { error: "No encontramos esa sección comercial." };
+      return NextResponse.json(payload, {
+        status: 404,
+        headers: timing.headers(payload),
+      });
     }
 
-    return NextResponse.json({ data: chunk });
+    const payload = { data: chunk };
+    return NextResponse.json(payload, {
+      headers: timing.headers(payload),
+    });
   } catch (error) {
-    return NextResponse.json({ error: error.message }, { status: 400 });
+    const payload = { error: error.message };
+    return NextResponse.json(payload, {
+      status: 400,
+      headers: timing.headers(payload),
+    });
   }
 }

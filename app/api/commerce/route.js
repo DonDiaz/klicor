@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { verifyRequest } from "@/lib/auth";
+import { createServerTiming } from "@/lib/server-timing";
 import {
   createCommerceCategory,
   createCommerceSubcategory,
@@ -31,34 +32,46 @@ function assertCommerceAccess(user) {
 }
 
 export async function GET(request) {
+  const timing = createServerTiming();
   try {
-    const { user } = await verifyRequest(request);
+    const { user } = await timing.measure("auth", () => verifyRequest(request), "verify");
     assertCommerceAccess(user);
 
     const { searchParams } = new URL(request.url);
     const view = String(searchParams.get("view") || "structure").trim().toLowerCase();
 
     if (view === "products") {
-      const section = await getCommerceAdminSectionProducts(user.uid, {
+      const section = await timing.measure("products", () => getCommerceAdminSectionProducts(user.uid, {
         categoryId: String(searchParams.get("categoryId") || "").trim(),
         subcategoryId: String(searchParams.get("subcategoryId") || "").trim(),
-      }, user);
-      return NextResponse.json({ section });
+      }, user), "section");
+      const payload = { section };
+      return NextResponse.json(payload, {
+        headers: timing.headers(payload),
+      });
     }
 
-    const state = await getCommerceAdminStructure(user.uid, user);
-    return NextResponse.json({ state });
+    const state = await timing.measure("structure", () => getCommerceAdminStructure(user.uid, user), "commerce-admin");
+    const payload = { state };
+    return NextResponse.json(payload, {
+      headers: timing.headers(payload),
+    });
   } catch (error) {
-    return NextResponse.json({ error: error.message }, { status: 400 });
+    const payload = { error: error.message };
+    return NextResponse.json(payload, {
+      status: 400,
+      headers: timing.headers(payload),
+    });
   }
 }
 
 export async function POST(request) {
+  const timing = createServerTiming();
   try {
-    const { user } = await verifyRequest(request);
+    const { user } = await timing.measure("auth", () => verifyRequest(request), "verify");
     assertCommerceAccess(user);
 
-    const formData = await request.formData();
+    const formData = await timing.measure("formdata", () => request.formData(), "parse");
     const action = String(formData.get("action") || "").trim();
     const payload = parsePayload(formData);
     const image = formData.get("image");
@@ -67,52 +80,59 @@ export async function POST(request) {
 
     switch (action) {
       case "save_config":
-        result = await saveCommerceConfig(user.uid, payload, user);
+        result = await timing.measure("mutation", () => saveCommerceConfig(user.uid, payload, user), action);
         break;
       case "create_category":
-        result = await createCommerceCategory(user.uid, payload, user);
+        result = await timing.measure("mutation", () => createCommerceCategory(user.uid, payload, user), action);
         break;
       case "update_category":
-        result = await updateCommerceCategory(user.uid, payload, user);
+        result = await timing.measure("mutation", () => updateCommerceCategory(user.uid, payload, user), action);
         break;
       case "delete_category":
-        result = await deleteCommerceCategory(user.uid, payload.categoryId, user);
+        result = await timing.measure("mutation", () => deleteCommerceCategory(user.uid, payload.categoryId, user), action);
         break;
       case "move_category":
-        result = await moveCommerceCategory(user.uid, payload.categoryId, payload.direction, user);
+        result = await timing.measure("mutation", () => moveCommerceCategory(user.uid, payload.categoryId, payload.direction, user), action);
         break;
       case "create_subcategory":
-        result = await createCommerceSubcategory(user.uid, payload, user);
+        result = await timing.measure("mutation", () => createCommerceSubcategory(user.uid, payload, user), action);
         break;
       case "update_subcategory":
-        result = await updateCommerceSubcategory(user.uid, payload, user);
+        result = await timing.measure("mutation", () => updateCommerceSubcategory(user.uid, payload, user), action);
         break;
       case "delete_subcategory":
-        result = await deleteCommerceSubcategory(user.uid, payload.subcategoryId, user);
+        result = await timing.measure("mutation", () => deleteCommerceSubcategory(user.uid, payload.subcategoryId, user), action);
         break;
       case "move_subcategory":
-        result = await moveCommerceSubcategory(user.uid, payload.subcategoryId, payload.direction, user);
+        result = await timing.measure("mutation", () => moveCommerceSubcategory(user.uid, payload.subcategoryId, payload.direction, user), action);
         break;
       case "save_product":
-        result = await saveCommerceProduct(user.uid, payload, {
+        result = await timing.measure("mutation", () => saveCommerceProduct(user.uid, payload, {
           image: image?.size ? image : null,
-        }, user);
+        }, user), action);
         break;
       case "delete_product":
-        result = await deleteCommerceProduct(user.uid, payload.productId, user);
+        result = await timing.measure("mutation", () => deleteCommerceProduct(user.uid, payload.productId, user), action);
         break;
       case "move_product":
-        result = await moveCommerceProduct(user.uid, payload.productId, payload.direction, user);
+        result = await timing.measure("mutation", () => moveCommerceProduct(user.uid, payload.productId, payload.direction, user), action);
         break;
       case "toggle_product_visibility":
-        result = await toggleCommerceProductVisibility(user.uid, payload.productId, payload.visible, user);
+        result = await timing.measure("mutation", () => toggleCommerceProductVisibility(user.uid, payload.productId, payload.visible, user), action);
         break;
       default:
         throw new Error("Acción comercial no soportada.");
     }
 
-    return NextResponse.json({ ok: true, result });
+    const payloadResponse = { ok: true, result };
+    return NextResponse.json(payloadResponse, {
+      headers: timing.headers(payloadResponse),
+    });
   } catch (error) {
-    return NextResponse.json({ error: error.message }, { status: 400 });
+    const payloadResponse = { error: error.message };
+    return NextResponse.json(payloadResponse, {
+      status: 400,
+      headers: timing.headers(payloadResponse),
+    });
   }
 }
