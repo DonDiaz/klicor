@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ChevronLeft,
   ChevronRight,
@@ -40,13 +40,14 @@ function subcats(category) {
   return Array.isArray(category?.subcategories) ? category.subcategories : [];
 }
 
-function directProducts(category) {
-  return Array.isArray(category?.products) ? category.products : [];
+function directProductCount(category) {
+  if (!category) return 0;
+  const nestedCount = subcats(category).reduce((total, subcategory) => total + (Number(subcategory?.productCount || 0) || 0), 0);
+  return Math.max((Number(category.productCount || 0) || 0) - nestedCount, 0);
 }
 
-function sectionProducts(category, subcategory) {
-  if (!category) return [];
-  return subcategory ? (Array.isArray(subcategory.products) ? subcategory.products : []) : directProducts(category);
+function buildSectionKey(categoryId = "", subcategoryId = "") {
+  return `${String(categoryId || "").trim()}:${String(subcategoryId || "").trim()}`;
 }
 
 function ProductRow({ product, sectionLabel, disabled, onEdit, onToggleVisibility, onDelete }) {
@@ -92,6 +93,7 @@ function ProductRow({ product, sectionLabel, disabled, onEdit, onToggleVisibilit
 export function CommerceWorkspace({ token, profile, active = false, canEdit = true }) {
   const [state, setState] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [sectionLoading, setSectionLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [mobileView, setMobileView] = useState("categories");
@@ -106,6 +108,9 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
   const [editingSubcategoryId, setEditingSubcategoryId] = useState("");
   const [editingSubcategoryName, setEditingSubcategoryName] = useState("");
   const [productEditor, setProductEditor] = useState(null);
+  const [sectionCache, setSectionCache] = useState({});
+  const sectionCacheRef = useRef({});
+  const sectionRequestRef = useRef(0);
 
   const categories = useMemo(() => (
     Array.isArray(state?.categories) ? state.categories : []
@@ -115,12 +120,15 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
   const savedModeMeta = resolveCommerceModeMeta(savedActiveMode || configForm.activeMode);
   const selectedCategory = categories.find((category) => category.id === selectedCategoryId) || null;
   const selectedSubcategories = subcats(selectedCategory);
-  const selectedSubcategoryId = selectedCategory ? selectedSubcategoryIds[selectedCategory.id] || "" : "";
+  const selectedSubcategoryId = selectedCategory
+    ? selectedSubcategoryIds[selectedCategory.id] || selectedCategory.firstSubcategoryId || selectedSubcategories[0]?.id || ""
+    : "";
   const selectedSubcategory = selectedSubcategories.find((subcategory) => subcategory.id === selectedSubcategoryId) || null;
-  const showingSubcategoryProducts = sectionMode === "products" && Boolean(selectedSubcategory);
-  const activeProducts = showingSubcategoryProducts
-    ? sectionProducts(selectedCategory, selectedSubcategory)
-    : sectionProducts(selectedCategory, null);
+  const activeSectionKey = selectedCategory
+    ? buildSectionKey(selectedCategory.id, selectedSubcategory?.id || (selectedSubcategories.length ? selectedSubcategoryId : ""))
+    : "";
+  const activeSection = activeSectionKey ? sectionCache[activeSectionKey] : null;
+  const activeProducts = Array.isArray(activeSection?.products) ? activeSection.products : [];
   const visibleProducts = activeProducts.filter((product) => product.visible !== false).length;
   const hiddenProducts = activeProducts.length - visibleProducts;
   const savedUsername = profile?.savedUsername || profile?.username || "";
@@ -133,21 +141,125 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
     return `${baseUrl}${commercePublicPath}`;
   }, [commercePublicPath]);
 
+  const syncState = useCallback((nextState) => {
+    setState(nextState);
+    setConfigForm({
+      activeMode: nextState?.config?.activeMode || "",
+      orderWhatsapp: nextState?.config?.orderWhatsapp || "",
+      currency: nextState?.config?.currency || "COP",
+    });
+    return nextState;
+  }, []);
+
+  const replaceSectionCache = useCallback((nextValue) => {
+    setSectionCache((current) => {
+      const next = typeof nextValue === "function" ? nextValue(current) : nextValue;
+      sectionCacheRef.current = next;
+      return next;
+    });
+  }, []);
+
+  const clearSectionCache = useCallback(() => {
+    sectionCacheRef.current = {};
+    setSectionCache({});
+  }, []);
+
+  const fetchStructure = useCallback(async () => {
+    const response = await apiFetch("/api/commerce?view=structure", { token });
+    return syncState(response.state);
+  }, [syncState, token]);
+
+  const fetchSection = useCallback(async ({ categoryId = "", subcategoryId = "", force = false } = {}) => {
+    const normalizedCategoryId = String(categoryId || "").trim();
+    const normalizedSubcategoryId = String(subcategoryId || "").trim();
+    if (!normalizedCategoryId) {
+      return { categoryId: "", subcategoryId: "", products: [] };
+    }
+
+    const key = buildSectionKey(normalizedCategoryId, normalizedSubcategoryId);
+    if (!force && sectionCacheRef.current[key]) {
+      return sectionCacheRef.current[key];
+    }
+
+    const requestId = sectionRequestRef.current + 1;
+    sectionRequestRef.current = requestId;
+    setSectionLoading(true);
+
+    try {
+      const params = new URLSearchParams({
+        view: "products",
+        categoryId: normalizedCategoryId,
+      });
+      if (normalizedSubcategoryId) {
+        params.set("subcategoryId", normalizedSubcategoryId);
+      }
+
+      const response = await apiFetch(`/api/commerce?${params.toString()}`, { token });
+      const nextSection = {
+        categoryId: String(response.section?.categoryId || normalizedCategoryId).trim(),
+        subcategoryId: String(response.section?.subcategoryId || normalizedSubcategoryId).trim(),
+        products: Array.isArray(response.section?.products) ? response.section.products : [],
+      };
+
+      if (sectionRequestRef.current !== requestId) {
+        return nextSection;
+      }
+
+      replaceSectionCache((current) => ({
+        ...current,
+        [buildSectionKey(nextSection.categoryId, nextSection.subcategoryId)]: nextSection,
+      }));
+
+      return nextSection;
+    } finally {
+      if (sectionRequestRef.current === requestId) {
+        setSectionLoading(false);
+      }
+    }
+  }, [replaceSectionCache, token]);
+
+  const resolveSelectionFromState = useCallback((nextState, preferred = {}) => {
+    const nextCategories = Array.isArray(nextState?.categories) ? nextState.categories : [];
+    if (!nextCategories.length) return null;
+
+    const nextCategory = nextCategories.find((category) => category.id === preferred.categoryId) || nextCategories[0];
+    const nextSubcategories = subcats(nextCategory);
+    if (!nextSubcategories.length) {
+      return {
+        categoryId: nextCategory.id,
+        subcategoryId: "",
+      };
+    }
+
+    const nextSubcategory = nextSubcategories.find((subcategory) => subcategory.id === preferred.subcategoryId)
+      || nextSubcategories.find((subcategory) => subcategory.id === nextCategory.firstSubcategoryId)
+      || nextSubcategories[0];
+
+    return {
+      categoryId: nextCategory.id,
+      subcategoryId: nextSubcategory?.id || "",
+    };
+  }, []);
+
   useEffect(() => {
     if (!active || !token) return;
+
+    let cancelled = false;
     setLoading(true);
-    apiFetch("/api/commerce", { token })
-      .then((response) => {
-        setState(response.state);
-        setConfigForm({
-          activeMode: response.state.config.activeMode || "",
-          orderWhatsapp: response.state.config.orderWhatsapp || "",
-          currency: response.state.config.currency || "COP",
-        });
+    setError("");
+
+    fetchStructure()
+      .catch((nextError) => {
+        if (!cancelled) setError(nextError.message);
       })
-      .catch((nextError) => setError(nextError.message))
-      .finally(() => setLoading(false));
-  }, [active, token]);
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [active, fetchStructure, token]);
 
   useEffect(() => {
     if (!categories.length) {
@@ -169,7 +281,7 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
         if (!options.length) return;
         next[category.id] = options.some((subcategory) => subcategory.id === current[category.id])
           ? current[category.id]
-          : options[0].id;
+          : category.firstSubcategoryId || options[0].id;
       });
       return next;
     });
@@ -180,48 +292,89 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
     setSectionMode(subcats(selectedCategory).length ? "subcategories" : "products");
   }, [selectedCategoryId]);
 
+  useEffect(() => {
+    if (!active || !token || !selectedCategory || loading) return;
+    if (selectedSubcategories.length && !selectedSubcategoryId) return;
+
+    fetchSection({
+      categoryId: selectedCategory.id,
+      subcategoryId: selectedSubcategories.length ? selectedSubcategoryId : "",
+    }).catch((nextError) => setError(nextError.message));
+  }, [
+    active,
+    fetchSection,
+    loading,
+    selectedCategory,
+    selectedSubcategories.length,
+    selectedSubcategoryId,
+    token,
+  ]);
+
   async function runAction(action, payload = {}, image = null) {
     setLoading(true);
     setMessage("");
     setError("");
+
     try {
       const body = new FormData();
       body.append("action", action);
       body.append("payload", JSON.stringify(payload));
       if (image) body.append("image", image);
+
       const response = await apiFetch("/api/commerce", {
         method: "POST",
         token,
         body,
         isFormData: true,
       });
-      const nextState = response.state;
-      setState(nextState);
-      setConfigForm({
-        activeMode: nextState.config.activeMode || "",
-        orderWhatsapp: nextState.config.orderWhatsapp || "",
-        currency: nextState.config.currency || "COP",
-      });
-      setMessage("Cambios guardados.");
 
-      if (action === "create_category") {
-        const created = [...(nextState.categories || [])].reverse().find((category) => cleanName(category.name) === cleanName(payload.name));
-        if (created) {
-          setSelectedCategoryId(created.id);
-          setSectionMode("products");
-          setMobileView("section");
+      if (action !== "save_config") {
+        clearSectionCache();
+      }
+
+      const result = response.result || {};
+      const nextState = await fetchStructure();
+      const nextSelection = resolveSelectionFromState(nextState, {
+        categoryId: result.categoryId || payload.categoryId || selectedCategoryId,
+        subcategoryId: result.subcategoryId || payload.subcategoryId || selectedSubcategoryId,
+      });
+
+      if (!nextSelection) {
+        setSelectedCategoryId("");
+        setSelectedSubcategoryIds({});
+      } else {
+        setSelectedCategoryId(nextSelection.categoryId);
+        if (nextSelection.subcategoryId) {
+          setSelectedSubcategoryIds((current) => ({
+            ...current,
+            [nextSelection.categoryId]: nextSelection.subcategoryId,
+          }));
         }
       }
-      if (action === "create_subcategory") {
-        const parent = (nextState.categories || []).find((category) => category.id === payload.categoryId);
-        const created = [...subcats(parent)].reverse().find((subcategory) => cleanName(subcategory.name) === cleanName(payload.name));
-        if (created) {
-          setSelectedCategoryId(payload.categoryId);
-          setSelectedSubcategoryIds((current) => ({ ...current, [payload.categoryId]: created.id }));
-          setSectionMode("products");
-        }
+
+      if (action === "create_category" && result.categoryId) {
+        setSectionMode("products");
+        setMobileView("section");
       }
-      return nextState;
+
+      if (action === "create_subcategory" && result.categoryId && result.subcategoryId) {
+        setSelectedSubcategoryIds((current) => ({
+          ...current,
+          [result.categoryId]: result.subcategoryId,
+        }));
+        setSectionMode("products");
+      }
+
+      if (action !== "save_config" && nextSelection?.categoryId) {
+        await fetchSection({
+          categoryId: nextSelection.categoryId,
+          subcategoryId: nextSelection.subcategoryId,
+          force: true,
+        });
+      }
+
+      setMessage("Cambios guardados.");
+      return result;
     } catch (nextError) {
       setError(nextError.message);
       return null;
@@ -253,15 +406,17 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
   async function createCategory() {
     const name = newCategoryName.trim();
     if (!name) return;
-    const nextState = await runAction("create_category", { name });
-    if (nextState) setNewCategoryName("");
+    const result = await runAction("create_category", { name });
+    if (result) setNewCategoryName("");
   }
 
   async function createSubcategory(categoryId) {
     const name = String(subcategoryDrafts[categoryId] || "").trim();
     if (!name) return;
-    const nextState = await runAction("create_subcategory", { categoryId, name });
-    if (nextState) setSubcategoryDrafts((current) => ({ ...current, [categoryId]: "" }));
+    const result = await runAction("create_subcategory", { categoryId, name });
+    if (result) {
+      setSubcategoryDrafts((current) => ({ ...current, [categoryId]: "" }));
+    }
   }
 
   function selectCategory(category) {
@@ -357,8 +512,8 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
                     <div className="commerce-board-inline-edit">
                       <input className="input" value={editingCategoryName} onChange={(event) => setEditingCategoryName(event.target.value)} placeholder="Nombre de la categoría" disabled={!canEdit} />
                       <button className="btn btn-primary" type="button" onClick={async () => {
-                        const nextState = await runAction("update_category", { id: category.id, name: editingCategoryName });
-                        if (nextState) setEditingCategoryId("");
+                        const result = await runAction("update_category", { id: category.id, name: editingCategoryName });
+                        if (result) setEditingCategoryId("");
                       }} disabled={!canEdit || !editingCategoryName.trim() || loading}>
                         Guardar
                       </button>
@@ -408,7 +563,7 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
       );
     }
 
-    const selectedHasDirectProducts = directProducts(selectedCategory).length > 0;
+    const selectedHasDirectProducts = directProductCount(selectedCategory) > 0;
     const productTargetSubcategory = selectedSubcategory || selectedSubcategories[0] || null;
 
     return (
@@ -451,8 +606,8 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
                     <div className="commerce-board-inline-edit">
                       <input className="input" value={editingSubcategoryName} onChange={(event) => setEditingSubcategoryName(event.target.value)} placeholder="Nombre de la subcategoría" disabled={!canEdit} />
                       <button className="btn btn-primary" type="button" onClick={async () => {
-                        const nextState = await runAction("update_subcategory", { id: subcategory.id, categoryId: selectedCategory.id, name: editingSubcategoryName });
-                        if (nextState) setEditingSubcategoryId("");
+                        const result = await runAction("update_subcategory", { id: subcategory.id, categoryId: selectedCategory.id, name: editingSubcategoryName });
+                        if (result) setEditingSubcategoryId("");
                       }} disabled={!canEdit || !editingSubcategoryName.trim() || loading}>
                         Guardar
                       </button>
@@ -507,7 +662,7 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
 
     const sectionLabel = selectedSubcategory ? `${selectedCategory.name} · ${selectedSubcategory.name}` : selectedCategory.name;
     const canAddProduct = Boolean(configForm.activeMode && selectedCategory && (!selectedSubcategories.length || selectedSubcategory));
-    const selectedHasDirectProducts = directProducts(selectedCategory).length > 0;
+    const selectedHasDirectProducts = directProductCount(selectedCategory) > 0;
     const handleBackFromProducts = () => {
       if (selectedSubcategory) {
         setSectionMode("subcategories");
@@ -570,7 +725,12 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
           </>
         )}
 
-        {activeProducts.length ? (
+        {sectionLoading && !activeProducts.length ? (
+          <div className="commerce-board-empty">
+            <LoaderCircle size={18} className="spin" />
+            <p>Cargando productos de esta sección...</p>
+          </div>
+        ) : activeProducts.length ? (
           <div className="commerce-board-products">
             {activeProducts.map((product) => (
               <ProductRow
@@ -635,7 +795,9 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
             ))}
           </div>
           <div className="commerce-mini-preview-list">
-            {previewProducts.length ? previewProducts.map((product) => (
+            {sectionLoading && !previewProducts.length ? (
+              <p>Cargando vista previa...</p>
+            ) : previewProducts.length ? previewProducts.map((product) => (
               <div key={product.id} className={product.visible === false ? "is-hidden" : ""}>
                 <span>{product.imageThumbUrl || product.imageUrl ? <img src={product.imageThumbUrl || product.imageUrl} alt="" /> : product.name?.slice(0, 1)}</span>
                 <strong>{product.name}</strong>
@@ -683,8 +845,8 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
           <div className="commerce-modal-actions">
             <button className="btn btn-secondary" type="button" onClick={() => setProductEditor(null)}>Cancelar</button>
             <button className="btn btn-primary" type="button" onClick={async () => {
-              const nextState = await runAction("save_product", productEditor, productEditor.imageFile || null);
-              if (nextState) setProductEditor(null);
+              const result = await runAction("save_product", productEditor, productEditor.imageFile || null);
+              if (result) setProductEditor(null);
             }} disabled={!canEdit || loading || !productEditor.name.trim() || (!productEditor.id && !productEditor.imageFile)}>
               <Save size={16} /> Guardar producto
             </button>
