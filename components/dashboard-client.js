@@ -60,7 +60,7 @@ export function DashboardClient() {
   useEffect(() => {
     async function bootstrap() {
       if (!user) return;
-      const nextToken = await user.getIdToken(true);
+      const nextToken = await user.getIdToken();
       setToken(nextToken);
       const payload = await apiFetch("/api/me", { token: nextToken });
       setData(payload);
