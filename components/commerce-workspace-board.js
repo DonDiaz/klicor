@@ -50,6 +50,36 @@ function buildSectionKey(categoryId = "", subcategoryId = "") {
   return `${String(categoryId || "").trim()}:${String(subcategoryId || "").trim()}`;
 }
 
+function buildPendingImageId(index = 0) {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return `pending-${crypto.randomUUID()}`;
+  }
+  return `pending-${Date.now()}-${index + 1}-${Math.random().toString(16).slice(2, 8)}`;
+}
+
+function createPendingImageEntries(fileList = []) {
+  return fileList
+    .filter(Boolean)
+    .map((file, index) => ({
+      id: buildPendingImageId(index),
+      file,
+      previewUrl: typeof URL !== "undefined" ? URL.createObjectURL(file) : "",
+      name: String(file?.name || "Nueva foto").trim() || "Nueva foto",
+    }));
+}
+
+function revokePendingImageEntries(entries = []) {
+  entries
+    .filter((entry) => entry?.previewUrl)
+    .forEach((entry) => {
+      try {
+        URL.revokeObjectURL(entry.previewUrl);
+      } catch {
+        // Ignore already released object URLs.
+      }
+    });
+}
+
 function ProductRow({ product, sectionLabel, disabled, onEdit, onToggleVisibility, onDelete }) {
   const visible = product.visible !== false;
 
@@ -111,6 +141,7 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
   const [sectionCache, setSectionCache] = useState({});
   const sectionCacheRef = useRef({});
   const sectionRequestRef = useRef(0);
+  const productEditorRef = useRef(null);
 
   const categories = useMemo(() => (
     Array.isArray(state?.categories) ? state.categories : []
@@ -140,6 +171,14 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
       : process.env.NEXT_PUBLIC_APP_URL || "https://klicor.com";
     return `${baseUrl}${commercePublicPath}`;
   }, [commercePublicPath]);
+
+  useEffect(() => {
+    productEditorRef.current = productEditor;
+  }, [productEditor]);
+
+  useEffect(() => () => {
+    revokePendingImageEntries(productEditorRef.current?.pendingImages || []);
+  }, []);
 
   const syncState = useCallback((nextState) => {
     setState(nextState);
@@ -438,6 +477,7 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
 
   function openProductEditor(category, subcategory = null, product = null) {
     if (!category && !product) return;
+    revokePendingImageEntries(productEditorRef.current?.pendingImages || []);
     setProductEditor({
       mode: configForm.activeMode,
       categoryId: product?.categoryId || category?.id || "",
@@ -447,8 +487,57 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
       price: product?.price ?? "",
       visible: product?.visible !== false,
       images: Array.isArray(product?.images) ? product.images : [],
-      imageFiles: [],
+      pendingImages: [],
+      removedImageIds: [],
       id: product?.id || "",
+    });
+  }
+
+  function closeProductEditor() {
+    revokePendingImageEntries(productEditorRef.current?.pendingImages || []);
+    setProductEditor(null);
+  }
+
+  function addProductEditorImages(fileList = []) {
+    const nextEntries = createPendingImageEntries(Array.from(fileList || []));
+    if (!nextEntries.length) return;
+    setProductEditor((current) => {
+      if (!current) {
+        revokePendingImageEntries(nextEntries);
+        return current;
+      }
+      return {
+        ...current,
+        pendingImages: [...(Array.isArray(current.pendingImages) ? current.pendingImages : []), ...nextEntries],
+      };
+    });
+  }
+
+  function removeExistingProductImage(imageId) {
+    if (!imageId) return;
+    setProductEditor((current) => {
+      if (!current) return current;
+      return {
+        ...current,
+        images: (Array.isArray(current.images) ? current.images : []).filter((image) => image.id !== imageId),
+        removedImageIds: [...new Set([...(Array.isArray(current.removedImageIds) ? current.removedImageIds : []), imageId])],
+      };
+    });
+  }
+
+  function removePendingProductImage(imageId) {
+    if (!imageId) return;
+    setProductEditor((current) => {
+      if (!current) return current;
+      const pendingImages = Array.isArray(current.pendingImages) ? current.pendingImages : [];
+      const removedImage = pendingImages.find((image) => image.id === imageId);
+      if (removedImage) {
+        revokePendingImageEntries([removedImage]);
+      }
+      return {
+        ...current,
+        pendingImages: pendingImages.filter((image) => image.id !== imageId),
+      };
     });
   }
 
@@ -821,11 +910,14 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
     if (!productEditor) return null;
     const editorCategory = categories.find((category) => category.id === productEditor.categoryId) || null;
     const editorSubcategory = editorCategory ? subcats(editorCategory).find((subcategory) => subcategory.id === productEditor.subcategoryId) : null;
+    const existingImages = Array.isArray(productEditor.images) ? productEditor.images : [];
+    const pendingImages = Array.isArray(productEditor.pendingImages) ? productEditor.pendingImages : [];
+    const totalImages = existingImages.length + pendingImages.length;
 
     return (
       <div className="commerce-modal-backdrop" role="dialog" aria-modal="true" aria-label="Editor de producto">
         <div className="commerce-modal-card commerce-board-editor-card">
-          <button className="commerce-modal-close" type="button" onClick={() => setProductEditor(null)}>
+          <button className="commerce-modal-close" type="button" onClick={closeProductEditor}>
             <X size={16} />
           </button>
           <div className="commerce-modal-head">
@@ -843,37 +935,61 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
                 type="file"
                 accept="image/png,image/jpeg,image/webp"
                 multiple
-                onChange={(event) => setProductEditor((current) => ({
-                  ...current,
-                  imageFiles: Array.from(event.target.files || []),
-                }))}
+                onChange={(event) => {
+                  addProductEditorImages(event.target.files || []);
+                  event.target.value = "";
+                }}
               />
-              <span>{productEditor.imageFiles?.length ? `${productEditor.imageFiles.length} imágenes seleccionadas` : productEditor.id ? "Reemplazar galería del producto" : "Subir imágenes del producto"}</span>
+              <span>{pendingImages.length ? `${pendingImages.length} fotos nuevas listas para guardar` : "Agregar fotos del producto"}</span>
             </label>
-            {productEditor.images?.length ? (
-              <div className="commerce-board-image-strip">
-                {productEditor.images.slice(0, 4).map((image) => (
-                  <span key={image.id} className="commerce-board-image-chip">
-                    {image.imageThumbUrl || image.imageUrl ? <img src={image.imageThumbUrl || image.imageUrl} alt="" /> : null}
-                  </span>
-                ))}
-                {productEditor.images.length > 4 ? <small>+{productEditor.images.length - 4}</small> : null}
+            {existingImages.length ? (
+              <div className="commerce-board-image-group">
+                <strong>Fotos actuales</strong>
+                <div className="commerce-board-image-strip">
+                  {existingImages.map((image, index) => (
+                    <div key={image.id} className="commerce-board-image-card">
+                      <span className="commerce-board-image-chip">
+                        {image.imageThumbUrl || image.imageUrl ? <img src={image.imageThumbUrl || image.imageUrl} alt={`${productEditor.name || "Producto"} ${index + 1}`} /> : null}
+                      </span>
+                      <button className="commerce-board-image-remove" type="button" onClick={() => removeExistingProductImage(image.id)}>
+                        <X size={14} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
               </div>
             ) : null}
-            {!productEditor.id && !productEditor.imageFiles?.length ? <small className="commerce-board-note">Agrega al menos una imagen para crear el producto.</small> : null}
-            {productEditor.id ? <small className="commerce-board-note">Si subes nuevas imágenes, la galería actual se reemplaza completa.</small> : null}
+            {pendingImages.length ? (
+              <div className="commerce-board-image-group">
+                <strong>Fotos nuevas</strong>
+                <div className="commerce-board-image-strip">
+                  {pendingImages.map((image, index) => (
+                    <div key={image.id} className="commerce-board-image-card is-pending">
+                      <span className="commerce-board-image-chip">
+                        {image.previewUrl ? <img src={image.previewUrl} alt={`${image.name || productEditor.name || "Nueva foto"} ${index + 1}`} /> : null}
+                      </span>
+                      <button className="commerce-board-image-remove" type="button" onClick={() => removePendingProductImage(image.id)}>
+                        <X size={14} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+            {!totalImages ? <small className="commerce-board-note">Agrega al menos una foto para guardar el producto.</small> : null}
+            {productEditor.id ? <small className="commerce-board-note">Puedes agregar fotos nuevas o eliminar las que ya no quieras mostrar.</small> : null}
             <label className="switch-row commerce-product-visible-toggle">
               <input type="checkbox" checked={productEditor.visible !== false} onChange={(event) => setProductEditor((current) => ({ ...current, visible: event.target.checked }))} />
               <span>{productEditor.visible !== false ? "Producto visible" : "Producto oculto"}</span>
             </label>
           </div>
           <div className="commerce-modal-actions">
-            <button className="btn btn-secondary" type="button" onClick={() => setProductEditor(null)}>Cancelar</button>
+            <button className="btn btn-secondary" type="button" onClick={closeProductEditor}>Cancelar</button>
             <button className="btn btn-primary" type="button" onClick={async () => {
-              const { imageFiles, images, ...payload } = productEditor;
-              const result = await runAction("save_product", payload, imageFiles || []);
-              if (result) setProductEditor(null);
-            }} disabled={!canEdit || loading || !productEditor.name.trim() || (!productEditor.id && !productEditor.imageFiles?.length)}>
+              const { pendingImages: nextPendingImages, images, ...payload } = productEditor;
+              const result = await runAction("save_product", payload, (nextPendingImages || []).map((entry) => entry.file));
+              if (result) closeProductEditor();
+            }} disabled={!canEdit || loading || !productEditor.name.trim() || !totalImages}>
               <Save size={16} /> Guardar producto
             </button>
           </div>

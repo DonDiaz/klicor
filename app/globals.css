@@ -7938,10 +7938,39 @@ html[data-theme="dark"] .admin-sidebar-note {
 
 .commerce-board-image-strip {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 0.55rem;
   overflow-x: auto;
   padding-bottom: 0.1rem;
+}
+
+.commerce-board-image-group {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.commerce-board-image-group strong {
+  font-size: 0.88rem;
+  color: rgba(15, 23, 42, 0.82);
+}
+
+.commerce-board-image-card {
+  position: relative;
+  flex: 0 0 auto;
+}
+
+.commerce-board-image-card.is-pending::after {
+  content: "Nueva";
+  position: absolute;
+  right: 0.35rem;
+  bottom: 0.35rem;
+  padding: 0.12rem 0.38rem;
+  border-radius: 999px;
+  background: rgba(109, 40, 217, 0.92);
+  color: #fff;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
 }
 
 .commerce-board-image-chip {
@@ -7961,6 +7990,27 @@ html[data-theme="dark"] .admin-sidebar-note {
   height: 100%;
   object-fit: cover;
   display: block;
+}
+
+.commerce-board-image-remove {
+  position: absolute;
+  top: 0.2rem;
+  right: 0.2rem;
+  width: 1.4rem;
+  height: 1.4rem;
+  border: none;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.94);
+  color: rgba(15, 23, 42, 0.82);
+  box-shadow: 0 8px 16px rgba(15, 23, 42, 0.14);
+  cursor: pointer;
+}
+
+.commerce-board-image-remove:hover {
+  background: rgba(255, 255, 255, 1);
+  color: rgba(220, 38, 38, 0.92);
 }
 
 @media (max-width: 859px) {
