@@ -10,7 +10,6 @@ import {
   Store,
   TentTree,
   UtensilsCrossed,
-  Wallet,
   Workflow,
   Zap,
 } from "lucide-react";
@@ -21,66 +20,111 @@ import { MarketingPreview } from "@/components/marketing-preview";
 const platformFlow = [
   {
     label: "Configura",
-    title: "Arma tu presencia desde un solo panel",
-    description: "Nombre, imagen, botones, contacto, cobro y apariencia en el mismo sistema.",
+    title: "Configura",
+    description: "Crea tu negocio en minutos. Agrega productos, contacto y botones sin conocimientos técnicos.",
   },
   {
     label: "Publica",
-    title: "Comparte una página que sí orienta al cliente",
-    description: "Tu negocio deja de repartir enlaces sueltos y pasa a una estructura clara y usable.",
+    title: "Publica",
+    description: "Comparte un link que sí convierte. Tu cliente entra y entiende qué hacer.",
   },
   {
     label: "Escala",
-    title: "Usa el mismo perfil en QR, bio, tarjetas y puntos físicos",
-    description: "La presencia del negocio se mantiene consistente aunque cambies usuario o ajustes tu operación.",
+    title: "Escala",
+    description: "Usa el mismo link en todo. QR, redes, tarjetas, empaques… todo conectado.",
   },
 ];
 
 const capabilityBlocks = [
   {
     icon: QrCode,
-    title: "Infraestructura para compartir",
-    text: "URL pública, QR estable, preview al compartir y un perfil listo para circular en digital y físico.",
+    title: "Todo en un solo lugar",
+    text: "Tu negocio, productos, contacto y pagos organizados en un solo link.",
   },
   {
     icon: Workflow,
-    title: "Ruta más clara para el cliente",
-    text: "Contacto, redes, pago y contenido organizados para que el usuario no se pierda antes de actuar.",
+    title: "Más ventas, menos preguntas",
+    text: "El cliente encuentra todo sin escribirte mil veces.",
   },
   {
     icon: ShieldCheck,
-    title: "Base operativa más seria",
-    text: "Menos improvisación, mejor percepción de marca y una estructura más firme para crecer.",
+    title: "Imagen más profesional",
+    text: "Dejas de parecer informal y empiezas a vender como negocio serio.",
   },
 ];
 
 const businessCategories = [
   {
     title: "Comida y bebidas",
-    description: "Restaurantes, cafés, bares, repostería y domicilios que viven de pedidos rápidos y visibilidad clara.",
+    description: "Restaurantes, cafés, bares, repostería y domicilios que necesitan mostrar menú, recibir pedidos y responder rápido.",
     icon: UtensilsCrossed,
   },
   {
     title: "Tiendas y ventas",
-    description: "Catálogos, ropa, accesorios, belleza o tecnología que venden por WhatsApp, redes y QR.",
+    description: "Ropa, accesorios, belleza o tecnología que venden por WhatsApp, QR y redes sin perder orden.",
     icon: ShoppingBag,
   },
   {
     title: "Servicios",
-    description: "Negocios que necesitan cotizar, agendar, responder dudas y centralizar la atención en un solo punto.",
+    description: "Negocios que cotizan, agendan y convierten mejor cuando el cliente encuentra todo claro.",
     icon: BriefcaseBusiness,
   },
   {
     title: "Salud y bienestar",
-    description: "Estética, peluquería, entrenamiento, odontología y bienestar que dependen de confianza y contacto directo.",
+    description: "Estética, peluquería, entrenamiento, odontología y bienestar que viven de confianza y atención rápida.",
     icon: HeartPulse,
   },
   {
     title: "Turismo y experiencias",
-    description: "Hoteles, glamping, tours, fincas y experiencias que deben mostrar ubicación, reserva y contacto rápido.",
+    description: "Hoteles, glamping, tours, fincas y experiencias que necesitan mostrar, atender y cerrar desde un solo link.",
     icon: TentTree,
   },
 ];
+
+const pricingPlans = [
+  {
+    name: "Esencial",
+    price: "$59.900",
+    features: [
+      "Link personalizado",
+      "Código QR incluido",
+      "Botones (WhatsApp, redes)",
+      "Información del negocio",
+      "Soporte básico",
+    ],
+    buttonLabel: "Empezar",
+  },
+  {
+    name: "Negocio",
+    price: "$109.900",
+    badge: "Más vendido",
+    features: [
+      "Todo lo del plan Esencial",
+      "Hasta 50 productos",
+      "Catálogo organizado",
+      "Personalización mejorada",
+    ],
+    buttonLabel: "Elegir plan",
+  },
+  {
+    name: "Pro",
+    price: "$169.900",
+    features: [
+      "Todo lo del plan Negocio",
+      "Hasta 300 productos",
+      "Mayor capacidad de crecimiento",
+      "Ideal para negocios con alto volumen",
+    ],
+    buttonLabel: "Escalar mi negocio",
+  },
+];
+
+const registerModalProps = {
+  allowRegister: true,
+  align: "start",
+  title: "Crear mi Klicor",
+  description: "Regístrate con Google, Microsoft o correo y entra directo a tu panel.",
+};
 
 export default function HomePage() {
   return (
@@ -94,7 +138,18 @@ export default function HomePage() {
             <a href="#casos">Casos</a>
             <a href="#precios">Precios</a>
           </nav>
-          <LandingLoginModal />
+          <div className="actions">
+            <LandingLoginModal
+              triggerLabel="Iniciar sesión"
+              title="Iniciar sesión"
+              description="Entra con Google, Microsoft o un enlace a tu correo para administrar tu Klicor."
+            />
+            <LandingLoginModal
+              triggerLabel="Crear mi Klicor"
+              triggerClassName="btn btn-primary"
+              {...registerModalProps}
+            />
+          </div>
         </div>
       </header>
 
@@ -102,35 +157,32 @@ export default function HomePage() {
         <div className="cloud-home-copy">
           <span className="pill cloud-home-kicker">
             <Sparkles size={16} />
-            Presencia cloud para negocios que comparten y cobran
+            Diseñado para negocios reales
           </span>
 
           <h1 className="cloud-home-title">
-            Cuando todo está en un solo lugar, todo funciona mejor.
+            Vende más fácil.
             <span className="cloud-home-title-brand">
-              <span className="cloud-home-title-brand-word">Klicor</span> organiza cómo te encuentran.
+              Organiza tu negocio en un solo link.
             </span>
           </h1>
 
           <p className="cloud-home-lead">
-            Une enlaces, contacto, QR, branding y cobro en una estructura simple de operar y clara de entender para el cliente.
+            Recibe pedidos, muestra tus productos y atiende clientes desde WhatsApp, redes y QR, sin enredos.
           </p>
 
           <div className="actions">
             <LandingLoginModal
               triggerLabel="Crear mi Klicor"
               triggerClassName="btn btn-primary"
-              allowRegister
-              align="start"
-              title="Crea tu Klicor"
-              description="Regístrate con Google, Microsoft o correo y entra directo a tu panel."
+              {...registerModalProps}
             />
           </div>
 
           <div className="cloud-home-proof">
-            <span><Store size={15} /> Diseñado para negocios reales</span>
-            <span><Zap size={15} /> Operación simple, presencia más firme</span>
-            <span><ShieldCheck size={15} /> QR y enlaces pensados para durar</span>
+            <span><Store size={15} /> Productos, contacto y pedidos en un solo lugar</span>
+            <span><Zap size={15} /> Más claridad para vender sin perder tiempo</span>
+            <span><ShieldCheck size={15} /> Listo para compartir en QR, redes y WhatsApp</span>
           </div>
         </div>
 
@@ -145,9 +197,9 @@ export default function HomePage() {
         <div className="shell cloud-platform-shell">
           <div className="cloud-platform-copy">
             <span className="pill cloud-home-soft-pill">Plataforma</span>
-            <h2 className="landing-section-title">Más que una página con botones: una capa pública organizada para tu negocio.</h2>
+            <h2 className="landing-section-title">No es solo un link. Es tu punto de venta digital.</h2>
             <p className="section-copy">
-              Klicor toma algo que normalmente está disperso y lo vuelve operable: contacto, enlaces, QR, cobro y branding en un mismo sistema.
+              Tus clientes llegan, ven, entienden y compran. Sin enlaces sueltos, sin confusión.
             </p>
           </div>
 
@@ -173,25 +225,25 @@ export default function HomePage() {
       <section className="landing-section cloud-architecture-section">
         <div className="shell cloud-architecture-grid">
           <article className="cloud-architecture-lead">
-            <span className="cloud-architecture-label">Arquitectura del producto</span>
-            <h2 className="landing-section-title">Klicor se entiende mejor cuando se ve como una operación conectada.</h2>
+            <span className="cloud-architecture-label">Más claridad para vender</span>
+            <h2 className="landing-section-title">Tu cliente entiende más rápido. Tu negocio se ve más profesional.</h2>
             <p className="section-copy">
-              El cliente ve una página simple. Tú operas un sistema con identidad, enlaces, QR y contacto bien conectados.
+              Lo que por fuera se siente simple, por dentro te ayuda a ordenar atención, productos y contacto sin enredos.
             </p>
           </article>
 
           <div className="cloud-architecture-stack">
             <div className="cloud-architecture-card">
-              <strong>Capa pública</strong>
-              <p>La página que recibe al cliente, concentra enlaces, contacto y cobro visible.</p>
+              <strong>Lo ve el cliente</strong>
+              <p>Una página clara para entender qué vendes, cómo pedir y cómo contactarte.</p>
             </div>
             <div className="cloud-architecture-card">
-              <strong>Capa operativa</strong>
-              <p>El dashboard donde editas branding, enlaces, VCF, QR y configuración del perfil.</p>
+              <strong>Lo manejas fácil</strong>
+              <p>Organizas categorías, productos y botones desde un solo punto sin sentir un sistema complicado.</p>
             </div>
             <div className="cloud-architecture-card">
-              <strong>Capa de distribución</strong>
-              <p>La misma presencia se reutiliza en bio, tarjetas, stickers, vitrinas, empaques y QR.</p>
+              <strong>Lo compartes en todo</strong>
+              <p>El mismo Klicor funciona en QR, redes, vitrinas, empaques y tarjetas sin duplicar esfuerzos.</p>
             </div>
           </div>
         </div>
@@ -201,12 +253,12 @@ export default function HomePage() {
         <div className="shell">
           <div className="section-heading landing-centered-heading">
             <span className="pill">Flujo</span>
-            <h2 className="landing-section-title">La experiencia se ordena en tres momentos operativos.</h2>
+            <h2 className="landing-section-title">Así funciona Klicor</h2>
           </div>
 
           <div className="cloud-flow-grid">
             {platformFlow.map((item, index) => (
-              <article key={item.title} className="cloud-flow-card">
+              <article key={`${item.label}-${index}`} className="cloud-flow-card">
                 <div className="cloud-flow-index">0{index + 1}</div>
                 <span className="cloud-flow-label">{item.label}</span>
                 <h3>{item.title}</h3>
@@ -221,9 +273,9 @@ export default function HomePage() {
         <div className="shell cloud-cases-grid">
           <div className="cloud-cases-copy">
             <span className="pill cloud-home-soft-pill">Categorías</span>
-            <h2 className="landing-section-title">Klicor encaja mejor en cinco categorías amplias de negocio.</h2>
+            <h2 className="landing-section-title">Perfecto para negocios que venden y atienden por WhatsApp</h2>
             <p className="section-copy">
-              No está pensado para bios personales. Está pensado para negocios que venden, atienden o convierten desde WhatsApp, redes y QR.
+              Funciona para negocios que necesitan mostrar mejor lo que venden, responder más rápido y cerrar sin desorden.
             </p>
           </div>
 
@@ -243,8 +295,8 @@ export default function HomePage() {
             <div className="cloud-case-item cloud-case-item-summary">
               <CheckCircle2 size={18} />
               <div className="cloud-case-copy">
-                <strong>Una misma lógica, distintos negocios</strong>
-                <span>La estructura cambia según la intención del negocio, pero siempre parte de un link, un QR y una página clara para actuar.</span>
+                <strong>Un solo link para vender mejor</strong>
+                <span>Si tu negocio vende o atiende por WhatsApp, Klicor te ayuda a ordenar lo importante y hacer más fácil cada contacto.</span>
               </div>
             </div>
           </div>
@@ -255,21 +307,36 @@ export default function HomePage() {
         <div className="shell cloud-pricing-card">
           <div className="cloud-pricing-copy">
             <span className="pill">Precios</span>
-            <h2 className="landing-section-title">Primero montas tu presencia, luego consolidas tu operación.</h2>
+            <h2 className="landing-section-title">Empieza gratis. Escala cuando tu negocio crezca.</h2>
             <p className="section-copy">
-              El producto está estructurado para que lo puedas activar sin fricción y validar rápido si resuelve tu forma de compartir.
+              Elige lo que necesitas hoy y sube de nivel cuando necesites más productos, más orden y más capacidad.
             </p>
           </div>
 
           <div className="cloud-pricing-stack">
-            <div className="cloud-price-box">
-              <strong>Prueba gratis</strong>
-              <span>30 días para configurar tu página, tu QR y tu presencia pública.</span>
-            </div>
-            <div className="cloud-price-box">
-              <strong>Plan anual</strong>
-              <span>Dashboard, URL pública, QR permanente y configuración centralizada.</span>
-            </div>
+            {pricingPlans.map((plan) => (
+              <div key={plan.name} className="cloud-price-box">
+                {plan.badge ? (
+                  <>
+                    <div className="pill">{plan.badge}</div>
+                    <br />
+                  </>
+                ) : null}
+                <strong>{plan.name}</strong>
+                <div>{plan.price}</div>
+                <br />
+                <span>{plan.features.join(" · ")}</span>
+                <br />
+                <br />
+                <div className="actions">
+                  <LandingLoginModal
+                    triggerLabel={plan.buttonLabel}
+                    triggerClassName="btn btn-primary"
+                    {...registerModalProps}
+                  />
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -278,19 +345,16 @@ export default function HomePage() {
         <div className="shell cloud-final-card">
           <div className="cloud-final-copy">
             <span className="pill">Empieza ahora</span>
-            <h2 className="landing-section-title">Lleva tu negocio a una presencia pública más estructurada, más clara y más útil.</h2>
+            <h2 className="landing-section-title">Empieza hoy y vende como un negocio organizado</h2>
             <p className="section-copy">
-              Crea tu Klicor, organiza tu operación visible y comparte una presencia que sí se siente como producto.
+              Organiza tu atención, comparte mejor tus productos y haz que comprar sea más fácil para tus clientes.
             </p>
           </div>
           <div className="actions">
             <LandingLoginModal
-              triggerLabel="Crear mi Klicor"
+              triggerLabel="Crear mi Klicor ahora"
               triggerClassName="btn btn-primary"
-              allowRegister
-              align="start"
-              title="Crea tu Klicor"
-              description="Regístrate con Google, Microsoft o correo y entra directo a tu panel."
+              {...registerModalProps}
             />
           </div>
         </div>
@@ -300,7 +364,7 @@ export default function HomePage() {
         <div className="shell landing-footer-inner">
           <div className="landing-footer-brand">
             <BrandLogo size={36} />
-            <p>Klicor, presencia pública, contacto y distribución en un solo sistema.</p>
+            <p>Klicor, tu punto de venta digital en un solo link.</p>
           </div>
           <div className="landing-footer-links">
             <Link href="/terminos">Términos y condiciones</Link>

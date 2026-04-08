@@ -69,7 +69,7 @@ export function LandingLoginModal({
               title={title || (allowRegister ? "Crea tu Klicor" : "Entra a tu panel")}
               description={description || (
                 allowRegister
-                  ? "Registrate con Google, Microsoft o correo y entra directo a tu panel."
+                  ? "Regístrate con Google, Microsoft o correo y entra directo a tu panel."
                   : "Usa Google, Microsoft o un enlace a tu correo para entrar sin fricción."
               )}
               googleLabel={googleLabel || (allowRegister ? "Crear con Google" : "Continuar con Google")}
