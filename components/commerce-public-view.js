@@ -269,7 +269,7 @@ function ProductsGrid({
   const safePagination = normalizePagination(pagination);
   return (
     <div className="commerce-products-section">
-      <div className="commerce-products-grid">
+      <div className={`commerce-products-grid ${supportsCart ? "is-cart-grid" : "is-catalog-grid"}`.trim()}>
         {safeProducts.map((product) => (
           <ProductCard
             key={product.id}
@@ -769,6 +769,26 @@ export function CommercePublicView({ bootstrap, preview = false }) {
           </aside>
 
           <section className="commerce-menu-board">
+            {selection.categoryId && subcategories.length ? (
+              <div className="commerce-subcategory-panel" aria-label="Subcategorías">
+                <div className="commerce-subcategory-rail">
+                  {subcategories.map((subcategory) => {
+                    const isActive = selection.subcategoryId === subcategory.id;
+                    return (
+                      <button
+                        key={subcategory.id}
+                        className={`commerce-subcategory-chip ${isActive ? "is-active" : ""}`.trim()}
+                        type="button"
+                        onClick={() => handleSelectSubcategory(subcategory.id)}
+                      >
+                        <span>{subcategory.name}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            ) : null}
+
             {isSectionLoading ? (
               <ProductsLoading />
             ) : shouldShowProducts ? (
