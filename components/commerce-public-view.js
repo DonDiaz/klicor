@@ -10,7 +10,6 @@ import {
   Share2,
   ShoppingBag,
   ShoppingCart,
-  X,
 } from "lucide-react";
 import { FONT_FAMILY_STYLE_MAP } from "@/app/fonts";
 import { apiFetch } from "@/lib/client-api";
@@ -699,8 +698,16 @@ export function CommercePublicView({ bootstrap, preview = false }) {
       {cartOpen && safeBootstrap.supportsCart ? (
         <div className="commerce-modal-backdrop" role="dialog" aria-modal="true" aria-label={safeModeMeta.cartLabel}>
           <div className="commerce-modal-card">
-            <button className="commerce-modal-close" type="button" onClick={() => { setCartOpen(false); setCheckoutStep("cart"); }}>
-              <X size={18} />
+            <button
+              className="commerce-modal-close"
+              type="button"
+              aria-label="Cerrar carrito"
+              onClick={() => { setCartOpen(false); setCheckoutStep("cart"); }}
+            >
+              <span className="commerce-modal-close-icon" aria-hidden="true">
+                <span />
+                <span />
+              </span>
             </button>
 
             {checkoutStep === "cart" ? (
