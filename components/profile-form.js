@@ -182,13 +182,13 @@ const BILLING_RESPONSIBILITY_OPTIONS = [
 ];
 
 const DASHBOARD_NAV_ITEMS = [
-  { id: "blocks", label: "Enlaces", icon: Link2, copy: "Botones, pagos y contacto" },
-  { id: "commerce", label: "Comercio", icon: ShoppingBag, copy: "Tienda, menú o catálogo" },
-  { id: "design", label: "Diseño", icon: Paintbrush, copy: "Temas, colores y estilos" },
-  { id: "profile", label: "Perfil", icon: UserRound, copy: "Nombre, usuario e imagen principal" },
-  { id: "security", label: "Seguridad", icon: ShieldCheck, copy: "Recuperación y verificación" },
-  { id: "billing", label: "Facturación", icon: FileText, copy: "Datos para facturación electrónica" },
-  { id: "subscription", label: "Suscripción", icon: CreditCard, copy: "Plan, pagos y vencimiento" },
+  { id: "blocks", label: "Enlaces", icon: Link2 },
+  { id: "commerce", label: "Comercio", icon: ShoppingBag },
+  { id: "design", label: "Diseño", icon: Paintbrush },
+  { id: "profile", label: "Perfil", icon: UserRound },
+  { id: "security", label: "Seguridad", icon: ShieldCheck },
+  { id: "billing", label: "Facturación", icon: FileText },
+  { id: "subscription", label: "Suscripción", icon: CreditCard },
 ];
 
 function ColorEditor({ label, value, onChange, swatches }) {
@@ -892,7 +892,6 @@ export function ProfileForm({
                 </span>
                 <span className="editor-sidebar-item-copy">
                   <strong>{tab.label}</strong>
-                  <small>{tab.copy}</small>
                 </span>
               </button>
             );
@@ -907,7 +906,6 @@ export function ProfileForm({
               </span>
               <span className="editor-sidebar-item-copy">
                 <strong>Panel admin</strong>
-                <small>Usuarios y configuración</small>
               </span>
             </Link>
           ) : null}
@@ -918,7 +916,6 @@ export function ProfileForm({
             </span>
             <span className="editor-sidebar-item-copy">
               <strong>Cerrar sesión</strong>
-              <small>Salir del panel</small>
             </span>
           </button>
         </div>
