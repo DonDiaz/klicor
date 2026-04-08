@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import {
+  ChevronLeft,
   ChevronRight,
   LoaderCircle,
   MessageCircle,
@@ -10,6 +11,7 @@ import {
   Share2,
   ShoppingBag,
   ShoppingCart,
+  X,
 } from "lucide-react";
 import { FONT_FAMILY_STYLE_MAP } from "@/app/fonts";
 import { apiFetch } from "@/lib/client-api";
@@ -59,6 +61,35 @@ function normalizePagination(value) {
   };
 }
 
+function normalizePublicProductImages(value = [], fallback = {}) {
+  const items = Array.isArray(value)
+    ? value
+      .filter(Boolean)
+      .map((image, index) => ({
+        id: String(image.id || `image-${index + 1}`),
+        imageUrl: String(image.imageUrl || "").trim(),
+        imageThumbUrl: String(image.imageThumbUrl || image.imageUrl || "").trim(),
+        imageWidth: Number(image.imageWidth || 0) || 0,
+        imageHeight: Number(image.imageHeight || 0) || 0,
+      }))
+      .filter((image) => image.imageUrl || image.imageThumbUrl)
+    : [];
+
+  if (items.length) return items;
+
+  const fallbackImageUrl = String(fallback.imageUrl || "").trim();
+  const fallbackThumbUrl = String(fallback.imageThumbUrl || fallback.imageUrl || "").trim();
+  if (!fallbackImageUrl && !fallbackThumbUrl) return [];
+
+  return [{
+    id: "image-1",
+    imageUrl: fallbackImageUrl,
+    imageThumbUrl: fallbackThumbUrl,
+    imageWidth: Number(fallback.imageWidth || 0) || 0,
+    imageHeight: Number(fallback.imageHeight || 0) || 0,
+  }];
+}
+
 function normalizePublicProducts(value = []) {
   return Array.isArray(value)
     ? value
@@ -70,6 +101,7 @@ function normalizePublicProducts(value = []) {
         description: String(product.description || ""),
         imageUrl: String(product.imageUrl || ""),
         imageThumbUrl: String(product.imageThumbUrl || product.imageUrl || ""),
+        images: normalizePublicProductImages(product.images, product),
         price: product.price === null || product.price === undefined || product.price === "" ? null : Number(product.price || 0),
       }))
     : [];
@@ -131,8 +163,39 @@ function ProductCard({
   quantity,
   onAdd,
   onConsult,
+  onOpenDetails,
   onQuantityStep,
 }) {
+  if (!supportsCart) {
+    return (
+      <button className="commerce-product-card commerce-product-card-button is-catalog-card" type="button" onClick={() => onOpenDetails(product)} disabled={preview}>
+        <div className="commerce-product-main">
+          <div className="commerce-product-image-shell">
+            {product.imageThumbUrl || product.imageUrl ? (
+              <img
+                className="commerce-product-image"
+                src={product.imageThumbUrl || product.imageUrl}
+                alt={product.name}
+                loading="lazy"
+                decoding="async"
+              />
+            ) : (
+              <span>{product.name.slice(0, 1)}</span>
+            )}
+          </div>
+          <div className="commerce-product-copy">
+            <div className="commerce-product-head">
+              <strong>{product.name}</strong>
+              {product.price !== null && product.price !== undefined ? (
+                <span>{formatCurrency(product.price, currency)}</span>
+              ) : null}
+            </div>
+          </div>
+        </div>
+      </button>
+    );
+  }
+
   return (
     <article className="commerce-product-card">
       <div className="commerce-product-main">
@@ -194,6 +257,7 @@ function ProductsGrid({
   isPending,
   onAdd,
   onConsult,
+  onOpenDetails,
   onLoadMore,
   getQuantity,
   onQuantityStep,
@@ -216,6 +280,7 @@ function ProductsGrid({
             quantity={getQuantity(product.id)}
             onAdd={onAdd}
             onConsult={onConsult}
+            onOpenDetails={onOpenDetails}
             onQuantityStep={onQuantityStep}
           />
         ))}
@@ -323,6 +388,8 @@ export function CommercePublicView({ bootstrap, preview = false }) {
   const [productQuantities, setProductQuantities] = useState({});
   const [cartOpen, setCartOpen] = useState(false);
   const [checkoutStep, setCheckoutStep] = useState("cart");
+  const [detailProduct, setDetailProduct] = useState(null);
+  const [detailImageIndex, setDetailImageIndex] = useState(0);
   const [pendingSelection, setPendingSelection] = useState(null);
   const [customer, setCustomer] = useState({
     customerName: "",
@@ -349,6 +416,8 @@ export function CommercePublicView({ bootstrap, preview = false }) {
   );
   const shouldShowProducts = !selectedCategory?.hasSubcategories || Boolean(selection.subcategoryId);
   const isSectionLoading = Boolean(pendingSelection);
+  const detailImages = normalizePublicProductImages(detailProduct?.images, detailProduct || {});
+  const activeDetailImage = detailImages[detailImageIndex] || detailImages[0] || null;
 
   const pageBackground = appearance.backgroundStyle === "gradient"
     ? `linear-gradient(180deg, ${appearance.backgroundColor} 0%, ${hexToRgba(appearance.tertiaryColor, 0.72)} 58%, ${hexToRgba(appearance.secondaryColor, 0.28)} 100%)`
@@ -525,6 +594,22 @@ export function CommercePublicView({ bootstrap, preview = false }) {
     return () => window.clearTimeout(timeoutId);
   }, [cache, categories, preview, safeBusiness.username, safeMode, selection.categoryId]);
 
+  useEffect(() => {
+    if (!detailProduct) return undefined;
+
+    function handleEscape(event) {
+      if (event.key === "Escape") {
+        setDetailProduct(null);
+        setDetailImageIndex(0);
+      }
+    }
+
+    window.addEventListener("keydown", handleEscape);
+    return () => {
+      window.removeEventListener("keydown", handleEscape);
+    };
+  }, [detailProduct]);
+
   function handleSelectCategory(category) {
     if (selection.categoryId === category.id) return;
     loadChunk({
@@ -577,6 +662,22 @@ export function CommercePublicView({ bootstrap, preview = false }) {
     if (preview || !safeBootstrap.orderWhatsapp) return;
     const message = encodeURIComponent(`Hola, quiero información sobre ${product.name} en ${safeBusiness.businessName}.`);
     window.open(`https://wa.me/${safeBootstrap.orderWhatsapp}?text=${message}`, "_blank", "noopener,noreferrer");
+  }
+
+  function openProductDetail(product) {
+    setDetailProduct(product);
+    setDetailImageIndex(0);
+  }
+
+  function closeProductDetail() {
+    setDetailProduct(null);
+    setDetailImageIndex(0);
+  }
+
+  function handleDetailWhatsapp(product) {
+    if (preview || !safeBootstrap.orderWhatsapp || !product) return;
+    const message = `Hola, vi este producto en su catálogo y quiero más información sobre: ${product.name}`;
+    window.open(buildWhatsappLink(safeBootstrap.orderWhatsapp, message), "_blank", "noopener,noreferrer");
   }
 
   async function handleShare() {
@@ -677,13 +778,14 @@ export function CommercePublicView({ bootstrap, preview = false }) {
                 products={products}
                 pagination={pagination}
                 isPending={isPending}
-                onAdd={handleAddToCart}
-                onConsult={handleDirectConsult}
-                onLoadMore={() => loadChunk(selection, { append: true, after: pagination.nextCursor, includeSubcategories: false })}
-                getQuantity={getProductQuantity}
-                onQuantityStep={handleProductQuantityStep}
-                emptyLabel={safeModeMeta.emptyLabel}
-              />
+              onAdd={handleAddToCart}
+              onConsult={handleDirectConsult}
+              onOpenDetails={openProductDetail}
+              onLoadMore={() => loadChunk(selection, { append: true, after: pagination.nextCursor, includeSubcategories: false })}
+              getQuantity={getProductQuantity}
+              onQuantityStep={handleProductQuantityStep}
+              emptyLabel={safeModeMeta.emptyLabel}
+            />
             ) : (
               <div className="commerce-empty-state commerce-subcategory-empty">
                 <strong>Selecciona una subcategoría</strong>
@@ -728,6 +830,83 @@ export function CommercePublicView({ bootstrap, preview = false }) {
           <span>Ver pedido ({cartCount}) - {formatCurrency(cartTotal, safeConfig.currency)}</span>
           <ChevronRight size={20} />
         </button>
+      ) : null}
+
+      {detailProduct ? (
+        <div className="commerce-modal-backdrop" role="dialog" aria-modal="true" aria-label={detailProduct.name} onMouseDown={closeProductDetail}>
+          <div className="commerce-modal-card commerce-product-detail-modal" onMouseDown={(event) => event.stopPropagation()}>
+            <button
+              className="commerce-modal-close"
+              type="button"
+              aria-label="Cerrar detalle del producto"
+              onClick={closeProductDetail}
+            >
+              <X size={18} />
+            </button>
+
+            <div className="commerce-product-detail-gallery">
+              <div className="commerce-product-detail-main-image">
+                {activeDetailImage?.imageUrl || activeDetailImage?.imageThumbUrl ? (
+                  <img src={activeDetailImage.imageUrl || activeDetailImage.imageThumbUrl} alt={detailProduct.name} />
+                ) : (
+                  <span>{detailProduct.name?.slice(0, 1) || "P"}</span>
+                )}
+
+                {detailImages.length > 1 ? (
+                  <>
+                    <button
+                      className="commerce-product-detail-nav is-prev"
+                      type="button"
+                      aria-label="Imagen anterior"
+                      onClick={() => setDetailImageIndex((current) => (current <= 0 ? detailImages.length - 1 : current - 1))}
+                    >
+                      <ChevronLeft size={18} />
+                    </button>
+                    <button
+                      className="commerce-product-detail-nav is-next"
+                      type="button"
+                      aria-label="Imagen siguiente"
+                      onClick={() => setDetailImageIndex((current) => (current >= detailImages.length - 1 ? 0 : current + 1))}
+                    >
+                      <ChevronRight size={18} />
+                    </button>
+                  </>
+                ) : null}
+              </div>
+
+              {detailImages.length > 1 ? (
+                <div className="commerce-product-detail-thumbs" aria-label="Galería del producto">
+                  {detailImages.map((image, index) => (
+                    <button
+                      key={image.id}
+                      className={`commerce-product-detail-thumb ${detailImageIndex === index ? "is-active" : ""}`.trim()}
+                      type="button"
+                      onClick={() => setDetailImageIndex(index)}
+                    >
+                      {image.imageThumbUrl || image.imageUrl ? <img src={image.imageThumbUrl || image.imageUrl} alt="" /> : <span>{index + 1}</span>}
+                    </button>
+                  ))}
+                </div>
+              ) : null}
+            </div>
+
+            <div className="commerce-product-detail-copy">
+              <div className="commerce-modal-head">
+                <strong>{detailProduct.name}</strong>
+                {detailProduct.price !== null && detailProduct.price !== undefined ? <span>{formatCurrency(detailProduct.price, safeConfig.currency)}</span> : null}
+              </div>
+              {detailProduct.description ? (
+                <p>{detailProduct.description}</p>
+              ) : (
+                <p>Escríbenos por WhatsApp para conocer más detalles de este producto.</p>
+              )}
+            </div>
+
+            <button className="btn btn-primary commerce-product-detail-whatsapp" type="button" onClick={() => handleDetailWhatsapp(detailProduct)} disabled={!safeBootstrap.orderWhatsapp || preview}>
+              <MessageCircle size={18} /> Preguntar por WhatsApp
+            </button>
+          </div>
+        </div>
       ) : null}
 
       {cartOpen && safeBootstrap.supportsCart ? (

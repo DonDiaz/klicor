@@ -319,7 +319,11 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
       const body = new FormData();
       body.append("action", action);
       body.append("payload", JSON.stringify(payload));
-      if (image) body.append("image", image);
+      if (Array.isArray(image)) {
+        image.filter(Boolean).forEach((file) => body.append("images", file));
+      } else if (image) {
+        body.append("image", image);
+      }
 
       const response = await apiFetch("/api/commerce", {
         method: "POST",
@@ -442,7 +446,8 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
       description: product?.description || "",
       price: product?.price ?? "",
       visible: product?.visible !== false,
-      imageFile: null,
+      images: Array.isArray(product?.images) ? product.images : [],
+      imageFiles: [],
       id: product?.id || "",
     });
   }
@@ -833,10 +838,30 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
             <input className="input" placeholder={configForm.activeMode === "micatalogo" ? "Precio opcional" : "Precio"} value={productEditor.price ?? ""} onChange={(event) => setProductEditor((current) => ({ ...current, price: event.target.value }))} />
             <textarea className="textarea" rows={4} placeholder="Descripción del producto" value={productEditor.description || ""} onChange={(event) => setProductEditor((current) => ({ ...current, description: event.target.value }))} />
             <label className="upload-card">
-              <input className="upload-input" type="file" accept="image/png,image/jpeg,image/webp" onChange={(event) => setProductEditor((current) => ({ ...current, imageFile: event.target.files?.[0] || null }))} />
-              <span>{productEditor.imageFile ? productEditor.imageFile.name : productEditor.id ? "Cambiar imagen del producto" : "Subir imagen del producto"}</span>
+              <input
+                className="upload-input"
+                type="file"
+                accept="image/png,image/jpeg,image/webp"
+                multiple
+                onChange={(event) => setProductEditor((current) => ({
+                  ...current,
+                  imageFiles: Array.from(event.target.files || []),
+                }))}
+              />
+              <span>{productEditor.imageFiles?.length ? `${productEditor.imageFiles.length} imágenes seleccionadas` : productEditor.id ? "Reemplazar galería del producto" : "Subir imágenes del producto"}</span>
             </label>
-            {!productEditor.id && !productEditor.imageFile ? <small className="commerce-board-note">La imagen es obligatoria para crear el producto.</small> : null}
+            {productEditor.images?.length ? (
+              <div className="commerce-board-image-strip">
+                {productEditor.images.slice(0, 4).map((image) => (
+                  <span key={image.id} className="commerce-board-image-chip">
+                    {image.imageThumbUrl || image.imageUrl ? <img src={image.imageThumbUrl || image.imageUrl} alt="" /> : null}
+                  </span>
+                ))}
+                {productEditor.images.length > 4 ? <small>+{productEditor.images.length - 4}</small> : null}
+              </div>
+            ) : null}
+            {!productEditor.id && !productEditor.imageFiles?.length ? <small className="commerce-board-note">Agrega al menos una imagen para crear el producto.</small> : null}
+            {productEditor.id ? <small className="commerce-board-note">Si subes nuevas imágenes, la galería actual se reemplaza completa.</small> : null}
             <label className="switch-row commerce-product-visible-toggle">
               <input type="checkbox" checked={productEditor.visible !== false} onChange={(event) => setProductEditor((current) => ({ ...current, visible: event.target.checked }))} />
               <span>{productEditor.visible !== false ? "Producto visible" : "Producto oculto"}</span>
@@ -845,9 +870,10 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
           <div className="commerce-modal-actions">
             <button className="btn btn-secondary" type="button" onClick={() => setProductEditor(null)}>Cancelar</button>
             <button className="btn btn-primary" type="button" onClick={async () => {
-              const result = await runAction("save_product", productEditor, productEditor.imageFile || null);
+              const { imageFiles, images, ...payload } = productEditor;
+              const result = await runAction("save_product", payload, imageFiles || []);
               if (result) setProductEditor(null);
-            }} disabled={!canEdit || loading || !productEditor.name.trim() || (!productEditor.id && !productEditor.imageFile)}>
+            }} disabled={!canEdit || loading || !productEditor.name.trim() || (!productEditor.id && !productEditor.imageFiles?.length)}>
               <Save size={16} /> Guardar producto
             </button>
           </div>

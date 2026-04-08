@@ -75,6 +75,7 @@ export async function POST(request) {
     const action = String(formData.get("action") || "").trim();
     const payload = parsePayload(formData);
     const image = formData.get("image");
+    const images = formData.getAll("images").filter((item) => item && typeof item === "object" && "size" in item && item.size);
 
     let result = null;
 
@@ -108,7 +109,7 @@ export async function POST(request) {
         break;
       case "save_product":
         result = await timing.measure("mutation", () => saveCommerceProduct(user.uid, payload, {
-          image: image?.size ? image : null,
+          images: images.length ? images : (image?.size ? [image] : []),
         }, user), action);
         break;
       case "delete_product":
