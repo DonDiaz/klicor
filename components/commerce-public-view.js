@@ -104,6 +104,25 @@ function normalizePublicCategories(value = []) {
     : [];
 }
 
+function normalizePrefetchedSections(value = []) {
+  return Array.isArray(value)
+    ? value
+      .filter(Boolean)
+      .map((section, index) => ({
+        key: String(section.key || `section-${index}`),
+        selection: {
+          categoryId: String(section.categoryId || ""),
+          subcategoryId: String(section.subcategoryId || ""),
+        },
+        subcategories: normalizePublicSubcategories(section.subcategories),
+        products: normalizePublicProducts(section.products),
+        hasMore: Boolean(section.hasMore),
+        nextCursor: section.nextCursor ?? null,
+      }))
+      .filter((section) => section.selection.categoryId)
+    : [];
+}
+
 function ProductCard({
   product,
   preview,
@@ -270,21 +289,36 @@ export function CommercePublicView({ bootstrap, preview = false }) {
   const categories = normalizePublicCategories(safeBootstrap.categories);
   const initialSubcategories = normalizePublicSubcategories(safeBootstrap.initialSubcategories);
   const initialProducts = normalizePublicProducts(safeBootstrap.initialProducts);
+  const prefetchedSections = normalizePrefetchedSections(safeBootstrap.prefetchedSections);
   const appearance = normalizeAppearance(safeBusiness.settings);
   const fontFamily = FONT_FAMILY_STYLE_MAP[appearance.fontFamily] || FONT_FAMILY_STYLE_MAP.inter;
   const [selection, setSelection] = useState(safeInitialSelection);
   const [subcategories, setSubcategories] = useState(initialSubcategories);
   const [products, setProducts] = useState(initialProducts);
   const [pagination, setPagination] = useState(safeInitialPagination);
-  const [cache, setCache] = useState(() => ({
-    [`${safeInitialSelection.categoryId}:${safeInitialSelection.subcategoryId}`]: {
+  const [cache, setCache] = useState(() => {
+    const nextCache = {};
+
+    prefetchedSections.forEach((section) => {
+      nextCache[section.key] = {
+        selection: section.selection,
+        subcategories: section.subcategories,
+        products: section.products,
+        hasMore: section.hasMore,
+        nextCursor: section.nextCursor,
+      };
+    });
+
+    nextCache[`${safeInitialSelection.categoryId}:${safeInitialSelection.subcategoryId}`] = {
       selection: safeInitialSelection,
       subcategories: initialSubcategories,
       products: initialProducts,
       hasMore: safeInitialPagination.hasMore,
       nextCursor: safeInitialPagination.nextCursor,
-    },
-  }));
+    };
+
+    return nextCache;
+  });
   const [cartItems, setCartItems] = useState([]);
   const [productQuantities, setProductQuantities] = useState({});
   const [cartOpen, setCartOpen] = useState(false);
