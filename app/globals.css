@@ -6569,7 +6569,8 @@ html[data-theme="dark"] .admin-sidebar-note {
   color: var(--commerce-text);
   font-size: 1.03rem;
   line-height: 1.15;
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
+  word-break: normal;
 }
 
 .commerce-product-head span {
@@ -6580,7 +6581,8 @@ html[data-theme="dark"] .admin-sidebar-note {
   font-weight: 900;
   line-height: 1.2;
   text-align: right;
-  overflow-wrap: anywhere;
+  white-space: nowrap;
+  overflow-wrap: normal;
 }
 
 .commerce-product-copy p {
@@ -6933,8 +6935,13 @@ html[data-theme="dark"] .admin-sidebar-note {
     width: min(100%, 76rem);
   }
 
-  .commerce-page:not(.is-preview) .commerce-shop-layout {
+  .commerce-page:not(.is-preview) .commerce-shop-layout.has-cart {
     grid-template-columns: 220px minmax(0, 1fr) 280px;
+    align-items: start;
+  }
+
+  .commerce-page:not(.is-preview) .commerce-shop-layout.has-no-cart {
+    grid-template-columns: 220px minmax(0, 1fr);
     align-items: start;
   }
 
@@ -7004,12 +7011,6 @@ html[data-theme="dark"] .admin-sidebar-note {
 
   .commerce-page:not(.is-preview) .commerce-order-bar {
     display: none;
-  }
-}
-
-@media (min-width: 1280px) {
-  .commerce-page:not(.is-preview) .commerce-products-grid.is-catalog-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 

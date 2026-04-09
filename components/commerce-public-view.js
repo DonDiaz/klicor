@@ -731,7 +731,7 @@ export function CommercePublicView({ bootstrap, preview = false }) {
           ) : null}
         </header>
 
-        <div className="commerce-shop-layout">
+        <div className={`commerce-shop-layout ${safeBootstrap.supportsCart ? "has-cart" : "has-no-cart"}`.trim()}>
           <aside className="commerce-navigation-panel" aria-label="Navegación de productos">
             <div className="commerce-category-rail" aria-label="Categorías">
               {categories.map((category) => {
