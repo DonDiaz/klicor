@@ -3418,6 +3418,22 @@ html[data-theme="dark"] .admin-sidebar-note {
   text-overflow: ellipsis;
 }
 
+.editor-topbar-meta {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-left: auto;
+  min-width: 0;
+}
+
+.editor-topbar-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  white-space: nowrap;
+}
+
 .preview-shell {
   display: grid;
   gap: 1rem;
@@ -5476,10 +5492,22 @@ html[data-theme="dark"] .admin-sidebar-note {
   .editor-topbar {
     min-height: 72px;
     gap: 0.75rem;
+    flex-wrap: wrap;
   }
 
   .editor-topbar-business-name {
     display: none;
+  }
+
+  .editor-topbar-meta {
+    width: 100%;
+    padding-left: 3rem;
+    justify-content: space-between;
+  }
+
+  .editor-topbar-action {
+    flex: 1 1 auto;
+    justify-content: center;
   }
 
   .dashboard-identity-logo-image {

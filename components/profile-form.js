@@ -955,11 +955,19 @@ export function ProfileForm({
           </div>
         </div>
 
-        <div className="dashboard-identity-meta">
-          <span className={`status-badge ${subscriptionTone}`}>
-            {subscriptionTone === "success" ? <ShieldCheck size={14} /> : null}
-            <span>{topbarStatusLabel}</span>
-          </span>
+        <div className="editor-topbar-meta">
+          {activeWorkspace !== "booking" ? (
+            <button className="btn btn-primary editor-topbar-action" type="button" onClick={() => handleWorkspaceSelect("booking")}>
+              <CalendarDays size={16} />
+              <span>Ir a agenda</span>
+            </button>
+          ) : null}
+          <div className="dashboard-identity-meta">
+            <span className={`status-badge ${subscriptionTone}`}>
+              {subscriptionTone === "success" ? <ShieldCheck size={14} /> : null}
+              <span>{topbarStatusLabel}</span>
+            </span>
+          </div>
         </div>
       </section>
 
