@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import {
   AlertTriangle,
+  CalendarDays,
   Copy,
   ShoppingBag,
   CreditCard,
@@ -81,6 +82,18 @@ const CommerceWorkspace = dynamic(
       <section className="card dashboard-section">
         <strong>Cargando presencia comercial</strong>
         <p className="section-copy">Preparamos categorías, productos y la vista pública comercial.</p>
+      </section>
+    ),
+  },
+);
+
+const BookingWorkspace = dynamic(
+  () => import("@/components/booking-workspace").then((mod) => mod.BookingWorkspace),
+  {
+    loading: () => (
+      <section className="card dashboard-section">
+        <strong>Cargando agenda</strong>
+        <p className="section-copy">Preparamos servicios, personal, horarios y reservas.</p>
       </section>
     ),
   },
@@ -184,6 +197,7 @@ const BILLING_RESPONSIBILITY_OPTIONS = [
 const DASHBOARD_NAV_ITEMS = [
   { id: "blocks", label: "Enlaces", icon: Link2 },
   { id: "commerce", label: "Comercio", icon: ShoppingBag },
+  { id: "booking", label: "Agenda", icon: CalendarDays },
   { id: "design", label: "Diseño", icon: Paintbrush },
   { id: "profile", label: "Perfil", icon: UserRound },
   { id: "security", label: "Seguridad", icon: ShieldCheck },
@@ -824,7 +838,7 @@ export function ProfileForm({
   }
 
   return (
-    <div className={`editor-layout ${navCollapsed ? "is-nav-collapsed" : ""} ${activeWorkspace === "commerce" ? "is-commerce-workspace" : ""}`}>
+    <div className={`editor-layout ${navCollapsed ? "is-nav-collapsed" : ""} ${activeWorkspace === "commerce" ? "is-commerce-workspace" : ""} ${activeWorkspace === "booking" ? "is-booking-workspace" : ""}`.trim()}>
       {mobileNavOpen ? (
         <button
           className="editor-sidebar-backdrop"
@@ -949,7 +963,7 @@ export function ProfileForm({
         </div>
       </section>
 
-      {activeWorkspace !== "commerce" ? (
+      {activeWorkspace !== "commerce" && activeWorkspace !== "booking" ? (
         <aside className="preview-shell preview-shell-editor preview-shell-workspace">
           <div className="preview-header preview-header-editor">
             <div className="preview-toolbar">
@@ -1484,6 +1498,15 @@ export function ProfileForm({
               token={token}
               profile={{ ...profile, ...previewUser, uid: profile?.uid || profile?.id, savedUsername: profile?.username || "" }}
               active={activeWorkspace === "commerce"}
+              canEdit={canEdit}
+            />
+          ) : null}
+
+          {activeWorkspace === "booking" ? (
+            <BookingWorkspace
+              token={token}
+              profile={{ ...profile, ...previewUser, uid: profile?.uid || profile?.id, savedUsername: profile?.username || "" }}
+              active={activeWorkspace === "booking"}
               canEdit={canEdit}
             />
           ) : null}
