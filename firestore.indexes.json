@@ -85,6 +85,60 @@
           "order": "ASCENDING"
         }
       ]
+    },
+    {
+      "collectionGroup": "bookingAppointments",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "appointmentDate",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "startMinutes",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "bookingAppointments",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "appointmentDate",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "staffId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "startMinutes",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "bookingAppointments",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "appointmentDate",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "staffId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "startMinutes",
+          "order": "ASCENDING"
+        }
+      ]
     }
   ],
   "fieldOverrides": []
