@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { verifyRequest } from "@/lib/auth";
+import { formatApiError } from "@/lib/api-errors";
 import { createServerTiming } from "@/lib/server-timing";
 import {
   createBookingAppointment,
@@ -27,6 +28,7 @@ function assertBookingAccess(user) {
 
 export async function GET(request) {
   const timing = createServerTiming();
+
   try {
     const { user } = await timing.measure("auth", () => verifyRequest(request), "verify");
     assertBookingAccess(user);
@@ -44,6 +46,7 @@ export async function GET(request) {
         }, user),
         "booking-availability",
       );
+
       const payload = { availability };
       return NextResponse.json(payload, { headers: timing.headers(payload) });
     }
@@ -59,7 +62,7 @@ export async function GET(request) {
     const payload = { state };
     return NextResponse.json(payload, { headers: timing.headers(payload) });
   } catch (error) {
-    const payload = { error: error.message };
+    const payload = { error: formatApiError(error, "No pudimos cargar la agenda.") };
     return NextResponse.json(payload, {
       status: 400,
       headers: timing.headers(payload),
@@ -69,6 +72,7 @@ export async function GET(request) {
 
 export async function POST(request) {
   const timing = createServerTiming();
+
   try {
     const { user } = await timing.measure("auth", () => verifyRequest(request), "verify");
     assertBookingAccess(user);
@@ -113,7 +117,7 @@ export async function POST(request) {
       headers: timing.headers(payloadResponse),
     });
   } catch (error) {
-    const payloadResponse = { error: error.message };
+    const payloadResponse = { error: formatApiError(error, "No pudimos guardar los cambios de agenda.") };
     return NextResponse.json(payloadResponse, {
       status: 400,
       headers: timing.headers(payloadResponse),

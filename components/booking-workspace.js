@@ -17,6 +17,7 @@ import { apiFetch } from "@/lib/client-api";
 import {
   BOOKING_DEFAULT_BUSINESS_SCHEDULE,
   formatBookingDateLabel,
+  formatScheduleWindowsLabel,
   formatTimeLabel,
   normalizeBookingConfig,
   normalizeWeeklySchedule,
@@ -91,6 +92,19 @@ function buildDefaultAppointmentForm() {
     customerPhone: "",
     customerNote: "",
   };
+}
+
+function validateAppointmentForm(form) {
+  if (!String(form.customerName || "").trim() || String(form.customerName || "").trim().length < 2) {
+    return "Ingresa el nombre del cliente.";
+  }
+
+  const digits = String(form.customerPhone || "").replace(/\D/g, "");
+  if (digits.length < 7) {
+    return "Ingresa un teléfono válido.";
+  }
+
+  return "";
 }
 
 export function BookingWorkspace({ token, active = false, canEdit = true }) {
@@ -450,7 +464,7 @@ export function BookingWorkspace({ token, active = false, canEdit = true }) {
                     <div className="booking-schedule-day">
                       <strong>{row.dayOfWeek === 0 ? "Domingo" : ["", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"][row.dayOfWeek]}</strong>
                     </div>
-                    <span>{row.isWorking !== false ? `${row.startTime} - ${row.endTime}` : "Descanso"}</span>
+                    <span>{formatScheduleWindowsLabel(row)}</span>
                   </div>
                 ))}
               </div>
@@ -772,6 +786,11 @@ export function BookingWorkspace({ token, active = false, canEdit = true }) {
             ) : <span />}
             {appointmentModal.stepIndex === 4 ? (
               <button className="btn btn-primary" type="button" onClick={async () => {
+                const validationError = validateAppointmentForm(form);
+                if (validationError) {
+                  setError(validationError);
+                  return;
+                }
                 const result = await runAction("create_appointment", form);
                 if (result) setAppointmentModal(null);
               }}>

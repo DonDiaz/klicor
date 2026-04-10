@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { formatApiError } from "@/lib/api-errors";
 import { createBookingAppointment, getBookingAvailability } from "@/lib/booking-firestore";
 import { getUserByUsername } from "@/lib/firestore";
 import { getPublicBookingBootstrapByUsername } from "@/lib/public-booking";
@@ -54,7 +55,7 @@ export async function GET(request, { params }) {
       headers: timing.headers(payload),
     });
   } catch (error) {
-    const payload = { error: error.message };
+    const payload = { error: formatApiError(error, "No pudimos cargar la agenda pública.") };
     return NextResponse.json(payload, {
       status: 400,
       headers: timing.headers(payload),
@@ -88,7 +89,7 @@ export async function POST(request, { params }) {
       headers: timing.headers(payload),
     });
   } catch (error) {
-    const payload = { error: error.message };
+    const payload = { error: formatApiError(error, "No pudimos agendar la cita.") };
     return NextResponse.json(payload, {
       status: 400,
       headers: timing.headers(payload),

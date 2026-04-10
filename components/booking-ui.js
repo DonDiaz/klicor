@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo, useState } from "react";
 import { Check, Clock3, MessageCircle, UserRound } from "lucide-react";
 import { BOOKING_DAY_OPTIONS, formatTimeLabel } from "@/lib/booking-config";
 
@@ -42,13 +43,25 @@ export function BookingServiceCard({ service, selected = false, onClick, currenc
 }
 
 export function BookingStaffCard({ staff, selected = false, onClick, highlight = false }) {
+  const [imageError, setImageError] = useState(false);
+  const imageUrl = !imageError ? staff.photoThumbUrl || staff.photoUrl || "" : "";
+  const initials = useMemo(() => {
+    const parts = String(staff.name || "")
+      .trim()
+      .split(/\s+/)
+      .filter(Boolean);
+    return parts.slice(0, 2).map((part) => part.slice(0, 1).toUpperCase()).join("") || "PR";
+  }, [staff.name]);
+
   return (
     <button className={`booking-choice-card booking-staff-card ${selected ? "is-selected" : ""} ${highlight ? "is-highlight" : ""}`.trim()} type="button" onClick={onClick}>
       <div className="booking-staff-avatar">
-        {staff.photoThumbUrl || staff.photoUrl ? (
-          <img src={staff.photoThumbUrl || staff.photoUrl} alt={staff.name} />
+        {imageUrl ? (
+          <img src={imageUrl} alt={staff.name} onError={() => setImageError(true)} />
         ) : (
-          <UserRound size={18} />
+          <span className="booking-staff-avatar-fallback" aria-hidden="true">
+            {highlight ? <UserRound size={18} /> : initials}
+          </span>
         )}
       </div>
       <div className="booking-choice-copy">
@@ -117,36 +130,107 @@ export function BookingAppointmentCard({ appointment, onWhatsapp, onStatusChange
 export function BookingScheduleRow({ row, onChange, fieldPrefix = "schedule" }) {
   const label = BOOKING_DAY_OPTIONS.find((item) => item.value === row.dayOfWeek)?.label || "Día";
   const isOpen = row.isOpen !== false && row.isWorking !== false;
+  const shiftMode = row.shiftMode === "split" ? "split" : "continuous";
+
+  function updateRow(nextPatch) {
+    onChange({
+      ...row,
+      shiftMode,
+      secondStartTime: row.secondStartTime || "14:00",
+      secondEndTime: row.secondEndTime || "18:00",
+      ...nextPatch,
+    });
+  }
+
+  function handleModeChange(nextMode) {
+    if (nextMode === "split") {
+      updateRow({
+        shiftMode: "split",
+        secondStartTime: row.secondStartTime || "14:00",
+        secondEndTime: row.secondEndTime || "18:00",
+      });
+      return;
+    }
+
+    updateRow({ shiftMode: "continuous" });
+  }
 
   return (
     <div className="booking-schedule-row">
       <div className="booking-schedule-day">
         <strong>{label}</strong>
+        <span>{isOpen ? (shiftMode === "split" ? "Mañana y tarde" : "Jornada continua") : "Cerrado"}</span>
       </div>
       <label className="booking-toggle">
         <input
           type="checkbox"
           checked={isOpen}
-          onChange={(event) => onChange({ ...row, isOpen: event.target.checked, isWorking: event.target.checked })}
+          onChange={(event) => updateRow({ isOpen: event.target.checked, isWorking: event.target.checked })}
         />
         <span>{isOpen ? "Activo" : "Cerrado"}</span>
       </label>
-      <input
-        aria-label={`${fieldPrefix}-${label}-inicio`}
-        className="input"
-        type="time"
-        value={row.startTime}
-        disabled={!isOpen}
-        onChange={(event) => onChange({ ...row, startTime: event.target.value })}
-      />
-      <input
-        aria-label={`${fieldPrefix}-${label}-fin`}
-        className="input"
-        type="time"
-        value={row.endTime}
-        disabled={!isOpen}
-        onChange={(event) => onChange({ ...row, endTime: event.target.value })}
-      />
+      <div className="booking-schedule-mode" role="group" aria-label={`${fieldPrefix}-${label}-modo`}>
+        <button
+          className={`booking-mode-chip ${shiftMode === "continuous" ? "is-active" : ""}`.trim()}
+          type="button"
+          disabled={!isOpen}
+          onClick={() => handleModeChange("continuous")}
+        >
+          Continuo
+        </button>
+        <button
+          className={`booking-mode-chip ${shiftMode === "split" ? "is-active" : ""}`.trim()}
+          type="button"
+          disabled={!isOpen}
+          onClick={() => handleModeChange("split")}
+        >
+          Mañana y tarde
+        </button>
+      </div>
+      <div className="booking-schedule-window-group">
+        <span className="booking-schedule-window-label">{shiftMode === "split" ? "Mañana" : "Horario"}</span>
+        <div className="booking-schedule-time-pair">
+          <input
+            aria-label={`${fieldPrefix}-${label}-inicio`}
+            className="input"
+            type="time"
+            value={row.startTime}
+            disabled={!isOpen}
+            onChange={(event) => updateRow({ startTime: event.target.value })}
+          />
+          <input
+            aria-label={`${fieldPrefix}-${label}-fin`}
+            className="input"
+            type="time"
+            value={row.endTime}
+            disabled={!isOpen}
+            onChange={(event) => updateRow({ endTime: event.target.value })}
+          />
+        </div>
+      </div>
+      {shiftMode === "split" ? (
+        <div className="booking-schedule-window-group">
+          <span className="booking-schedule-window-label">Tarde</span>
+          <div className="booking-schedule-time-pair">
+            <input
+              aria-label={`${fieldPrefix}-${label}-segunda-inicio`}
+              className="input"
+              type="time"
+              value={row.secondStartTime || "14:00"}
+              disabled={!isOpen}
+              onChange={(event) => updateRow({ secondStartTime: event.target.value })}
+            />
+            <input
+              aria-label={`${fieldPrefix}-${label}-segunda-fin`}
+              className="input"
+              type="time"
+              value={row.secondEndTime || "18:00"}
+              disabled={!isOpen}
+              onChange={(event) => updateRow({ secondEndTime: event.target.value })}
+            />
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

@@ -7117,6 +7117,15 @@ html[data-theme="dark"] .admin-sidebar-note {
   place-items: center;
 }
 
+.booking-staff-avatar-fallback {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
 .booking-staff-avatar img {
   width: 100%;
   height: 100%;
@@ -7128,6 +7137,35 @@ html[data-theme="dark"] .admin-sidebar-note {
 .booking-admin-date-grid {
   display: grid;
   gap: 0.8rem;
+}
+
+.booking-calendar-header {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.booking-calendar-header strong {
+  text-align: center;
+  text-transform: capitalize;
+}
+
+.booking-calendar-nav {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--booking-text, #0f172a);
+}
+
+.booking-calendar-nav:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
 }
 
 .booking-calendar-weekdays,
@@ -7164,6 +7202,10 @@ html[data-theme="dark"] .admin-sidebar-note {
 .booking-calendar-day[disabled] {
   opacity: 0.35;
   cursor: not-allowed;
+}
+
+.booking-calendar-placeholder {
+  min-height: 4.2rem;
 }
 
 .booking-date-pill,
@@ -7293,6 +7335,14 @@ html[data-theme="dark"] .admin-sidebar-note {
   background: rgba(255, 255, 255, 0.88);
 }
 
+.booking-admin-kpis article,
+.booking-admin-section-head > div,
+.booking-admin-card-head,
+.booking-admin-staff-head {
+  display: grid;
+  gap: 0.25rem;
+}
+
 .booking-admin-kpis strong {
   font-size: 1.2rem;
   color: var(--booking-text, #0f172a);
@@ -7373,11 +7423,22 @@ html[data-theme="dark"] .admin-sidebar-note {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: 0.65rem;
-  align-items: center;
+  align-items: start;
   padding: 0.7rem 0.8rem;
   border-radius: 8px;
   border: 1px solid rgba(15, 23, 42, 0.08);
   background: rgba(255, 255, 255, 0.88);
+}
+
+.booking-schedule-row.is-readonly {
+  grid-template-columns: minmax(0, 1fr);
+  align-items: center;
+}
+
+.booking-schedule-day,
+.booking-schedule-window-group {
+  display: grid;
+  gap: 0.25rem;
 }
 
 .booking-schedule-day strong {
@@ -7393,6 +7454,40 @@ html[data-theme="dark"] .admin-sidebar-note {
 
 .booking-checkbox-group {
   display: grid;
+  gap: 0.55rem;
+}
+
+.booking-schedule-mode {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.booking-mode-chip {
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--booking-muted, #475569);
+  min-height: 2rem;
+  padding: 0.3rem 0.8rem;
+  font-weight: 700;
+}
+
+.booking-mode-chip.is-active {
+  border-color: var(--booking-primary, #2563eb);
+  background: var(--booking-primary-soft, rgba(37, 99, 235, 0.08));
+  color: var(--booking-text, #0f172a);
+}
+
+.booking-schedule-window-label {
+  color: var(--booking-muted, #475569);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.booking-schedule-time-pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.55rem;
 }
 
@@ -7456,7 +7551,11 @@ html[data-theme="dark"] .admin-sidebar-note {
   }
 
   .booking-schedule-row {
-    grid-template-columns: 140px 120px minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-columns: 160px 120px minmax(0, 1fr) minmax(0, 1.25fr) minmax(0, 1.25fr);
+  }
+
+  .booking-schedule-row.is-readonly {
+    grid-template-columns: 160px minmax(0, 1fr);
   }
 }
 

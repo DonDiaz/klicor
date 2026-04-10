@@ -1,13 +1,17 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { ChevronLeft, LoaderCircle, MessageCircle } from "lucide-react";
+import { addMonths, startOfMonth, subMonths } from "date-fns";
+import { ChevronLeft, ChevronRight, LoaderCircle, MessageCircle } from "lucide-react";
 import { apiFetch } from "@/lib/client-api";
 import {
   BOOKING_DAY_OPTIONS,
-  buildBookingCalendarDays,
+  buildBookingCalendarMonth,
+  canMoveBookingMonth,
   formatBookingDateLabel,
+  formatBookingMonthLabel,
   formatTimeLabel,
+  getBookingCalendarBounds,
 } from "@/lib/booking-config";
 import { buildWhatsappLink } from "@/lib/utils";
 import {
@@ -34,6 +38,19 @@ function money(value, currency = "COP") {
   }).format(Number(value || 0));
 }
 
+function validateBookingDetails(selection) {
+  if (!String(selection.customerName || "").trim() || String(selection.customerName || "").trim().length < 2) {
+    return "Escribe tu nombre completo.";
+  }
+
+  const phoneDigits = String(selection.customerPhone || "").replace(/\D/g, "");
+  if (phoneDigits.length < 7) {
+    return "Ingresa un teléfono válido.";
+  }
+
+  return "";
+}
+
 export function BookingPublicView({ bootstrap }) {
   const business = bootstrap?.business || {};
   const appearance = bootstrap?.appearance || {};
@@ -58,13 +75,14 @@ export function BookingPublicView({ bootstrap }) {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(null);
+  const [calendarMonth, setCalendarMonth] = useState(() => startOfMonth(new Date()));
 
   const selectedService = useMemo(
     () => services.find((item) => item.id === selection.serviceId) || null,
     [services, selection.serviceId],
   );
   const eligibleStaff = useMemo(
-    () => staff.filter((item) => selectedService ? item.serviceIds?.includes(selectedService.id) : false),
+    () => staff.filter((item) => (selectedService ? item.serviceIds?.includes(selectedService.id) : false)),
     [selectedService, staff],
   );
   const selectedStaff = useMemo(
@@ -75,9 +93,16 @@ export function BookingPublicView({ bootstrap }) {
     () => new Set(availabilityDates.map((item) => item.date)),
     [availabilityDates],
   );
-  const calendarDays = useMemo(
-    () => buildBookingCalendarDays(new Date(), Math.min(Number(config.maxDaysAhead || 30) + 1, 42)),
+  const calendarBounds = useMemo(
+    () => getBookingCalendarBounds(config.maxDaysAhead || 30),
     [config.maxDaysAhead],
+  );
+  const calendarDays = useMemo(
+    () => buildBookingCalendarMonth(calendarMonth, {
+      minDate: calendarBounds.minDate,
+      maxDate: calendarBounds.maxDate,
+    }),
+    [calendarBounds.maxDate, calendarBounds.minDate, calendarMonth],
   );
 
   const rootStyle = useMemo(() => ({
@@ -91,8 +116,14 @@ export function BookingPublicView({ bootstrap }) {
   }), [appearance]);
 
   useEffect(() => {
-    if (!selection.serviceId || (!config.allowStaffSelection && selection.staffId === "any")) return;
-  }, [config.allowStaffSelection, selection.serviceId, selection.staffId]);
+    if (!selection.appointmentDate) return;
+    setCalendarMonth(startOfMonth(new Date(`${selection.appointmentDate}T00:00:00`)));
+  }, [selection.appointmentDate]);
+
+  useEffect(() => {
+    if (selection.appointmentDate || !availabilityDates.length) return;
+    setCalendarMonth(startOfMonth(new Date(`${availabilityDates[0].date}T00:00:00`)));
+  }, [availabilityDates, selection.appointmentDate]);
 
   async function loadDates(nextServiceId, nextStaffId = "any") {
     setLoadingDates(true);
@@ -108,12 +139,12 @@ export function BookingPublicView({ bootstrap }) {
     }
   }
 
-  async function loadSlots(nextDate) {
-    if (!selection.serviceId) return;
+  async function loadSlots(nextDate, nextServiceId = selection.serviceId, nextStaffId = selection.staffId || "any") {
+    if (!nextServiceId) return;
     setLoadingSlots(true);
     setError("");
     try {
-      const response = await apiFetch(`/api/public/booking/${business.usernameLower || business.username}?serviceId=${encodeURIComponent(selection.serviceId)}&staffId=${encodeURIComponent(selection.staffId || "any")}&date=${encodeURIComponent(nextDate)}`);
+      const response = await apiFetch(`/api/public/booking/${business.usernameLower || business.username}?serviceId=${encodeURIComponent(nextServiceId)}&staffId=${encodeURIComponent(nextStaffId || "any")}&date=${encodeURIComponent(nextDate)}`);
       setSlots(Array.isArray(response.data?.slots) ? response.data.slots : []);
     } catch (nextError) {
       setError(nextError.message);
@@ -123,7 +154,7 @@ export function BookingPublicView({ bootstrap }) {
     }
   }
 
-  function handleSelectService(serviceId) {
+  async function handleSelectService(serviceId) {
     const nextStaffId = "any";
     setSelection((current) => ({
       ...current,
@@ -134,6 +165,14 @@ export function BookingPublicView({ bootstrap }) {
     }));
     setAvailabilityDates([]);
     setSlots([]);
+    setError("");
+
+    if (config.allowStaffSelection === false) {
+      await loadDates(serviceId, nextStaffId);
+      setStepIndex(2);
+      return;
+    }
+
     setStepIndex(1);
   }
 
@@ -170,6 +209,12 @@ export function BookingPublicView({ bootstrap }) {
 
   async function handleSubmit(event) {
     event.preventDefault();
+    const validationError = validateBookingDetails(selection);
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+
     setSubmitting(true);
     setError("");
     try {
@@ -259,6 +304,25 @@ export function BookingPublicView({ bootstrap }) {
 
               {stepIndex === 2 ? (
                 <div className="booking-calendar">
+                  <div className="booking-calendar-header">
+                    <button
+                      className="booking-calendar-nav"
+                      type="button"
+                      onClick={() => setCalendarMonth((current) => subMonths(current, 1))}
+                      disabled={!canMoveBookingMonth(calendarMonth, -1, calendarBounds)}
+                    >
+                      <ChevronLeft size={16} />
+                    </button>
+                    <strong>{formatBookingMonthLabel(calendarMonth)}</strong>
+                    <button
+                      className="booking-calendar-nav"
+                      type="button"
+                      onClick={() => setCalendarMonth((current) => addMonths(current, 1))}
+                      disabled={!canMoveBookingMonth(calendarMonth, 1, calendarBounds)}
+                    >
+                      <ChevronRight size={16} />
+                    </button>
+                  </div>
                   <div className="booking-calendar-weekdays">
                     {BOOKING_DAY_OPTIONS.map((day) => (
                       <span key={day.value}>{day.shortLabel}</span>
@@ -271,20 +335,24 @@ export function BookingPublicView({ bootstrap }) {
                     </div>
                   ) : (
                     <div className="booking-calendar-grid">
-                      {calendarDays.map((date) => {
-                        const dateString = date.toISOString().slice(0, 10);
-                        const enabled = availableDateMap.has(dateString);
-                        const selected = selection.appointmentDate === dateString;
+                      {calendarDays.map((day) => {
+                        if (!day.inMonth) {
+                          return <span key={day.key} className="booking-calendar-placeholder" aria-hidden="true" />;
+                        }
+
+                        const enabled = !day.isBeforeRange && !day.isAfterRange && availableDateMap.has(day.dateString);
+                        const selected = selection.appointmentDate === day.dateString;
+
                         return (
                           <button
-                            key={dateString}
+                            key={day.key}
                             className={`booking-calendar-day ${selected ? "is-selected" : ""}`.trim()}
                             type="button"
                             disabled={!enabled}
-                            onClick={() => handleSelectDate(dateString)}
+                            onClick={() => handleSelectDate(day.dateString)}
                           >
-                            <strong>{date.getDate()}</strong>
-                            <span>{date.toLocaleDateString("es-CO", { month: "short" })}</span>
+                            <strong>{day.date.getDate()}</strong>
+                            <span>{day.date.toLocaleDateString("es-CO", { month: "short" })}</span>
                           </button>
                         );
                       })}
