@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import {
   AlertTriangle,
+  CalendarCheck,
   CalendarDays,
   Copy,
   ShoppingBag,
@@ -41,6 +42,7 @@ import {
   getDefaultPriorityTierForNewLink,
   getPrimaryWorkspaceForBusinessCategory,
   getRecommendedWorkspaceIdsForBusinessCategory,
+  getVisibleWorkspaceIdsForBusinessCategory,
   isSocialLinkType,
   LINK_PRIORITY_LIMITS,
   normalizeBusinessCategory,
@@ -208,6 +210,7 @@ const DASHBOARD_NAV_ITEMS = [
   { id: "blocks", label: "Enlaces", icon: Link2 },
   { id: "commerce", label: "Comercio", icon: ShoppingBag },
   { id: "booking", label: "Agenda", icon: CalendarDays },
+  { id: "reservations", label: "Reservas", icon: CalendarCheck },
   { id: "design", label: "Diseño", icon: Paintbrush },
   { id: "profile", label: "Perfil", icon: UserRound },
   { id: "security", label: "Seguridad", icon: ShieldCheck },
@@ -464,9 +467,11 @@ export function ProfileForm({
 
   const dashboardNavItems = useMemo(() => {
     const recommendedIds = getRecommendedWorkspaceIdsForBusinessCategory(form.businessCategory);
+    const visibleIds = new Set(getVisibleWorkspaceIdsForBusinessCategory(form.businessCategory));
     const priorityMap = new Map(recommendedIds.map((id, index) => [id, index]));
 
     return [...DASHBOARD_NAV_ITEMS]
+      .filter((item) => visibleIds.has(item.id))
       .sort((left, right) => {
         const leftPriority = priorityMap.has(left.id) ? priorityMap.get(left.id) : 999;
         const rightPriority = priorityMap.has(right.id) ? priorityMap.get(right.id) : 999;
@@ -484,6 +489,13 @@ export function ProfileForm({
         };
       });
   }, [form.businessCategory, moduleRecommendation]);
+
+  useEffect(() => {
+    const workspaceIsVisible = dashboardNavItems.some((item) => item.id === activeWorkspace);
+    if (!workspaceIsVisible) {
+      setActiveWorkspace(getPrimaryWorkspaceForBusinessCategory(form.businessCategory));
+    }
+  }, [activeWorkspace, dashboardNavItems, form.businessCategory]);
 
   useEffect(() => {
     const workspaceSectionMap = {
@@ -876,7 +888,7 @@ export function ProfileForm({
   }
 
   return (
-    <div className={`editor-layout ${navCollapsed ? "is-nav-collapsed" : ""} ${activeWorkspace === "commerce" ? "is-commerce-workspace" : ""} ${activeWorkspace === "booking" ? "is-booking-workspace" : ""}`.trim()}>
+    <div className={`editor-layout ${navCollapsed ? "is-nav-collapsed" : ""} ${activeWorkspace === "commerce" ? "is-commerce-workspace" : ""} ${activeWorkspace === "booking" ? "is-booking-workspace" : ""} ${activeWorkspace === "reservations" ? "is-reservations-workspace" : ""}`.trim()}>
       {mobileNavOpen ? (
         <button
           className="editor-sidebar-backdrop"
@@ -1002,7 +1014,7 @@ export function ProfileForm({
         </div>
       </section>
 
-      {activeWorkspace !== "commerce" && activeWorkspace !== "booking" ? (
+      {!["commerce", "booking", "reservations"].includes(activeWorkspace) ? (
         <aside className="preview-shell preview-shell-editor preview-shell-workspace">
           <div className="preview-header preview-header-editor">
             <div className="preview-toolbar">
@@ -1550,6 +1562,30 @@ export function ProfileForm({
               active={activeWorkspace === "booking"}
               canEdit={canEdit}
             />
+          ) : null}
+
+          {activeWorkspace === "reservations" ? (
+            <section className="dashboard-section panel workspace-panel reservations-placeholder-panel">
+              <div className="dashboard-section-head workspace-panel-head">
+                <div>
+                  <h2 className="section-title" style={{ fontSize: "1.35rem" }}>Reservas</h2>
+                  <p className="section-copy">Módulo pensado para turismo, experiencias, planes y actividades por cupos.</p>
+                </div>
+                <span className="status-badge">
+                  <CalendarCheck size={14} />
+                  Próximo módulo
+                </span>
+              </div>
+
+              <div className="empty-state-card reservations-placeholder-card">
+                <CalendarCheck size={28} />
+                <strong>Reservas estará separado de Agenda</strong>
+                <p>
+                  Agenda seguirá siendo para servicios y salud/bienestar. Reservas será el módulo para turismo y experiencias,
+                  con planes, cupos, fechas disponibles y confirmación de interesados.
+                </p>
+              </div>
+            </section>
           ) : null}
 
           {activeWorkspace === "blocks" ? (

@@ -3207,7 +3207,8 @@ html[data-theme="dark"] .admin-sidebar-note {
 }
 
 .editor-layout.is-commerce-workspace,
-.editor-layout.is-booking-workspace {
+.editor-layout.is-booking-workspace,
+.editor-layout.is-reservations-workspace {
   grid-template-columns: minmax(0, 1fr);
   grid-template-areas:
     "topbar"
@@ -4125,6 +4126,32 @@ html[data-theme="dark"] .admin-sidebar-note {
 .workspace-panel-head {
   padding-bottom: 0.1rem;
   border-bottom: 1px solid rgba(148, 163, 184, 0.16);
+}
+
+.reservations-placeholder-card {
+  display: grid;
+  gap: 0.75rem;
+  justify-items: start;
+  border: 1px solid rgba(91, 33, 182, 0.12);
+  border-radius: 8px;
+  padding: 1.2rem;
+  background: rgba(91, 33, 182, 0.035);
+  color: var(--text-primary);
+}
+
+.reservations-placeholder-card svg {
+  color: var(--primary);
+}
+
+.reservations-placeholder-card strong {
+  font-size: 1.05rem;
+}
+
+.reservations-placeholder-card p {
+  max-width: 760px;
+  margin: 0;
+  color: var(--text-secondary);
+  line-height: 1.55;
 }
 
 .preview-header {
@@ -5184,7 +5211,8 @@ html[data-theme="dark"] .admin-sidebar-note {
   }
 
   .editor-layout.is-commerce-workspace,
-  .editor-layout.is-booking-workspace {
+  .editor-layout.is-booking-workspace,
+  .editor-layout.is-reservations-workspace {
     grid-template-areas:
       "topbar"
       "editor";
