@@ -9,8 +9,8 @@ import {
   Minus,
   Plus,
   Share2,
-  ShoppingBag,
   ShoppingCart,
+  Trash2,
   X,
 } from "lucide-react";
 import { FONT_FAMILY_STYLE_MAP } from "@/app/fonts";
@@ -37,21 +37,25 @@ function formatCurrency(value, currency = "COP") {
   }
 }
 
-function buildOrderMessage({ businessName, items, total, customer, heading, currency }) {
-  const lines = [`${heading} para ${businessName}`, "Productos:", ""];
+function buildOrderMessage({ items, total, note, currency }) {
+  const lines = ["Hola, quiero hacer el siguiente pedido:", "", "🛒 Pedido:"];
 
   items.forEach((item) => {
-    lines.push(`${item.quantity} x ${item.name} = ${formatCurrency(item.price * item.quantity, currency)}`);
+    lines.push(`- ${item.name} x${item.quantity} - ${formatCurrency(item.price * item.quantity, currency)}`);
   });
 
   lines.push("");
-  lines.push(`Total: ${formatCurrency(total, currency)}`);
+  lines.push(`🧾 Total: ${formatCurrency(total, currency)}`);
+
+  const cleanNote = String(note || "").trim();
+  if (cleanNote) {
+    lines.push("");
+    lines.push("📝 Nota:");
+    lines.push(cleanNote);
+  }
+
   lines.push("");
-  lines.push("Cliente:");
-  lines.push(`Nombre: ${customer.customerName}`);
-  lines.push(`Dirección: ${customer.address}`);
-  lines.push(`Teléfono: ${customer.phone}`);
-  lines.push(`Observaciones: ${customer.notes || "Sin observaciones"}`);
+  lines.push("Quedo atento 🙌");
   return lines.join("\n");
 }
 
@@ -331,16 +335,10 @@ export function CommercePublicView({ bootstrap, preview = false }) {
   const [cartItems, setCartItems] = useState([]);
   const [productQuantities, setProductQuantities] = useState({});
   const [cartOpen, setCartOpen] = useState(false);
-  const [checkoutStep, setCheckoutStep] = useState("cart");
+  const [orderNote, setOrderNote] = useState("");
   const [detailProduct, setDetailProduct] = useState(null);
   const [detailImageIndex, setDetailImageIndex] = useState(0);
   const [pendingSelection, setPendingSelection] = useState(null);
-  const [customer, setCustomer] = useState({
-    customerName: "",
-    address: "",
-    phone: "",
-    notes: "",
-  });
   const requestCounterRef = useRef(0);
   const prefetchedKeysRef = useRef(new Set());
   const [isPending, startTransition] = useTransition();
@@ -562,6 +560,21 @@ export function CommercePublicView({ bootstrap, preview = false }) {
     };
   }, [detailProduct]);
 
+  useEffect(() => {
+    if (!cartOpen) return undefined;
+
+    function handleEscape(event) {
+      if (event.key === "Escape") {
+        setCartOpen(false);
+      }
+    }
+
+    window.addEventListener("keydown", handleEscape);
+    return () => {
+      window.removeEventListener("keydown", handleEscape);
+    };
+  }, [cartOpen]);
+
   function handleSelectCategory(category) {
     if (selection.categoryId === category.id) return;
     loadChunk({
@@ -600,7 +613,14 @@ export function CommercePublicView({ bootstrap, preview = false }) {
       if (exists) {
         return current.map((item) => (item.id === product.id ? { ...item, quantity: item.quantity + quantity } : item));
       }
-      return [...current, { id: product.id, name: product.name, price: Number(product.price || 0), quantity }];
+      return [...current, {
+        id: product.id,
+        name: product.name,
+        price: Number(product.price || 0),
+        quantity,
+        imageUrl: product.imageUrl || "",
+        imageThumbUrl: product.imageThumbUrl || product.imageUrl || "",
+      }];
     });
   }
 
@@ -608,6 +628,10 @@ export function CommercePublicView({ bootstrap, preview = false }) {
     setCartItems((current) => current
       .map((item) => (item.id === productId ? { ...item, quantity: Math.max(item.quantity + delta, 0) } : item))
       .filter((item) => item.quantity > 0));
+  }
+
+  function handleRemoveCartItem(productId) {
+    setCartItems((current) => current.filter((item) => item.id !== productId));
   }
 
   function openProductDetail(product) {
@@ -654,11 +678,9 @@ export function CommercePublicView({ bootstrap, preview = false }) {
   function handleCheckout() {
     if (preview || !safeBootstrap.orderWhatsapp || !cartItems.length) return;
     const message = buildOrderMessage({
-      businessName: safeBusiness.businessName,
-      heading: safeModeMeta.checkoutVerb,
       items: cartItems,
       total: cartTotal,
-      customer,
+      note: orderNote,
       currency: safeConfig.currency,
     });
     window.open(buildWhatsappLink(safeBootstrap.orderWhatsapp, message), "_blank", "noopener,noreferrer");
@@ -912,13 +934,20 @@ export function CommercePublicView({ bootstrap, preview = false }) {
       ) : null}
 
       {cartOpen && safeBootstrap.supportsCart ? (
-        <div className="commerce-modal-backdrop" role="dialog" aria-modal="true" aria-label={safeModeMeta.cartLabel}>
-          <div className="commerce-modal-card">
+        <div
+          className="commerce-modal-backdrop commerce-cart-sheet-backdrop"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Tu pedido"
+          onMouseDown={() => setCartOpen(false)}
+        >
+          <div className="commerce-modal-card commerce-cart-sheet" onMouseDown={(event) => event.stopPropagation()}>
+            <div className="commerce-cart-sheet-handle" aria-hidden="true" />
             <button
               className="commerce-modal-close"
               type="button"
               aria-label="Cerrar carrito"
-              onClick={() => { setCartOpen(false); setCheckoutStep("cart"); }}
+              onClick={() => setCartOpen(false)}
             >
               <span className="commerce-modal-close-icon" aria-hidden="true">
                 <span />
@@ -926,68 +955,91 @@ export function CommercePublicView({ bootstrap, preview = false }) {
               </span>
             </button>
 
-            {checkoutStep === "cart" ? (
-              <>
-                <div className="commerce-modal-head">
-                  <strong>{safeModeMeta.cartLabel}</strong>
-                  <span>{cartCount} productos</span>
-                </div>
-                {cartItems.length ? (
-                  <div className="commerce-cart-list">
-                    {cartItems.map((item) => (
-                      <article className="commerce-cart-row" key={item.id}>
-                        <div>
+            <div className="commerce-cart-sheet-content">
+              <div className="commerce-modal-head commerce-cart-sheet-head">
+                <strong>Tu pedido</strong>
+                <span>{cartCount} productos</span>
+              </div>
+
+              {cartItems.length ? (
+                <div className="commerce-cart-list">
+                  {cartItems.map((item) => (
+                    <article className="commerce-cart-item" key={item.id}>
+                      <div className="commerce-cart-thumb" aria-hidden="true">
+                        {item.imageThumbUrl || item.imageUrl ? (
+                          <img src={item.imageThumbUrl || item.imageUrl} alt="" loading="lazy" decoding="async" />
+                        ) : (
+                          <span>{item.name.slice(0, 1)}</span>
+                        )}
+                      </div>
+
+                      <div className="commerce-cart-item-main">
+                        <div className="commerce-cart-item-copy">
                           <strong>{item.name}</strong>
-                          <span>{formatCurrency(item.price * item.quantity, safeConfig.currency)}</span>
+                          <span>{formatCurrency(item.price, safeConfig.currency)} c/u</span>
                         </div>
-                        <div className="commerce-cart-qty">
-                          <button type="button" onClick={() => handleCartQuantity(item.id, -1)}>
-                            <Minus size={14} />
-                          </button>
-                          <span>{item.quantity}</span>
-                          <button type="button" onClick={() => handleCartQuantity(item.id, 1)}>
-                            <Plus size={14} />
+
+                        <div className="commerce-cart-item-controls">
+                          <div className="commerce-cart-qty" aria-label={`Cantidad de ${item.name}`}>
+                            <button type="button" onClick={() => handleCartQuantity(item.id, -1)} aria-label={`Reducir ${item.name}`}>
+                              <Minus size={14} />
+                            </button>
+                            <span>{item.quantity}</span>
+                            <button type="button" onClick={() => handleCartQuantity(item.id, 1)} aria-label={`Aumentar ${item.name}`}>
+                              <Plus size={14} />
+                            </button>
+                          </div>
+
+                          <button className="commerce-cart-remove" type="button" onClick={() => handleRemoveCartItem(item.id)} aria-label={`Eliminar ${item.name}`}>
+                            <Trash2 size={15} />
                           </button>
                         </div>
-                      </article>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="commerce-empty-state commerce-cart-empty">
-                    <strong>Tu pedido está vacío</strong>
-                    <p>Agrega productos para ver el total y enviarlo por WhatsApp.</p>
-                  </div>
-                )}
-                <div className="commerce-cart-total">
+                      </div>
+
+                      <strong className="commerce-cart-item-total">{formatCurrency(item.price * item.quantity, safeConfig.currency)}</strong>
+                    </article>
+                  ))}
+                </div>
+              ) : (
+                <div className="commerce-empty-state commerce-cart-empty">
+                  <strong>Tu pedido está vacío</strong>
+                  <p>Agrega productos para ver el total y enviarlo por WhatsApp.</p>
+                </div>
+              )}
+
+              <section className="commerce-cart-summary" aria-label="Resumen del pedido">
+                <div>
+                  <span>Subtotal</span>
+                  <strong>{formatCurrency(cartTotal, safeConfig.currency)}</strong>
+                </div>
+                <div className="commerce-cart-summary-total">
                   <span>Total</span>
                   <strong>{formatCurrency(cartTotal, safeConfig.currency)}</strong>
                 </div>
-                <button className="btn btn-primary" type="button" onClick={() => setCheckoutStep("details")} disabled={!cartItems.length}>
-                  Continuar pedido
-                </button>
-              </>
-            ) : (
-              <>
-                <div className="commerce-modal-head">
-                  <strong>Datos del pedido</strong>
-                  <span>Completamos el mensaje para WhatsApp</span>
-                </div>
-                <div className="section-stack">
-                  <input className="input" placeholder="Nombre" value={customer.customerName} onChange={(event) => setCustomer((current) => ({ ...current, customerName: event.target.value }))} />
-                  <input className="input" placeholder="Dirección" value={customer.address} onChange={(event) => setCustomer((current) => ({ ...current, address: event.target.value }))} />
-                  <input className="input" placeholder="Teléfono" value={customer.phone} onChange={(event) => setCustomer((current) => ({ ...current, phone: event.target.value }))} />
-                  <textarea className="textarea" placeholder="Observaciones" rows={3} value={customer.notes} onChange={(event) => setCustomer((current) => ({ ...current, notes: event.target.value }))} />
-                </div>
-                <div className="commerce-modal-actions">
-                  <button className="btn btn-secondary" type="button" onClick={() => setCheckoutStep("cart")}>
-                    Volver
-                  </button>
-                  <button className="btn btn-primary" type="button" onClick={handleCheckout} disabled={!customer.customerName || !customer.address || !customer.phone || !safeBootstrap.orderWhatsapp}>
-                    <ShoppingBag size={16} /> Enviar a WhatsApp
-                  </button>
-                </div>
-              </>
-            )}
+              </section>
+
+              <label className="commerce-cart-note">
+                <span>Notas del pedido</span>
+                <textarea
+                  className="textarea"
+                  placeholder="Notas del pedido (opcional)"
+                  rows={3}
+                  value={orderNote}
+                  onChange={(event) => setOrderNote(event.target.value)}
+                />
+              </label>
+            </div>
+
+            <div className="commerce-cart-sheet-footer">
+              <button
+                className="commerce-whatsapp-checkout-button"
+                type="button"
+                onClick={handleCheckout}
+                disabled={!cartItems.length || !safeBootstrap.orderWhatsapp || preview}
+              >
+                <MessageCircle size={18} /> Enviar pedido por WhatsApp
+              </button>
+            </div>
           </div>
         </div>
       ) : null}
