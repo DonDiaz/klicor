@@ -34,7 +34,17 @@ import {
   X,
 } from "lucide-react";
 import { apiFetch } from "@/lib/client-api";
-import { applyDefaultLinkPriorityTiers, BUSINESS_CATEGORY_OPTIONS, getDefaultPriorityTierForNewLink, isSocialLinkType, LINK_PRIORITY_LIMITS, normalizeBusinessCategory } from "@/lib/business-categories";
+import {
+  applyDefaultLinkPriorityTiers,
+  BUSINESS_CATEGORY_OPTIONS,
+  getBusinessCategoryModuleRecommendation,
+  getDefaultPriorityTierForNewLink,
+  getPrimaryWorkspaceForBusinessCategory,
+  getRecommendedWorkspaceIdsForBusinessCategory,
+  isSocialLinkType,
+  LINK_PRIORITY_LIMITS,
+  normalizeBusinessCategory,
+} from "@/lib/business-categories";
 import {
   ACCOUNT_TYPE_OPTIONS,
   COLOMBIA_FINANCIAL_ENTITY_OPTIONS,
@@ -371,7 +381,7 @@ export function ProfileForm({
   const [alertMessage, setAlertMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [selectedType, setSelectedType] = useState("whatsapp");
-  const [activeWorkspace, setActiveWorkspace] = useState("blocks");
+  const [activeWorkspace, setActiveWorkspace] = useState(() => getPrimaryWorkspaceForBusinessCategory(profile?.businessCategory));
   const navCollapsed = true;
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [darkModeEnabled, setDarkModeEnabled] = useState(false);
@@ -446,6 +456,34 @@ export function ProfileForm({
   useEffect(() => {
     setMobileNavOpen(false);
   }, [activeWorkspace]);
+
+  const moduleRecommendation = useMemo(
+    () => getBusinessCategoryModuleRecommendation(form.businessCategory),
+    [form.businessCategory],
+  );
+
+  const dashboardNavItems = useMemo(() => {
+    const recommendedIds = getRecommendedWorkspaceIdsForBusinessCategory(form.businessCategory);
+    const priorityMap = new Map(recommendedIds.map((id, index) => [id, index]));
+
+    return [...DASHBOARD_NAV_ITEMS]
+      .sort((left, right) => {
+        const leftPriority = priorityMap.has(left.id) ? priorityMap.get(left.id) : 999;
+        const rightPriority = priorityMap.has(right.id) ? priorityMap.get(right.id) : 999;
+        if (leftPriority !== rightPriority) return leftPriority - rightPriority;
+        return DASHBOARD_NAV_ITEMS.findIndex((item) => item.id === left.id)
+          - DASHBOARD_NAV_ITEMS.findIndex((item) => item.id === right.id);
+      })
+      .map((item) => {
+        const isRecommended = priorityMap.has(item.id);
+        const recommendationRank = priorityMap.get(item.id);
+        return {
+          ...item,
+          isRecommended,
+          recommendationLabel: isRecommended && recommendationRank === 0 ? moduleRecommendation.moduleLabel : "Sugerido",
+        };
+      });
+  }, [form.businessCategory, moduleRecommendation]);
 
   useEffect(() => {
     const workspaceSectionMap = {
@@ -890,23 +928,24 @@ export function ProfileForm({
         </div>
 
         <nav className="editor-sidebar-nav" aria-label="Navegación del editor">
-          {DASHBOARD_NAV_ITEMS.map((tab) => {
+          {dashboardNavItems.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeWorkspace === tab.id;
             return (
               <button
                 key={tab.id}
-                className={`editor-sidebar-item ${isActive ? "is-active" : ""}`}
+                className={`editor-sidebar-item ${isActive ? "is-active" : ""} ${tab.isRecommended ? "is-recommended" : ""}`.trim()}
                 type="button"
                 onClick={() => handleWorkspaceSelect(tab.id)}
                 aria-current={isActive ? "page" : undefined}
-                title={tab.label}
+                title={tab.isRecommended ? moduleRecommendation.hint : tab.label}
               >
                 <span className="editor-sidebar-item-icon">
                   <Icon size={18} />
                 </span>
                 <span className="editor-sidebar-item-copy">
                   <strong>{tab.label}</strong>
+                  {tab.isRecommended ? <small>{tab.recommendationLabel}</small> : null}
                 </span>
               </button>
             );
@@ -992,20 +1031,22 @@ export function ProfileForm({
 
       <div className="editor-panel">
         <div className="editor-tabs" role="tablist" aria-label="Navegación del editor">
-          {DASHBOARD_NAV_ITEMS.map((tab) => {
+          {dashboardNavItems.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeWorkspace === tab.id;
             return (
               <button
                 key={tab.id}
-                className={`editor-tab ${isActive ? "is-active" : ""}`}
+                className={`editor-tab ${isActive ? "is-active" : ""} ${tab.isRecommended ? "is-recommended" : ""}`.trim()}
                 type="button"
                 role="tab"
                 aria-selected={isActive}
                 onClick={() => setActiveWorkspace(tab.id)}
+                title={tab.isRecommended ? moduleRecommendation.hint : tab.label}
               >
                 <Icon size={17} />
                 <span>{tab.label}</span>
+                {tab.isRecommended ? <small>{tab.recommendationLabel}</small> : null}
               </button>
             );
           })}

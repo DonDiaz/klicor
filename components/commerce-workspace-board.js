@@ -19,6 +19,7 @@ import {
   Trash2,
   X,
 } from "lucide-react";
+import { CommerceCategoryIcon } from "@/components/commerce-category-icon";
 import { apiFetch } from "@/lib/client-api";
 import { COMMERCE_MODE_OPTIONS, resolveCommerceModeMeta } from "@/lib/commerce-config";
 
@@ -616,7 +617,9 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
                   ) : (
                     <>
                       <button className="commerce-board-row-main" type="button" onClick={() => selectCategory(category)} aria-pressed={selected}>
-                        <span className="commerce-board-dot">{category.name?.slice(0, 1) || "C"}</span>
+                        <span className="commerce-board-dot">
+                          <CommerceCategoryIcon iconKey={category.iconKey} size={17} />
+                        </span>
                         <span>
                           <strong>{category.name}</strong>
                           <small>{countLabel(category.productCount, "producto", "productos")} · {countLabel(category.subcategoryCount, "subcategoría", "subcategorías")}</small>
@@ -710,7 +713,9 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
                   ) : (
                     <>
                       <button className="commerce-board-row-main" type="button" onClick={() => openSubcategory(selectedCategory, subcategory)}>
-                        <span className="commerce-board-dot is-subcategory">{subcategory.name?.slice(0, 1) || "S"}</span>
+                        <span className="commerce-board-dot is-subcategory">
+                          <CommerceCategoryIcon iconKey={subcategory.iconKey} size={17} />
+                        </span>
                         <span>
                           <strong>{subcategory.name}</strong>
                           <small>{countLabel(subcategory.productCount, "producto", "productos")}</small>

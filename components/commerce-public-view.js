@@ -14,6 +14,7 @@ import {
   X,
 } from "lucide-react";
 import { FONT_FAMILY_STYLE_MAP } from "@/app/fonts";
+import { CommerceCategoryIcon } from "@/components/commerce-category-icon";
 import { apiFetch } from "@/lib/client-api";
 import { resolveCommerceModeMeta } from "@/lib/commerce-config";
 import { buildWhatsappLink } from "@/lib/utils";
@@ -115,6 +116,7 @@ function normalizePublicSubcategories(value = []) {
         ...subcategory,
         id: String(subcategory.id || `subcategory-${index}`),
         name: String(subcategory.name || "Subcategoría"),
+        iconKey: String(subcategory.iconKey || "tag"),
         productCount: Number(subcategory.productCount || 0) || 0,
       }))
     : [];
@@ -128,6 +130,7 @@ function normalizePublicCategories(value = []) {
         ...category,
         id: String(category.id || `category-${index}`),
         name: String(category.name || "Categoría"),
+        iconKey: String(category.iconKey || "tag"),
         hasSubcategories: Boolean(category.hasSubcategories),
         firstSubcategoryId: String(category.firstSubcategoryId || ""),
         subcategoryCount: Number(category.subcategoryCount || 0) || 0,
@@ -701,6 +704,7 @@ export function CommercePublicView({ bootstrap, preview = false }) {
                       type="button"
                       onClick={() => handleSelectCategory(category)}
                     >
+                      <CommerceCategoryIcon className="commerce-category-chip-icon" iconKey={category.iconKey} size={16} />
                       <span>{category.name}</span>
                     </button>
                   );
@@ -718,6 +722,7 @@ export function CommercePublicView({ bootstrap, preview = false }) {
                         type="button"
                         onClick={() => handleSelectSubcategory(subcategory.id)}
                       >
+                        <CommerceCategoryIcon className="commerce-category-chip-icon" iconKey={subcategory.iconKey} size={15} />
                         <span>{subcategory.name}</span>
                       </button>
                     );

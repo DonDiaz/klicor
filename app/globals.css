@@ -3308,6 +3308,11 @@ html[data-theme="dark"] .admin-sidebar-note {
   color: var(--primary);
 }
 
+.editor-sidebar-item.is-recommended:not(.is-active) {
+  border-color: rgba(91, 33, 182, 0.12);
+  background: rgba(91, 33, 182, 0.035);
+}
+
 .editor-sidebar-item-icon {
   width: 36px;
   height: 36px;
@@ -3326,6 +3331,25 @@ html[data-theme="dark"] .admin-sidebar-note {
   font-size: 0.96rem;
   line-height: 1.2;
   letter-spacing: -0.02em;
+}
+
+.editor-sidebar-item-copy small,
+.editor-tab small {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  max-width: 100%;
+  margin-top: 0.24rem;
+  border-radius: 8px;
+  padding: 0.14rem 0.42rem;
+  background: rgba(91, 33, 182, 0.09);
+  color: var(--primary);
+  font-size: 0.68rem;
+  line-height: 1.2;
+  font-weight: 800;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .editor-sidebar.is-collapsed {
@@ -4082,6 +4106,15 @@ html[data-theme="dark"] .admin-sidebar-note {
   border-color: rgba(91, 33, 182, 0.14);
   color: var(--primary);
   box-shadow: inset 0 -2px 0 rgba(91, 33, 182, 0.2);
+}
+
+.editor-tab.is-recommended:not(.is-active) {
+  border-color: rgba(91, 33, 182, 0.1);
+  background: rgba(91, 33, 182, 0.035);
+}
+
+.editor-tab small {
+  margin-top: 0;
 }
 
 .workspace-panel {
@@ -7782,6 +7815,10 @@ html[data-theme="dark"] .admin-sidebar-note {
 
 .commerce-category-chip,
 .commerce-subcategory-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.44rem;
   flex: 0 0 auto;
   min-height: 2.75rem;
   border-radius: 8px;
@@ -7806,6 +7843,10 @@ html[data-theme="dark"] .admin-sidebar-note {
   border-color: var(--commerce-primary);
   color: var(--commerce-button-text);
   box-shadow: 0 14px 28px var(--commerce-primary-shadow);
+}
+
+.commerce-category-chip-icon {
+  flex: 0 0 auto;
 }
 
 .commerce-current-section-label {
@@ -8665,6 +8706,10 @@ html[data-theme="dark"] .admin-sidebar-note {
   background: #dbeafe;
   color: #1d4ed8;
   font-weight: 850;
+}
+
+.commerce-board-dot svg {
+  flex: 0 0 auto;
 }
 
 .commerce-board-dot.is-subcategory {
