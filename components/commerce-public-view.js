@@ -160,46 +160,13 @@ function ProductCard({
   preview,
   currency,
   supportsCart,
-  quantity,
   onAdd,
-  onConsult,
   onOpenDetails,
-  onQuantityStep,
 }) {
-  if (!supportsCart) {
-    return (
-      <button className="commerce-product-card commerce-product-card-button is-catalog-card" type="button" onClick={() => onOpenDetails(product)} disabled={preview}>
-        <div className="commerce-product-main">
-          <div className="commerce-product-image-shell">
-            {product.imageThumbUrl || product.imageUrl ? (
-              <img
-                className="commerce-product-image"
-                src={product.imageThumbUrl || product.imageUrl}
-                alt={product.name}
-                loading="lazy"
-                decoding="async"
-              />
-            ) : (
-              <span>{product.name.slice(0, 1)}</span>
-            )}
-          </div>
-          <div className="commerce-product-copy">
-            <div className="commerce-product-head">
-              <strong>{product.name}</strong>
-              {product.price !== null && product.price !== undefined ? (
-                <span>{formatCurrency(product.price, currency)}</span>
-              ) : null}
-            </div>
-          </div>
-        </div>
-      </button>
-    );
-  }
-
   return (
-    <article className="commerce-product-card">
-      <div className="commerce-product-main">
-        <div className="commerce-product-image-shell">
+    <article className={`commerce-product-card commerce-visual-product-card ${supportsCart ? "supports-cart" : "is-catalog-card"}`.trim()}>
+      <button className="commerce-product-main" type="button" onClick={() => onOpenDetails(product)} disabled={preview}>
+        <div className="commerce-product-image-shell" aria-hidden="true">
           {product.imageThumbUrl || product.imageUrl ? (
             <img
               className="commerce-product-image"
@@ -213,38 +180,18 @@ function ProductCard({
           )}
         </div>
         <div className="commerce-product-copy">
-          <div className="commerce-product-head">
-            <strong>{product.name}</strong>
-            {product.price !== null && product.price !== undefined ? (
-              <span>{formatCurrency(product.price, currency)}</span>
-            ) : null}
-          </div>
-          {product.description ? <p>{product.description}</p> : null}
+          <strong>{product.name}</strong>
+          {product.price !== null && product.price !== undefined ? (
+            <span>{formatCurrency(product.price, currency)}</span>
+          ) : null}
         </div>
-      </div>
+      </button>
 
-      <div className="commerce-product-actions">
-        {supportsCart ? (
-          <>
-            <div className="commerce-quantity-stepper" aria-label={`Cantidad de ${product.name}`}>
-              <button type="button" onClick={() => onQuantityStep(product.id, -1)} disabled={preview || quantity <= 1} aria-label="Reducir cantidad">
-                <Minus size={16} />
-              </button>
-              <span>{quantity}</span>
-              <button type="button" onClick={() => onQuantityStep(product.id, 1)} disabled={preview} aria-label="Aumentar cantidad">
-                <Plus size={16} />
-              </button>
-            </div>
-            <button className="commerce-product-add-button" type="button" onClick={() => onAdd(product)} disabled={preview}>
-              Agregar <Plus size={16} />
-            </button>
-          </>
-        ) : (
-          <button className="commerce-product-add-button is-consult" type="button" onClick={() => onConsult(product)} disabled={preview}>
-            Consultar <MessageCircle size={16} />
-          </button>
-        )}
-      </div>
+      {supportsCart ? (
+        <button className="commerce-product-add-button" type="button" onClick={() => onAdd(product, 1)} disabled={preview}>
+          Agregar <Plus size={16} />
+        </button>
+      ) : null}
     </article>
   );
 }
@@ -256,11 +203,8 @@ function ProductsGrid({
   pagination,
   isPending,
   onAdd,
-  onConsult,
   onOpenDetails,
   onLoadMore,
-  getQuantity,
-  onQuantityStep,
   emptyLabel,
 }) {
   const currency = bootstrap?.config?.currency || "COP";
@@ -277,11 +221,8 @@ function ProductsGrid({
             preview={preview}
             currency={currency}
             supportsCart={supportsCart}
-            quantity={getQuantity(product.id)}
             onAdd={onAdd}
-            onConsult={onConsult}
             onOpenDetails={onOpenDetails}
-            onQuantityStep={onQuantityStep}
           />
         ))}
 
@@ -418,6 +359,7 @@ export function CommercePublicView({ bootstrap, preview = false }) {
   const isSectionLoading = Boolean(pendingSelection);
   const detailImages = normalizePublicProductImages(detailProduct?.images, detailProduct || {});
   const activeDetailImage = detailImages[detailImageIndex] || detailImages[0] || null;
+  const coverImage = safeBusiness.photo || safeBusiness.photoThumb || "";
 
   const pageBackground = appearance.backgroundStyle === "gradient"
     ? `linear-gradient(180deg, ${appearance.backgroundColor} 0%, ${hexToRgba(appearance.tertiaryColor, 0.72)} 58%, ${hexToRgba(appearance.secondaryColor, 0.28)} 100%)`
@@ -444,6 +386,13 @@ export function CommercePublicView({ bootstrap, preview = false }) {
     "--commerce-shadow": hexToRgba(appearance.textPrimaryColor, 0.08),
     "--commerce-button-text": appearance.buttonTextColor,
   };
+  const headerStyle = coverImage
+    ? {
+      backgroundImage: `linear-gradient(180deg, ${hexToRgba(appearance.textPrimaryColor, 0.08)}, ${hexToRgba(appearance.textPrimaryColor, 0.72)}), url("${coverImage}")`,
+    }
+    : {
+      backgroundImage: `linear-gradient(135deg, ${appearance.primaryColor}, ${appearance.secondaryColor})`,
+    };
 
   function applyChunk(nextSelection, nextChunk, append = false) {
     const resolvedSelection = {
@@ -641,8 +590,8 @@ export function CommercePublicView({ bootstrap, preview = false }) {
     }));
   }
 
-  function handleAddToCart(product) {
-    const quantity = getProductQuantity(product.id);
+  function handleAddToCart(product, quantityOverride = null) {
+    const quantity = Math.max(1, Number(quantityOverride || getProductQuantity(product.id)));
     setCartItems((current) => {
       const exists = current.find((item) => item.id === product.id);
       if (exists) {
@@ -658,12 +607,6 @@ export function CommercePublicView({ bootstrap, preview = false }) {
       .filter((item) => item.quantity > 0));
   }
 
-  function handleDirectConsult(product) {
-    if (preview || !safeBootstrap.orderWhatsapp) return;
-    const message = encodeURIComponent(`Hola, quiero información sobre ${product.name} en ${safeBusiness.businessName}.`);
-    window.open(`https://wa.me/${safeBootstrap.orderWhatsapp}?text=${message}`, "_blank", "noopener,noreferrer");
-  }
-
   function openProductDetail(product) {
     setDetailProduct(product);
     setDetailImageIndex(0);
@@ -677,6 +620,12 @@ export function CommercePublicView({ bootstrap, preview = false }) {
   function handleDetailWhatsapp(product) {
     if (preview || !safeBootstrap.orderWhatsapp || !product) return;
     const message = `Hola, vi este producto en su catálogo y quiero más información sobre: ${product.name}`;
+    window.open(buildWhatsappLink(safeBootstrap.orderWhatsapp, message), "_blank", "noopener,noreferrer");
+  }
+
+  function handleGlobalWhatsapp() {
+    if (preview || !safeBootstrap.orderWhatsapp) return;
+    const message = `Hola, quiero información sobre ${safeBusiness.businessName}.`;
     window.open(buildWhatsappLink(safeBootstrap.orderWhatsapp, message), "_blank", "noopener,noreferrer");
   }
 
@@ -715,8 +664,21 @@ export function CommercePublicView({ bootstrap, preview = false }) {
   return (
     <main className={`commerce-page ${preview ? "is-preview" : ""}`} style={rootStyle}>
       <section className="commerce-shell">
-        <header className="commerce-header">
-          <div className="commerce-brand-lockup">
+        <header className="commerce-header commerce-visual-hero" style={headerStyle}>
+          <div className="commerce-hero-actions">
+            {safeBootstrap.orderWhatsapp ? (
+              <button className="commerce-hero-action is-whatsapp" type="button" onClick={handleGlobalWhatsapp} disabled={preview} aria-label="Abrir WhatsApp">
+                <MessageCircle size={18} />
+              </button>
+            ) : null}
+            {!preview ? (
+              <button className="commerce-hero-action" type="button" onClick={handleShare} aria-label="Compartir">
+                <Share2 size={18} />
+              </button>
+            ) : null}
+          </div>
+
+          <div className="commerce-hero-brand">
             {safeBusiness.photo ? (
               <img className="commerce-avatar" src={safeBusiness.photoThumb || safeBusiness.photo} alt={safeBusiness.businessName} />
             ) : (
@@ -724,54 +686,29 @@ export function CommercePublicView({ bootstrap, preview = false }) {
             )}
             <h1>{safeBusiness.businessName}</h1>
           </div>
-          {!preview ? (
-            <button className="commerce-share-button" type="button" onClick={handleShare} aria-label="Compartir">
-              <Share2 size={18} />
-            </button>
-          ) : null}
         </header>
 
         <div className={`commerce-shop-layout ${safeBootstrap.supportsCart ? "has-cart" : "has-no-cart"}`.trim()}>
-          <aside className="commerce-navigation-panel" aria-label="Navegación de productos">
-            <div className="commerce-category-rail" aria-label="Categorías">
-              {categories.map((category) => {
-                const isActive = selection.categoryId === category.id;
-                return (
-                  <button
-                    key={category.id}
-                    className={`commerce-category-chip ${isActive ? "is-active" : ""}`.trim()}
-                    type="button"
-                    onClick={() => handleSelectCategory(category)}
-                  >
-                    <span>{category.name}</span>
-                  </button>
-                );
-              })}
-            </div>
-
-            {selection.categoryId && subcategories.length ? (
-              <div className="commerce-subcategory-rail" aria-label="Subcategorías">
-                {subcategories.map((subcategory) => {
-                  const isActive = selection.subcategoryId === subcategory.id;
+          <section className="commerce-menu-board">
+            <nav className="commerce-navigation-panel" aria-label="Navegación de productos">
+              <div className="commerce-category-rail" aria-label="Categorías">
+                {categories.map((category) => {
+                  const isActive = selection.categoryId === category.id;
                   return (
                     <button
-                      key={subcategory.id}
-                      className={`commerce-subcategory-chip ${isActive ? "is-active" : ""}`.trim()}
+                      key={category.id}
+                      className={`commerce-category-chip ${isActive ? "is-active" : ""}`.trim()}
                       type="button"
-                      onClick={() => handleSelectSubcategory(subcategory.id)}
+                      onClick={() => handleSelectCategory(category)}
                     >
-                      <span>{subcategory.name}</span>
+                      <span>{category.name}</span>
                     </button>
                   );
                 })}
               </div>
-            ) : null}
-          </aside>
 
-          <section className="commerce-menu-board">
-            {selection.categoryId && subcategories.length ? (
-              <div className="commerce-subcategory-panel" aria-label="Subcategorías">
-                <div className="commerce-subcategory-rail">
+              {selection.categoryId && subcategories.length ? (
+                <div className="commerce-subcategory-rail" aria-label="Subcategorías">
                   {subcategories.map((subcategory) => {
                     const isActive = selection.subcategoryId === subcategory.id;
                     return (
@@ -786,7 +723,13 @@ export function CommercePublicView({ bootstrap, preview = false }) {
                     );
                   })}
                 </div>
-              </div>
+              ) : null}
+            </nav>
+
+            {selection.categoryId && subcategories.length ? (
+              <span className="commerce-current-section-label">
+                {subcategories.find((subcategory) => subcategory.id === selection.subcategoryId)?.name || selectedCategory?.name}
+              </span>
             ) : null}
 
             {isSectionLoading ? (
@@ -798,14 +741,11 @@ export function CommercePublicView({ bootstrap, preview = false }) {
                 products={products}
                 pagination={pagination}
                 isPending={isPending}
-              onAdd={handleAddToCart}
-              onConsult={handleDirectConsult}
-              onOpenDetails={openProductDetail}
-              onLoadMore={() => loadChunk(selection, { append: true, after: pagination.nextCursor, includeSubcategories: false })}
-              getQuantity={getProductQuantity}
-              onQuantityStep={handleProductQuantityStep}
-              emptyLabel={safeModeMeta.emptyLabel}
-            />
+                onAdd={handleAddToCart}
+                onOpenDetails={openProductDetail}
+                onLoadMore={() => loadChunk(selection, { append: true, after: pagination.nextCursor, includeSubcategories: false })}
+                emptyLabel={safeModeMeta.emptyLabel}
+              />
             ) : (
               <div className="commerce-empty-state commerce-subcategory-empty">
                 <strong>Selecciona una subcategoría</strong>
@@ -849,6 +789,18 @@ export function CommercePublicView({ bootstrap, preview = false }) {
           <ShoppingCart size={20} />
           <span>Ver pedido ({cartCount}) - {formatCurrency(cartTotal, safeConfig.currency)}</span>
           <ChevronRight size={20} />
+        </button>
+      ) : null}
+
+      {safeBootstrap.orderWhatsapp ? (
+        <button
+          className={`commerce-whatsapp-fab ${safeBootstrap.supportsCart ? "has-order-bar" : ""}`.trim()}
+          type="button"
+          onClick={handleGlobalWhatsapp}
+          disabled={preview}
+          aria-label="Abrir WhatsApp"
+        >
+          <MessageCircle size={22} />
         </button>
       ) : null}
 
@@ -922,9 +874,34 @@ export function CommercePublicView({ bootstrap, preview = false }) {
               )}
             </div>
 
-            <button className="btn btn-primary commerce-product-detail-whatsapp" type="button" onClick={() => handleDetailWhatsapp(detailProduct)} disabled={!safeBootstrap.orderWhatsapp || preview}>
-              <MessageCircle size={18} /> Preguntar por WhatsApp
-            </button>
+            {safeBootstrap.supportsCart ? (
+              <div className="commerce-product-detail-actions">
+                <div className="commerce-quantity-stepper" aria-label={`Cantidad de ${detailProduct.name}`}>
+                  <button type="button" onClick={() => handleProductQuantityStep(detailProduct.id, -1)} disabled={preview || getProductQuantity(detailProduct.id) <= 1} aria-label="Reducir cantidad">
+                    <Minus size={16} />
+                  </button>
+                  <span>{getProductQuantity(detailProduct.id)}</span>
+                  <button type="button" onClick={() => handleProductQuantityStep(detailProduct.id, 1)} disabled={preview} aria-label="Aumentar cantidad">
+                    <Plus size={16} />
+                  </button>
+                </div>
+                <button
+                  className="btn btn-primary commerce-product-detail-whatsapp"
+                  type="button"
+                  onClick={() => {
+                    handleAddToCart(detailProduct, getProductQuantity(detailProduct.id));
+                    closeProductDetail();
+                  }}
+                  disabled={preview}
+                >
+                  <ShoppingCart size={18} /> Agregar al pedido
+                </button>
+              </div>
+            ) : (
+              <button className="btn btn-primary commerce-product-detail-whatsapp" type="button" onClick={() => handleDetailWhatsapp(detailProduct)} disabled={!safeBootstrap.orderWhatsapp || preview}>
+                <MessageCircle size={18} /> Pedir por WhatsApp
+              </button>
+            )}
           </div>
         </div>
       ) : null}
