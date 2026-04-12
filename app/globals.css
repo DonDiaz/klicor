@@ -6980,6 +6980,7 @@ html[data-theme="dark"] .admin-sidebar-note {
 .commerce-cart-sheet-head span,
 .commerce-cart-item-copy span,
 .commerce-cart-note span,
+.commerce-cart-section-title span,
 .commerce-cart-summary span {
   color: var(--commerce-muted);
 }
@@ -7103,6 +7104,60 @@ html[data-theme="dark"] .admin-sidebar-note {
   font-size: 1.35rem;
 }
 
+.commerce-cart-customer,
+.commerce-cart-payment {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.commerce-cart-section-title {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.commerce-cart-section-title strong {
+  color: var(--commerce-text);
+  font-size: 0.98rem;
+  line-height: 1.15;
+}
+
+.commerce-cart-section-title span,
+.commerce-transfer-note {
+  font-size: 0.86rem;
+  line-height: 1.35;
+}
+
+.commerce-cart-payment-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.55rem;
+}
+
+.commerce-payment-option {
+  min-height: 2.85rem;
+  border: 1px solid var(--commerce-line);
+  border-radius: 8px;
+  background: var(--commerce-surface);
+  color: var(--commerce-text);
+  font-weight: 850;
+}
+
+.commerce-payment-option.is-active {
+  border-color: var(--commerce-primary);
+  background: var(--commerce-primary);
+  color: var(--commerce-button-text);
+  box-shadow: 0 12px 24px var(--commerce-primary-shadow);
+}
+
+.commerce-transfer-note {
+  margin: 0;
+  border: 1px solid var(--commerce-primary-border);
+  border-radius: 8px;
+  padding: 0.75rem;
+  background: var(--commerce-primary-soft);
+  color: var(--commerce-muted);
+}
+
 .commerce-cart-note {
   font-weight: 850;
 }
@@ -7114,9 +7169,18 @@ html[data-theme="dark"] .admin-sidebar-note {
 
 .commerce-cart-sheet-footer {
   flex: 0 0 auto;
+  display: grid;
+  gap: 0.55rem;
   padding: 0.85rem 1rem max(0.85rem, env(safe-area-inset-bottom));
   border-top: 1px solid var(--commerce-line);
   background: linear-gradient(180deg, color-mix(in srgb, var(--commerce-surface) 86%, transparent), var(--commerce-surface));
+}
+
+.commerce-cart-submit-hint {
+  color: var(--commerce-muted);
+  font-size: 0.82rem;
+  line-height: 1.25;
+  text-align: center;
 }
 
 .commerce-whatsapp-checkout-button {

@@ -37,25 +37,58 @@ function formatCurrency(value, currency = "COP") {
   }
 }
 
-function buildOrderMessage({ items, total, note, currency }) {
-  const lines = ["Hola, quiero hacer el siguiente pedido:", "", "🛒 Pedido:"];
+function formatCashAmount(value, currency = "COP") {
+  const cleanValue = String(value || "").trim();
+  if (!cleanValue) return "";
+  if (/^[\d\s.,$]+$/.test(cleanValue)) {
+    const digits = cleanValue.replace(/\D/g, "");
+    if (digits) return formatCurrency(Number(digits), currency);
+  }
+  return cleanValue;
+}
+
+function buildOrderMessage({ items, total, note, customer, payment, currency }) {
+  const cleanCustomer = {
+    name: String(customer?.customerName || "").trim(),
+    phone: String(customer?.phone || "").trim(),
+    address: String(customer?.address || "").trim(),
+  };
+  const cleanPayment = {
+    method: payment?.method === "transfer" ? "transfer" : "cash",
+    cashAmount: String(payment?.cashAmount || "").trim(),
+  };
+  const lines = ["Hola, quiero hacer el siguiente pedido:", "", "Pedido:"];
 
   items.forEach((item) => {
     lines.push(`- ${item.name} x${item.quantity} - ${formatCurrency(item.price * item.quantity, currency)}`);
   });
 
   lines.push("");
-  lines.push(`🧾 Total: ${formatCurrency(total, currency)}`);
+  lines.push(`Total: ${formatCurrency(total, currency)}`);
+  lines.push("");
+  lines.push("Datos del cliente:");
+  lines.push(`Nombre: ${cleanCustomer.name}`);
+  lines.push(`Teléfono: ${cleanCustomer.phone}`);
+  lines.push(`Dirección: ${cleanCustomer.address}`);
+  lines.push("");
+  lines.push("Forma de pago:");
+
+  if (cleanPayment.method === "transfer") {
+    lines.push("Transferencia. Por favor envíame el link de Klicor con los medios de pago.");
+  } else {
+    lines.push("Efectivo");
+    lines.push(`Pago con: ${formatCashAmount(cleanPayment.cashAmount, currency)}`);
+  }
 
   const cleanNote = String(note || "").trim();
   if (cleanNote) {
     lines.push("");
-    lines.push("📝 Nota:");
+    lines.push("Nota:");
     lines.push(cleanNote);
   }
 
   lines.push("");
-  lines.push("Quedo atento 🙌");
+  lines.push("Quedo atento.");
   return lines.join("\n");
 }
 
@@ -336,6 +369,15 @@ export function CommercePublicView({ bootstrap, preview = false }) {
   const [productQuantities, setProductQuantities] = useState({});
   const [cartOpen, setCartOpen] = useState(false);
   const [orderNote, setOrderNote] = useState("");
+  const [customer, setCustomer] = useState({
+    customerName: "",
+    phone: "",
+    address: "",
+  });
+  const [payment, setPayment] = useState({
+    method: "cash",
+    cashAmount: "",
+  });
   const [detailProduct, setDetailProduct] = useState(null);
   const [detailImageIndex, setDetailImageIndex] = useState(0);
   const [pendingSelection, setPendingSelection] = useState(null);
@@ -351,6 +393,14 @@ export function CommercePublicView({ bootstrap, preview = false }) {
   const cartCount = useMemo(
     () => cartItems.reduce((accumulator, item) => accumulator + item.quantity, 0),
     [cartItems],
+  );
+  const canSendOrder = Boolean(
+    cartItems.length
+    && safeBootstrap.orderWhatsapp
+    && String(customer.customerName || "").trim()
+    && String(customer.phone || "").trim()
+    && String(customer.address || "").trim()
+    && (payment.method === "transfer" || String(payment.cashAmount || "").trim()),
   );
   const selectedCategory = useMemo(
     () => categories.find((category) => category.id === selection.categoryId) || null,
@@ -676,11 +726,13 @@ export function CommercePublicView({ bootstrap, preview = false }) {
   }
 
   function handleCheckout() {
-    if (preview || !safeBootstrap.orderWhatsapp || !cartItems.length) return;
+    if (preview || !canSendOrder) return;
     const message = buildOrderMessage({
       items: cartItems,
       total: cartTotal,
       note: orderNote,
+      customer,
+      payment,
       currency: safeConfig.currency,
     });
     window.open(buildWhatsappLink(safeBootstrap.orderWhatsapp, message), "_blank", "noopener,noreferrer");
@@ -1018,6 +1070,73 @@ export function CommercePublicView({ bootstrap, preview = false }) {
                 </div>
               </section>
 
+              <section className="commerce-cart-customer" aria-label="Datos del cliente">
+                <div className="commerce-cart-section-title">
+                  <strong>Datos de entrega</strong>
+                  <span>Los necesita el negocio para confirmar tu pedido.</span>
+                </div>
+                <input
+                  className="input"
+                  placeholder="Nombre completo"
+                  autoComplete="name"
+                  value={customer.customerName}
+                  onChange={(event) => setCustomer((current) => ({ ...current, customerName: event.target.value }))}
+                />
+                <input
+                  className="input"
+                  placeholder="Teléfono"
+                  inputMode="tel"
+                  autoComplete="tel"
+                  value={customer.phone}
+                  onChange={(event) => setCustomer((current) => ({ ...current, phone: event.target.value }))}
+                />
+                <input
+                  className="input"
+                  placeholder="Dirección de entrega"
+                  autoComplete="street-address"
+                  value={customer.address}
+                  onChange={(event) => setCustomer((current) => ({ ...current, address: event.target.value }))}
+                />
+              </section>
+
+              <section className="commerce-cart-payment" aria-label="Forma de pago">
+                <div className="commerce-cart-section-title">
+                  <strong>Forma de pago</strong>
+                  <span>Así el negocio puede preparar cambio o enviarte su link Klicor.</span>
+                </div>
+                <div className="commerce-cart-payment-options">
+                  <button
+                    className={`commerce-payment-option ${payment.method === "cash" ? "is-active" : ""}`.trim()}
+                    type="button"
+                    onClick={() => setPayment((current) => ({ ...current, method: "cash" }))}
+                  >
+                    Efectivo
+                  </button>
+                  <button
+                    className={`commerce-payment-option ${payment.method === "transfer" ? "is-active" : ""}`.trim()}
+                    type="button"
+                    onClick={() => setPayment((current) => ({ ...current, method: "transfer" }))}
+                  >
+                    Transferencia
+                  </button>
+                </div>
+
+                {payment.method === "cash" ? (
+                  <input
+                    className="input"
+                    placeholder="¿Con cuánto vas a pagar?"
+                    inputMode="numeric"
+                    autoComplete="off"
+                    value={payment.cashAmount}
+                    onChange={(event) => setPayment((current) => ({ ...current, cashAmount: event.target.value }))}
+                  />
+                ) : (
+                  <p className="commerce-transfer-note">
+                    El negocio te responderá con su link Klicor para que elijas el medio de pago.
+                  </p>
+                )}
+              </section>
+
               <label className="commerce-cart-note">
                 <span>Notas del pedido</span>
                 <textarea
@@ -1031,11 +1150,14 @@ export function CommercePublicView({ bootstrap, preview = false }) {
             </div>
 
             <div className="commerce-cart-sheet-footer">
+              {cartItems.length && !canSendOrder ? (
+                <span className="commerce-cart-submit-hint">Completa datos de entrega y pago para enviar el pedido.</span>
+              ) : null}
               <button
                 className="commerce-whatsapp-checkout-button"
                 type="button"
                 onClick={handleCheckout}
-                disabled={!cartItems.length || !safeBootstrap.orderWhatsapp || preview}
+                disabled={!canSendOrder || preview}
               >
                 <MessageCircle size={18} /> Enviar pedido por WhatsApp
               </button>
