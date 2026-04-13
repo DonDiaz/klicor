@@ -4,10 +4,15 @@ import { useMemo, useState } from "react";
 import {
   ArrowRight,
   CalendarCheck,
+  Camera,
   ChevronRight,
+  Coffee,
   Compass,
+  Heart,
+  Hotel,
   MapPin,
   Search,
+  ShoppingBag,
   Sparkles,
 } from "lucide-react";
 import {
@@ -39,7 +44,18 @@ function DorikaSearch() {
   );
 }
 
-function DorikaMapPreview({ activePin, onSelectPin }) {
+function resolveMapIcon(pin = {}) {
+  if (pin.icon) return pin.icon;
+  if (pin.tone === "food") return Coffee;
+  if (pin.tone === "hotel") return Hotel;
+  if (pin.tone === "store") return ShoppingBag;
+  if (pin.tone === "beauty") return Heart;
+  return Camera;
+}
+
+function DorikaMapPreview({ activePin, mapPins = dorikaMapPins, onSelectPin }) {
+  const pins = mapPins.length ? mapPins : dorikaMapPins;
+
   return (
     <section className="dorika-map-card" aria-label="Mapa Dorika">
       <div className="dorika-map-topbar">
@@ -55,13 +71,13 @@ function DorikaMapPreview({ activePin, onSelectPin }) {
         <span className="dorika-map-blob is-two" />
         <span className="dorika-map-blob is-three" />
         <span className="dorika-map-route-line" />
-        {dorikaMapPins.map((pin) => {
-          const Icon = pin.icon;
+        {pins.map((pin) => {
+          const Icon = resolveMapIcon(pin);
           const isActive = activePin === pin.id;
           return (
             <button
               key={pin.id}
-              className={`dorika-map-pin is-${pin.tone} ${isActive ? "is-active" : ""}`.trim()}
+              className={`dorika-map-pin is-${pin.tone || "tourism"} ${isActive ? "is-active" : ""}`.trim()}
               type="button"
               style={{ left: `${pin.x}%`, top: `${pin.y}%` }}
               onClick={() => onSelectPin(pin.id)}
@@ -78,22 +94,36 @@ function DorikaMapPreview({ activePin, onSelectPin }) {
 }
 
 function NearbyCard({ business }) {
-  return (
-    <article className="dorika-nearby-card">
+  const content = (
+    <>
       <img src={business.image} alt={business.name} loading="lazy" decoding="async" />
       <div>
         <span>{business.type} · {business.distance}</span>
         <strong>{business.name}</strong>
         <small><MapPin size={13} /> {business.location}</small>
       </div>
-      <button type="button">{business.cta}</button>
+      <span className="dorika-card-action">{business.cta}</span>
+    </>
+  );
+
+  if (business.actionUrl) {
+    return (
+      <a className="dorika-nearby-card" href={business.actionUrl}>
+        {content}
+      </a>
+    );
+  }
+
+  return (
+    <article className="dorika-nearby-card">
+      {content}
     </article>
   );
 }
 
 function ProductCard({ product }) {
-  return (
-    <article className="dorika-product-card">
+  const content = (
+    <>
       <img src={product.image} alt={product.name} loading="lazy" decoding="async" />
       <div>
         <span>{product.tag}</span>
@@ -102,8 +132,22 @@ function ProductCard({ product }) {
       </div>
       <footer>
         <strong>{product.price}</strong>
-        <button type="button">Ver en tienda</button>
+        <span className="dorika-card-action">Ver en tienda</span>
       </footer>
+    </>
+  );
+
+  if (product.actionUrl) {
+    return (
+      <a className="dorika-product-card" href={product.actionUrl}>
+        {content}
+      </a>
+    );
+  }
+
+  return (
+    <article className="dorika-product-card">
+      {content}
     </article>
   );
 }
@@ -146,9 +190,15 @@ function DorikaBottomNav({ activeNav, onChange }) {
   );
 }
 
-export function DorikaHome() {
+export function DorikaHome({ snapshot = {} }) {
+  const businesses = snapshot.businesses?.length ? snapshot.businesses : dorikaNearbyBusinesses;
+  const products = snapshot.products?.length ? snapshot.products : dorikaProducts;
+  const routes = snapshot.routes?.length ? snapshot.routes : dorikaRoutes;
+  const mapPins = snapshot.mapPins?.length ? snapshot.mapPins : dorikaMapPins;
+  const suggestions = snapshot.suggestions?.length ? snapshot.suggestions : dorikaSearchSuggestions;
+
   const [activeIntent, setActiveIntent] = useState("eat");
-  const [activePin, setActivePin] = useState("p2");
+  const [activePin, setActivePin] = useState(mapPins[0]?.id || "p2");
   const [activeNav, setActiveNav] = useState("home");
   const activeIntentLabel = useMemo(
     () => dorikaIntentChips.find((item) => item.id === activeIntent)?.label || "Explorar",
@@ -161,10 +211,10 @@ export function DorikaHome() {
         <header className="dorika-header">
           <div>
             <DorikaLogo />
-            <p>Hola, Jhonnathan</p>
+            <p>Hola, explorador</p>
           </div>
           <button className="dorika-avatar-button" type="button" aria-label="Abrir perfil">
-            J
+            D
           </button>
         </header>
 
@@ -226,7 +276,7 @@ export function DorikaHome() {
             <button type="button">Filtrar</button>
           </div>
           <div className="dorika-nearby-rail">
-            {dorikaNearbyBusinesses.map((business) => (
+            {businesses.map((business) => (
               <NearbyCard key={business.id} business={business} />
             ))}
           </div>
@@ -250,17 +300,17 @@ export function DorikaHome() {
             <button type="button">Más productos</button>
           </div>
           <div className="dorika-product-grid">
-            {dorikaProducts.map((product) => (
+            {products.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
           </div>
         </section>
 
         <section className="dorika-tourism-panel">
-          <RouteCard route={dorikaRoutes[1]} featured />
+          <RouteCard route={routes[1] || routes[0]} featured />
         </section>
 
-        <DorikaMapPreview activePin={activePin} onSelectPin={setActivePin} />
+        <DorikaMapPreview activePin={activePin} mapPins={mapPins} onSelectPin={setActivePin} />
 
         <section className="dorika-section dorika-routes-section">
           <div className="dorika-section-head">
@@ -271,7 +321,7 @@ export function DorikaHome() {
             <button type="button">Crear plan</button>
           </div>
           <div className="dorika-route-list">
-            {dorikaRoutes.map((route) => (
+            {routes.map((route) => (
               <RouteCard key={route.id} route={route} />
             ))}
           </div>
@@ -280,7 +330,7 @@ export function DorikaHome() {
         <section className="dorika-suggestions">
           <span>Búsquedas rápidas</span>
           <div>
-            {dorikaSearchSuggestions.map((suggestion) => (
+            {suggestions.map((suggestion) => (
               <button key={suggestion.id} type="button">
                 {suggestion.label} <ChevronRight size={14} />
               </button>
@@ -295,7 +345,7 @@ export function DorikaHome() {
           <h2>Guía pública hoy, software completo mañana.</h2>
           <p>Dorika conecta negocios Klicor con personas, rutas, productos y lugares. Primero gana confianza como guía local, luego crece como una plataforma más completa para negocios.</p>
         </div>
-        <DorikaMapPreview activePin={activePin} onSelectPin={setActivePin} />
+        <DorikaMapPreview activePin={activePin} mapPins={mapPins} onSelectPin={setActivePin} />
       </aside>
 
       <DorikaBottomNav activeNav={activeNav} onChange={setActiveNav} />

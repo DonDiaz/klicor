@@ -636,7 +636,7 @@ export function AdminPanel({ token, initialData, adminUser }) {
         ) : null}
 
         {section === "dorika" ? (
-          <DorikaAdminPlanner />
+          <DorikaAdminPlanner token={token} />
         ) : null}
 
         {section === "settings" ? (

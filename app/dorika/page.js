@@ -1,4 +1,5 @@
 import { DorikaHome } from "@/components/dorika-home";
+import { getDorikaPublicSnapshot } from "@/lib/dorika-firestore";
 
 export const metadata = {
   title: "Dorika | Negocios, rutas y experiencias",
@@ -9,6 +10,7 @@ export const metadata = {
   },
 };
 
-export default function DorikaPage() {
-  return <DorikaHome />;
+export default async function DorikaPage() {
+  const snapshot = await getDorikaPublicSnapshot();
+  return <DorikaHome snapshot={snapshot} />;
 }

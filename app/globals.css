@@ -8379,7 +8379,8 @@ html[data-theme="dark"] .admin-sidebar-note {
 .dorika-admin-form,
 .dorika-admin-card,
 .dorika-route-builder,
-.dorika-admin-checklist {
+.dorika-admin-checklist,
+.dorika-admin-live-list {
   display: grid;
   gap: 1rem;
 }
@@ -8649,6 +8650,8 @@ html[data-theme="dark"] .admin-sidebar-note {
   padding: 0.72rem;
   background: #fff;
   box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+  color: inherit;
+  text-decoration: none;
 }
 
 .dorika-nearby-card img {
@@ -8676,8 +8679,11 @@ html[data-theme="dark"] .admin-sidebar-note {
   gap: 0.25rem;
 }
 
-.dorika-nearby-card button {
+.dorika-nearby-card .dorika-card-action {
   grid-column: 1 / -1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   min-height: 2.55rem;
   border: 0;
   border-radius: 12px;
@@ -8695,9 +8701,12 @@ html[data-theme="dark"] .admin-sidebar-note {
 
 .dorika-agenda-card button,
 .dorika-route-card button,
-.dorika-product-card button,
+.dorika-product-card .dorika-card-action,
 .dorika-desktop-card button,
 .dorika-admin-hero .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   min-height: 2.75rem;
   border: 0;
   border-radius: 12px;
@@ -8720,6 +8729,8 @@ html[data-theme="dark"] .admin-sidebar-note {
   padding: 0.55rem;
   background: #fff;
   box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+  color: inherit;
+  text-decoration: none;
 }
 
 .dorika-product-card img {
@@ -8744,7 +8755,7 @@ html[data-theme="dark"] .admin-sidebar-note {
   color: #22a98a;
 }
 
-.dorika-product-card button {
+.dorika-product-card .dorika-card-action {
   min-height: 2.35rem;
   font-size: 0.82rem;
 }
@@ -9038,6 +9049,35 @@ html[data-theme="dark"] .admin-sidebar-note {
   border-radius: 20px;
 }
 
+.dorika-admin-panel .form-error,
+.dorika-admin-panel .form-success {
+  margin: 0;
+  border-radius: 14px;
+  padding: 0.85rem 1rem;
+  font-weight: 600;
+}
+
+.dorika-admin-panel .form-error {
+  border: 1px solid rgba(220, 38, 38, 0.18);
+  background: rgba(254, 226, 226, 0.7);
+  color: #991b1b;
+}
+
+.dorika-admin-panel .form-success {
+  border: 1px solid rgba(34, 169, 138, 0.25);
+  background: rgba(205, 238, 229, 0.55);
+  color: #0f766e;
+}
+
+.dorika-admin-loading {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 16px;
+  color: #0f172a;
+  font-weight: 600;
+}
+
 .dorika-admin-form label {
   display: grid;
   gap: 0.42rem;
@@ -9164,6 +9204,73 @@ html[data-theme="dark"] .admin-sidebar-note {
   gap: 0.45rem;
   margin: 0;
   color: #0f172a;
+}
+
+.dorika-admin-live-list > strong {
+  color: #0f172a;
+  font-size: 1.05rem;
+}
+
+.dorika-admin-live-list > p {
+  margin: 0;
+  color: #6b7280;
+}
+
+.dorika-admin-live-list > div {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.dorika-admin-live-list article {
+  display: grid;
+  grid-template-columns: 3.25rem minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.7rem;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 14px;
+  padding: 0.55rem;
+  background: #fff;
+}
+
+.dorika-admin-live-list img {
+  width: 3.25rem;
+  height: 3.25rem;
+  object-fit: cover;
+  border-radius: 12px;
+  background: #f7f4ef;
+}
+
+.dorika-admin-live-list article > div {
+  min-width: 0;
+  display: grid;
+  gap: 0.15rem;
+}
+
+.dorika-admin-live-list article strong {
+  min-width: 0;
+  overflow: hidden;
+  color: #0f172a;
+  font-size: 0.95rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dorika-admin-live-list small {
+  min-width: 0;
+  overflow: hidden;
+  color: #6b7280;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dorika-admin-live-list em {
+  border-radius: 999px;
+  padding: 0.35rem 0.55rem;
+  background: #cdeee5;
+  color: #0f172a;
+  font-size: 0.76rem;
+  font-style: normal;
+  font-weight: 600;
 }
 
 @media (min-width: 760px) {
