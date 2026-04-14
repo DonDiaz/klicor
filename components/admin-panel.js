@@ -5,7 +5,6 @@ import {
   BarChart3,
   Building2,
   CalendarClock,
-  Compass,
   CreditCard,
   Loader2,
   PanelLeftClose,
@@ -19,7 +18,6 @@ import {
 import { ADMIN_ACCOUNT_STATUS_OPTIONS, ADMIN_ORIGIN_OPTIONS, ADMIN_PLAN_OPTIONS } from "@/lib/admin-config";
 import { apiFetch } from "@/lib/client-api";
 import { AdminUserDrawer } from "@/components/admin-user-drawer";
-import { DorikaAdminPlanner } from "@/components/dorika-admin-planner";
 
 const ADMIN_SECTIONS = [
   {
@@ -51,12 +49,6 @@ const ADMIN_SECTIONS = [
     label: "Convenios y alianzas",
     icon: Building2,
     description: "Base lista para Cámara de Comercio, agencias y convenios.",
-  },
-  {
-    id: "dorika",
-    label: "Dorika",
-    icon: Compass,
-    description: "Negocios, rutas, lugares y turismo.",
   },
   {
     id: "settings",
@@ -633,10 +625,6 @@ export function AdminPanel({ token, initialData, adminUser }) {
               </div>
             </section>
           </section>
-        ) : null}
-
-        {section === "dorika" ? (
-          <DorikaAdminPlanner token={token} />
         ) : null}
 
         {section === "settings" ? (
