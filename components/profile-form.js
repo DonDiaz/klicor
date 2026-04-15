@@ -584,7 +584,6 @@ export function ProfileForm({
       return true;
     });
   }, [customThemes]);
-  const activeTheme = useMemo(() => availableThemes.find((theme) => theme.id === appearance.presetId) || null, [appearance.presetId, availableThemes]);
   const availableLinkTypes = useMemo(() => LINK_CATALOG.filter((item) => item.type !== "payment_key"), []);
   const selectedTypeLimit = selectedType ? getLinkTypeLimit(selectedType) : 0;
   const selectedTypeCount = selectedType ? getLinkTypeCount(profileLinks, selectedType) : 0;
@@ -902,13 +901,10 @@ export function ProfileForm({
       advancedEnabled: false,
       ...preset.appearance,
     }));
-    setThemeDraftName(preset.name || "");
+    setThemeDraftName("");
   }
 
   function updateAppearance(field, value) {
-    if (!themeDraftName.trim()) {
-      setThemeDraftName(activeTheme?.name || (form.businessName ? `Tema ${form.businessName}` : "Mi tema"));
-    }
     setAppearance((current) => normalizeAppearance({
       ...current,
       advancedEnabled: true,
@@ -923,7 +919,7 @@ export function ProfileForm({
       advancedEnabled: false,
       ...targetPreset.appearance,
     }));
-    setThemeDraftName(targetPreset.name || "");
+    setThemeDraftName("");
   }
 
   async function saveCurrentTheme() {
@@ -932,7 +928,12 @@ export function ProfileForm({
       return;
     }
 
-    const name = themeDraftName.trim() || (form.businessName ? `Tema ${form.businessName}` : "Mi tema");
+    const name = themeDraftName.trim();
+    if (!name) {
+      setAlertMessage("Ponle un nombre al tema antes de crearlo.");
+      return;
+    }
+
     const themeId = `custom-theme-${Date.now()}`;
     const themeAppearance = normalizeAppearance({
       ...appearance,
@@ -948,7 +949,7 @@ export function ProfileForm({
 
     setCustomThemes(nextCustomThemes);
     setAppearance(themeAppearance);
-    setThemeDraftName(name);
+    setThemeDraftName("");
     const saved = await saveProfile({ appearance: themeAppearance, customThemes: nextCustomThemes });
     if (saved) {
       setMessage("Tema guardado. Ya puedes volver a usarlo cuando quieras.");
@@ -1017,7 +1018,7 @@ export function ProfileForm({
               <AlertTriangle size={20} />
             </div>
             <div className="dashboard-alert-copy">
-              <strong>Revisa este enlace</strong>
+              <strong>Revisa este dato</strong>
               <p>{alertMessage}</p>
             </div>
             <button className="btn btn-primary" type="button" onClick={() => setAlertMessage("")}>
@@ -2301,14 +2302,14 @@ export function ProfileForm({
                       <div className="theme-save-card">
                         <div>
                           <strong>Guardar como tema propio</strong>
-                          <p className="section-copy">Cuando te guste el resultado, ponle nombre y quedará guardado solo para este negocio.</p>
+                          <p className="section-copy">Esto crea una versión nueva. No modifica los temas sugeridos ni los temas que ya guardaste.</p>
                         </div>
                         <div className="theme-save-actions">
                           <input
                             className="input"
                             value={themeDraftName}
                             onChange={(event) => setThemeDraftName(event.target.value)}
-                            placeholder={activeTheme?.name || "Ej. Tema principal"}
+                            placeholder="Ej. Tema principal de mi negocio"
                             disabled={!canEdit}
                           />
                           <button className="btn btn-primary" type="button" onClick={saveCurrentTheme} disabled={!canEdit || loading || appearanceWarnings.length > 0}>
@@ -2323,11 +2324,12 @@ export function ProfileForm({
                         <ColorEditor label="Color de fondo" value={appearance.backgroundColor} onChange={(value) => updateAppearance("backgroundColor", value)} swatches={APPEARANCE_SWATCHES.backgroundColor} />
                         <ColorEditor label="Color de tarjetas" value={appearance.surfaceColor} onChange={(value) => updateAppearance("surfaceColor", value)} swatches={APPEARANCE_SWATCHES.surfaceColor} />
                         <ColorEditor label="Texto principal" value={appearance.textPrimaryColor} onChange={(value) => updateAppearance("textPrimaryColor", value)} swatches={APPEARANCE_SWATCHES.textPrimaryColor} />
-                        <ColorEditor label="Texto de botones" value={appearance.buttonTextColor} onChange={(value) => updateAppearance("buttonTextColor", value)} swatches={APPEARANCE_SWATCHES.buttonTextColor} />
+                        <ColorEditor label="Texto botón principal" value={appearance.buttonPrimaryTextColor} onChange={(value) => updateAppearance("buttonPrimaryTextColor", value)} swatches={APPEARANCE_SWATCHES.buttonPrimaryTextColor} />
+                        <ColorEditor label="Texto botón prioridad 2" value={appearance.buttonSecondaryTextColor} onChange={(value) => updateAppearance("buttonSecondaryTextColor", value)} swatches={APPEARANCE_SWATCHES.buttonSecondaryTextColor} />
+                        <ColorEditor label="Texto botón prioridad 3" value={appearance.buttonTertiaryTextColor} onChange={(value) => updateAppearance("buttonTertiaryTextColor", value)} swatches={APPEARANCE_SWATCHES.buttonTertiaryTextColor} />
                       </div>
 
                       <div className="appearance-grid">
-                        <SegmentedControl label="Fondo" value={appearance.backgroundStyle} options={[{ label: "Sólido", value: "solid" }, { label: "Degradado", value: "gradient" }]} onChange={(value) => updateAppearance("backgroundStyle", value)} />
                         <SegmentedControl label="Botón" value={appearance.buttonStyle} options={[{ label: "Sólido", value: "solid" }, { label: "Contorno", value: "outline" }, { label: "Suave", value: "soft" }]} onChange={(value) => updateAppearance("buttonStyle", value)} />
                         <SegmentedControl label="Borde del botón" value={appearance.buttonRadius} options={[{ label: "Redondeado", value: "rounded" }, { label: "Más recto", value: "square" }]} onChange={(value) => updateAppearance("buttonRadius", value)} />
                         <SegmentedControl label="Tarjeta" value={appearance.cardTransparency} options={[{ label: "Sólida", value: "solid" }, { label: "Transparencia leve", value: "soft" }]} onChange={(value) => updateAppearance("cardTransparency", value)} />

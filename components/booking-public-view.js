@@ -112,7 +112,7 @@ export function BookingPublicView({ bootstrap }) {
     "--booking-surface-soft": appearance.backgroundColor || "#f8fafc",
     "--booking-text": appearance.textPrimaryColor || "#0f172a",
     "--booking-muted": appearance.textSecondaryColor || "#475569",
-    "--booking-button-text": appearance.buttonTextColor || "#ffffff",
+    "--booking-button-text": appearance.buttonPrimaryTextColor || "#ffffff",
   }), [appearance]);
 
   useEffect(() => {

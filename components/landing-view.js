@@ -66,7 +66,7 @@ function buildPanelStyle(appearance) {
 }
 
 function buildPrimaryButtonStyle(appearance) {
-  const textColor = resolveReadableText(appearance.primaryColor, appearance.buttonTextColor, appearance.textPrimaryColor);
+  const textColor = resolveReadableText(appearance.primaryColor, appearance.buttonPrimaryTextColor, appearance.textPrimaryColor);
 
   if (appearance.buttonStyle === "outline") {
     return {
@@ -95,7 +95,7 @@ function buildPrimaryButtonStyle(appearance) {
 }
 
 function buildSecondaryButtonStyle(appearance) {
-  const textColor = resolveReadableText(appearance.secondaryColor, appearance.buttonTextColor, appearance.textPrimaryColor);
+  const textColor = resolveReadableText(appearance.secondaryColor, appearance.buttonSecondaryTextColor, appearance.textPrimaryColor);
 
   return {
     background: appearance.secondaryColor,
@@ -106,9 +106,11 @@ function buildSecondaryButtonStyle(appearance) {
 }
 
 function buildTertiaryButtonStyle(appearance) {
+  const textColor = resolveReadableText(appearance.tertiaryColor, appearance.buttonTertiaryTextColor, appearance.textPrimaryColor);
+
   return {
     background: hexToRgba(appearance.tertiaryColor, 0.28),
-    color: appearance.textPrimaryColor,
+    color: textColor,
     border: `1px solid ${hexToRgba(appearance.tertiaryColor, 0.5)}`,
     boxShadow: "none",
   };
@@ -118,7 +120,7 @@ function buildSocialStyle(appearance, type) {
   if (appearance.socialStyle === "brand-circles") {
     const brandStyle = SOCIAL_BRAND_STYLES[type] || {
       background: appearance.primaryColor,
-      color: resolveReadableText(appearance.primaryColor, "#FFFFFF", appearance.buttonTextColor),
+      color: resolveReadableText(appearance.primaryColor, "#FFFFFF", appearance.buttonPrimaryTextColor),
     };
 
     return {
@@ -201,9 +203,7 @@ export function LandingView({ user, preview = false }) {
   const tertiaryButtonStyle = buildTertiaryButtonStyle(appearance);
   const fontFamily = FONT_FAMILY_STYLE_MAP[appearance.fontFamily] || FONT_FAMILY_STYLE_MAP.inter;
 
-  const pageBackground = appearance.backgroundStyle === "gradient"
-    ? `linear-gradient(180deg, ${appearance.backgroundColor}, ${hexToRgba(appearance.primaryColor, 0.12)} 65%, ${hexToRgba(appearance.secondaryColor, 0.12)})`
-    : appearance.backgroundColor;
+  const pageBackground = appearance.backgroundColor;
 
   const shellStyle = {
     color: appearance.textPrimaryColor,
@@ -371,7 +371,7 @@ export function LandingView({ user, preview = false }) {
         <div
           className="floating-actions-preview"
           style={{
-            color: resolveReadableText(appearance.primaryColor, appearance.buttonTextColor, appearance.textPrimaryColor),
+            color: resolveReadableText(appearance.primaryColor, appearance.buttonPrimaryTextColor, appearance.textPrimaryColor),
           }}
         >
           {contactCard.shouldShow ? (
@@ -379,7 +379,7 @@ export function LandingView({ user, preview = false }) {
               className="floating-contact-button is-preview"
               style={{
                 background: appearance.primaryColor,
-                color: resolveReadableText(appearance.primaryColor, appearance.buttonTextColor, appearance.textPrimaryColor),
+                color: resolveReadableText(appearance.primaryColor, appearance.buttonPrimaryTextColor, appearance.textPrimaryColor),
                 boxShadow: `0 20px 44px ${hexToRgba(appearance.primaryColor, 0.32)}`,
               }}
               aria-label="Guardar contacto"
@@ -392,7 +392,7 @@ export function LandingView({ user, preview = false }) {
             className="floating-contact-button is-preview"
             style={{
               background: appearance.primaryColor,
-              color: resolveReadableText(appearance.primaryColor, appearance.buttonTextColor, appearance.textPrimaryColor),
+              color: resolveReadableText(appearance.primaryColor, appearance.buttonPrimaryTextColor, appearance.textPrimaryColor),
               boxShadow: `0 20px 44px ${hexToRgba(appearance.primaryColor, 0.32)}`,
             }}
             aria-label="Compartir"
@@ -408,7 +408,7 @@ export function LandingView({ user, preview = false }) {
               className="floating-contact-button floating-contact-live"
               style={{
                 background: appearance.primaryColor,
-                color: resolveReadableText(appearance.primaryColor, appearance.buttonTextColor, appearance.textPrimaryColor),
+                color: resolveReadableText(appearance.primaryColor, appearance.buttonPrimaryTextColor, appearance.textPrimaryColor),
                 boxShadow: `0 20px 44px ${hexToRgba(appearance.primaryColor, 0.32)}`,
               }}
               href={`/api/analytics/click?username=${user.username}&button=contact_card`}
@@ -423,7 +423,7 @@ export function LandingView({ user, preview = false }) {
             shareLabel="Compartir"
             style={{
               background: appearance.primaryColor,
-              color: resolveReadableText(appearance.primaryColor, appearance.buttonTextColor, appearance.textPrimaryColor),
+              color: resolveReadableText(appearance.primaryColor, appearance.buttonPrimaryTextColor, appearance.textPrimaryColor),
               boxShadow: `0 20px 44px ${hexToRgba(appearance.primaryColor, 0.32)}`,
             }}
           />

@@ -413,9 +413,7 @@ export function CommercePublicView({ bootstrap, preview = false }) {
   const activeDetailImage = detailImages[detailImageIndex] || detailImages[0] || null;
   const coverImage = safeBusiness.photo || safeBusiness.photoThumb || "";
 
-  const pageBackground = appearance.backgroundStyle === "gradient"
-    ? `linear-gradient(180deg, ${appearance.backgroundColor} 0%, ${hexToRgba(appearance.tertiaryColor, 0.72)} 58%, ${hexToRgba(appearance.secondaryColor, 0.28)} 100%)`
-    : appearance.backgroundColor;
+  const pageBackground = appearance.backgroundColor;
 
   const rootStyle = {
     fontFamily,
@@ -436,7 +434,7 @@ export function CommercePublicView({ bootstrap, preview = false }) {
     "--commerce-muted": appearance.textSecondaryColor,
     "--commerce-line": hexToRgba(appearance.textPrimaryColor, 0.1),
     "--commerce-shadow": hexToRgba(appearance.textPrimaryColor, 0.08),
-    "--commerce-button-text": appearance.buttonTextColor,
+    "--commerce-button-text": appearance.buttonPrimaryTextColor,
   };
   const headerStyle = coverImage
     ? {
