@@ -171,6 +171,17 @@ function normalizeLinkUrl(item) {
   return /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
 }
 
+function cleanPersistentImageUrl(value = "") {
+  const url = String(value || "").trim();
+  if (!url || /^blob:/i.test(url) || /^data:/i.test(url)) return "";
+  return url;
+}
+
+function canDisplayPersistedImageUrl(value = "") {
+  const url = cleanPersistentImageUrl(value);
+  return Boolean(url && (/^https?:\/\//i.test(url) || url.startsWith("/")));
+}
+
 function normalizeContactCard(profile) {
   return {
     enabled: Boolean(profile?.contactCardEnabled),
@@ -391,6 +402,7 @@ export function ProfileForm({
   const [dorikaProfile, setDorikaProfile] = useState(normalizeDorikaProfile(profile?.dorikaProfile, profile));
   const [dorikaCover, setDorikaCover] = useState(null);
   const [dorikaCoverPreviewUrl, setDorikaCoverPreviewUrl] = useState("");
+  const [dorikaCoverLoadError, setDorikaCoverLoadError] = useState(false);
   const [dorikaLocationLoading, setDorikaLocationLoading] = useState(false);
   const [dorikaLocationMessage, setDorikaLocationMessage] = useState("");
   const [dorikaMapOpen, setDorikaMapOpen] = useState(false);
@@ -423,6 +435,7 @@ export function ProfileForm({
     setBillingProfile(normalizeBillingProfile(profile));
     setDorikaProfile(normalizeDorikaProfile(profile?.dorikaProfile, profile));
     setDorikaCover(null);
+    setDorikaCoverLoadError(false);
     setDorikaLocationLoading(false);
     setDorikaLocationMessage("");
     setDorikaMapOpen(false);
@@ -452,6 +465,7 @@ export function ProfileForm({
     }
 
     const nextUrl = URL.createObjectURL(dorikaCover);
+    setDorikaCoverLoadError(false);
     setDorikaCoverPreviewUrl(nextUrl);
 
     return () => {
@@ -604,19 +618,25 @@ export function ProfileForm({
   const emailLink = useMemo(() => profileLinks.find((item) => item.type === "email" && item.value?.trim()), [profileLinks]);
   const websiteLink = useMemo(() => profileLinks.find((item) => item.type === "website" && item.value?.trim()), [profileLinks]);
   const contactCardPreview = useMemo(() => resolveContactCardData(previewUser), [previewUser]);
+  const dorikaStoredCoverUrl = canDisplayPersistedImageUrl(dorikaProfile.coverImageUrl) ? cleanPersistentImageUrl(dorikaProfile.coverImageUrl) : "";
+  const dorikaCoverDisplayUrl = dorikaCoverPreviewUrl || (dorikaCoverLoadError ? "" : dorikaStoredCoverUrl);
   const dorikaProgress = useMemo(() => calculateDorikaProfileProgress({
     ...dorikaProfile,
-    coverImageUrl: dorikaCoverPreviewUrl || dorikaProfile.coverImageUrl,
+    coverImageUrl: dorikaCoverDisplayUrl,
   }, {
     ...profile,
     businessCategory: form.businessCategory,
     city: billingProfile.city,
     billingProfile,
-  }), [billingProfile, dorikaCoverPreviewUrl, dorikaProfile, form.businessCategory, profile]);
+  }), [billingProfile, dorikaCoverDisplayUrl, dorikaProfile, form.businessCategory, profile]);
   const dorikaProgressPercent = Number.isFinite(dorikaProgress?.percent) ? dorikaProgress.percent : 0;
   const dorikaTasks = Array.isArray(dorikaProgress?.tasks) ? dorikaProgress.tasks : [];
   const dorikaCategoryLabel = BUSINESS_CATEGORY_OPTIONS.find((option) => option.value === form.businessCategory)?.label || "Tipo de negocio";
   const dorikaHasExactCoordinates = Number.isFinite(dorikaProfile.latitude) && Number.isFinite(dorikaProfile.longitude);
+
+  useEffect(() => {
+    setDorikaCoverLoadError(false);
+  }, [dorikaStoredCoverUrl]);
 
   useEffect(() => {
     if (!contactCard.whatsappLinkId) return;
@@ -759,7 +779,7 @@ export function ProfileForm({
       body.append("dorikaProfile", JSON.stringify({
         ...dorikaProfile,
         category: form.businessCategory,
-        coverImageUrl: dorikaCoverPreviewUrl || dorikaProfile.coverImageUrl || "",
+        coverImageUrl: dorikaStoredCoverUrl,
       }));
       body.append("removePaymentQrIds", JSON.stringify(paymentMethods.filter((method) => method.removeQr).map((method) => method.id)));
       if (photo) body.append("photo", photo);
@@ -1934,16 +1954,24 @@ export function ProfileForm({
                       className="upload-input"
                       type="file"
                       accept="image/png,image/jpeg,image/webp"
-                      onChange={(e) => setDorikaCover(e.target.files?.[0] || null)}
+                      onChange={(e) => {
+                        setDorikaCoverLoadError(false);
+                        setDorikaCover(e.target.files?.[0] || null);
+                      }}
                       disabled={!canEdit}
                     />
-                    <span className="upload-icon">{dorikaCoverPreviewUrl || dorikaProfile.coverImageUrl ? <ImagePlus size={20} /> : <UploadCloud size={20} />}</span>
+                    <span className="upload-icon">{dorikaCoverDisplayUrl ? <ImagePlus size={20} /> : <UploadCloud size={20} />}</span>
                     <span className="upload-copy">
-                      <strong>{dorikaCoverPreviewUrl || dorikaProfile.coverImageUrl ? "Cambiar portada" : "Subir portada para Dorika"}</strong>
-                      <span>Foto horizontal del negocio, vitrina, producto o experiencia.</span>
+                      <strong>{dorikaCoverDisplayUrl ? "Cambiar portada" : "Subir portada para Dorika"}</strong>
+                      <span>{dorikaCoverLoadError ? "No pudimos cargar la portada guardada. Sube una nueva foto." : "Foto horizontal del negocio, vitrina, producto o experiencia."}</span>
                     </span>
-                    {dorikaCoverPreviewUrl || dorikaProfile.coverImageUrl ? (
-                      <img className="dorika-cover-preview" src={dorikaCoverPreviewUrl || dorikaProfile.coverImageUrl} alt="Portada para Dorika" />
+                    {dorikaCoverDisplayUrl ? (
+                      <img
+                        className="dorika-cover-preview"
+                        src={dorikaCoverDisplayUrl}
+                        alt="Portada para Dorika"
+                        onError={() => setDorikaCoverLoadError(true)}
+                      />
                     ) : null}
                   </label>
                   <div className="profile-grid">
