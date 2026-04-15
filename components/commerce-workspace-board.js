@@ -15,6 +15,7 @@ import {
   Pencil,
   Plus,
   Save,
+  Star,
   Store,
   Trash2,
   X,
@@ -101,6 +102,11 @@ function ProductRow({ product, sectionLabel, disabled, onEdit, onToggleVisibilit
         </div>
         <div className="commerce-board-product-meta">
           <span>{money(product.price)}</span>
+          {product.featuredInDorika ? (
+            <span className="commerce-board-status is-featured">
+              <Star size={13} /> Dorika
+            </span>
+          ) : null}
           <span className={`commerce-board-status ${visible ? "is-visible" : "is-hidden"}`}>
             {visible ? "Visible" : "Oculto"}
           </span>
@@ -487,6 +493,7 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
       description: product?.description || "",
       price: product?.price ?? "",
       visible: product?.visible !== false,
+      featuredInDorika: Boolean(product?.featuredInDorika),
       images: Array.isArray(product?.images) ? product.images : [],
       pendingImages: [],
       removedImageIds: [],
@@ -986,6 +993,10 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
             <label className="switch-row commerce-product-visible-toggle">
               <input type="checkbox" checked={productEditor.visible !== false} onChange={(event) => setProductEditor((current) => ({ ...current, visible: event.target.checked }))} />
               <span>{productEditor.visible !== false ? "Producto visible" : "Producto oculto"}</span>
+            </label>
+            <label className="switch-row commerce-product-visible-toggle">
+              <input type="checkbox" checked={Boolean(productEditor.featuredInDorika)} onChange={(event) => setProductEditor((current) => ({ ...current, featuredInDorika: event.target.checked }))} />
+              <span>{productEditor.featuredInDorika ? "Destacado en Dorika" : "Destacar en Dorika"}</span>
             </label>
           </div>
           <div className="commerce-modal-actions">

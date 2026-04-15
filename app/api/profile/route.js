@@ -22,6 +22,7 @@ export async function POST(request) {
     const customThemesJson = formData.get("customThemes");
     const contactCardJson = formData.get("contactCard");
     const billingProfileJson = formData.get("billingProfile");
+    const dorikaProfileJson = formData.get("dorikaProfile");
     const paymentMethodsJson = formData.get("paymentMethods");
     const removePaymentQrIdsJson = formData.get("removePaymentQrIds");
 
@@ -53,6 +54,9 @@ export async function POST(request) {
           department: "",
           country: "Colombia",
         },
+      dorikaProfile: typeof dorikaProfileJson === "string"
+        ? JSON.parse(dorikaProfileJson)
+        : {},
     });
 
     const warnings = getAppearanceWarnings(parsed.appearance);
@@ -74,6 +78,7 @@ export async function POST(request) {
 
     const nextUser = await updateUserProfile(user.uid, parsed, {
       photo: photo?.size ? photo : null,
+      dorikaCover: formData.get("dorikaCover")?.size ? formData.get("dorikaCover") : null,
       paymentQrImagesByMethod,
       removePaymentQrIds: typeof removePaymentQrIdsJson === "string"
         ? JSON.parse(removePaymentQrIdsJson)

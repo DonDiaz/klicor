@@ -3906,7 +3906,7 @@ html[data-theme="dark"] .admin-sidebar-note {
 
 .onboarding-progress {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(132px, 1fr));
   gap: 0.75rem;
 }
 
@@ -4000,6 +4000,25 @@ html[data-theme="dark"] .admin-sidebar-note {
 .onboarding-link-row,
 .onboarding-payment-card {
   padding: 1rem;
+}
+
+.onboarding-social-card {
+  display: grid;
+  gap: 0.9rem;
+  padding: 1rem;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 18px;
+  background: linear-gradient(180deg, var(--surface-alt), var(--surface));
+}
+
+.onboarding-social-card strong {
+  color: var(--text-primary);
+}
+
+.onboarding-social-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
 }
 
 .onboarding-upload-card {
@@ -4141,6 +4160,145 @@ html[data-theme="dark"] .admin-sidebar-note {
 
 .reservations-placeholder-card svg {
   color: var(--primary);
+}
+
+.dorika-profile-panel {
+  gap: 1rem;
+}
+
+.dorika-progress-card {
+  display: grid;
+  gap: 0.85rem;
+  padding: 1.05rem;
+  border: 1px solid rgba(34, 169, 138, 0.18);
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 8% 0%, rgba(34, 169, 138, 0.14), transparent 28%),
+    linear-gradient(135deg, rgba(247, 244, 239, 0.96), rgba(255, 255, 255, 0.95));
+}
+
+.dorika-progress-card strong {
+  display: block;
+  margin-top: 0.2rem;
+  color: var(--text-primary);
+  font-size: 1.35rem;
+}
+
+.dorika-progress-meter {
+  width: 100%;
+  height: 10px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.08);
+}
+
+.dorika-progress-meter span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #22A98A, #E07A5F);
+  transition: width 180ms ease;
+}
+
+.dorika-task-grid,
+.dorika-privacy-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.dorika-task-card,
+.dorika-privacy-option,
+.dorika-form-block {
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 18px;
+  background: var(--surface-alt);
+}
+
+.dorika-task-card {
+  display: grid;
+  gap: 0.45rem;
+  padding: 0.9rem;
+}
+
+.dorika-task-card span {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.14);
+  color: var(--text-secondary);
+}
+
+.dorika-task-card.is-complete {
+  border-color: rgba(34, 169, 138, 0.22);
+  background: rgba(34, 169, 138, 0.08);
+}
+
+.dorika-task-card.is-complete span {
+  background: rgba(34, 169, 138, 0.16);
+  color: #14856c;
+}
+
+.dorika-task-card strong,
+.dorika-privacy-option strong,
+.dorika-featured-note strong {
+  color: var(--text-primary);
+}
+
+.dorika-task-card small,
+.dorika-privacy-option span {
+  color: var(--text-secondary);
+  line-height: 1.45;
+}
+
+.dorika-form-block {
+  display: grid;
+  gap: 0.9rem;
+  padding: 1rem;
+}
+
+.dorika-privacy-option {
+  display: grid;
+  gap: 0.35rem;
+  padding: 0.9rem;
+  text-align: left;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: border-color 160ms ease, background-color 160ms ease, transform 160ms ease;
+}
+
+.dorika-privacy-option:hover,
+.dorika-privacy-option.is-active {
+  transform: translateY(-1px);
+  border-color: rgba(34, 169, 138, 0.28);
+  background: rgba(34, 169, 138, 0.08);
+}
+
+.dorika-cover-upload {
+  position: relative;
+  overflow: hidden;
+  min-height: 132px;
+}
+
+.dorika-cover-preview {
+  width: 140px;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.dorika-featured-note {
+  grid-template-columns: auto 1fr;
+  align-items: start;
+  background: rgba(224, 122, 95, 0.08);
+  border-color: rgba(224, 122, 95, 0.16);
+}
+
+.dorika-featured-note svg {
+  color: #E07A5F;
 }
 
 .reservations-placeholder-card strong {
@@ -4435,6 +4593,14 @@ html[data-theme="dark"] .admin-sidebar-note {
 .segmented-button.is-active {
   background: var(--primary-soft);
   color: var(--primary);
+}
+
+.commerce-board-status.is-featured {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: #92400e;
+  background: rgba(245, 158, 11, 0.14);
 }
 
 .link-row {
@@ -5189,6 +5355,8 @@ html[data-theme="dark"] .admin-sidebar-note {
   .appearance-presets,
   .appearance-grid,
   .profile-grid,
+  .dorika-task-grid,
+  .dorika-privacy-grid,
   .link-row,
   .link-toolbar,
   .payment-methods-shell,
@@ -5366,6 +5534,7 @@ html[data-theme="dark"] .admin-sidebar-note {
   }
 
   .onboarding-category-grid,
+  .onboarding-social-grid,
   .onboarding-theme-grid {
     grid-template-columns: 1fr;
   }

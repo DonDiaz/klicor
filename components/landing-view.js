@@ -166,6 +166,19 @@ function renderAction({ item, preview, buttonStyle, buttonRadius, user, classNam
     );
   }
 
+  if (item.systemAction && item.url) {
+    return (
+      <a
+        className={className}
+        style={{ ...buttonStyle, borderRadius: buttonRadius }}
+        key={item.id}
+        href={item.url}
+      >
+        {content}
+      </a>
+    );
+  }
+
   return (
     <a
       className={className}

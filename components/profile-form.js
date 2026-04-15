@@ -17,6 +17,8 @@ import {
   FileText,
   ImagePlus,
   Link2,
+  MapPin,
+  MapPinned,
   Menu,
   Moon,
   Paintbrush,
@@ -30,6 +32,7 @@ import {
   LogOut,
   Send,
   ShieldCheck,
+  Star,
   Sun,
   UserRound,
   X,
@@ -56,6 +59,7 @@ import {
 } from "@/lib/colombia-financial-entities";
 import { COLOMBIA_DEPARTMENT_OPTIONS, getCitiesForDepartment, resolveCityName, resolveDepartmentName } from "@/lib/colombia-locations";
 import { resolveContactCardData } from "@/lib/contact-card";
+import { calculateDorikaProfileProgress, DORIKA_LOCATION_PRIVACY_OPTIONS, normalizeDorikaProfile } from "@/lib/dorika-profile";
 import { canAddLinkType, getLinkTypeCount, getLinkTypeLimit, LINK_CATALOG, LINK_CATALOG_MAP } from "@/lib/link-catalog";
 import { normalizePaymentMethods } from "@/lib/payment-methods";
 import { generateThemeFromLogoFile, mergeGeneratedTheme } from "@/lib/logo-theme";
@@ -212,6 +216,7 @@ const DASHBOARD_NAV_ITEMS = [
   { id: "booking", label: "Agenda", icon: CalendarDays },
   { id: "reservations", label: "Reservas", icon: CalendarCheck },
   { id: "design", label: "Diseño", icon: Paintbrush },
+  { id: "dorika", label: "Dorika", icon: MapPinned },
   { id: "profile", label: "Perfil", icon: UserRound },
   { id: "security", label: "Seguridad", icon: ShieldCheck },
   { id: "billing", label: "Facturación", icon: FileText },
@@ -380,6 +385,9 @@ export function ProfileForm({
   );
   const [contactCard, setContactCard] = useState(normalizeContactCard(profile));
   const [billingProfile, setBillingProfile] = useState(normalizeBillingProfile(profile));
+  const [dorikaProfile, setDorikaProfile] = useState(normalizeDorikaProfile(profile?.dorikaProfile, profile));
+  const [dorikaCover, setDorikaCover] = useState(null);
+  const [dorikaCoverPreviewUrl, setDorikaCoverPreviewUrl] = useState("");
   const [message, setMessage] = useState("");
   const [alertMessage, setAlertMessage] = useState("");
   const [loading, setLoading] = useState(false);
@@ -405,6 +413,8 @@ export function ProfileForm({
     setPaymentMethods(normalizePaymentMethods(profile?.paymentMethods, profile?.profileLinks, profile?.paymentQrUrl, profile?.paymentQrPath));
     setContactCard(normalizeContactCard(profile));
     setBillingProfile(normalizeBillingProfile(profile));
+    setDorikaProfile(normalizeDorikaProfile(profile?.dorikaProfile, profile));
+    setDorikaCover(null);
     setAlertMessage("");
   }, [profile]);
 
@@ -421,6 +431,20 @@ export function ProfileForm({
       URL.revokeObjectURL(nextUrl);
     };
   }, [photo]);
+
+  useEffect(() => {
+    if (!dorikaCover) {
+      setDorikaCoverPreviewUrl("");
+      return;
+    }
+
+    const nextUrl = URL.createObjectURL(dorikaCover);
+    setDorikaCoverPreviewUrl(nextUrl);
+
+    return () => {
+      URL.revokeObjectURL(nextUrl);
+    };
+  }, [dorikaCover]);
 
   useEffect(() => {
     let cancelled = false;
@@ -566,6 +590,15 @@ export function ProfileForm({
   const emailLink = useMemo(() => profileLinks.find((item) => item.type === "email" && item.value?.trim()), [profileLinks]);
   const websiteLink = useMemo(() => profileLinks.find((item) => item.type === "website" && item.value?.trim()), [profileLinks]);
   const contactCardPreview = useMemo(() => resolveContactCardData(previewUser), [previewUser]);
+  const dorikaProgress = useMemo(() => calculateDorikaProfileProgress({
+    ...dorikaProfile,
+    coverImageUrl: dorikaCoverPreviewUrl || dorikaProfile.coverImageUrl,
+  }, {
+    ...profile,
+    businessCategory: form.businessCategory,
+    city: billingProfile.city,
+    billingProfile,
+  }), [billingProfile, dorikaCoverPreviewUrl, dorikaProfile, form.businessCategory, profile]);
 
   useEffect(() => {
     if (!contactCard.whatsappLinkId) return;
@@ -582,6 +615,29 @@ export function ProfileForm({
     if (typeof window !== "undefined") {
       window.localStorage.setItem(THEME_STORAGE_KEY, nextMode ? "dark" : "light");
     }
+  }
+
+  function updateDorikaField(field, value) {
+    setDorikaProfile((current) => {
+      const next = {
+        ...current,
+        [field]: value,
+      };
+
+      if (field === "locationPrivacy") {
+        next.showLocation = value !== "contact_only";
+      }
+
+      if (field === "showLocation" && value === false) {
+        next.locationPrivacy = "contact_only";
+      }
+
+      if (field === "showLocation" && value === true && next.locationPrivacy === "contact_only") {
+        next.locationPrivacy = "exact";
+      }
+
+      return next;
+    });
   }
 
   function handleOpenPublicUrl() {
@@ -611,7 +667,7 @@ export function ProfileForm({
       body.append("businessCategory", form.businessCategory);
       body.append("businessHeadline", form.businessHeadline);
       body.append("businessSubheadline", form.businessSubheadline);
-      body.append("profileLinks", JSON.stringify(profileLinks));
+      body.append("profileLinks", JSON.stringify(profileLinks.filter((item) => String(item.value || "").trim())));
       body.append("paymentMethods", JSON.stringify(paymentMethods.map(({ qrFile, qrPreviewUrl, removeQr, ...method }) => ({
         ...method,
         qrImageUrl: removeQr ? "" : method.qrImageUrl || "",
@@ -621,8 +677,13 @@ export function ProfileForm({
       body.append("customThemes", JSON.stringify(customThemes));
       body.append("contactCard", JSON.stringify(contactCard));
       body.append("billingProfile", JSON.stringify(billingProfile));
+      body.append("dorikaProfile", JSON.stringify({
+        ...dorikaProfile,
+        coverImageUrl: dorikaCoverPreviewUrl || dorikaProfile.coverImageUrl || "",
+      }));
       body.append("removePaymentQrIds", JSON.stringify(paymentMethods.filter((method) => method.removeQr).map((method) => method.id)));
       if (photo) body.append("photo", photo);
+      if (dorikaCover) body.append("dorikaCover", dorikaCover);
       paymentMethods.forEach((method) => {
         if (method.qrFile) {
           body.append(`paymentQrImage:${method.id}`, method.qrFile);
@@ -1584,6 +1645,167 @@ export function ProfileForm({
                   Agenda seguirá siendo para servicios y salud/bienestar. Reservas será el módulo para turismo y experiencias,
                   con planes, cupos, fechas disponibles y confirmación de interesados.
                 </p>
+              </div>
+            </section>
+          ) : null}
+
+          {activeWorkspace === "dorika" ? (
+            <section className="dashboard-section panel workspace-panel dorika-profile-panel">
+              <div className="dashboard-section-head workspace-panel-head">
+                <div>
+                  <h2 className="section-title" style={{ fontSize: "1.35rem" }}>Haz que te encuentren en Dorika</h2>
+                  <p className="section-copy">Completa esta ficha poco a poco. Klicor sigue funcionando aunque no termines estos datos hoy.</p>
+                </div>
+                <span className={`status-badge ${dorikaProfile.enabled ? "success" : ""}`}>
+                  <MapPinned size={14} />
+                  {dorikaProfile.enabled ? "Visible" : "Oculto"}
+                </span>
+              </div>
+
+              <div className="dorika-progress-card">
+                <div>
+                  <span className="dashboard-link-label">Perfil Dorika</span>
+                  <strong>{dorikaProfile.enabled ? `${dorikaProgress.percent}% completo` : "Dorika desactivado"}</strong>
+                  <p className="section-copy">Mientras más claro esté tu perfil, más fácil será que te descubran desde Dorika.</p>
+                </div>
+                <div className="dorika-progress-meter" aria-label={`Perfil Dorika ${dorikaProgress.percent}% completo`}>
+                  <span style={{ width: `${dorikaProfile.enabled ? dorikaProgress.percent : 0}%` }} />
+                </div>
+              </div>
+
+              <div className="dorika-task-grid">
+                {dorikaProgress.tasks.map((task) => (
+                  <div key={task.id} className={`dorika-task-card ${task.complete ? "is-complete" : ""}`.trim()}>
+                    <span>{task.complete ? <CheckCircle2 size={16} /> : <Star size={15} />}</span>
+                    <strong>{task.label}</strong>
+                    <small>{task.copy}</small>
+                  </div>
+                ))}
+              </div>
+
+              <div className="section-stack">
+                <label className="toggle-card">
+                  <input
+                    type="checkbox"
+                    checked={dorikaProfile.enabled}
+                    onChange={(e) => updateDorikaField("enabled", e.target.checked)}
+                    disabled={!canEdit}
+                  />
+                  <span className="toggle-copy">
+                    <strong>Aparecer en Dorika</strong>
+                    <small>Tu negocio podrá mostrarse en búsquedas, secciones cercanas y recomendaciones.</small>
+                  </span>
+                </label>
+
+                <div className="dorika-form-block">
+                  <div>
+                    <h3 className="section-title" style={{ fontSize: "1.05rem" }}>Ubicación</h3>
+                    <p className="section-copy">Muestra solo lo necesario para que te encuentren sin perder privacidad.</p>
+                  </div>
+                  <div className="profile-grid">
+                    <div>
+                      <label className="label">Ciudad</label>
+                      <input className="input" value={dorikaProfile.city} onChange={(e) => updateDorikaField("city", e.target.value)} placeholder="Ej. Ocaña" disabled={!canEdit} />
+                    </div>
+                    <div>
+                      <label className="label">Barrio o zona</label>
+                      <input className="input" value={dorikaProfile.zone} onChange={(e) => updateDorikaField("zone", e.target.value)} placeholder="Ej. Centro" disabled={!canEdit} />
+                    </div>
+                  </div>
+                  <div className="dorika-privacy-grid">
+                    {DORIKA_LOCATION_PRIVACY_OPTIONS.map((option) => (
+                      <button
+                        key={option.value}
+                        type="button"
+                        className={`dorika-privacy-option ${dorikaProfile.locationPrivacy === option.value ? "is-active" : ""}`.trim()}
+                        onClick={() => updateDorikaField("locationPrivacy", option.value)}
+                        disabled={!canEdit}
+                      >
+                        <strong>{option.label}</strong>
+                        <span>{option.copy}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {dorikaProfile.locationPrivacy !== "contact_only" ? (
+                  <div className="dorika-form-block">
+                    <div>
+                      <h3 className="section-title" style={{ fontSize: "1.05rem" }}>Cómo encontrarte</h3>
+                      <p className="section-copy">Perfecto para centros comerciales, edificios, plazoletas o locales internos.</p>
+                    </div>
+                    <div className="profile-grid">
+                      <div>
+                        <label className="label">Dirección visible</label>
+                        <input className="input" value={dorikaProfile.address} onChange={(e) => updateDorikaField("address", e.target.value)} placeholder="Ej. Calle 10 #12-34" disabled={!canEdit} />
+                      </div>
+                      <div>
+                        <label className="label">Lugar, edificio o centro comercial</label>
+                        <input className="input" value={dorikaProfile.placeName} onChange={(e) => updateDorikaField("placeName", e.target.value)} placeholder="Ej. Centro Comercial City Gold" disabled={!canEdit} />
+                      </div>
+                    </div>
+                    <div className="profile-grid">
+                      <div>
+                        <label className="label">Local, piso u oficina</label>
+                        <input className="input" value={dorikaProfile.unit} onChange={(e) => updateDorikaField("unit", e.target.value)} placeholder="Ej. Local 204, piso 2" disabled={!canEdit} />
+                      </div>
+                      <div>
+                        <label className="label">Referencia interna</label>
+                        <input className="input" value={dorikaProfile.reference} onChange={(e) => updateDorikaField("reference", e.target.value)} placeholder="Ej. Frente a la plazoleta de comidas" disabled={!canEdit} />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="label">Indicaciones cortas para llegar</label>
+                      <textarea className="textarea" rows={3} value={dorikaProfile.arrivalInstructions} onChange={(e) => updateDorikaField("arrivalInstructions", e.target.value)} placeholder="Ej. Entra por la puerta principal, sube al segundo piso y gira a la derecha." disabled={!canEdit} />
+                    </div>
+                  </div>
+                ) : null}
+
+                <div className="dorika-form-block">
+                  <div>
+                    <h3 className="section-title" style={{ fontSize: "1.05rem" }}>Cómo te verán</h3>
+                    <p className="section-copy">Una portada y una descripción corta hacen que tu ficha se sienta más confiable.</p>
+                  </div>
+                  <label className={`upload-card dorika-cover-upload ${!canEdit ? "upload-card-disabled" : ""}`}>
+                    <input
+                      className="upload-input"
+                      type="file"
+                      accept="image/png,image/jpeg,image/webp"
+                      onChange={(e) => setDorikaCover(e.target.files?.[0] || null)}
+                      disabled={!canEdit}
+                    />
+                    <span className="upload-icon">{dorikaCoverPreviewUrl || dorikaProfile.coverImageUrl ? <ImagePlus size={20} /> : <UploadCloud size={20} />}</span>
+                    <span className="upload-copy">
+                      <strong>{dorikaCoverPreviewUrl || dorikaProfile.coverImageUrl ? "Cambiar portada" : "Subir portada para Dorika"}</strong>
+                      <span>Foto horizontal del negocio, vitrina, producto o experiencia.</span>
+                    </span>
+                    {dorikaCoverPreviewUrl || dorikaProfile.coverImageUrl ? (
+                      <img className="dorika-cover-preview" src={dorikaCoverPreviewUrl || dorikaProfile.coverImageUrl} alt="Portada para Dorika" />
+                    ) : null}
+                  </label>
+                  <div className="profile-grid">
+                    <div>
+                      <label className="label">Categoría principal en Dorika</label>
+                      <select className="select" value={dorikaProfile.category} onChange={(e) => updateDorikaField("category", e.target.value)} disabled={!canEdit}>
+                        {BUSINESS_CATEGORY_OPTIONS.map((option) => (
+                          <option key={option.value} value={option.value}>{option.label}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="label">Descripción corta</label>
+                      <input className="input" value={dorikaProfile.description} onChange={(e) => updateDorikaField("description", e.target.value)} placeholder="Ej. Pizza artesanal, pedidos rápidos y atención por WhatsApp." disabled={!canEdit} />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="dorika-form-block dorika-featured-note">
+                  <MapPin size={18} />
+                  <div>
+                    <strong>Productos destacados para Dorika</strong>
+                    <p className="section-copy">En Mi tienda, Mi menú o Mi catálogo podrás marcar con estrella los productos que quieres mostrar primero en Dorika.</p>
+                  </div>
+                </div>
               </div>
             </section>
           ) : null}

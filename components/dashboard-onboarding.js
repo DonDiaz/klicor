@@ -7,23 +7,14 @@ import {
   ArrowRight,
   CheckCircle2,
   ImagePlus,
-  Plus,
-  Trash2,
   UploadCloud,
 } from "lucide-react";
 import { apiFetch } from "@/lib/client-api";
-import {
-  ACCOUNT_TYPE_OPTIONS,
-  COLOMBIA_FINANCIAL_ENTITY_OPTIONS,
-  requiresAccountType,
-  usesBrebKeyField,
-} from "@/lib/colombia-financial-entities";
 import { getBusinessCategoryTemplate } from "@/lib/business-categories";
 import {
   buildOnboardingInitialState,
   buildOnboardingPayload,
   buildOnboardingPreviewUser,
-  createEmptyPaymentMethod,
   ONBOARDING_STEPS,
   updateOnboardingActionSlots,
 } from "@/lib/dashboard-onboarding";
@@ -38,26 +29,13 @@ const DashboardPreview = dynamic(
       <div className="preview-frame preview-frame-placeholder">
         <div className="preview-placeholder-card">
           <strong>Cargando vista previa</strong>
-          <p className="section-copy">Preparamos la representacion inicial de tu Klicor.</p>
+          <p className="section-copy">Preparamos la representación inicial de tu Klicor.</p>
         </div>
       </div>
     ),
   },
 );
 
-function hasPaymentMethodInput(method = {}) {
-  return Boolean(method.entityId || method.accountType || method.accountNumber || method.brebKey || method.qrFile || method.qrImageUrl);
-}
-
-function getPaymentMethodError(method = {}) {
-  if (!hasPaymentMethodInput(method)) return "";
-  if (!method.entityId) return "Selecciona una entidad para este método.";
-  if (requiresAccountType(method.entityId) && !method.accountType) return "Selecciona si la cuenta es de ahorros o corriente.";
-  if (usesBrebKeyField(method.entityId)) {
-    return method.brebKey ? "" : "Agrega la llave Bre-B del método.";
-  }
-  return method.accountNumber || method.brebKey ? "" : "Agrega el número de cuenta o la llave Bre-B.";
-}
 
 function getStepValidationError(stepId, wizard) {
   if (stepId === "category") {
@@ -77,15 +55,11 @@ function getStepValidationError(stepId, wizard) {
   }
 
   if (stepId === "actions") {
-    const mainAction = wizard.actionSlots[0];
-    if (!String(mainAction?.value || "").trim()) {
-      return "Agrega por lo menos tu accion principal para continuar.";
+    const whatsappAction = wizard.actionSlots.find((slot) => slot.type === "whatsapp");
+    if (!String(whatsappAction?.value || "").trim()) {
+      return "Agrega tu WhatsApp para que tus clientes puedan contactarte.";
     }
     return "";
-  }
-
-  if (stepId === "payments") {
-    return wizard.paymentMethods.map(getPaymentMethodError).find(Boolean) || "";
   }
 
   return "";
@@ -104,7 +78,6 @@ export function DashboardOnboarding({ token, profile, onCompleted, onSkip }) {
   }, [profile]);
 
   const currentStep = ONBOARDING_STEPS[stepIndex];
-  const currentTemplate = useMemo(() => getBusinessCategoryTemplate(wizard.businessCategory), [wizard.businessCategory]);
   const previewUser = useMemo(() => buildOnboardingPreviewUser(wizard, profile), [profile, wizard]);
   const availableThemes = useMemo(() => {
     const usedIds = new Set();
@@ -115,6 +88,9 @@ export function DashboardOnboarding({ token, profile, onCompleted, onSkip }) {
       return true;
     });
   }, [wizard.customThemes]);
+  const onboardingSocialTypes = new Set(["instagram", "facebook", "tiktok"]);
+  const onboardingActionSlots = wizard.actionSlots.filter((slot) => !onboardingSocialTypes.has(slot.type));
+  const onboardingSocialSlots = wizard.actionSlots.filter((slot) => onboardingSocialTypes.has(slot.type));
 
   function updateWizardField(field, value) {
     setWizard((current) => ({
@@ -204,62 +180,6 @@ export function DashboardOnboarding({ token, profile, onCompleted, onSkip }) {
       // If the image cannot be analyzed we simply keep the rest of the flow working.
     }
   }
-
-  function updatePaymentMethod(methodId, field, value) {
-    setWizard((current) => ({
-      ...current,
-      paymentMethods: current.paymentMethods.map((method) => (
-        method.id === methodId
-          ? {
-            ...method,
-            [field]: value,
-            ...(field === "entityId" && !requiresAccountType(value) ? { accountType: "" } : {}),
-          }
-          : method
-      )),
-    }));
-  }
-
-  function updatePaymentMethodQr(methodId, file) {
-    setWizard((current) => ({
-      ...current,
-      paymentMethods: current.paymentMethods.map((method) => {
-        if (method.id !== methodId) return method;
-        if (method.qrPreviewUrl?.startsWith("blob:")) {
-          URL.revokeObjectURL(method.qrPreviewUrl);
-        }
-        return {
-          ...method,
-          qrFile: file || null,
-          qrPreviewUrl: file ? URL.createObjectURL(file) : "",
-          removeQr: !file && Boolean(method.qrImageUrl),
-        };
-      }),
-    }));
-  }
-
-  function addPaymentMethod() {
-    setWizard((current) => ({
-      ...current,
-      paymentMethods: current.paymentMethods.length >= 2
-        ? current.paymentMethods
-        : [...current.paymentMethods, createEmptyPaymentMethod(current.paymentMethods.length)],
-    }));
-  }
-
-  function removePaymentMethod(methodId) {
-    setWizard((current) => {
-      const nextMethods = current.paymentMethods
-        .filter((method) => method.id !== methodId)
-        .map((method, index) => ({ ...method, id: method.id || `payment-method-${index + 1}` }));
-
-      return {
-        ...current,
-        paymentMethods: nextMethods.length ? nextMethods : [createEmptyPaymentMethod(0)],
-      };
-    });
-  }
-
   function goToNextStep() {
     const validationError = getStepValidationError(currentStep.id, wizard);
     if (validationError) {
@@ -332,10 +252,10 @@ export function DashboardOnboarding({ token, profile, onCompleted, onSkip }) {
       <div className="onboarding-main panel">
         <div className="onboarding-head">
           <div>
-            <span className="status-badge success">Configuración inicial</span>
-            <h2 className="section-title onboarding-title">Crea tu Klicor paso a paso</h2>
+            <span className="status-badge success">Publicar rápido</span>
+            <h2 className="section-title onboarding-title">Crea tu Klicor sin enredos</h2>
             <p className="section-copy">
-              Te guiamos para que tu página quede lista para compartir, vender y cobrar en pocos minutos.
+              Primero deja listo lo esencial. Luego podrás mejorar tu página y aparecer mejor en Dorika.
             </p>
           </div>
           <button className="btn btn-secondary" type="button" onClick={onSkip}>
@@ -444,12 +364,12 @@ export function DashboardOnboarding({ token, profile, onCompleted, onSkip }) {
           {currentStep.id === "actions" ? (
             <div className="section-stack">
               <div className="notice">
-                <span>Tu categoría sugiere estas acciones: {currentTemplate.label.toLowerCase()}.</span>
+                <span>WhatsApp es el contacto principal. Página, ubicación y redes son opcionales: si las dejas vacías no aparecerán en tu link público.</span>
               </div>
-              {wizard.actionSlots.map((slot) => (
+              {onboardingActionSlots.map((slot) => (
                 <div key={slot.id} className="link-row onboarding-link-row">
                   <div>
-                    <label className="label">Etiqueta del boton</label>
+                    <label className="label">Etiqueta del botón</label>
                     <input
                       className="input"
                       value={slot.label}
@@ -480,98 +400,24 @@ export function DashboardOnboarding({ token, profile, onCompleted, onSkip }) {
                   ) : null}
                 </div>
               ))}
-            </div>
-          ) : null}
-
-          {currentStep.id === "payments" ? (
-            <div className="section-stack">
-              <p className="section-copy">
-                Si todavía no quieres cobrar desde tu Klicor, puedes dejar este paso vacío y seguir.
-              </p>
-              {wizard.paymentMethods.map((method, index) => {
-                const methodError = getPaymentMethodError(method);
-                const useBrebField = usesBrebKeyField(method.entityId);
-                const needsAccountType = requiresAccountType(method.entityId);
-                return (
-                  <div key={method.id} className="link-row onboarding-payment-card">
-                    <div className="dashboard-section-head" style={{ marginBottom: ".5rem" }}>
-                      <div>
-                        <strong className="section-title" style={{ fontSize: "1rem" }}>Método {index + 1}</strong>
-                        <p className="section-copy">Configura una cuenta o una llave visible para tus clientes.</p>
-                      </div>
-                      {wizard.paymentMethods.length > 1 ? (
-                        <button className="btn btn-secondary" type="button" onClick={() => removePaymentMethod(method.id)}>
-                          <Trash2 size={16} /> Eliminar
-                        </button>
-                      ) : null}
-                    </div>
-
-                    <div className="profile-grid">
-                      <div>
-                        <label className="label">Entidad</label>
-                        <select
-                          className="select"
-                          value={method.entityId}
-                          onChange={(event) => updatePaymentMethod(method.id, "entityId", event.target.value)}
-                        >
-                          <option value="">Selecciona una entidad</option>
-                          {COLOMBIA_FINANCIAL_ENTITY_OPTIONS.map((option) => (
-                            <option key={option.value} value={option.value}>{option.label}</option>
-                          ))}
-                        </select>
-                      </div>
-                      <div>
-                        <label className="label">QR oficial</label>
-                        <label className="upload-card onboarding-inline-upload">
-                          <input
-                            className="upload-input"
-                            type="file"
-                            accept="image/png,image/jpeg,image/webp"
-                            onChange={(event) => updatePaymentMethodQr(method.id, event.target.files?.[0] || null)}
-                          />
-                          <span className="upload-icon">{method.qrPreviewUrl || method.qrImageUrl ? <ImagePlus size={16} /> : <UploadCloud size={16} />}</span>
-                          <span className="upload-copy">
-                            <strong>{method.qrPreviewUrl || method.qrImageUrl ? "Cambiar QR" : "Subir QR"}</strong>
-                          </span>
-                        </label>
-                      </div>
-                    </div>
-
-                    {needsAccountType ? (
-                      <div>
-                        <label className="label">Tipo de cuenta</label>
-                        <select
-                          className="select"
-                          value={method.accountType}
-                          onChange={(event) => updatePaymentMethod(method.id, "accountType", event.target.value)}
-                        >
-                          <option value="">Selecciona el tipo</option>
-                          {ACCOUNT_TYPE_OPTIONS.map((option) => (
-                            <option key={option.value} value={option.value}>{option.label}</option>
-                          ))}
-                        </select>
-                      </div>
-                    ) : null}
-
-                    <div>
-                      <label className="label">{useBrebField ? "Llave Bre-B" : "Número de cuenta o llave Bre-B"}</label>
+              <div className="onboarding-social-card">
+                <div>
+                  <strong>Redes sociales opcionales</strong>
+                  <p className="section-copy">Agrega solo las redes que ya usas. Si un campo queda vacío, ese icono no se mostrará.</p>
+                </div>
+                <div className="onboarding-social-grid">
+                  {onboardingSocialSlots.map((slot) => (
+                    <div key={slot.id}>
+                      <label className="label">{slot.label}</label>
                       <input
                         className="input"
-                        value={useBrebField ? method.brebKey : method.accountNumber || method.brebKey}
-                        onChange={(event) => updatePaymentMethod(method.id, useBrebField ? "brebKey" : "accountNumber", event.target.value)}
-                        placeholder={useBrebField ? "Tu llave Bre-B" : "Ej. 1234567890"}
+                        value={slot.value}
+                        placeholder={slot.placeholder}
+                        onChange={(event) => updateActionSlot(slot.id, "value", event.target.value)}
                       />
                     </div>
-
-                    {methodError ? <p className="notice notice-danger">{methodError}</p> : null}
-                  </div>
-                );
-              })}
-
-              <div className="payment-method-toolbar">
-                <button className="btn btn-secondary" type="button" onClick={addPaymentMethod} disabled={wizard.paymentMethods.length >= 2}>
-                  <Plus size={16} /> Agregar método de pago
-                </button>
+                  ))}
+                </div>
               </div>
             </div>
           ) : null}
