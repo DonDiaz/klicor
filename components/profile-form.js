@@ -182,6 +182,21 @@ function canDisplayPersistedImageUrl(value = "") {
   return Boolean(url && (/^https?:\/\//i.test(url) || url.startsWith("/")));
 }
 
+function resolveImageVersion(value) {
+  if (!value) return "";
+  if (typeof value === "string") return value;
+  if (typeof value === "number") return String(value);
+  if (typeof value?.toMillis === "function") return String(value.toMillis());
+  return String(value.seconds || value._seconds || value.nanoseconds || value._nanoseconds || "");
+}
+
+function addImageVersion(url = "", version = "") {
+  const cleanUrl = cleanPersistentImageUrl(url);
+  const cleanVersion = String(version || "").trim();
+  if (!cleanUrl || !cleanVersion || /^blob:/i.test(cleanUrl)) return cleanUrl;
+  return `${cleanUrl}${cleanUrl.includes("?") ? "&" : "?"}v=${encodeURIComponent(cleanVersion)}`;
+}
+
 function normalizeContactCard(profile) {
   return {
     enabled: Boolean(profile?.contactCardEnabled),
@@ -619,7 +634,8 @@ export function ProfileForm({
   const websiteLink = useMemo(() => profileLinks.find((item) => item.type === "website" && item.value?.trim()), [profileLinks]);
   const contactCardPreview = useMemo(() => resolveContactCardData(previewUser), [previewUser]);
   const dorikaStoredCoverUrl = canDisplayPersistedImageUrl(dorikaProfile.coverImageUrl) ? cleanPersistentImageUrl(dorikaProfile.coverImageUrl) : "";
-  const dorikaCoverDisplayUrl = dorikaCoverPreviewUrl || (dorikaCoverLoadError ? "" : dorikaStoredCoverUrl);
+  const dorikaCoverVersion = resolveImageVersion(profile?.updatedAt) || dorikaProfile.coverImagePath || dorikaStoredCoverUrl;
+  const dorikaCoverDisplayUrl = dorikaCoverPreviewUrl || (dorikaCoverLoadError ? "" : addImageVersion(dorikaStoredCoverUrl, dorikaCoverVersion));
   const dorikaProgress = useMemo(() => calculateDorikaProfileProgress({
     ...dorikaProfile,
     coverImageUrl: dorikaCoverDisplayUrl,

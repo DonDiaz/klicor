@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { buildShareProfileUrl, buildVanityProfileUrl } from "@/lib/public-profile-links";
 import { formatDate, toDate } from "@/lib/utils";
 import { verifyRequest, requireAdmin } from "@/lib/auth";
-import { getAccountView, getAdminSettings } from "@/lib/firestore";
+import { ensureDorikaCoverDownloadUrl, getAccountView, getAdminSettings } from "@/lib/firestore";
 import { getAdminDb } from "@/lib/firebase-admin";
 import { createServerTiming } from "@/lib/server-timing";
 
@@ -14,7 +14,8 @@ export async function GET(request) {
     const auth = await timing.measure("auth", () => verifyRequest(request), "verify");
     const { decoded, user } = auth;
     const settings = await timing.measure("settings", () => getAdminSettings(), "admin-settings");
-    const account = getAccountView(user);
+    const repairedUser = await timing.measure("dorika-cover", () => ensureDorikaCoverDownloadUrl(user.uid, user), "dorika-cover");
+    const account = getAccountView(repairedUser);
     const updatedAtMs = toDate(account.updatedAt)?.getTime() || 0;
     let adminUsers = [];
 
