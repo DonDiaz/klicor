@@ -4303,6 +4303,45 @@ html[data-theme="dark"] .admin-sidebar-note {
   background: rgba(34, 169, 138, 0.08);
 }
 
+.dorika-location-capture,
+.dorika-category-note {
+  display: grid;
+  gap: 0.65rem;
+  padding: 0.95rem;
+  border: 1px solid rgba(34, 169, 138, 0.18);
+  border-radius: 16px;
+  background: rgba(34, 169, 138, 0.07);
+}
+
+.dorika-location-capture {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+}
+
+.dorika-location-capture strong,
+.dorika-category-note strong {
+  color: var(--text-primary);
+}
+
+.dorika-location-capture small,
+.dorika-category-note small {
+  color: var(--text-secondary);
+  line-height: 1.45;
+}
+
+.dorika-location-status {
+  grid-column: 1 / -1;
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  border-radius: 999px;
+  padding: 0.35rem 0.7rem;
+  background: rgba(34, 169, 138, 0.14);
+  color: #14856c;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
 .dorika-cover-upload {
   position: relative;
   overflow: hidden;
@@ -5411,6 +5450,7 @@ html[data-theme="dark"] .admin-sidebar-note {
   .profile-grid,
   .dorika-task-grid,
   .dorika-privacy-grid,
+  .dorika-location-capture,
   .link-row,
   .link-toolbar,
   .payment-methods-shell,

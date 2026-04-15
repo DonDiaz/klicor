@@ -390,6 +390,8 @@ export function ProfileForm({
   const [dorikaProfile, setDorikaProfile] = useState(normalizeDorikaProfile(profile?.dorikaProfile, profile));
   const [dorikaCover, setDorikaCover] = useState(null);
   const [dorikaCoverPreviewUrl, setDorikaCoverPreviewUrl] = useState("");
+  const [dorikaLocationLoading, setDorikaLocationLoading] = useState(false);
+  const [dorikaLocationMessage, setDorikaLocationMessage] = useState("");
   const [message, setMessage] = useState("");
   const [alertMessage, setAlertMessage] = useState("");
   const [loading, setLoading] = useState(false);
@@ -419,6 +421,8 @@ export function ProfileForm({
     setBillingProfile(normalizeBillingProfile(profile));
     setDorikaProfile(normalizeDorikaProfile(profile?.dorikaProfile, profile));
     setDorikaCover(null);
+    setDorikaLocationLoading(false);
+    setDorikaLocationMessage("");
     setSelectedType("");
     setSelectedLinkValue("");
     setAlertMessage("");
@@ -608,6 +612,8 @@ export function ProfileForm({
   }), [billingProfile, dorikaCoverPreviewUrl, dorikaProfile, form.businessCategory, profile]);
   const dorikaProgressPercent = Number.isFinite(dorikaProgress?.percent) ? dorikaProgress.percent : 0;
   const dorikaTasks = Array.isArray(dorikaProgress?.tasks) ? dorikaProgress.tasks : [];
+  const dorikaCategoryLabel = BUSINESS_CATEGORY_OPTIONS.find((option) => option.value === form.businessCategory)?.label || "Tipo de negocio";
+  const dorikaHasExactCoordinates = Number.isFinite(dorikaProfile.latitude) && Number.isFinite(dorikaProfile.longitude);
 
   useEffect(() => {
     if (!contactCard.whatsappLinkId) return;
@@ -647,6 +653,49 @@ export function ProfileForm({
 
       return next;
     });
+  }
+
+  function captureDorikaLocation() {
+    if (!canEdit) return;
+    if (typeof navigator === "undefined" || !navigator.geolocation) {
+      setAlertMessage("Tu navegador no permite capturar la ubicación. Intenta desde un celular o navegador actualizado.");
+      return;
+    }
+
+    setDorikaLocationLoading(true);
+    setDorikaLocationMessage("");
+    setAlertMessage("");
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const latitude = Math.round(position.coords.latitude * 10000000) / 10000000;
+        const longitude = Math.round(position.coords.longitude * 10000000) / 10000000;
+        const accuracy = Math.round(position.coords.accuracy || 0);
+        setDorikaProfile((current) => ({
+          ...current,
+          latitude,
+          longitude,
+          locationAccuracyMeters: accuracy || null,
+          mapLocationUpdatedAt: new Date().toISOString(),
+          locationPrivacy: "exact",
+          showLocation: true,
+        }));
+        setDorikaLocationMessage("Ubicación exacta guardada para Dorika.");
+        setDorikaLocationLoading(false);
+      },
+      (error) => {
+        const nextMessage = error?.code === 1
+          ? "No pudimos acceder a tu ubicación. Activa el permiso del navegador e inténtalo de nuevo."
+          : "No pudimos capturar la ubicación exacta. Intenta de nuevo estando en el local.";
+        setAlertMessage(nextMessage);
+        setDorikaLocationLoading(false);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 12000,
+        maximumAge: 60000,
+      },
+    );
   }
 
   function handleOpenPublicUrl() {
@@ -691,6 +740,7 @@ export function ProfileForm({
       body.append("billingProfile", JSON.stringify(billingProfile));
       body.append("dorikaProfile", JSON.stringify({
         ...dorikaProfile,
+        category: form.businessCategory,
         coverImageUrl: dorikaCoverPreviewUrl || dorikaProfile.coverImageUrl || "",
       }));
       body.append("removePaymentQrIds", JSON.stringify(paymentMethods.filter((method) => method.removeQr).map((method) => method.id)));
@@ -1795,6 +1845,26 @@ export function ProfileForm({
                       </button>
                     ))}
                   </div>
+                  {dorikaProfile.locationPrivacy === "exact" ? (
+                    <div className="dorika-location-capture">
+                      <div>
+                        <strong>Punto exacto en el mapa</strong>
+                        <p className="section-copy">
+                          Si estás en el local, guarda tu ubicación actual para que Dorika pueda marcar el punto correcto.
+                        </p>
+                        <small>
+                          {dorikaHasExactCoordinates
+                            ? `Ubicación guardada${dorikaProfile.locationAccuracyMeters ? ` con precisión aprox. de ${dorikaProfile.locationAccuracyMeters} m` : ""}.`
+                            : "Aún no has guardado el punto exacto del negocio."}
+                        </small>
+                      </div>
+                      <button className="btn btn-secondary" type="button" onClick={captureDorikaLocation} disabled={!canEdit || dorikaLocationLoading}>
+                        {dorikaLocationLoading ? <RefreshCw className="spin" size={16} /> : <MapPin size={16} />}
+                        {dorikaHasExactCoordinates ? "Actualizar ubicación" : "Usar mi ubicación actual"}
+                      </button>
+                      {dorikaLocationMessage ? <span className="dorika-location-status">{dorikaLocationMessage}</span> : null}
+                    </div>
+                  ) : null}
                 </div>
 
                 {dorikaProfile.locationPrivacy !== "contact_only" ? (
@@ -1853,13 +1923,10 @@ export function ProfileForm({
                     ) : null}
                   </label>
                   <div className="profile-grid">
-                    <div>
-                      <label className="label">Categoría principal en Dorika</label>
-                      <select className="select" value={dorikaProfile.category} onChange={(e) => updateDorikaField("category", e.target.value)} disabled={!canEdit}>
-                        {BUSINESS_CATEGORY_OPTIONS.map((option) => (
-                          <option key={option.value} value={option.value}>{option.label}</option>
-                        ))}
-                      </select>
+                    <div className="dorika-category-note">
+                      <span className="dashboard-link-label">Categoría en Dorika</span>
+                      <strong>{dorikaCategoryLabel}</strong>
+                      <small>La tomamos del tipo de negocio de tu perfil para no pedirte lo mismo dos veces.</small>
                     </div>
                     <div>
                       <label className="label">Descripción corta</label>
