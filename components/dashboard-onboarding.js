@@ -96,11 +96,13 @@ export function DashboardOnboarding({ token, profile, onCompleted, onSkip }) {
   const [stepIndex, setStepIndex] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [usernameCheck, setUsernameCheck] = useState({ value: "", status: "idle", message: "" });
 
   useEffect(() => {
     setWizard(buildOnboardingInitialState(profile));
     setStepIndex(0);
     setError("");
+    setUsernameCheck({ value: "", status: "idle", message: "" });
   }, [profile]);
 
   const currentStep = ONBOARDING_STEPS[stepIndex];
@@ -119,6 +121,17 @@ export function DashboardOnboarding({ token, profile, onCompleted, onSkip }) {
   const onboardingSocialSlots = wizard.actionSlots.filter((slot) => onboardingSocialTypes.has(slot.type));
 
   function updateWizardField(field, value) {
+    if (field === "username") {
+      const nextUsername = sanitizeSlug(value);
+      setError("");
+      setUsernameCheck({ value: nextUsername, status: "idle", message: "" });
+      setWizard((current) => ({
+        ...current,
+        username: nextUsername,
+      }));
+      return;
+    }
+
     setWizard((current) => ({
       ...current,
       [field]: value,
@@ -132,6 +145,57 @@ export function DashboardOnboarding({ token, profile, onCompleted, onSkip }) {
         }
         : {}),
     }));
+  }
+
+  async function validateUsernameAvailability({ quiet = false } = {}) {
+    const username = sanitizeSlug(wizard.username || "");
+
+    if (username.length < 3) {
+      setUsernameCheck({ value: username, status: "idle", message: "" });
+      return "El link público necesita un usuario de mínimo 3 caracteres.";
+    }
+
+    if (usernameCheck.value === username && usernameCheck.status === "available") {
+      return "";
+    }
+
+    if (usernameCheck.value === username && usernameCheck.status === "unavailable") {
+      return usernameCheck.message || "Ese usuario ya está en uso. Prueba con otro.";
+    }
+
+    setUsernameCheck({
+      value: username,
+      status: "checking",
+      message: "Revisando disponibilidad...",
+    });
+
+    try {
+      const response = await apiFetch(`/api/username?username=${encodeURIComponent(username)}`, { token });
+      const message = response.message || (response.available ? "Este usuario está disponible." : "Ese usuario ya está en uso. Prueba con otro.");
+      setUsernameCheck((current) => (
+        current.value === username
+          ? { value: username, status: response.available ? "available" : "unavailable", message }
+          : current
+      ));
+      return response.available ? "" : message;
+    } catch (nextError) {
+      const message = nextError.message || "No pudimos validar el usuario. Intenta de nuevo.";
+      setUsernameCheck((current) => (
+        current.value === username
+          ? { value: username, status: quiet ? "idle" : "unavailable", message: quiet ? "" : message }
+          : current
+      ));
+      return quiet ? "" : message;
+    }
+  }
+
+  async function validateStep(stepId) {
+    const validationError = getStepValidationError(stepId, wizard);
+    if (validationError) return validationError;
+    if (stepId === "identity") {
+      return validateUsernameAvailability();
+    }
+    return "";
   }
 
   function handleCategorySelect(nextCategory) {
@@ -304,8 +368,11 @@ export function DashboardOnboarding({ token, profile, onCompleted, onSkip }) {
     });
   }
 
-  function goToNextStep() {
-    const validationError = getStepValidationError(currentStep.id, wizard);
+  async function goToNextStep() {
+    if (submitting || usernameCheck.status === "checking") return;
+
+    setError("");
+    const validationError = await validateStep(currentStep.id);
     if (validationError) {
       setError(validationError);
       return;
@@ -315,22 +382,38 @@ export function DashboardOnboarding({ token, profile, onCompleted, onSkip }) {
     setStepIndex((current) => Math.min(current + 1, ONBOARDING_STEPS.length - 1));
   }
 
+  async function goToStep(targetIndex) {
+    if (submitting || usernameCheck.status === "checking") return;
+    if (targetIndex <= stepIndex) {
+      setError("");
+      setStepIndex(targetIndex);
+      return;
+    }
+
+    if (targetIndex === stepIndex + 1) {
+      await goToNextStep();
+    }
+  }
+
   function goToPreviousStep() {
     setError("");
     setStepIndex((current) => Math.max(current - 1, 0));
   }
 
   async function handleSubmit() {
-    const validationError = getStepValidationError(currentStep.id, wizard);
-    if (validationError) {
-      setError(validationError);
-      return;
-    }
-
     setSubmitting(true);
     setError("");
 
     try {
+      for (let index = 0; index < ONBOARDING_STEPS.length; index += 1) {
+        const validationError = await validateStep(ONBOARDING_STEPS[index].id);
+        if (validationError) {
+          setStepIndex(index);
+          setError(validationError);
+          return;
+        }
+      }
+
       const payload = buildOnboardingPayload(wizard, profile);
       const body = new FormData();
       body.append("businessName", payload.businessName);
@@ -393,7 +476,8 @@ export function DashboardOnboarding({ token, profile, onCompleted, onSkip }) {
               key={step.id}
               className={`onboarding-progress-item ${index === stepIndex ? "is-active" : ""} ${index < stepIndex ? "is-complete" : ""}`}
               type="button"
-              onClick={() => setStepIndex(index)}
+              onClick={() => goToStep(index)}
+              disabled={submitting || usernameCheck.status === "checking" || index > stepIndex + 1}
             >
               <span>{index + 1}</span>
               <strong>{step.label}</strong>
@@ -441,11 +525,16 @@ export function DashboardOnboarding({ token, profile, onCompleted, onSkip }) {
                   <input
                     className="input"
                     value={wizard.username}
-                    onChange={(event) => updateWizardField("username", sanitizeSlug(event.target.value))}
+                    onChange={(event) => updateWizardField("username", event.target.value)}
+                    onBlur={() => {
+                      if (sanitizeSlug(wizard.username || "").length >= 3) {
+                        validateUsernameAvailability({ quiet: true });
+                      }
+                    }}
                     placeholder="tu-negocio"
                   />
-                  <p className="muted" style={{ marginTop: ".45rem" }}>
-                    Quedará como `klicor.com/{wizard.username || "tu-negocio"}`.
+                  <p className={`muted username-availability ${usernameCheck.status !== "idle" ? `is-${usernameCheck.status}` : ""}`.trim()}>
+                    {usernameCheck.message || <>Quedará como <strong>klicor.com/{wizard.username || "tu-negocio"}</strong>.</>}
                   </p>
                 </div>
               </div>
@@ -685,11 +774,11 @@ export function DashboardOnboarding({ token, profile, onCompleted, onSkip }) {
           </button>
 
           {stepIndex < ONBOARDING_STEPS.length - 1 ? (
-            <button className="btn btn-primary" type="button" onClick={goToNextStep}>
-              Continuar <ArrowRight size={16} />
+            <button className="btn btn-primary" type="button" onClick={goToNextStep} disabled={submitting || usernameCheck.status === "checking"}>
+              {usernameCheck.status === "checking" && currentStep.id === "identity" ? "Revisando..." : "Continuar"} <ArrowRight size={16} />
             </button>
           ) : (
-            <button className="btn btn-primary" type="button" onClick={handleSubmit} disabled={submitting}>
+            <button className="btn btn-primary" type="button" onClick={handleSubmit} disabled={submitting || usernameCheck.status === "checking"}>
               {submitting ? <UploadCloud size={16} /> : <CheckCircle2 size={16} />}
               Crear mi Klicor
             </button>

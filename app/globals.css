@@ -3956,6 +3956,12 @@ html[data-theme="dark"] .admin-sidebar-note {
   color: var(--primary);
 }
 
+.onboarding-progress-item:disabled {
+  cursor: not-allowed;
+  opacity: 0.58;
+  transform: none;
+}
+
 .onboarding-step {
   display: grid;
   gap: 1rem;
@@ -4023,6 +4029,27 @@ html[data-theme="dark"] .admin-sidebar-note {
 
 .onboarding-upload-card {
   min-height: 110px;
+}
+
+.username-availability {
+  margin-top: 0.45rem;
+  font-weight: 700;
+}
+
+.username-availability strong {
+  color: var(--text-primary);
+}
+
+.username-availability.is-checking {
+  color: var(--text-secondary);
+}
+
+.username-availability.is-available {
+  color: #047857;
+}
+
+.username-availability.is-unavailable {
+  color: #b91c1c;
 }
 
 .onboarding-inline-upload {
