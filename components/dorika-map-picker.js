@@ -27,6 +27,13 @@ function roundCoordinate(value) {
   return Math.round(Number(value) * 10000000) / 10000000;
 }
 
+function normalizeSearchValue(value) {
+  return String(value || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+}
+
 function lonLatToWorld(latitude, longitude, zoom) {
   const scale = TILE_SIZE * 2 ** zoom;
   const lat = clampLatitude(latitude);
@@ -164,17 +171,28 @@ export function DorikaMapPicker({
 
   function moveMapFromPointer(event, mode = "click") {
     if (!mapRef.current) return;
-    const rect = mapRef.current.getBoundingClientRect();
-    const world = lonLatToWorld(center.latitude, center.longitude, center.zoom);
-    const deltaX = event.clientX - rect.left - rect.width / 2;
-    const deltaY = event.clientY - rect.top - rect.height / 2;
-    const nextPoint = worldToLonLat(world.x + deltaX, world.y + deltaY, center.zoom);
+    const nextPoint = getPointFromClient(event.clientX, event.clientY);
     setCenter((current) => ({
       ...current,
       ...nextPoint,
     }));
     setSelectedLabel(mode === "drag" ? "Punto ajustado en el mapa" : "Punto elegido en el mapa");
     setMapMessage("Punto ajustado. Guarda para usarlo en Dorika.");
+  }
+
+  function getPointFromClient(clientX, clientY, zoom = center.zoom) {
+    if (!mapRef.current) {
+      return {
+        latitude: center.latitude,
+        longitude: center.longitude,
+      };
+    }
+
+    const rect = mapRef.current.getBoundingClientRect();
+    const world = lonLatToWorld(center.latitude, center.longitude, zoom);
+    const deltaX = clientX - rect.left - rect.width / 2;
+    const deltaY = clientY - rect.top - rect.height / 2;
+    return worldToLonLat(world.x + deltaX, world.y + deltaY, zoom);
   }
 
   function handlePointerDown(event) {
@@ -220,11 +238,70 @@ export function DorikaMapPicker({
     moveMapFromPointer(event);
   }
 
-  async function handleSearch(event) {
-    event?.preventDefault();
+  function zoomAtPoint(nextZoom, clientX, clientY) {
+    if (!mapRef.current) {
+      handleZoom(nextZoom);
+      return;
+    }
+
+    const boundedZoom = Math.max(5, Math.min(19, nextZoom));
+    if (boundedZoom === center.zoom) return;
+
+    const rect = mapRef.current.getBoundingClientRect();
+    const currentWorld = lonLatToWorld(center.latitude, center.longitude, center.zoom);
+    const pointerWorldX = currentWorld.x + clientX - rect.left - rect.width / 2;
+    const pointerWorldY = currentWorld.y + clientY - rect.top - rect.height / 2;
+    const scale = 2 ** (boundedZoom - center.zoom);
+    const nextPointerWorldX = pointerWorldX * scale;
+    const nextPointerWorldY = pointerWorldY * scale;
+    const nextCenterWorldX = nextPointerWorldX - (clientX - rect.left - rect.width / 2);
+    const nextCenterWorldY = nextPointerWorldY - (clientY - rect.top - rect.height / 2);
+    const nextCenter = worldToLonLat(nextCenterWorldX, nextCenterWorldY, boundedZoom);
+
+    setCenter((current) => ({
+      ...current,
+      ...nextCenter,
+      zoom: boundedZoom,
+    }));
+  }
+
+  function handleWheel(event) {
+    event.preventDefault();
+    const direction = event.deltaY > 0 ? -1 : 1;
+    zoomAtPoint(center.zoom + direction, event.clientX, event.clientY);
+  }
+
+  function handleDoubleClick(event) {
+    event.preventDefault();
+    const nextPoint = getPointFromClient(event.clientX, event.clientY);
+    setCenter((current) => ({
+      ...current,
+      ...nextPoint,
+      zoom: Math.max(5, Math.min(19, current.zoom + 2)),
+    }));
+    setSelectedLabel("Punto elegido en el mapa");
+    setMapMessage("Acercamos el mapa a ese punto. Ajusta si hace falta y guarda.");
+  }
+
+  async function handleSearch() {
     const query = searchQuery.trim();
     if (query.length < 3) {
       setMapMessage("Escribe una dirección, barrio o nombre de lugar.");
+      return;
+    }
+
+    const normalizedQuery = normalizeSearchValue(query);
+    if (normalizedQuery.includes("ocana")) {
+      const localResult = {
+        id: "ocana-norte-de-santander",
+        label: "Ocaña, Norte de Santander, Colombia",
+        latitude: OCANA_CENTER.latitude,
+        longitude: OCANA_CENTER.longitude,
+      };
+      setSearchResults([localResult]);
+      setCenter({ ...OCANA_CENTER, zoom: 14 });
+      setSelectedLabel(localResult.label);
+      setMapMessage("Ocaña cargada. Acerca el mapa o mueve el pin hasta el local.");
       return;
     }
 
@@ -339,19 +416,25 @@ export function DorikaMapPicker({
           </button>
         </div>
 
-        <form className="dorika-map-search" onSubmit={handleSearch}>
+        <div className="dorika-map-search">
           <div className="dorika-map-search-field">
             <Search size={17} />
             <input
               value={searchQuery}
               onChange={(event) => setSearchQuery(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter") {
+                  event.preventDefault();
+                  handleSearch();
+                }
+              }}
               placeholder={businessName ? `Busca la dirección de ${businessName}` : "Buscar dirección, barrio o lugar"}
             />
           </div>
-          <button className="btn btn-secondary" type="submit" disabled={searchLoading}>
+          <button className="btn btn-secondary" type="button" onClick={handleSearch} disabled={searchLoading}>
             {searchLoading ? "Buscando..." : "Buscar"}
           </button>
-        </form>
+        </div>
 
         {searchResults.length ? (
           <div className="dorika-map-results">
@@ -374,6 +457,8 @@ export function DorikaMapPicker({
             onPointerMove={handlePointerMove}
             onPointerUp={handlePointerUp}
             onPointerCancel={() => { dragRef.current = null; }}
+            onWheel={handleWheel}
+            onDoubleClick={handleDoubleClick}
           >
             {tileLayout.map((tile) => (
               <img
