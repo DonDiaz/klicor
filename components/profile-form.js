@@ -378,6 +378,7 @@ export function ProfileForm({
   const [profileLinks, setProfileLinks] = useState(normalizeLinks(profile));
   const [appearance, setAppearance] = useState(normalizeAppearance(profile?.settings || APPEARANCE_DEFAULTS));
   const [customThemes, setCustomThemes] = useState(normalizeCustomThemes(profile?.customThemes));
+  const [themeDraftName, setThemeDraftName] = useState("");
   const [photo, setPhoto] = useState(null);
   const [photoPreviewUrl, setPhotoPreviewUrl] = useState("");
   const [paymentMethods, setPaymentMethods] = useState(
@@ -409,6 +410,7 @@ export function ProfileForm({
     setProfileLinks(normalizeLinks(profile));
     setAppearance(normalizeAppearance(profile?.settings || APPEARANCE_DEFAULTS));
     setCustomThemes(normalizeCustomThemes(profile?.customThemes));
+    setThemeDraftName("");
     setPhoto(null);
     setPaymentMethods(normalizePaymentMethods(profile?.paymentMethods, profile?.profileLinks, profile?.paymentQrUrl, profile?.paymentQrPath));
     setContactCard(normalizeContactCard(profile));
@@ -582,6 +584,7 @@ export function ProfileForm({
       return true;
     });
   }, [customThemes]);
+  const activeTheme = useMemo(() => availableThemes.find((theme) => theme.id === appearance.presetId) || null, [appearance.presetId, availableThemes]);
   const availableLinkTypes = useMemo(() => LINK_CATALOG.filter((item) => item.type !== "payment_key"), []);
   const selectedTypeLimit = getLinkTypeLimit(selectedType);
   const selectedTypeCount = getLinkTypeCount(profileLinks, selectedType);
@@ -645,15 +648,18 @@ export function ProfileForm({
     window.open(previewPublicUrl, "_blank", "noopener,noreferrer");
   }
 
-  async function handleSubmit(event) {
-    event.preventDefault();
+  async function saveProfile(overrides = {}) {
+    const nextAppearance = overrides.appearance || appearance;
+    const nextCustomThemes = overrides.customThemes || customThemes;
+    const nextAppearanceWarnings = getAppearanceWarnings(nextAppearance);
+
     if (!canEdit) {
       setAlertMessage("Tu cuenta no permite edición en este momento.");
       return;
     }
 
-    if (appearanceWarnings.length) {
-      setAlertMessage(appearanceWarnings[0].message);
+    if (nextAppearanceWarnings.length) {
+      setAlertMessage(nextAppearanceWarnings[0].message);
       return;
     }
 
@@ -673,8 +679,8 @@ export function ProfileForm({
         qrImageUrl: removeQr ? "" : method.qrImageUrl || "",
         qrPath: removeQr ? "" : method.qrPath || "",
       }))));
-      body.append("appearance", JSON.stringify(appearance));
-      body.append("customThemes", JSON.stringify(customThemes));
+      body.append("appearance", JSON.stringify(nextAppearance));
+      body.append("customThemes", JSON.stringify(nextCustomThemes));
       body.append("contactCard", JSON.stringify(contactCard));
       body.append("billingProfile", JSON.stringify(billingProfile));
       body.append("dorikaProfile", JSON.stringify({
@@ -699,11 +705,18 @@ export function ProfileForm({
 
       onSaved(data.user);
       setMessage("Cambios guardados correctamente.");
+      return true;
     } catch (error) {
       setAlertMessage(error.message);
+      return false;
     } finally {
       setLoading(false);
     }
+  }
+
+  async function handleSubmit(event) {
+    event.preventDefault();
+    await saveProfile();
   }
 
   function toggleProfileSection(sectionId) {
@@ -884,9 +897,13 @@ export function ProfileForm({
       advancedEnabled: false,
       ...preset.appearance,
     }));
+    setThemeDraftName(preset.name || "");
   }
 
   function updateAppearance(field, value) {
+    if (!themeDraftName.trim()) {
+      setThemeDraftName(activeTheme?.name || (form.businessName ? `Tema ${form.businessName}` : "Mi tema"));
+    }
     setAppearance((current) => normalizeAppearance({
       ...current,
       advancedEnabled: true,
@@ -901,6 +918,37 @@ export function ProfileForm({
       advancedEnabled: false,
       ...targetPreset.appearance,
     }));
+    setThemeDraftName(targetPreset.name || "");
+  }
+
+  async function saveCurrentTheme() {
+    if (appearanceWarnings.length) {
+      setAlertMessage(appearanceWarnings[0].message);
+      return;
+    }
+
+    const name = themeDraftName.trim() || activeTheme?.name || (form.businessName ? `Tema ${form.businessName}` : "Mi tema");
+    const currentIsUserTheme = customThemes.some((theme) => theme.id === appearance.presetId);
+    const themeId = currentIsUserTheme ? appearance.presetId : `custom-theme-${Date.now()}`;
+    const themeAppearance = normalizeAppearance({
+      ...appearance,
+      presetId: themeId,
+      advancedEnabled: false,
+    });
+    const nextTheme = {
+      id: themeId,
+      name,
+      appearance: themeAppearance,
+    };
+    const nextCustomThemes = [nextTheme, ...customThemes.filter((theme) => theme.id !== themeId)].slice(0, 6);
+
+    setCustomThemes(nextCustomThemes);
+    setAppearance(themeAppearance);
+    setThemeDraftName(name);
+    const saved = await saveProfile({ appearance: themeAppearance, customThemes: nextCustomThemes });
+    if (saved) {
+      setMessage("Tema guardado. Ya puedes volver a usarlo cuando quieras.");
+    }
   }
 
   const selectedPhotoLabel = photo ? photo.name : profile?.photo ? "Imagen actual cargada" : "Aún no has elegido imagen";
@@ -2123,10 +2171,10 @@ export function ProfileForm({
             <section className="dashboard-section panel workspace-panel">
               <div className="dashboard-section-head workspace-panel-head">
                 <div>
-                  <h2 className="section-title" style={{ fontSize: "1.35rem" }}>Diseño de la página</h2>
-                  <p className="section-copy">Elige un tema, una fuente y el estilo visual de tu Klicor.</p>
+                  <h2 className="section-title" style={{ fontSize: "1.35rem" }}>Crear tema</h2>
+                  <p className="section-copy">Crea, guarda y reutiliza el estilo visual de tu Klicor sin rehacerlo cada vez.</p>
                 </div>
-                <span className="status-badge">{appearance.advancedEnabled ? "Personalizado" : "Tema"}</span>
+                <span className="status-badge">{appearance.advancedEnabled ? "Sin guardar" : "Tema activo"}</span>
               </div>
 
               <div className="section-stack">
@@ -2232,17 +2280,35 @@ export function ProfileForm({
                 <div className={`panel accordion-section preset-accordion ${openDesignSection === "design-advanced" ? "is-open" : ""}`}>
                   <button className="accordion-toggle" type="button" onClick={() => toggleDesignSection("design-advanced")} aria-expanded={openDesignSection === "design-advanced"}>
                     <span className="accordion-toggle-copy">
-                      <strong className="section-title" style={{ fontSize: "1rem" }}>Personalizar diseño</strong>
-                      <span className="section-copy">Ajusta colores, bordes, sombras y detalles finos del perfil.</span>
+                      <strong className="section-title" style={{ fontSize: "1rem" }}>Crear tema</strong>
+                      <span className="section-copy">Ajusta colores, bordes y sombras, ponle nombre y guárdalo solo para tu negocio.</span>
                     </span>
                     <span className="accordion-toggle-meta">
-                      <span className="status-badge">{appearance.advancedEnabled ? "Activo" : "Guiado"}</span>
+                      <span className="status-badge">{appearance.advancedEnabled ? "Listo para guardar" : "Guiado"}</span>
                       {openDesignSection === "design-advanced" ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
                     </span>
                   </button>
 
                   {openDesignSection === "design-advanced" ? (
                     <div className="accordion-content section-stack">
+                      <div className="theme-save-card">
+                        <div>
+                          <strong>Guardar como tema propio</strong>
+                          <p className="section-copy">Cuando te guste el resultado, ponle nombre y quedará guardado solo para este negocio.</p>
+                        </div>
+                        <div className="theme-save-actions">
+                          <input
+                            className="input"
+                            value={themeDraftName}
+                            onChange={(event) => setThemeDraftName(event.target.value)}
+                            placeholder={activeTheme?.name || "Ej. Tema principal"}
+                            disabled={!canEdit}
+                          />
+                          <button className="btn btn-primary" type="button" onClick={saveCurrentTheme} disabled={!canEdit || loading || appearanceWarnings.length > 0}>
+                            {loading ? "Guardando..." : "Guardar tema"}
+                          </button>
+                        </div>
+                      </div>
                       <div className="appearance-grid appearance-grid-colors">
                         <ColorEditor label="Color principal" value={appearance.primaryColor} onChange={(value) => updateAppearance("primaryColor", value)} swatches={APPEARANCE_SWATCHES.primaryColor} />
                         <ColorEditor label="Prioridad 2" value={appearance.secondaryColor} onChange={(value) => updateAppearance("secondaryColor", value)} swatches={APPEARANCE_SWATCHES.secondaryColor} />

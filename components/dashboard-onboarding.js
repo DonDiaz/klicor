@@ -7,14 +7,23 @@ import {
   ArrowRight,
   CheckCircle2,
   ImagePlus,
+  Plus,
+  Trash2,
   UploadCloud,
 } from "lucide-react";
 import { apiFetch } from "@/lib/client-api";
+import {
+  ACCOUNT_TYPE_OPTIONS,
+  COLOMBIA_FINANCIAL_ENTITY_OPTIONS,
+  requiresAccountType,
+  usesBrebKeyField,
+} from "@/lib/colombia-financial-entities";
 import { getBusinessCategoryTemplate } from "@/lib/business-categories";
 import {
   buildOnboardingInitialState,
   buildOnboardingPayload,
   buildOnboardingPreviewUser,
+  createEmptyPaymentMethod,
   ONBOARDING_STEPS,
   updateOnboardingActionSlots,
 } from "@/lib/dashboard-onboarding";
@@ -36,6 +45,19 @@ const DashboardPreview = dynamic(
   },
 );
 
+function hasPaymentMethodInput(method = {}) {
+  return Boolean(method.entityId || method.accountType || method.accountNumber || method.brebKey || method.qrFile || method.qrImageUrl);
+}
+
+function getPaymentMethodError(method = {}) {
+  if (!hasPaymentMethodInput(method)) return "";
+  if (!method.entityId) return "Selecciona una entidad para este método.";
+  if (requiresAccountType(method.entityId) && !method.accountType) return "Selecciona si la cuenta es de ahorros o corriente.";
+  if (usesBrebKeyField(method.entityId)) {
+    return method.brebKey ? "" : "Agrega la llave Bre-B del método.";
+  }
+  return method.accountNumber || method.brebKey ? "" : "Agrega el número de cuenta o la llave Bre-B.";
+}
 
 function getStepValidationError(stepId, wizard) {
   if (stepId === "category") {
@@ -60,6 +82,10 @@ function getStepValidationError(stepId, wizard) {
       return "Agrega tu WhatsApp para que tus clientes puedan contactarte.";
     }
     return "";
+  }
+
+  if (stepId === "payments") {
+    return wizard.paymentMethods.map(getPaymentMethodError).find(Boolean) || "";
   }
 
   return "";
@@ -180,6 +206,104 @@ export function DashboardOnboarding({ token, profile, onCompleted, onSkip }) {
       // If the image cannot be analyzed we simply keep the rest of the flow working.
     }
   }
+
+  function updatePaymentMethod(methodId, field, value) {
+    setWizard((current) => ({
+      ...current,
+      paymentMethods: current.paymentMethods.map((method) => {
+        if (method.id !== methodId) return method;
+        const next = {
+          ...method,
+          [field]: value,
+        };
+
+        if (field === "entityId") {
+          if (!requiresAccountType(value)) {
+            next.accountType = "";
+          }
+
+          const currentValue = String(method.accountNumber || method.brebKey || "").trim();
+          if (usesBrebKeyField(value)) {
+            next.accountNumber = "";
+            next.brebKey = currentValue;
+          } else {
+            next.accountNumber = currentValue;
+            next.brebKey = "";
+          }
+        }
+
+        return next;
+      }),
+    }));
+  }
+
+  function updatePaymentMethodValue(methodId, value) {
+    setWizard((current) => ({
+      ...current,
+      paymentMethods: current.paymentMethods.map((method) => {
+        if (method.id !== methodId) return method;
+        if (usesBrebKeyField(method.entityId)) {
+          return {
+            ...method,
+            accountNumber: "",
+            brebKey: value,
+          };
+        }
+
+        return {
+          ...method,
+          accountNumber: value,
+          brebKey: "",
+        };
+      }),
+    }));
+  }
+
+  function updatePaymentMethodQr(methodId, file) {
+    setWizard((current) => ({
+      ...current,
+      paymentMethods: current.paymentMethods.map((method) => {
+        if (method.id !== methodId) return method;
+        if (method.qrPreviewUrl?.startsWith("blob:")) {
+          URL.revokeObjectURL(method.qrPreviewUrl);
+        }
+        return {
+          ...method,
+          qrFile: file || null,
+          qrPreviewUrl: file ? URL.createObjectURL(file) : "",
+          removeQr: !file && Boolean(method.qrImageUrl),
+        };
+      }),
+    }));
+  }
+
+  function addPaymentMethod() {
+    setWizard((current) => ({
+      ...current,
+      paymentMethods: current.paymentMethods.length >= 2
+        ? current.paymentMethods
+        : [...current.paymentMethods, createEmptyPaymentMethod(current.paymentMethods.length)],
+    }));
+  }
+
+  function removePaymentMethod(methodId) {
+    setWizard((current) => {
+      const target = current.paymentMethods.find((method) => method.id === methodId);
+      if (target?.qrPreviewUrl?.startsWith("blob:")) {
+        URL.revokeObjectURL(target.qrPreviewUrl);
+      }
+
+      const nextMethods = current.paymentMethods
+        .filter((method) => method.id !== methodId)
+        .map((method, index) => ({ ...method, id: method.id || `payment-method-${index + 1}` }));
+
+      return {
+        ...current,
+        paymentMethods: nextMethods.length ? nextMethods : [createEmptyPaymentMethod(0)],
+      };
+    });
+  }
+
   function goToNextStep() {
     const validationError = getStepValidationError(currentStep.id, wizard);
     if (validationError) {
@@ -422,10 +546,104 @@ export function DashboardOnboarding({ token, profile, onCompleted, onSkip }) {
             </div>
           ) : null}
 
+          {currentStep.id === "payments" ? (
+            <div className="section-stack">
+              <div className="notice">
+                <span>Agrega tus métodos de pago desde el inicio para que el cliente pueda comprar sin pedirte datos por chat. Si prefieres completarlo después, puedes dejarlo vacío.</span>
+              </div>
+              {wizard.paymentMethods.map((method, index) => {
+                const methodError = getPaymentMethodError(method);
+                const useBrebField = usesBrebKeyField(method.entityId);
+                const needsAccountType = requiresAccountType(method.entityId);
+                return (
+                  <div key={method.id} className="link-row onboarding-payment-card">
+                    <div className="dashboard-section-head" style={{ marginBottom: ".5rem" }}>
+                      <div>
+                        <strong className="section-title" style={{ fontSize: "1rem" }}>Método {index + 1}</strong>
+                        <p className="section-copy">Cuenta, billetera, llave Bre-B o QR visible para tus clientes.</p>
+                      </div>
+                      {wizard.paymentMethods.length > 1 ? (
+                        <button className="btn btn-secondary" type="button" onClick={() => removePaymentMethod(method.id)}>
+                          <Trash2 size={16} /> Eliminar
+                        </button>
+                      ) : null}
+                    </div>
+
+                    <div className="profile-grid">
+                      <div>
+                        <label className="label">Entidad</label>
+                        <select
+                          className="select"
+                          value={method.entityId}
+                          onChange={(event) => updatePaymentMethod(method.id, "entityId", event.target.value)}
+                        >
+                          <option value="">Selecciona una entidad</option>
+                          {COLOMBIA_FINANCIAL_ENTITY_OPTIONS.map((option) => (
+                            <option key={option.value} value={option.value}>{option.label}</option>
+                          ))}
+                        </select>
+                      </div>
+                      <div>
+                        <label className="label">QR de pago</label>
+                        <label className="upload-card onboarding-inline-upload">
+                          <input
+                            className="upload-input"
+                            type="file"
+                            accept="image/png,image/jpeg,image/webp"
+                            onChange={(event) => updatePaymentMethodQr(method.id, event.target.files?.[0] || null)}
+                          />
+                          <span className="upload-icon">{method.qrPreviewUrl || method.qrImageUrl ? <ImagePlus size={16} /> : <UploadCloud size={16} />}</span>
+                          <span className="upload-copy">
+                            <strong>{method.qrPreviewUrl || method.qrImageUrl ? "Cambiar QR" : "Subir QR"}</strong>
+                          </span>
+                        </label>
+                      </div>
+                    </div>
+
+                    {needsAccountType ? (
+                      <div>
+                        <label className="label">Tipo de cuenta</label>
+                        <select
+                          className="select"
+                          value={method.accountType}
+                          onChange={(event) => updatePaymentMethod(method.id, "accountType", event.target.value)}
+                        >
+                          <option value="">Selecciona el tipo</option>
+                          {ACCOUNT_TYPE_OPTIONS.map((option) => (
+                            <option key={option.value} value={option.value}>{option.label}</option>
+                          ))}
+                        </select>
+                      </div>
+                    ) : null}
+
+                    <div>
+                      <label className="label">{useBrebField ? "Llave Bre-B" : "Número de cuenta o llave Bre-B"}</label>
+                      <input
+                        className="input"
+                        value={useBrebField ? method.brebKey : method.accountNumber || method.brebKey}
+                        onChange={(event) => updatePaymentMethodValue(method.id, event.target.value)}
+                        placeholder={useBrebField ? "Tu llave Bre-B" : "Ej. 1234567890"}
+                      />
+                    </div>
+
+                    {methodError ? <p className="notice notice-danger">{methodError}</p> : null}
+                  </div>
+                );
+              })}
+
+              <div className="payment-method-toolbar">
+                <button className="btn btn-secondary" type="button" onClick={addPaymentMethod} disabled={wizard.paymentMethods.length >= 2}>
+                  <Plus size={16} /> Agregar método de pago
+                </button>
+                <p className="muted">Puedes guardar hasta 2 métodos. Si dejas este paso vacío, no se mostrará en tu link.</p>
+              </div>
+            </div>
+          ) : null}
+
           {currentStep.id === "design" ? (
             <div className="section-stack">
               <div className="notice">
-                <span>Elige un tema base. Si tu logo ya tiene colores fuertes, te sugerimos un tema privado para tu negocio.</span>
+                <span>Crea o elige un tema base. Si tu logo ya tiene colores fuertes, te sugerimos un tema privado para tu negocio.</span>
               </div>
               <div className="appearance-presets onboarding-theme-grid">
                 {availableThemes.map((preset) => (

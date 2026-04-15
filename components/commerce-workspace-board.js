@@ -155,7 +155,6 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
   ), [state?.categories]);
   const modeMeta = resolveCommerceModeMeta(configForm.activeMode);
   const savedActiveMode = state?.config?.activeMode || "";
-  const savedModeMeta = resolveCommerceModeMeta(savedActiveMode || configForm.activeMode);
   const selectedCategory = categories.find((category) => category.id === selectedCategoryId) || null;
   const selectedSubcategories = subcats(selectedCategory);
   const selectedSubcategoryId = selectedCategory
@@ -501,6 +500,15 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
     });
   }
 
+  function openProductEditorForCurrentSection() {
+    if (!selectedCategory) return;
+    const targetSubcategory = selectedSubcategory
+      || (selectedSubcategoryId ? selectedSubcategories.find((subcategory) => subcategory.id === selectedSubcategoryId) || { id: selectedSubcategoryId, name: "Subcategoría seleccionada" } : null);
+
+    if (selectedSubcategories.length && !targetSubcategory) return;
+    openProductEditor(selectedCategory, targetSubcategory);
+  }
+
   function closeProductEditor() {
     revokePendingImageEntries(productEditorRef.current?.pendingImages || []);
     setProductEditor(null);
@@ -668,7 +676,6 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
     }
 
     const selectedHasDirectProducts = directProductCount(selectedCategory) > 0;
-    const productTargetSubcategory = selectedSubcategory || selectedSubcategories[0] || null;
 
     return (
       <section className="commerce-board-panel commerce-board-section" aria-label="Subcategorías">
@@ -694,11 +701,12 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
           <button className="btn btn-primary commerce-board-subcategory-action" type="button" onClick={() => createSubcategory(selectedCategory.id)} disabled={!canEdit || selectedHasDirectProducts || !String(subcategoryDrafts[selectedCategory.id] || "").trim() || loading}>
             <Plus size={16} /> Crear subcategoría
           </button>
-          <button className="btn btn-secondary commerce-board-product-action" type="button" onClick={() => openProductEditor(selectedCategory, productTargetSubcategory)} disabled={!canEdit || loading || !configForm.activeMode || !productTargetSubcategory}>
-            <ImagePlus size={16} /> Crear producto
-          </button>
         </div>
-        {selectedHasDirectProducts ? <small className="commerce-board-note">Esta categoría ya tiene productos directos.</small> : null}
+        {selectedHasDirectProducts ? (
+          <small className="commerce-board-note">Esta categoría ya tiene productos directos. Los productos se gestionan en el Bloque C.</small>
+        ) : (
+          <small className="commerce-board-note">El Bloque B es solo para subcategorías. Los productos de la sección activa están en el Bloque C.</small>
+        )}
 
         {selectedSubcategories.length ? (
           <div className="commerce-board-list">
@@ -744,9 +752,9 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
         ) : (
           <div className="commerce-board-empty">
             <strong>Sin subcategorías</strong>
-            <p>Agrega productos directamente o crea subcategorías primero.</p>
+            <p>Crea subcategorías si necesitas dividir esta categoría. Si no, agrega productos directamente en el Bloque C.</p>
             <button className="btn btn-secondary" type="button" onClick={() => setSectionMode("products")}>
-              Ver productos de esta categoría
+              Ver productos en Bloque C
             </button>
           </div>
         )}
@@ -754,10 +762,10 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
     );
   }
 
-  function renderProductsPanel() {
+  function renderProductsPanel({ asSupport = false } = {}) {
     if (!selectedCategory) {
       return (
-        <section className="commerce-board-panel commerce-board-section">
+        <section className={`commerce-board-panel ${asSupport ? "commerce-board-support commerce-board-products-panel" : "commerce-board-section"}`.trim()}>
           <div className="commerce-board-empty">
             <strong>Selecciona una categoría</strong>
             <p>Elige dónde quieres agregar o editar productos.</p>
@@ -766,11 +774,12 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
       );
     }
 
-    const sectionLabel = selectedSubcategory ? `${selectedCategory.name} · ${selectedSubcategory.name}` : selectedCategory.name;
-    const canAddProduct = Boolean(configForm.activeMode && selectedCategory && (!selectedSubcategories.length || selectedSubcategory));
-    const selectedHasDirectProducts = directProductCount(selectedCategory) > 0;
+    const targetSubcategory = selectedSubcategory
+      || (selectedSubcategoryId ? selectedSubcategories.find((subcategory) => subcategory.id === selectedSubcategoryId) || { id: selectedSubcategoryId, name: "Subcategoría seleccionada" } : null);
+    const sectionLabel = targetSubcategory ? `${selectedCategory.name} · ${targetSubcategory.name}` : selectedCategory.name;
+    const canAddProduct = Boolean(configForm.activeMode && selectedCategory && (!selectedSubcategories.length || selectedSubcategoryId));
     const handleBackFromProducts = () => {
-      if (selectedSubcategory) {
+      if (targetSubcategory) {
         setSectionMode("subcategories");
         setMobileView("categories");
         return;
@@ -783,14 +792,14 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
     };
 
     return (
-      <section className="commerce-board-panel commerce-board-section" aria-label="Productos">
+      <section className={`commerce-board-panel ${asSupport ? "commerce-board-support commerce-board-products-panel" : "commerce-board-section"}`.trim()} aria-label="Productos">
         <button className="commerce-board-back" type="button" onClick={handleBackFromProducts}>
-          <ChevronLeft size={16} /> {selectedSubcategory ? "Categorías" : selectedSubcategories.length ? "Subcategorías" : "Categorías"}
+          <ChevronLeft size={16} /> {targetSubcategory ? "Subcategorías" : "Categorías"}
         </button>
         <div className="commerce-board-panel-head">
           <div>
-            <span>Productos</span>
-            <h3>{selectedSubcategory ? selectedSubcategory.name : selectedCategory.name}</h3>
+            <span>Bloque C</span>
+            <h3>{targetSubcategory ? targetSubcategory.name : selectedCategory.name}</h3>
           </div>
           <strong>{countLabel(activeProducts.length, "producto", "productos")}</strong>
         </div>
@@ -801,33 +810,21 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
           <span>{sectionLabel}</span>
         </div>
 
-        {selectedSubcategory ? (
+        {targetSubcategory ? (
           <>
             <button className="commerce-board-return-categories" type="button" onClick={handleBackFromProducts}>
-              <ChevronLeft size={16} /> Volver a categorías
+              <ChevronLeft size={16} /> Volver a subcategorías
             </button>
-            <button className="btn btn-primary commerce-board-main-action commerce-board-product-action" type="button" onClick={() => openProductEditor(selectedCategory, selectedSubcategory)} disabled={!canEdit || loading || !canAddProduct}>
+            <button className="btn btn-primary commerce-board-main-action commerce-board-product-action" type="button" onClick={openProductEditorForCurrentSection} disabled={!canEdit || loading || !canAddProduct}>
               <ImagePlus size={16} /> Crear producto
             </button>
           </>
         ) : (
           <>
-            <div className="commerce-board-create commerce-board-create-with-product commerce-board-section-actions">
-              <input
-                className="input"
-                value={subcategoryDrafts[selectedCategory.id] || ""}
-                onChange={(event) => setSubcategoryDrafts((current) => ({ ...current, [selectedCategory.id]: event.target.value }))}
-                placeholder="Nombre de la subcategoría"
-                disabled={!canEdit || selectedHasDirectProducts}
-              />
-              <button className="btn btn-secondary commerce-board-subcategory-action" type="button" onClick={() => createSubcategory(selectedCategory.id)} disabled={!canEdit || selectedHasDirectProducts || !String(subcategoryDrafts[selectedCategory.id] || "").trim() || loading}>
-                <Plus size={16} /> Crear subcategoría
-              </button>
-              <button className="btn btn-primary commerce-board-main-action commerce-board-product-action" type="button" onClick={() => openProductEditor(selectedCategory, selectedSubcategory)} disabled={!canEdit || loading || !canAddProduct}>
-                <ImagePlus size={16} /> Crear producto
-              </button>
-            </div>
-            {selectedHasDirectProducts ? <small className="commerce-board-note">Esta categoría ya tiene productos directos.</small> : null}
+            <button className="btn btn-primary commerce-board-main-action commerce-board-product-action" type="button" onClick={openProductEditorForCurrentSection} disabled={!canEdit || loading || !canAddProduct}>
+              <ImagePlus size={16} /> Crear producto
+            </button>
+            {selectedSubcategories.length ? <small className="commerce-board-note">Selecciona una subcategoría en el Bloque B para agregar productos allí.</small> : null}
           </>
         )}
 
@@ -844,7 +841,7 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
                 product={product}
                 sectionLabel={sectionLabel}
                 disabled={!canEdit || loading}
-                onEdit={(nextProduct) => openProductEditor(selectedCategory, selectedSubcategory, nextProduct)}
+                onEdit={(nextProduct) => openProductEditor(selectedCategory, targetSubcategory, nextProduct)}
                 onToggleVisibility={(productId, visible) => runAction("toggle_product_visibility", { productId, visible })}
                 onDelete={(productId) => confirmAction("¿Eliminar este producto?", () => runAction("delete_product", { productId }))}
               />
@@ -861,61 +858,11 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
   }
 
   function renderMiddlePanel() {
-    if (sectionMode === "subcategories" && selectedSubcategories.length) return renderSubcategoriesPanel();
-    return renderProductsPanel();
+    return renderSubcategoriesPanel();
   }
 
   function renderSupportPanel() {
-    const previewProducts = activeProducts.slice(0, 3);
-
-    return (
-      <aside className="commerce-board-panel commerce-board-support" aria-label="Vista previa pública">
-        <div className="commerce-board-panel-head">
-          <div>
-            <span>Bloque C</span>
-            <h3>Vista pública</h3>
-          </div>
-        </div>
-
-        <div className="commerce-board-public-link">
-          <span>{savedActiveMode ? savedModeMeta.label : "Sin modo activo"}</span>
-          <code>{commercePublicUrl || "Guarda el modo para generar el link"}</code>
-          <div>
-            <button type="button" onClick={copyCommerceUrl} disabled={!commercePublicUrl}>
-              <Copy size={14} /> Copiar
-            </button>
-            <button type="button" onClick={openCommerceUrl} disabled={!commercePublicUrl}>
-              <ExternalLink size={14} /> Abrir
-            </button>
-          </div>
-        </div>
-
-        <div className="commerce-mini-preview">
-          <div className="commerce-mini-preview-head">
-            <span>{profile?.businessName || "Klicor"}</span>
-            <strong>{savedModeMeta.label}</strong>
-          </div>
-          <div className="commerce-mini-preview-rail">
-            {categories.slice(0, 3).map((category) => (
-              <span key={category.id} className={category.id === selectedCategoryId ? "is-active" : ""}>{category.name}</span>
-            ))}
-          </div>
-          <div className="commerce-mini-preview-list">
-            {sectionLoading && !previewProducts.length ? (
-              <p>Cargando vista previa...</p>
-            ) : previewProducts.length ? previewProducts.map((product) => (
-              <div key={product.id} className={product.visible === false ? "is-hidden" : ""}>
-                <span>{product.imageThumbUrl || product.imageUrl ? <img src={product.imageThumbUrl || product.imageUrl} alt="" /> : product.name?.slice(0, 1)}</span>
-                <strong>{product.name}</strong>
-                <small>{money(product.price)}</small>
-              </div>
-            )) : (
-              <p>Selecciona una sección con productos para previsualizarla aquí.</p>
-            )}
-          </div>
-        </div>
-      </aside>
-    );
+    return renderProductsPanel({ asSupport: true });
   }
 
   function renderProductEditor() {
@@ -1017,7 +964,7 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
   if (!active) return null;
 
   return (
-    <section className={`dashboard-section panel workspace-panel commerce-workspace commerce-board-workspace ${mobileView === "section" ? "is-section-view" : "is-categories-view"}`}>
+    <section className={`dashboard-section panel workspace-panel commerce-workspace commerce-board-workspace ${mobileView === "section" ? "is-section-view" : "is-categories-view"} ${sectionMode === "products" ? "is-products-mode" : "is-subcategories-mode"}`}>
       {renderModuleHeader()}
 
       {message ? <div className="notice"><span>{message}</span></div> : null}
