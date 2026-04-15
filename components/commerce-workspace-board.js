@@ -52,6 +52,10 @@ function buildSectionKey(categoryId = "", subcategoryId = "") {
   return `${String(categoryId || "").trim()}:${String(subcategoryId || "").trim()}`;
 }
 
+function adjustCount(value, delta) {
+  return Math.max(0, (Number(value || 0) || 0) + delta);
+}
+
 function buildPendingImageId(index = 0) {
   if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
     return `pending-${crypto.randomUUID()}`;
@@ -94,7 +98,7 @@ function getCommerceModeOptionsForCategory(category = "") {
   return COMMERCE_MODE_OPTIONS.filter((option) => allowedSet.has(option.value));
 }
 
-function ProductRow({ product, sectionLabel, disabled, onEdit, onToggleVisibility, onDelete }) {
+function ProductRow({ product, sectionLabel, disabled, visibilityPending = false, onEdit, onToggleVisibility, onDelete }) {
   const visible = product.visible !== false;
 
   return (
@@ -128,8 +132,8 @@ function ProductRow({ product, sectionLabel, disabled, onEdit, onToggleVisibilit
         <button type="button" onClick={() => onEdit(product)} disabled={disabled} title="Editar producto">
           <Pencil size={15} />
         </button>
-        <button type="button" onClick={() => onToggleVisibility(product.id, !visible)} disabled={disabled} title={visible ? "Ocultar producto" : "Mostrar producto"}>
-          {visible ? <EyeOff size={15} /> : <Eye size={15} />}
+        <button type="button" onClick={() => onToggleVisibility(product, !visible)} disabled={disabled} title={visible ? "Ocultar producto" : "Mostrar producto"}>
+          {visibilityPending ? <LoaderCircle size={15} className="spin" /> : visible ? <EyeOff size={15} /> : <Eye size={15} />}
         </button>
         <button type="button" onClick={() => onDelete(product.id)} disabled={disabled} title="Eliminar producto">
           <Trash2 size={15} />
@@ -158,6 +162,7 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
   const [editingSubcategoryName, setEditingSubcategoryName] = useState("");
   const [productEditor, setProductEditor] = useState(null);
   const [productEditorError, setProductEditorError] = useState("");
+  const [visibilityPendingProducts, setVisibilityPendingProducts] = useState({});
   const [sectionCache, setSectionCache] = useState({});
   const sectionCacheRef = useRef({});
   const sectionRequestRef = useRef(0);
@@ -286,6 +291,66 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
     }
   }, [replaceSectionCache, token]);
 
+  const patchProductInSectionCache = useCallback((productId, patch) => {
+    const normalizedProductId = String(productId || "").trim();
+    if (!normalizedProductId) return;
+
+    replaceSectionCache((current) => {
+      let changed = false;
+      const next = Object.fromEntries(Object.entries(current).map(([key, section]) => {
+        const products = Array.isArray(section?.products) ? section.products : [];
+        let sectionChanged = false;
+        const nextProducts = products.map((product) => {
+          if (product.id !== normalizedProductId) return product;
+          sectionChanged = true;
+          return {
+            ...product,
+            ...patch,
+          };
+        });
+
+        if (!sectionChanged) return [key, section];
+        changed = true;
+        return [key, {
+          ...section,
+          products: nextProducts,
+        }];
+      }));
+
+      return changed ? next : current;
+    });
+  }, [replaceSectionCache]);
+
+  const patchStructureVisibilityCounts = useCallback((product, delta) => {
+    if (!product || !delta) return;
+
+    setState((current) => {
+      if (!current) return current;
+      return {
+        ...current,
+        config: {
+          ...(current.config || {}),
+          visibleProductsCount: adjustCount(current.config?.visibleProductsCount, delta),
+        },
+        categories: (Array.isArray(current.categories) ? current.categories : []).map((category) => {
+          if (category.id !== product.categoryId) return category;
+          return {
+            ...category,
+            visibleProductCount: adjustCount(category.visibleProductCount, delta),
+            subcategories: subcats(category).map((subcategory) => (
+              product.subcategoryId && subcategory.id === product.subcategoryId
+                ? {
+                  ...subcategory,
+                  visibleProductCount: adjustCount(subcategory.visibleProductCount, delta),
+                }
+                : subcategory
+            )),
+          };
+        }),
+      };
+    });
+  }, []);
+
   const resolveSelectionFromState = useCallback((nextState, preferred = {}) => {
     const nextCategories = Array.isArray(nextState?.categories) ? nextState.categories : [];
     if (!nextCategories.length) return null;
@@ -378,27 +443,31 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
     token,
   ]);
 
+  async function sendCommerceAction(action, payload = {}, image = null) {
+    const body = new FormData();
+    body.append("action", action);
+    body.append("payload", JSON.stringify(payload));
+    if (Array.isArray(image)) {
+      image.filter(Boolean).forEach((file) => body.append("images", file));
+    } else if (image) {
+      body.append("image", image);
+    }
+
+    return apiFetch("/api/commerce", {
+      method: "POST",
+      token,
+      body,
+      isFormData: true,
+    });
+  }
+
   async function runAction(action, payload = {}, image = null) {
     setLoading(true);
     setMessage("");
     setError("");
 
     try {
-      const body = new FormData();
-      body.append("action", action);
-      body.append("payload", JSON.stringify(payload));
-      if (Array.isArray(image)) {
-        image.filter(Boolean).forEach((file) => body.append("images", file));
-      } else if (image) {
-        body.append("image", image);
-      }
-
-      const response = await apiFetch("/api/commerce", {
-        method: "POST",
-        token,
-        body,
-        isFormData: true,
-      });
+      const response = await sendCommerceAction(action, payload, image);
 
       if (action !== "save_config") {
         clearSectionCache();
@@ -452,6 +521,37 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
       return null;
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function toggleProductVisibility(product, visible) {
+    const productId = String(product?.id || "").trim();
+    if (!productId || visibilityPendingProducts[productId]) return;
+
+    const previousVisible = product.visible !== false;
+    const nextVisible = Boolean(visible);
+    if (previousVisible === nextVisible) return;
+
+    const delta = nextVisible ? 1 : -1;
+    setMessage("");
+    setError("");
+    setVisibilityPendingProducts((current) => ({ ...current, [productId]: true }));
+    patchProductInSectionCache(productId, { visible: nextVisible });
+    patchStructureVisibilityCounts(product, delta);
+
+    try {
+      await sendCommerceAction("toggle_product_visibility", { productId, visible: nextVisible });
+      setMessage(nextVisible ? "Producto visible." : "Producto oculto.");
+    } catch (nextError) {
+      patchProductInSectionCache(productId, { visible: previousVisible });
+      patchStructureVisibilityCounts(product, -delta);
+      setError(nextError.message || "No pudimos actualizar el estado del producto.");
+    } finally {
+      setVisibilityPendingProducts((current) => {
+        const next = { ...current };
+        delete next[productId];
+        return next;
+      });
     }
   }
 
@@ -868,9 +968,10 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
                 key={product.id}
                 product={product}
                 sectionLabel={sectionLabel}
-                disabled={!canEdit || loading}
+                disabled={!canEdit || loading || Boolean(visibilityPendingProducts[product.id])}
+                visibilityPending={Boolean(visibilityPendingProducts[product.id])}
                 onEdit={(nextProduct) => openProductEditor(selectedCategory, targetSubcategory, nextProduct)}
-                onToggleVisibility={(productId, visible) => runAction("toggle_product_visibility", { productId, visible })}
+                onToggleVisibility={toggleProductVisibility}
                 onDelete={(productId) => confirmAction("¿Eliminar este producto?", () => runAction("delete_product", { productId }))}
               />
             ))}
