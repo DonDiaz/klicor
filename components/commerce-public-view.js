@@ -14,7 +14,6 @@ import {
   X,
 } from "lucide-react";
 import { FONT_FAMILY_STYLE_MAP } from "@/app/fonts";
-import { CommerceCategoryIcon } from "@/components/commerce-category-icon";
 import { apiFetch } from "@/lib/client-api";
 import { resolveCommerceModeMeta } from "@/lib/commerce-config";
 import { buildWhatsappLink } from "@/lib/utils";
@@ -168,6 +167,8 @@ function normalizePublicCategories(value = []) {
         id: String(category.id || `category-${index}`),
         name: String(category.name || "Categoría"),
         iconKey: String(category.iconKey || "tag"),
+        imageUrl: String(category.imageUrl || category.previewImage?.imageUrl || ""),
+        imageThumbUrl: String(category.imageThumbUrl || category.previewImage?.imageThumbUrl || category.previewImage?.imageUrl || category.imageUrl || ""),
         hasSubcategories: Boolean(category.hasSubcategories),
         firstSubcategoryId: String(category.firstSubcategoryId || ""),
         subcategoryCount: Number(category.subcategoryCount || 0) || 0,
@@ -700,12 +701,6 @@ export function CommercePublicView({ bootstrap, preview = false }) {
     window.open(buildWhatsappLink(safeBootstrap.orderWhatsapp, message), "_blank", "noopener,noreferrer");
   }
 
-  function handleGlobalWhatsapp() {
-    if (preview || !safeBootstrap.orderWhatsapp) return;
-    const message = `Hola, quiero información sobre ${safeBusiness.businessName}.`;
-    window.open(buildWhatsappLink(safeBootstrap.orderWhatsapp, message), "_blank", "noopener,noreferrer");
-  }
-
   async function handleShare() {
     if (preview || typeof window === "undefined") return;
     const payload = {
@@ -743,11 +738,6 @@ export function CommercePublicView({ bootstrap, preview = false }) {
       <section className="commerce-shell">
         <header className="commerce-header commerce-visual-hero" style={headerStyle}>
           <div className="commerce-hero-actions">
-            {safeBootstrap.orderWhatsapp ? (
-              <button className="commerce-hero-action is-whatsapp" type="button" onClick={handleGlobalWhatsapp} disabled={preview} aria-label="Abrir WhatsApp">
-                <MessageCircle size={18} />
-              </button>
-            ) : null}
             {!preview ? (
               <button className="commerce-hero-action" type="button" onClick={handleShare} aria-label="Compartir">
                 <Share2 size={18} />
@@ -771,15 +761,23 @@ export function CommercePublicView({ bootstrap, preview = false }) {
               <div className="commerce-category-rail" aria-label="Categorías">
                 {categories.map((category) => {
                   const isActive = selection.categoryId === category.id;
+                  const categoryImage = category.imageThumbUrl || category.imageUrl;
                   return (
                     <button
                       key={category.id}
                       className={`commerce-category-chip ${isActive ? "is-active" : ""}`.trim()}
                       type="button"
                       onClick={() => handleSelectCategory(category)}
+                      aria-pressed={isActive}
                     >
-                      <CommerceCategoryIcon className="commerce-category-chip-icon" iconKey={category.iconKey} size={16} />
-                      <span>{category.name}</span>
+                      <span className="commerce-category-image" aria-hidden="true">
+                        {categoryImage ? (
+                          <img src={categoryImage} alt="" loading="lazy" decoding="async" />
+                        ) : (
+                          <span>{category.name.slice(0, 1)}</span>
+                        )}
+                      </span>
+                      <span className="commerce-category-name">{category.name}</span>
                     </button>
                   );
                 })}
@@ -795,8 +793,8 @@ export function CommercePublicView({ bootstrap, preview = false }) {
                         className={`commerce-subcategory-chip ${isActive ? "is-active" : ""}`.trim()}
                         type="button"
                         onClick={() => handleSelectSubcategory(subcategory.id)}
+                        aria-pressed={isActive}
                       >
-                        <CommerceCategoryIcon className="commerce-category-chip-icon" iconKey={subcategory.iconKey} size={15} />
                         <span>{subcategory.name}</span>
                       </button>
                     );
@@ -868,18 +866,6 @@ export function CommercePublicView({ bootstrap, preview = false }) {
           <ShoppingCart size={20} />
           <span>Ver pedido ({cartCount}) - {formatCurrency(cartTotal, safeConfig.currency)}</span>
           <ChevronRight size={20} />
-        </button>
-      ) : null}
-
-      {safeBootstrap.orderWhatsapp ? (
-        <button
-          className={`commerce-whatsapp-fab ${safeBootstrap.supportsCart ? "has-order-bar" : ""}`.trim()}
-          type="button"
-          onClick={handleGlobalWhatsapp}
-          disabled={preview}
-          aria-label="Abrir WhatsApp"
-        >
-          <MessageCircle size={22} />
         </button>
       ) : null}
 
