@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useAuth } from "@/components/providers/auth-provider";
-import { apiFetch } from "@/lib/client-api";
+import { apiFetch, getFreshAuthToken } from "@/lib/client-api";
 
 export function BillingSuccessClient({ paymentId, initialStatus }) {
   const { user, loading } = useAuth();
@@ -12,7 +12,7 @@ export function BillingSuccessClient({ paymentId, initialStatus }) {
     async function confirmPayment() {
       if (!paymentId || initialStatus !== "approved" || !user) return;
       try {
-        const token = await user.getIdToken(true);
+        const token = await getFreshAuthToken();
         const result = await apiFetch("/api/billing/confirm", {
           method: "POST",
           token,

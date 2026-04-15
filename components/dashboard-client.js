@@ -7,7 +7,7 @@ import Script from "next/script";
 import { AlertTriangle, Send, ShieldAlert } from "lucide-react";
 import { sendEmailVerification, signOut } from "firebase/auth";
 import { getClientAuth } from "@/lib/firebase-client";
-import { apiFetch } from "@/lib/client-api";
+import { apiFetch, getFreshAuthToken } from "@/lib/client-api";
 import { useAuth } from "@/components/providers/auth-provider";
 import { needsDashboardOnboarding } from "@/lib/dashboard-onboarding";
 
@@ -60,7 +60,7 @@ export function DashboardClient() {
   useEffect(() => {
     async function bootstrap() {
       if (!user) return;
-      const nextToken = await user.getIdToken();
+      const nextToken = await getFreshAuthToken();
       setToken(nextToken);
       const payload = await apiFetch("/api/me", { token: nextToken });
       setData(payload);

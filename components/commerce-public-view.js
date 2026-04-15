@@ -154,7 +154,9 @@ function normalizePublicSubcategories(value = []) {
         name: String(subcategory.name || "Subcategoría"),
         iconKey: String(subcategory.iconKey || "tag"),
         productCount: Number(subcategory.productCount || 0) || 0,
+        visibleProductCount: Number(subcategory.visibleProductCount ?? subcategory.productCount ?? 0) || 0,
       }))
+      .filter((subcategory) => subcategory.visibleProductCount > 0)
     : [];
 }
 
@@ -173,7 +175,9 @@ function normalizePublicCategories(value = []) {
         firstSubcategoryId: String(category.firstSubcategoryId || ""),
         subcategoryCount: Number(category.subcategoryCount || 0) || 0,
         productCount: Number(category.productCount || 0) || 0,
+        visibleProductCount: Number(category.visibleProductCount ?? category.productCount ?? 0) || 0,
       }))
+      .filter((category) => category.visibleProductCount > 0)
     : [];
 }
 
@@ -800,12 +804,6 @@ export function CommercePublicView({ bootstrap, preview = false }) {
                 </div>
               ) : null}
             </nav>
-
-            {selection.categoryId && subcategories.length ? (
-              <span className="commerce-current-section-label">
-                {subcategories.find((subcategory) => subcategory.id === selection.subcategoryId)?.name || selectedCategory?.name}
-              </span>
-            ) : null}
 
             {isSectionLoading ? (
               <ProductsLoading />

@@ -10,6 +10,7 @@ import {
   Copy,
   ShoppingBag,
   CreditCard,
+  CheckCircle2,
   ChevronDown,
   ChevronUp,
   Download,
@@ -393,6 +394,7 @@ export function ProfileForm({
   const [alertMessage, setAlertMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [selectedType, setSelectedType] = useState("");
+  const [selectedLinkValue, setSelectedLinkValue] = useState("");
   const [activeWorkspace, setActiveWorkspace] = useState(() => getPrimaryWorkspaceForBusinessCategory(profile?.businessCategory));
   const navCollapsed = true;
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
@@ -417,6 +419,8 @@ export function ProfileForm({
     setBillingProfile(normalizeBillingProfile(profile));
     setDorikaProfile(normalizeDorikaProfile(profile?.dorikaProfile, profile));
     setDorikaCover(null);
+    setSelectedType("");
+    setSelectedLinkValue("");
     setAlertMessage("");
   }, [profile]);
 
@@ -588,6 +592,7 @@ export function ProfileForm({
   const selectedTypeLimit = selectedType ? getLinkTypeLimit(selectedType) : 0;
   const selectedTypeCount = selectedType ? getLinkTypeCount(profileLinks, selectedType) : 0;
   const selectedTypeAvailable = selectedType ? canAddLinkType(profileLinks, selectedType) : false;
+  const selectedLinkMeta = selectedType ? LINK_CATALOG_MAP[selectedType] : null;
   const whatsappLinks = useMemo(() => profileLinks.filter((item) => item.type === "whatsapp" && item.value?.trim()), [profileLinks]);
   const emailLink = useMemo(() => profileLinks.find((item) => item.type === "email" && item.value?.trim()), [profileLinks]);
   const websiteLink = useMemo(() => profileLinks.find((item) => item.type === "website" && item.value?.trim()), [profileLinks]);
@@ -601,6 +606,8 @@ export function ProfileForm({
     city: billingProfile.city,
     billingProfile,
   }), [billingProfile, dorikaCoverPreviewUrl, dorikaProfile, form.businessCategory, profile]);
+  const dorikaProgressPercent = Number.isFinite(dorikaProgress?.percent) ? dorikaProgress.percent : 0;
+  const dorikaTasks = Array.isArray(dorikaProgress?.tasks) ? dorikaProgress.tasks : [];
 
   useEffect(() => {
     if (!contactCard.whatsappLinkId) return;
@@ -742,17 +749,26 @@ export function ProfileForm({
       return;
     }
 
+    const cleanValue = selectedLinkValue.trim();
+    if (!cleanValue) {
+      setAlertMessage("Escribe el enlace o dato de contacto antes de agregar el botón.");
+      return;
+    }
+
     setProfileLinks((current) => applyDefaultLinkPriorityTiers([
       ...current,
       {
         id: `${selectedType}-${Date.now()}`,
         type: selectedType,
         label: meta.label,
-        value: "",
+        value: cleanValue,
         priorityTier: getDefaultPriorityTierForNewLink(current, selectedType, form.businessCategory),
         message: selectedType === "whatsapp" ? "Hola, quiero información" : "",
       },
     ], form.businessCategory));
+    setSelectedType("");
+    setSelectedLinkValue("");
+    setAlertMessage("");
   }
 
   function updateLink(id, field, value) {
@@ -1718,16 +1734,16 @@ export function ProfileForm({
               <div className="dorika-progress-card">
                 <div>
                   <span className="dashboard-link-label">Perfil Dorika</span>
-                  <strong>{dorikaProfile.enabled ? `${dorikaProgress.percent}% completo` : "Dorika desactivado"}</strong>
+                  <strong>{dorikaProfile.enabled ? `${dorikaProgressPercent}% completo` : "Dorika desactivado"}</strong>
                   <p className="section-copy">Mientras más claro esté tu perfil, más fácil será que te descubran desde Dorika.</p>
                 </div>
-                <div className="dorika-progress-meter" aria-label={`Perfil Dorika ${dorikaProgress.percent}% completo`}>
-                  <span style={{ width: `${dorikaProfile.enabled ? dorikaProgress.percent : 0}%` }} />
+                <div className="dorika-progress-meter" aria-label={`Perfil Dorika ${dorikaProgressPercent}% completo`}>
+                  <span style={{ width: `${dorikaProfile.enabled ? dorikaProgressPercent : 0}%` }} />
                 </div>
               </div>
 
               <div className="dorika-task-grid">
-                {dorikaProgress.tasks.map((task) => (
+                {dorikaTasks.map((task) => (
                   <div key={task.id} className={`dorika-task-card ${task.complete ? "is-complete" : ""}`.trim()}>
                     <span>{task.complete ? <CheckCircle2 size={16} /> : <Star size={15} />}</span>
                     <strong>{task.label}</strong>
@@ -1875,7 +1891,15 @@ export function ProfileForm({
 
               <div className="section-stack">
           <div className="link-toolbar">
-            <select className="select" value={selectedType} onChange={(e) => setSelectedType(e.target.value)} disabled={!canEdit}>
+            <select
+              className="select"
+              value={selectedType}
+              onChange={(e) => {
+                setSelectedType(e.target.value);
+                setSelectedLinkValue("");
+              }}
+              disabled={!canEdit}
+            >
               <option value="">Selecciona un botón nuevo</option>
               {availableLinkTypes.map((item) => (
                 <option key={item.type} value={item.type}>
@@ -1884,6 +1908,16 @@ export function ProfileForm({
                 </option>
               ))}
             </select>
+            {selectedLinkMeta ? (
+              <input
+                className="input"
+                value={selectedLinkValue}
+                onChange={(e) => setSelectedLinkValue(e.target.value)}
+                placeholder={selectedLinkMeta.placeholder}
+                aria-label={`Dato para ${selectedLinkMeta.label}`}
+                disabled={!canEdit || !selectedTypeAvailable}
+              />
+            ) : null}
             <button className="btn btn-secondary" type="button" onClick={addLink} disabled={!canEdit || !selectedTypeAvailable}>
               <Plus size={16} /> Agregar enlace
             </button>
@@ -1891,10 +1925,10 @@ export function ProfileForm({
 
           <p className="muted">
             {!selectedType
-              ? "Elige qué botón quieres sumar a tu página. Solo se mostrará si agregas su enlace."
+              ? "Elige qué botón quieres sumar a tu página. Luego escribe el enlace o dato y agrégalo."
               : selectedType === "whatsapp"
               ? `WhatsApp permite hasta ${selectedTypeLimit} enlaces. Ya tienes ${selectedTypeCount}.`
-              : `${LINK_CATALOG_MAP[selectedType]?.label || "Esta red"} permite solo ${selectedTypeLimit} enlace. Ya tienes ${selectedTypeCount}.`}
+              : `${selectedLinkMeta?.label || "Esta red"} permite solo ${selectedTypeLimit} enlace. Ya tienes ${selectedTypeCount}.`}
           </p>
 
           <div className="section-divider" />

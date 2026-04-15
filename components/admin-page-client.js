@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { signOut } from "firebase/auth";
 import { ShieldAlert } from "lucide-react";
-import { apiFetch } from "@/lib/client-api";
+import { apiFetch, getFreshAuthToken } from "@/lib/client-api";
 import { getClientAuth } from "@/lib/firebase-client";
 import { AdminPanel } from "@/components/admin-panel";
 import { useAuth } from "@/components/providers/auth-provider";
@@ -22,7 +22,7 @@ export function AdminPageClient() {
     async function bootstrap() {
       if (!user) return;
 
-      const nextToken = await user.getIdToken(true);
+      const nextToken = await getFreshAuthToken();
       setToken(nextToken);
 
       const me = await apiFetch("/api/me", { token: nextToken });
