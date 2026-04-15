@@ -60,6 +60,7 @@ import {
 } from "@/lib/colombia-financial-entities";
 import { COLOMBIA_DEPARTMENT_OPTIONS, getCitiesForDepartment, resolveCityName, resolveDepartmentName } from "@/lib/colombia-locations";
 import { resolveContactCardData } from "@/lib/contact-card";
+import { DorikaMapPicker } from "@/components/dorika-map-picker";
 import { calculateDorikaProfileProgress, DORIKA_LOCATION_PRIVACY_OPTIONS, normalizeDorikaProfile } from "@/lib/dorika-profile";
 import { canAddLinkType, getLinkTypeCount, getLinkTypeLimit, LINK_CATALOG, LINK_CATALOG_MAP } from "@/lib/link-catalog";
 import { normalizePaymentMethods } from "@/lib/payment-methods";
@@ -392,6 +393,7 @@ export function ProfileForm({
   const [dorikaCoverPreviewUrl, setDorikaCoverPreviewUrl] = useState("");
   const [dorikaLocationLoading, setDorikaLocationLoading] = useState(false);
   const [dorikaLocationMessage, setDorikaLocationMessage] = useState("");
+  const [dorikaMapOpen, setDorikaMapOpen] = useState(false);
   const [message, setMessage] = useState("");
   const [alertMessage, setAlertMessage] = useState("");
   const [loading, setLoading] = useState(false);
@@ -423,6 +425,7 @@ export function ProfileForm({
     setDorikaCover(null);
     setDorikaLocationLoading(false);
     setDorikaLocationMessage("");
+    setDorikaMapOpen(false);
     setSelectedType("");
     setSelectedLinkValue("");
     setAlertMessage("");
@@ -680,7 +683,7 @@ export function ProfileForm({
           locationPrivacy: "exact",
           showLocation: true,
         }));
-        setDorikaLocationMessage("Ubicación exacta guardada para Dorika.");
+        setDorikaLocationMessage("Ubicación tomada desde este dispositivo. Si no cae en el local, ajusta el punto en el mapa.");
         setDorikaLocationLoading(false);
       },
       (error) => {
@@ -696,6 +699,21 @@ export function ProfileForm({
         maximumAge: 60000,
       },
     );
+  }
+
+  function saveDorikaMapLocation(point) {
+    if (!canEdit) return;
+    setDorikaProfile((current) => ({
+      ...current,
+      latitude: point.latitude,
+      longitude: point.longitude,
+      locationAccuracyMeters: point.locationAccuracyMeters || null,
+      mapLocationUpdatedAt: new Date().toISOString(),
+      locationPrivacy: "exact",
+      showLocation: true,
+    }));
+    setDorikaLocationMessage("Punto del mapa guardado para Dorika.");
+    setDorikaMapOpen(false);
   }
 
   function handleOpenPublicUrl() {
@@ -1850,18 +1868,24 @@ export function ProfileForm({
                       <div>
                         <strong>Punto exacto en el mapa</strong>
                         <p className="section-copy">
-                          Si estás en el local, guarda tu ubicación actual para que Dorika pueda marcar el punto correcto.
+                          Si estás en el local, puedes usar tu ubicación actual. Si estás en casa o en un PC, abre el mapa y mueve el pin hasta tu negocio.
                         </p>
                         <small>
                           {dorikaHasExactCoordinates
-                            ? `Ubicación guardada${dorikaProfile.locationAccuracyMeters ? ` con precisión aprox. de ${dorikaProfile.locationAccuracyMeters} m` : ""}.`
+                            ? `Punto guardado${dorikaProfile.locationAccuracyMeters ? ` con precisión aprox. de ${dorikaProfile.locationAccuracyMeters} m` : " en el mapa"}.`
                             : "Aún no has guardado el punto exacto del negocio."}
                         </small>
                       </div>
-                      <button className="btn btn-secondary" type="button" onClick={captureDorikaLocation} disabled={!canEdit || dorikaLocationLoading}>
-                        {dorikaLocationLoading ? <RefreshCw className="spin" size={16} /> : <MapPin size={16} />}
-                        {dorikaHasExactCoordinates ? "Actualizar ubicación" : "Usar mi ubicación actual"}
-                      </button>
+                      <div className="dorika-location-actions">
+                        <button className="btn btn-primary" type="button" onClick={() => setDorikaMapOpen(true)} disabled={!canEdit}>
+                          <MapPinned size={16} />
+                          Ubicar en mapa
+                        </button>
+                        <button className="btn btn-secondary" type="button" onClick={captureDorikaLocation} disabled={!canEdit || dorikaLocationLoading}>
+                          {dorikaLocationLoading ? <RefreshCw className="spin" size={16} /> : <MapPin size={16} />}
+                          Usar ubicación actual
+                        </button>
+                      </div>
                       {dorikaLocationMessage ? <span className="dorika-location-status">{dorikaLocationMessage}</span> : null}
                     </div>
                   ) : null}
@@ -1944,6 +1968,20 @@ export function ProfileForm({
                 </div>
               </div>
             </section>
+          ) : null}
+
+          {activeWorkspace === "dorika" ? (
+            <DorikaMapPicker
+              open={dorikaMapOpen}
+              businessName={form.businessName}
+              initialLatitude={dorikaProfile.latitude}
+              initialLongitude={dorikaProfile.longitude}
+              initialCity={dorikaProfile.city || billingProfile.city}
+              initialZone={dorikaProfile.zone}
+              initialAddress={dorikaProfile.address}
+              onClose={() => setDorikaMapOpen(false)}
+              onSave={saveDorikaMapLocation}
+            />
           ) : null}
 
           {activeWorkspace === "blocks" ? (

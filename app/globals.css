@@ -4318,6 +4318,13 @@ html[data-theme="dark"] .admin-sidebar-note {
   align-items: center;
 }
 
+.dorika-location-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.6rem;
+}
+
 .dorika-location-capture strong,
 .dorika-category-note strong {
   color: var(--text-primary);
@@ -4365,6 +4372,243 @@ html[data-theme="dark"] .admin-sidebar-note {
 
 .dorika-featured-note svg {
   color: #E07A5F;
+}
+
+.dorika-map-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgba(15, 23, 42, 0.52);
+  backdrop-filter: blur(5px);
+}
+
+.dorika-map-modal {
+  width: min(940px, 100%);
+  max-height: min(92vh, 860px);
+  overflow: auto;
+  display: grid;
+  gap: 0.9rem;
+  border-radius: 22px;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  background: var(--surface);
+  box-shadow: 0 30px 80px rgba(15, 23, 42, 0.28);
+  padding: 1rem;
+}
+
+.dorika-map-head,
+.dorika-map-footer {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 0.9rem;
+}
+
+.dorika-map-head h3 {
+  margin: 0.2rem 0 0;
+  color: var(--text-primary);
+  font-size: 1.25rem;
+}
+
+.dorika-map-head p {
+  margin: 0.25rem 0 0;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.dorika-map-head .icon-button {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface-alt);
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+.dorika-map-search {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.65rem;
+}
+
+.dorika-map-search-field {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  min-height: 48px;
+  padding: 0 0.85rem;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface-alt);
+  color: var(--text-secondary);
+}
+
+.dorika-map-search-field input {
+  width: 100%;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--text-primary);
+  font: inherit;
+}
+
+.dorika-map-results {
+  display: grid;
+  gap: 0.45rem;
+  max-height: 148px;
+  overflow: auto;
+  padding: 0.25rem;
+  border-radius: 14px;
+  background: rgba(148, 163, 184, 0.08);
+}
+
+.dorika-map-results button {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  width: 100%;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 12px;
+  padding: 0.7rem;
+  background: var(--surface);
+  color: var(--text-primary);
+  text-align: left;
+  cursor: pointer;
+}
+
+.dorika-map-results button span {
+  line-height: 1.35;
+}
+
+.dorika-map-shell {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.dorika-map-canvas {
+  position: relative;
+  width: 100%;
+  min-height: 380px;
+  overflow: hidden;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 20px;
+  background:
+    radial-gradient(circle at 30% 20%, rgba(34, 169, 138, 0.16), transparent 30%),
+    linear-gradient(135deg, #EFECE6, #F7F4EF);
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+
+.dorika-map-canvas:active {
+  cursor: grabbing;
+}
+
+.dorika-map-tile {
+  position: absolute;
+  width: 256px;
+  height: 256px;
+  max-width: none;
+  pointer-events: none;
+  user-select: none;
+}
+
+.dorika-map-pin {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 3;
+  display: grid;
+  justify-items: center;
+  gap: 0.25rem;
+  transform: translate(-50%, -92%);
+  color: var(--primary);
+  pointer-events: none;
+  filter: drop-shadow(0 10px 16px rgba(15, 23, 42, 0.28));
+}
+
+.dorika-map-pin span {
+  border-radius: 999px;
+  padding: 0.22rem 0.55rem;
+  background: var(--surface);
+  color: var(--text-primary);
+  font-size: 0.7rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.dorika-map-controls {
+  position: absolute;
+  right: 0.75rem;
+  top: 0.75rem;
+  z-index: 4;
+  display: grid;
+  gap: 0.4rem;
+}
+
+.dorika-map-controls button {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.94);
+  color: var(--text-primary);
+  cursor: pointer;
+  box-shadow: 0 10px 20px rgba(15, 23, 42, 0.12);
+}
+
+.dorika-map-tip {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 999px;
+  padding: 0.5rem 0.75rem;
+  background: rgba(34, 169, 138, 0.1);
+  color: #14856c;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.dorika-map-footer {
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+}
+
+.dorika-map-coordinates {
+  display: grid;
+  gap: 0.2rem;
+  min-width: 0;
+  color: var(--text-primary);
+}
+
+.dorika-map-coordinates strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dorika-map-coordinates span,
+.dorika-map-attribution {
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+}
+
+.dorika-map-message {
+  margin: 0;
+  border-radius: 12px;
+  padding: 0.65rem 0.8rem;
+  background: rgba(91, 33, 182, 0.08);
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  font-weight: 700;
 }
 
 .reservations-placeholder-card strong {
@@ -5470,6 +5714,50 @@ html[data-theme="dark"] .admin-sidebar-note {
     min-height: 0;
     overflow: visible;
     padding-left: 0;
+  }
+
+  .dorika-map-overlay {
+    align-items: end;
+    padding: 0;
+  }
+
+  .dorika-map-modal {
+    width: 100%;
+    max-height: 92dvh;
+    border-radius: 22px 22px 0 0;
+    padding: 0.9rem;
+  }
+
+  .dorika-map-head,
+  .dorika-map-search,
+  .dorika-map-footer {
+    grid-template-columns: 1fr;
+  }
+
+  .dorika-map-head .icon-button {
+    position: absolute;
+    top: 0.9rem;
+    right: 0.9rem;
+  }
+
+  .dorika-map-head {
+    padding-right: 3rem;
+  }
+
+  .dorika-map-canvas {
+    min-height: 320px;
+  }
+
+  .dorika-map-footer .btn {
+    width: 100%;
+  }
+
+  .dorika-location-actions {
+    justify-content: stretch;
+  }
+
+  .dorika-location-actions .btn {
+    width: 100%;
   }
 
   .editor-layout.is-commerce-workspace,
