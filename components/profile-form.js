@@ -392,7 +392,7 @@ export function ProfileForm({
   const [message, setMessage] = useState("");
   const [alertMessage, setAlertMessage] = useState("");
   const [loading, setLoading] = useState(false);
-  const [selectedType, setSelectedType] = useState("whatsapp");
+  const [selectedType, setSelectedType] = useState("");
   const [activeWorkspace, setActiveWorkspace] = useState(() => getPrimaryWorkspaceForBusinessCategory(profile?.businessCategory));
   const navCollapsed = true;
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
@@ -586,9 +586,9 @@ export function ProfileForm({
   }, [customThemes]);
   const activeTheme = useMemo(() => availableThemes.find((theme) => theme.id === appearance.presetId) || null, [appearance.presetId, availableThemes]);
   const availableLinkTypes = useMemo(() => LINK_CATALOG.filter((item) => item.type !== "payment_key"), []);
-  const selectedTypeLimit = getLinkTypeLimit(selectedType);
-  const selectedTypeCount = getLinkTypeCount(profileLinks, selectedType);
-  const selectedTypeAvailable = canAddLinkType(profileLinks, selectedType);
+  const selectedTypeLimit = selectedType ? getLinkTypeLimit(selectedType) : 0;
+  const selectedTypeCount = selectedType ? getLinkTypeCount(profileLinks, selectedType) : 0;
+  const selectedTypeAvailable = selectedType ? canAddLinkType(profileLinks, selectedType) : false;
   const whatsappLinks = useMemo(() => profileLinks.filter((item) => item.type === "whatsapp" && item.value?.trim()), [profileLinks]);
   const emailLink = useMemo(() => profileLinks.find((item) => item.type === "email" && item.value?.trim()), [profileLinks]);
   const websiteLink = useMemo(() => profileLinks.find((item) => item.type === "website" && item.value?.trim()), [profileLinks]);
@@ -729,6 +729,11 @@ export function ProfileForm({
 
   function addLink() {
     const meta = LINK_CATALOG_MAP[selectedType];
+    if (!meta) {
+      setAlertMessage("Selecciona el botón que quieres agregar.");
+      return;
+    }
+
     if (!selectedTypeAvailable) {
       setAlertMessage(
         selectedType === "whatsapp"
@@ -927,9 +932,8 @@ export function ProfileForm({
       return;
     }
 
-    const name = themeDraftName.trim() || activeTheme?.name || (form.businessName ? `Tema ${form.businessName}` : "Mi tema");
-    const currentIsUserTheme = customThemes.some((theme) => theme.id === appearance.presetId);
-    const themeId = currentIsUserTheme ? appearance.presetId : `custom-theme-${Date.now()}`;
+    const name = themeDraftName.trim() || (form.businessName ? `Tema ${form.businessName}` : "Mi tema");
+    const themeId = `custom-theme-${Date.now()}`;
     const themeAppearance = normalizeAppearance({
       ...appearance,
       presetId: themeId,
@@ -940,7 +944,7 @@ export function ProfileForm({
       name,
       appearance: themeAppearance,
     };
-    const nextCustomThemes = [nextTheme, ...customThemes.filter((theme) => theme.id !== themeId)].slice(0, 6);
+    const nextCustomThemes = [nextTheme, ...customThemes].slice(0, 6);
 
     setCustomThemes(nextCustomThemes);
     setAppearance(themeAppearance);
@@ -1871,6 +1875,7 @@ export function ProfileForm({
               <div className="section-stack">
           <div className="link-toolbar">
             <select className="select" value={selectedType} onChange={(e) => setSelectedType(e.target.value)} disabled={!canEdit}>
+              <option value="">Selecciona un botón nuevo</option>
               {availableLinkTypes.map((item) => (
                 <option key={item.type} value={item.type}>
                   {item.label}
@@ -1884,7 +1889,9 @@ export function ProfileForm({
           </div>
 
           <p className="muted">
-            {selectedType === "whatsapp"
+            {!selectedType
+              ? "Elige qué botón quieres sumar a tu página. Solo se mostrará si agregas su enlace."
+              : selectedType === "whatsapp"
               ? `WhatsApp permite hasta ${selectedTypeLimit} enlaces. Ya tienes ${selectedTypeCount}.`
               : `${LINK_CATALOG_MAP[selectedType]?.label || "Esta red"} permite solo ${selectedTypeLimit} enlace. Ya tienes ${selectedTypeCount}.`}
           </p>
@@ -2305,7 +2312,7 @@ export function ProfileForm({
                             disabled={!canEdit}
                           />
                           <button className="btn btn-primary" type="button" onClick={saveCurrentTheme} disabled={!canEdit || loading || appearanceWarnings.length > 0}>
-                            {loading ? "Guardando..." : "Guardar tema"}
+                            {loading ? "Guardando..." : "Crear tema"}
                           </button>
                         </div>
                       </div>

@@ -22,7 +22,7 @@ import {
 } from "lucide-react";
 import { CommerceCategoryIcon } from "@/components/commerce-category-icon";
 import { apiFetch } from "@/lib/client-api";
-import { COMMERCE_MODE_OPTIONS, resolveCommerceModeMeta } from "@/lib/commerce-config";
+import { COMMERCE_MODE_OPTIONS, requiresCommercePrice, resolveCommerceModeMeta } from "@/lib/commerce-config";
 
 function countLabel(value, singular, plural) {
   const count = Number(value || 0) || 0;
@@ -80,6 +80,18 @@ function revokePendingImageEntries(entries = []) {
         // Ignore already released object URLs.
       }
     });
+}
+
+const COMMERCE_MODES_BY_BUSINESS_CATEGORY = {
+  food_drink: ["mimenu", "micatalogo"],
+  retail_sales: ["mitienda", "micatalogo"],
+};
+
+function getCommerceModeOptionsForCategory(category = "") {
+  const allowedModes = COMMERCE_MODES_BY_BUSINESS_CATEGORY[String(category || "").trim()];
+  if (!allowedModes) return COMMERCE_MODE_OPTIONS;
+  const allowedSet = new Set(allowedModes);
+  return COMMERCE_MODE_OPTIONS.filter((option) => allowedSet.has(option.value));
 }
 
 function ProductRow({ product, sectionLabel, disabled, onEdit, onToggleVisibility, onDelete }) {
@@ -145,6 +157,7 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
   const [editingSubcategoryId, setEditingSubcategoryId] = useState("");
   const [editingSubcategoryName, setEditingSubcategoryName] = useState("");
   const [productEditor, setProductEditor] = useState(null);
+  const [productEditorError, setProductEditorError] = useState("");
   const [sectionCache, setSectionCache] = useState({});
   const sectionCacheRef = useRef({});
   const sectionRequestRef = useRef(0);
@@ -153,6 +166,7 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
   const categories = useMemo(() => (
     Array.isArray(state?.categories) ? state.categories : []
   ), [state?.categories]);
+  const availableCommerceModes = useMemo(() => getCommerceModeOptionsForCategory(profile?.businessCategory), [profile?.businessCategory]);
   const modeMeta = resolveCommerceModeMeta(configForm.activeMode);
   const savedActiveMode = state?.config?.activeMode || "";
   const selectedCategory = categories.find((category) => category.id === selectedCategoryId) || null;
@@ -185,6 +199,15 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
   useEffect(() => () => {
     revokePendingImageEntries(productEditorRef.current?.pendingImages || []);
   }, []);
+
+  useEffect(() => {
+    if (!configForm.activeMode) return;
+    if (availableCommerceModes.some((option) => option.value === configForm.activeMode)) return;
+    setConfigForm((current) => ({
+      ...current,
+      activeMode: availableCommerceModes[0]?.value || "",
+    }));
+  }, [availableCommerceModes, configForm.activeMode]);
 
   const syncState = useCallback((nextState) => {
     setState(nextState);
@@ -484,6 +507,7 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
   function openProductEditor(category, subcategory = null, product = null) {
     if (!category && !product) return;
     revokePendingImageEntries(productEditorRef.current?.pendingImages || []);
+    setProductEditorError("");
     setProductEditor({
       mode: configForm.activeMode,
       categoryId: product?.categoryId || category?.id || "",
@@ -511,12 +535,14 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
 
   function closeProductEditor() {
     revokePendingImageEntries(productEditorRef.current?.pendingImages || []);
+    setProductEditorError("");
     setProductEditor(null);
   }
 
   function addProductEditorImages(fileList = []) {
     const nextEntries = createPendingImageEntries(Array.from(fileList || []));
     if (!nextEntries.length) return;
+    setProductEditorError("");
     setProductEditor((current) => {
       if (!current) {
         revokePendingImageEntries(nextEntries);
@@ -531,6 +557,7 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
 
   function removeExistingProductImage(imageId) {
     if (!imageId) return;
+    setProductEditorError("");
     setProductEditor((current) => {
       if (!current) return current;
       return {
@@ -543,6 +570,7 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
 
   function removePendingProductImage(imageId) {
     if (!imageId) return;
+    setProductEditorError("");
     setProductEditor((current) => {
       if (!current) return current;
       const pendingImages = Array.isArray(current.pendingImages) ? current.pendingImages : [];
@@ -570,7 +598,7 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
             <span>Modo activo</span>
             <select className="select" value={configForm.activeMode} onChange={(event) => setConfigForm((current) => ({ ...current, activeMode: event.target.value }))} disabled={!canEdit}>
               <option value="">Elegir modo</option>
-              {COMMERCE_MODE_OPTIONS.map((option) => (
+              {availableCommerceModes.map((option) => (
                 <option key={option.value} value={option.value}>{option.label}</option>
               ))}
             </select>
@@ -815,13 +843,13 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
             <button className="commerce-board-return-categories" type="button" onClick={handleBackFromProducts}>
               <ChevronLeft size={16} /> Volver a subcategorías
             </button>
-            <button className="btn btn-primary commerce-board-main-action commerce-board-product-action" type="button" onClick={openProductEditorForCurrentSection} disabled={!canEdit || loading || !canAddProduct}>
+            <button className="btn btn-primary commerce-board-main-action commerce-board-product-action" type="button" onClick={openProductEditorForCurrentSection} disabled={!canEdit || !canAddProduct}>
               <ImagePlus size={16} /> Crear producto
             </button>
           </>
         ) : (
           <>
-            <button className="btn btn-primary commerce-board-main-action commerce-board-product-action" type="button" onClick={openProductEditorForCurrentSection} disabled={!canEdit || loading || !canAddProduct}>
+            <button className="btn btn-primary commerce-board-main-action commerce-board-product-action" type="button" onClick={openProductEditorForCurrentSection} disabled={!canEdit || !canAddProduct}>
               <ImagePlus size={16} /> Crear producto
             </button>
             {selectedSubcategories.length ? <small className="commerce-board-note">Selecciona una subcategoría en el Bloque B para agregar productos allí.</small> : null}
@@ -872,6 +900,7 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
     const existingImages = Array.isArray(productEditor.images) ? productEditor.images : [];
     const pendingImages = Array.isArray(productEditor.pendingImages) ? productEditor.pendingImages : [];
     const totalImages = existingImages.length + pendingImages.length;
+    const priceIsRequired = requiresCommercePrice(productEditor.mode || configForm.activeMode);
 
     return (
       <div className="commerce-modal-backdrop" role="dialog" aria-modal="true" aria-label="Editor de producto">
@@ -885,9 +914,18 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
           </div>
 
           <div className="commerce-board-editor-form">
-            <input className="input" placeholder="Nombre del producto" value={productEditor.name} onChange={(event) => setProductEditor((current) => ({ ...current, name: event.target.value }))} />
-            <input className="input" placeholder={configForm.activeMode === "micatalogo" ? "Precio opcional" : "Precio"} value={productEditor.price ?? ""} onChange={(event) => setProductEditor((current) => ({ ...current, price: event.target.value }))} />
-            <textarea className="textarea" rows={4} placeholder="Descripción del producto" value={productEditor.description || ""} onChange={(event) => setProductEditor((current) => ({ ...current, description: event.target.value }))} />
+            <input className="input" placeholder="Nombre del producto" value={productEditor.name} onChange={(event) => {
+              setProductEditorError("");
+              setProductEditor((current) => ({ ...current, name: event.target.value }));
+            }} />
+            <input className="input" placeholder={priceIsRequired ? "Precio" : "Precio opcional"} value={productEditor.price ?? ""} onChange={(event) => {
+              setProductEditorError("");
+              setProductEditor((current) => ({ ...current, price: event.target.value }));
+            }} />
+            <textarea className="textarea" rows={4} placeholder="Descripción del producto (opcional)" value={productEditor.description || ""} onChange={(event) => {
+              setProductEditorError("");
+              setProductEditor((current) => ({ ...current, description: event.target.value }));
+            }} />
             <label className="upload-card">
               <input
                 className="upload-input"
@@ -900,6 +938,7 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
                 }}
               />
               <span>{pendingImages.length ? `${pendingImages.length} fotos nuevas listas para guardar` : "Agregar fotos del producto"}</span>
+              <small>Puedes subir varias fotos para tienda, menú o catálogo.</small>
             </label>
             {existingImages.length ? (
               <div className="commerce-board-image-group">
@@ -937,6 +976,11 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
             ) : null}
             {!totalImages ? <small className="commerce-board-note">Agrega al menos una foto para guardar el producto.</small> : null}
             {productEditor.id ? <small className="commerce-board-note">Puedes agregar fotos nuevas o eliminar las que ya no quieras mostrar.</small> : null}
+            {productEditorError ? (
+              <div className="notice notice-danger commerce-editor-error">
+                <span>{productEditorError}</span>
+              </div>
+            ) : null}
             <label className="switch-row commerce-product-visible-toggle">
               <input type="checkbox" checked={productEditor.visible !== false} onChange={(event) => setProductEditor((current) => ({ ...current, visible: event.target.checked }))} />
               <span>{productEditor.visible !== false ? "Producto visible" : "Producto oculto"}</span>
@@ -949,10 +993,23 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
           <div className="commerce-modal-actions">
             <button className="btn btn-secondary" type="button" onClick={closeProductEditor}>Cancelar</button>
             <button className="btn btn-primary" type="button" onClick={async () => {
+              const validationMessage = !String(productEditor.name || "").trim()
+                ? "Agrega el nombre del producto."
+                : priceIsRequired && !String(productEditor.price ?? "").trim()
+                  ? "Agrega el precio del producto."
+                  : !totalImages
+                    ? "Agrega al menos una foto del producto."
+                    : "";
+
+              if (validationMessage) {
+                setProductEditorError(validationMessage);
+                return;
+              }
+
               const { pendingImages: nextPendingImages, images, ...payload } = productEditor;
               const result = await runAction("save_product", payload, (nextPendingImages || []).map((entry) => entry.file));
               if (result) closeProductEditor();
-            }} disabled={!canEdit || loading || !productEditor.name.trim() || !totalImages}>
+            }} disabled={!canEdit || loading}>
               <Save size={16} /> Guardar producto
             </button>
           </div>
