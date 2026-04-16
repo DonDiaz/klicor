@@ -276,22 +276,27 @@ export default function HomePage() {
         <div className="shell cloud-pricing-card">
           <div className="cloud-pricing-copy">
             <span className="pill">Precios</span>
-            <h2 className="landing-section-title">Precios de lanzamiento para negocios que quieren vender mejor.</h2>
+            <h2 className="landing-section-title">Planes simples para vender mejor</h2>
             <p className="section-copy">
-              Pago anual, sin enredos mensuales. Estos valores hacen parte de nuestra etapa de apertura para primeros negocios aliados.
+              Pago anual. Sin enredos mensuales.
             </p>
           </div>
 
           <div className="cloud-pricing-stack">
             {pricingPlans.map((plan) => (
-              <div key={plan.name} className="cloud-price-box">
+              <div key={plan.name} className={`cloud-price-box ${plan.name === "Comercial" ? "is-featured" : ""}`.trim()}>
                 <div className="cloud-price-content">
                   {plan.badge ? <div className="pill cloud-price-badge">{plan.badge}</div> : null}
                   <strong>{plan.name}</strong>
                   <div className="cloud-price-value">{plan.price}</div>
                   <small>{plan.period} · {plan.note}</small>
-                  <span>{plan.features.join(" · ")}</span>
+                  <ul className="cloud-price-features">
+                    {plan.features.map((feature) => (
+                      <li key={feature}>{feature}</li>
+                    ))}
+                  </ul>
                 </div>
+                {plan.name === "Plus" ? <p className="cloud-price-support">¿Necesitas más capacidad?</p> : null}
                 <div className="actions">
                   <LandingLoginModal
                     triggerLabel={plan.buttonLabel}
