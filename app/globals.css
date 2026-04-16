@@ -1119,6 +1119,7 @@ main.cloud-home-root .cloud-final-card {
 
 .cloud-architecture-section {
   position: relative;
+  background: #ffffff;
 }
 
 .cloud-architecture-grid {
@@ -1137,9 +1138,9 @@ main.cloud-home-root .cloud-final-card {
 .cloud-architecture-lead {
   padding: 1.8rem;
   background:
-    linear-gradient(180deg, rgba(15, 23, 42, 0.98), rgba(30, 41, 59, 0.98)),
-    radial-gradient(circle at top right, rgba(45, 212, 191, 0.18), transparent 38%);
-  color: rgba(248, 250, 252, 0.92);
+    radial-gradient(circle at top right, rgba(124, 58, 237, 0.08), transparent 38%),
+    linear-gradient(180deg, #ffffff, #ffffff);
+  color: #0f172a;
 }
 
 .cloud-architecture-lead .landing-section-title,
@@ -1148,7 +1149,7 @@ main.cloud-home-root .cloud-final-card {
 }
 
 .cloud-architecture-label {
-  color: #99f6e4;
+  color: #5b21b6;
   font-size: 0.82rem;
   font-weight: 800;
   letter-spacing: 0.09em;
