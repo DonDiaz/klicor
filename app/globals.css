@@ -1406,7 +1406,7 @@ html[data-theme="dark"] .cloud-home-root .cloud-price-box {
 .landing-modal-backdrop {
   position: fixed;
   inset: 0;
-  z-index: 120;
+  z-index: 1000;
   background: rgba(11, 16, 32, 0.44);
   backdrop-filter: blur(10px);
 }
@@ -1744,7 +1744,7 @@ html[data-theme="dark"] .cloud-home-root .cloud-price-box {
   position: fixed;
   top: 50%;
   left: 50%;
-  z-index: 130;
+  z-index: 1010;
   width: min(430px, calc(100vw - 2rem));
   max-height: min(calc(100vh - 2rem), 820px);
   overflow-x: hidden;
