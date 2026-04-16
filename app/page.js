@@ -126,14 +126,14 @@ export default function HomePage() {
           </span>
 
           <h1 className="cloud-home-title">
-            Vende más fácil.
+            Tu negocio más organizado.
             <span className="cloud-home-title-brand">
-              Organiza tu negocio en un solo link.
+              Tus clientes compran más fácil.
             </span>
           </h1>
 
           <p className="cloud-home-lead">
-            Recibe pedidos, muestra tus productos y atiende clientes desde WhatsApp, redes y QR, sin enredos.
+            Vende por WhatsApp, muestra tus productos y recibe pedidos desde un solo link claro, sin enredos.
           </p>
 
           <div className="actions">
@@ -146,8 +146,8 @@ export default function HomePage() {
 
           <div className="cloud-home-proof">
             <span><Store size={15} /> Productos, contacto y pedidos en un solo lugar</span>
-            <span><Zap size={15} /> Más claridad para vender sin perder tiempo</span>
-            <span><ShieldCheck size={15} /> Listo para compartir en QR, redes y WhatsApp</span>
+            <span><Zap size={15} /> Menos preguntas repetidas, más pedidos claros</span>
+            <span><ShieldCheck size={15} /> QR listo para tu local, redes y empaques</span>
           </div>
         </div>
 
@@ -190,25 +190,29 @@ export default function HomePage() {
       <section className="landing-section cloud-architecture-section">
         <div className="shell cloud-architecture-grid">
           <article className="cloud-architecture-lead">
-            <span className="cloud-architecture-label">Más claridad para vender</span>
-            <h2 className="landing-section-title">Tu cliente entiende más rápido. Tu negocio se ve más profesional.</h2>
+            <span className="cloud-architecture-label">No es falta de clientes</span>
+            <h2 className="landing-section-title">Tu negocio no necesita más mensajes. Necesita más claridad.</h2>
             <p className="section-copy">
-              Lo que por fuera se siente simple, por dentro te ayuda a ordenar atención, productos y contacto sin enredos.
+              Cuando todo está ordenado, el cliente entiende qué vendes, cómo pedir y cómo pagarte sin escribirte mil veces.
             </p>
           </article>
 
           <div className="cloud-architecture-stack">
             <div className="cloud-architecture-card">
-              <strong>Lo ve el cliente</strong>
-              <p>Una página clara para entender qué vendes, cómo pedir y cómo contactarte.</p>
+              <strong>Clientes preguntando lo mismo</strong>
+              <p>Tu WhatsApp deja de llenarse solo de dudas y empieza a recibir pedidos más claros.</p>
             </div>
             <div className="cloud-architecture-card">
-              <strong>Lo manejas fácil</strong>
-              <p>Organizas categorías, productos y botones desde un solo punto sin sentir un sistema complicado.</p>
+              <strong>Productos desordenados</strong>
+              <p>Categorías, fotos, precios y estados quedan listos para que el cliente decida rápido.</p>
             </div>
             <div className="cloud-architecture-card">
-              <strong>Lo compartes en todo</strong>
-              <p>El mismo Klicor funciona en QR, redes, vitrinas, empaques y tarjetas sin duplicar esfuerzos.</p>
+              <strong>Links por todos lados</strong>
+              <p>Un solo Klicor reúne menú, catálogo, agenda, pagos, redes, contacto y QR.</p>
+            </div>
+            <div className="cloud-architecture-card">
+              <strong>Ventas que se pierden</strong>
+              <p>Si el cliente encuentra todo fácil, tiene menos motivos para irse sin escribirte.</p>
             </div>
           </div>
         </div>
