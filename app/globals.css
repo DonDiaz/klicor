@@ -4017,6 +4017,15 @@ html[data-theme="dark"] .admin-sidebar-note {
   background: linear-gradient(180deg, var(--surface-alt), var(--surface));
 }
 
+.onboarding-location-card {
+  display: grid;
+  gap: 0.85rem;
+  padding: 1rem;
+  border: 1px solid rgba(91, 33, 182, 0.14);
+  border-radius: 18px;
+  background: rgba(91, 33, 182, 0.055);
+}
+
 .onboarding-social-card strong {
   color: var(--text-primary);
 }
@@ -4187,6 +4196,87 @@ html[data-theme="dark"] .admin-sidebar-note {
 
 .reservations-placeholder-card svg {
   color: var(--primary);
+}
+
+.business-hours-panel,
+.business-hours-grid,
+.business-hours-day-body,
+.business-hours-shifts {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.business-hours-status {
+  display: grid;
+  gap: 0.2rem;
+  border: 1px solid rgba(34, 169, 138, 0.2);
+  border-radius: 8px;
+  padding: 0.85rem 0.95rem;
+  background: rgba(34, 169, 138, 0.08);
+}
+
+.business-hours-status.is-closed {
+  border-color: rgba(245, 158, 11, 0.28);
+  background: rgba(245, 158, 11, 0.1);
+}
+
+.business-hours-status strong {
+  color: var(--text-primary);
+  font-size: 0.98rem;
+}
+
+.business-hours-status span {
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+.business-hours-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.business-hours-day-card {
+  min-width: 0;
+  display: grid;
+  gap: 0.8rem;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 8px;
+  padding: 0.9rem;
+  background: var(--surface-alt);
+}
+
+.business-hours-day-card.is-closed {
+  background: rgba(148, 163, 184, 0.08);
+}
+
+.business-hours-day-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.7rem;
+}
+
+.business-hours-day-head strong {
+  color: var(--text-secondary);
+  font-size: 0.84rem;
+}
+
+.business-hours-shift {
+  display: grid;
+  grid-template-columns: minmax(4.4rem, 0.7fr) repeat(2, minmax(0, 1fr));
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.business-hours-shift span,
+.business-hours-shift small {
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  font-weight: 750;
+}
+
+.business-hours-shift small {
+  grid-column: 2 / -1;
+  font-weight: 500;
 }
 
 .dorika-profile-panel {
@@ -5692,6 +5782,7 @@ html[data-theme="dark"] .admin-sidebar-note {
   .appearance-presets,
   .appearance-grid,
   .profile-grid,
+  .business-hours-grid,
   .dorika-task-grid,
   .dorika-privacy-grid,
   .dorika-location-capture,
@@ -5701,6 +5792,15 @@ html[data-theme="dark"] .admin-sidebar-note {
   .auth-system-points,
   .auth-entry-badges {
     grid-template-columns: 1fr;
+  }
+
+  .business-hours-shift {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .business-hours-shift span,
+  .business-hours-shift small {
+    grid-column: 1 / -1;
   }
 
   .editor-layout,
@@ -7399,6 +7499,14 @@ html[data-theme="dark"] .admin-sidebar-note {
   overflow-wrap: anywhere;
 }
 
+.commerce-order-bar:disabled,
+.commerce-cart-panel-button:disabled,
+.commerce-product-add-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.62;
+  box-shadow: none;
+}
+
 .commerce-cart-panel {
   display: none;
 }
@@ -8575,6 +8683,30 @@ html[data-theme="dark"] .admin-sidebar-note {
   text-shadow: 0 8px 22px rgba(0, 0, 0, 0.24);
 }
 
+.commerce-hero-brand-copy {
+  min-width: 0;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.commerce-hours-pill {
+  width: fit-content;
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.72rem;
+  border-radius: 8px;
+  padding: 0.24rem 0.55rem;
+  background: rgba(255, 255, 255, 0.9);
+  color: #14532d;
+  font-size: 0.76rem;
+  font-weight: 900;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.16);
+}
+
+.commerce-hours-pill.is-closed {
+  color: #7f1d1d;
+}
+
 .commerce-hero-actions {
   position: absolute;
   top: 0.65rem;
@@ -8605,6 +8737,36 @@ html[data-theme="dark"] .admin-sidebar-note {
   display: grid;
   gap: 0.85rem;
   min-width: 0;
+}
+
+.commerce-open-notice,
+.commerce-closed-notice {
+  display: grid;
+  gap: 0.2rem;
+  border-radius: 8px;
+  padding: 0.72rem 0.85rem;
+  border: 1px solid var(--commerce-primary-border);
+  background: var(--commerce-surface-strong);
+  color: var(--commerce-text);
+  box-shadow: 0 10px 24px var(--commerce-shadow);
+}
+
+.commerce-open-notice strong,
+.commerce-closed-notice strong {
+  font-size: 0.92rem;
+  line-height: 1.15;
+}
+
+.commerce-open-notice span,
+.commerce-closed-notice span {
+  color: var(--commerce-muted);
+  font-size: 0.84rem;
+  line-height: 1.35;
+}
+
+.commerce-closed-notice {
+  border-color: rgba(248, 113, 113, 0.35);
+  background: color-mix(in srgb, #fef2f2 74%, var(--commerce-surface));
 }
 
 .commerce-navigation-panel {

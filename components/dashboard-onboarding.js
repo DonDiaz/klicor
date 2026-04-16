@@ -12,6 +12,7 @@ import {
   UploadCloud,
 } from "lucide-react";
 import { apiFetch } from "@/lib/client-api";
+import { COLOMBIA_DEPARTMENT_OPTIONS, getCitiesForDepartment } from "@/lib/colombia-locations";
 import {
   ACCOUNT_TYPE_OPTIONS,
   COLOMBIA_FINANCIAL_ENTITY_OPTIONS,
@@ -73,6 +74,14 @@ function getStepValidationError(stepId, wizard) {
       return "El link público necesita un usuario de mínimo 3 caracteres.";
     }
 
+    if (!String(wizard.billingProfile?.department || "").trim()) {
+      return "Selecciona el departamento donde atiende tu negocio.";
+    }
+
+    if (!String(wizard.billingProfile?.city || "").trim()) {
+      return "Selecciona la ciudad o municipio donde atiende tu negocio.";
+    }
+
     return "";
   }
 
@@ -119,6 +128,10 @@ export function DashboardOnboarding({ token, profile, onCompleted, onSkip }) {
   const onboardingSocialTypes = new Set(["instagram", "facebook", "tiktok"]);
   const onboardingActionSlots = wizard.actionSlots.filter((slot) => !onboardingSocialTypes.has(slot.type));
   const onboardingSocialSlots = wizard.actionSlots.filter((slot) => onboardingSocialTypes.has(slot.type));
+  const onboardingCityOptions = useMemo(
+    () => getCitiesForDepartment(wizard.billingProfile?.department || ""),
+    [wizard.billingProfile?.department],
+  );
 
   function updateWizardField(field, value) {
     if (field === "username") {
@@ -144,6 +157,17 @@ export function DashboardOnboarding({ token, profile, onCompleted, onSkip }) {
           )),
         }
         : {}),
+    }));
+  }
+
+  function updateWizardBillingField(field, value) {
+    setWizard((current) => ({
+      ...current,
+      billingProfile: {
+        ...current.billingProfile,
+        [field]: value,
+        ...(field === "department" ? { city: "" } : {}),
+      },
     }));
   }
 
@@ -462,7 +486,7 @@ export function DashboardOnboarding({ token, profile, onCompleted, onSkip }) {
             <span className="status-badge success">Publicar rápido</span>
             <h2 className="section-title onboarding-title">Crea tu Klicor sin enredos</h2>
             <p className="section-copy">
-              Primero deja listo lo esencial. Luego podrás mejorar tu página y aparecer mejor en Dorika.
+              Primero deja listo lo esencial. Luego podrás mejorar tu página con más calma.
             </p>
           </div>
           <button className="btn btn-secondary" type="button" onClick={onSkip}>
@@ -536,6 +560,42 @@ export function DashboardOnboarding({ token, profile, onCompleted, onSkip }) {
                   <p className={`muted username-availability ${usernameCheck.status !== "idle" ? `is-${usernameCheck.status}` : ""}`.trim()}>
                     {usernameCheck.message || <>Quedará como <strong>klicor.com/{wizard.username || "tu-negocio"}</strong>.</>}
                   </p>
+                </div>
+              </div>
+
+              <div className="onboarding-location-card">
+                <div>
+                  <strong>Ciudad donde atiendes</strong>
+                  <p className="section-copy">Así tus clientes entienden desde el inicio dónde está tu negocio.</p>
+                </div>
+                <div className="profile-grid">
+                  <div>
+                    <label className="label">Departamento</label>
+                    <select
+                      className="select"
+                      value={wizard.billingProfile?.department || ""}
+                      onChange={(event) => updateWizardBillingField("department", event.target.value)}
+                    >
+                      <option value="">Selecciona un departamento</option>
+                      {COLOMBIA_DEPARTMENT_OPTIONS.map((option) => (
+                        <option key={option.value} value={option.value}>{option.label}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="label">Ciudad o municipio</label>
+                    <select
+                      className="select"
+                      value={wizard.billingProfile?.city || ""}
+                      onChange={(event) => updateWizardBillingField("city", event.target.value)}
+                      disabled={!wizard.billingProfile?.department}
+                    >
+                      <option value="">{wizard.billingProfile?.department ? "Selecciona una ciudad o municipio" : "Selecciona primero el departamento"}</option>
+                      {onboardingCityOptions.map((cityOption) => (
+                        <option key={cityOption.code} value={cityOption.name}>{cityOption.name}</option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
               </div>
 

@@ -22,6 +22,7 @@ export async function POST(request) {
     const customThemesJson = formData.get("customThemes");
     const contactCardJson = formData.get("contactCard");
     const billingProfileJson = formData.get("billingProfile");
+    const businessHoursJson = formData.get("businessHours");
     const dorikaProfileJson = formData.get("dorikaProfile");
     const paymentMethodsJson = formData.get("paymentMethods");
     const removePaymentQrIdsJson = formData.get("removePaymentQrIds");
@@ -54,6 +55,9 @@ export async function POST(request) {
           department: "",
           country: "Colombia",
         },
+      businessHours: typeof businessHoursJson === "string"
+        ? JSON.parse(businessHoursJson)
+        : {},
       dorikaProfile: typeof dorikaProfileJson === "string"
         ? JSON.parse(dorikaProfileJson)
         : {},

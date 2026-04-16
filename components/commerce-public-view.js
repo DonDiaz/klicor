@@ -205,6 +205,7 @@ function ProductCard({
   preview,
   currency,
   supportsCart,
+  orderingEnabled,
   onAdd,
   onOpenDetails,
 }) {
@@ -233,8 +234,8 @@ function ProductCard({
       </button>
 
       {supportsCart ? (
-        <button className="commerce-product-add-button" type="button" onClick={() => onAdd(product, 1)} disabled={preview}>
-          Agregar <Plus size={16} />
+        <button className="commerce-product-add-button" type="button" onClick={() => onAdd(product, 1)} disabled={preview || !orderingEnabled}>
+          {orderingEnabled ? "Agregar" : "Cerrado"} <Plus size={16} />
         </button>
       ) : null}
     </article>
@@ -247,6 +248,7 @@ function ProductsGrid({
   products,
   pagination,
   isPending,
+  orderingEnabled,
   onAdd,
   onOpenDetails,
   onLoadMore,
@@ -266,6 +268,7 @@ function ProductsGrid({
             preview={preview}
             currency={currency}
             supportsCart={supportsCart}
+            orderingEnabled={orderingEnabled}
             onAdd={onAdd}
             onOpenDetails={onOpenDetails}
           />
@@ -330,6 +333,14 @@ export function CommercePublicView({ bootstrap, preview = false }) {
   const safeConfig = {
     currency: safeBootstrap.config?.currency || "COP",
   };
+  const businessHoursStatus = {
+    configured: Boolean(safeBootstrap.businessHoursStatus?.configured),
+    isOpen: safeBootstrap.businessHoursStatus?.isOpen !== false,
+    label: safeBootstrap.businessHoursStatus?.label || "Pedidos disponibles",
+    detail: safeBootstrap.businessHoursStatus?.detail || "",
+    nextOpeningLabel: safeBootstrap.businessHoursStatus?.nextOpeningLabel || "",
+  };
+  const orderingEnabled = Boolean(businessHoursStatus.isOpen);
   const safeMode = safeBootstrap.mode || safeBootstrap.config?.activeMode || "";
   const safeModeMeta = safeBootstrap.modeMeta || resolveCommerceModeMeta(safeMode);
   const safeInitialSelection = {
@@ -402,6 +413,7 @@ export function CommercePublicView({ bootstrap, preview = false }) {
   const canSendOrder = Boolean(
     cartItems.length
     && safeBootstrap.orderWhatsapp
+    && orderingEnabled
     && String(customer.customerName || "").trim()
     && String(customer.phone || "").trim()
     && String(customer.address || "").trim()
@@ -660,6 +672,7 @@ export function CommercePublicView({ bootstrap, preview = false }) {
   }
 
   function handleAddToCart(product, quantityOverride = null) {
+    if (!orderingEnabled) return;
     const quantity = Math.max(1, Number(quantityOverride || getProductQuantity(product.id)));
     setCartItems((current) => {
       const exists = current.find((item) => item.id === product.id);
@@ -698,7 +711,7 @@ export function CommercePublicView({ bootstrap, preview = false }) {
   }
 
   function handleDetailWhatsapp(product) {
-    if (preview || !safeBootstrap.orderWhatsapp || !product) return;
+    if (preview || !safeBootstrap.orderWhatsapp || !orderingEnabled || !product) return;
     const message = `Hola, vi este producto en su catálogo y quiero más información sobre: ${product.name}`;
     window.open(buildWhatsappLink(safeBootstrap.orderWhatsapp, message), "_blank", "noopener,noreferrer");
   }
@@ -723,7 +736,7 @@ export function CommercePublicView({ bootstrap, preview = false }) {
   }
 
   function handleCheckout() {
-    if (preview || !canSendOrder) return;
+    if (preview || !orderingEnabled || !canSendOrder) return;
     const message = buildOrderMessage({
       items: cartItems,
       total: cartTotal,
@@ -753,12 +766,29 @@ export function CommercePublicView({ bootstrap, preview = false }) {
             ) : (
               <div className="commerce-avatar commerce-avatar-fallback">{safeBusiness.businessName?.slice(0, 1) || "K"}</div>
             )}
-            <h1>{safeBusiness.businessName}</h1>
+            <div className="commerce-hero-brand-copy">
+              <h1>{safeBusiness.businessName}</h1>
+              <span className={`commerce-hours-pill ${orderingEnabled ? "is-open" : "is-closed"}`.trim()}>
+                {businessHoursStatus.label}
+              </span>
+            </div>
           </div>
         </header>
 
         <div className={`commerce-shop-layout ${safeBootstrap.supportsCart ? "has-cart" : "has-no-cart"}`.trim()}>
           <section className="commerce-menu-board">
+            {!orderingEnabled ? (
+              <div className="commerce-closed-notice" role="status">
+                <strong>{businessHoursStatus.label}</strong>
+                <span>{businessHoursStatus.nextOpeningLabel || businessHoursStatus.detail}</span>
+              </div>
+            ) : businessHoursStatus.configured ? (
+              <div className="commerce-open-notice" role="status">
+                <strong>{businessHoursStatus.label}</strong>
+                <span>{businessHoursStatus.detail}</span>
+              </div>
+            ) : null}
+
             <nav className="commerce-navigation-panel" aria-label="Navegación de productos">
               <div className="commerce-category-rail" aria-label="Categorías">
                 {categories.map((category) => {
@@ -814,6 +844,7 @@ export function CommercePublicView({ bootstrap, preview = false }) {
                 products={products}
                 pagination={pagination}
                 isPending={isPending}
+                orderingEnabled={orderingEnabled}
                 onAdd={handleAddToCart}
                 onOpenDetails={openProductDetail}
                 onLoadMore={() => loadChunk(selection, { append: true, after: pagination.nextCursor, includeSubcategories: false })}
@@ -849,8 +880,8 @@ export function CommercePublicView({ bootstrap, preview = false }) {
                 <span>Total</span>
                 <strong>{formatCurrency(cartTotal, safeConfig.currency)}</strong>
               </div>
-              <button className="commerce-cart-panel-button" type="button" onClick={() => setCartOpen(true)} disabled={preview}>
-                Ver pedido ({cartCount})
+              <button className="commerce-cart-panel-button" type="button" onClick={() => setCartOpen(true)} disabled={preview || !orderingEnabled}>
+                {orderingEnabled ? `Ver pedido (${cartCount})` : "Cerrado ahora"}
               </button>
             </aside>
           ) : null}
@@ -858,9 +889,9 @@ export function CommercePublicView({ bootstrap, preview = false }) {
       </section>
 
       {safeBootstrap.supportsCart ? (
-        <button className="commerce-order-bar" type="button" onClick={() => setCartOpen(true)} disabled={preview}>
+        <button className="commerce-order-bar" type="button" onClick={() => setCartOpen(true)} disabled={preview || !orderingEnabled}>
           <ShoppingCart size={20} />
-          <span>Ver pedido ({cartCount}) - {formatCurrency(cartTotal, safeConfig.currency)}</span>
+          <span>{orderingEnabled ? `Ver pedido (${cartCount}) - ${formatCurrency(cartTotal, safeConfig.currency)}` : "Cerrado ahora"}</span>
           <ChevronRight size={20} />
         </button>
       ) : null}
@@ -938,11 +969,11 @@ export function CommercePublicView({ bootstrap, preview = false }) {
             {safeBootstrap.supportsCart ? (
               <div className="commerce-product-detail-actions">
                 <div className="commerce-quantity-stepper" aria-label={`Cantidad de ${detailProduct.name}`}>
-                  <button type="button" onClick={() => handleProductQuantityStep(detailProduct.id, -1)} disabled={preview || getProductQuantity(detailProduct.id) <= 1} aria-label="Reducir cantidad">
+                  <button type="button" onClick={() => handleProductQuantityStep(detailProduct.id, -1)} disabled={preview || !orderingEnabled || getProductQuantity(detailProduct.id) <= 1} aria-label="Reducir cantidad">
                     <Minus size={16} />
                   </button>
                   <span>{getProductQuantity(detailProduct.id)}</span>
-                  <button type="button" onClick={() => handleProductQuantityStep(detailProduct.id, 1)} disabled={preview} aria-label="Aumentar cantidad">
+                  <button type="button" onClick={() => handleProductQuantityStep(detailProduct.id, 1)} disabled={preview || !orderingEnabled} aria-label="Aumentar cantidad">
                     <Plus size={16} />
                   </button>
                 </div>
@@ -953,14 +984,14 @@ export function CommercePublicView({ bootstrap, preview = false }) {
                     handleAddToCart(detailProduct, getProductQuantity(detailProduct.id));
                     closeProductDetail();
                   }}
-                  disabled={preview}
+                  disabled={preview || !orderingEnabled}
                 >
-                  <ShoppingCart size={18} /> Agregar al pedido
+                  <ShoppingCart size={18} /> {orderingEnabled ? "Agregar al pedido" : "Cerrado ahora"}
                 </button>
               </div>
             ) : (
-              <button className="btn btn-primary commerce-product-detail-whatsapp" type="button" onClick={() => handleDetailWhatsapp(detailProduct)} disabled={!safeBootstrap.orderWhatsapp || preview}>
-                <MessageCircle size={18} /> Pedir por WhatsApp
+              <button className="btn btn-primary commerce-product-detail-whatsapp" type="button" onClick={() => handleDetailWhatsapp(detailProduct)} disabled={!safeBootstrap.orderWhatsapp || preview || !orderingEnabled}>
+                <MessageCircle size={18} /> {orderingEnabled ? "Pedir por WhatsApp" : "Cerrado ahora"}
               </button>
             )}
           </div>
@@ -1132,7 +1163,9 @@ export function CommercePublicView({ bootstrap, preview = false }) {
             </div>
 
             <div className="commerce-cart-sheet-footer">
-              {cartItems.length && !canSendOrder ? (
+              {!orderingEnabled ? (
+                <span className="commerce-cart-submit-hint">El negocio está cerrado. Podrás enviar el pedido cuando vuelva a abrir.</span>
+              ) : cartItems.length && !canSendOrder ? (
                 <span className="commerce-cart-submit-hint">Completa datos de entrega y pago para enviar el pedido.</span>
               ) : null}
               <button

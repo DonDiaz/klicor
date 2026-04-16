@@ -52,6 +52,13 @@ import {
   normalizeBusinessCategory,
 } from "@/lib/business-categories";
 import {
+  BUSINESS_HOUR_DAY_OPTIONS,
+  createDefaultBusinessHourDay,
+  formatDisplayTime,
+  getBusinessOpenStatus,
+  normalizeBusinessHours,
+} from "@/lib/business-hours";
+import {
   ACCOUNT_TYPE_OPTIONS,
   COLOMBIA_FINANCIAL_ENTITY_OPTIONS,
   requiresAccountType,
@@ -62,6 +69,7 @@ import { COLOMBIA_DEPARTMENT_OPTIONS, getCitiesForDepartment, resolveCityName, r
 import { resolveContactCardData } from "@/lib/contact-card";
 import { DorikaMapPicker } from "@/components/dorika-map-picker";
 import { calculateDorikaProfileProgress, DORIKA_LOCATION_PRIVACY_OPTIONS, normalizeDorikaProfile } from "@/lib/dorika-profile";
+import { isDorikaEligibleBusiness } from "@/lib/dorika-eligibility";
 import { canAddLinkType, getLinkTypeCount, getLinkTypeLimit, LINK_CATALOG, LINK_CATALOG_MAP } from "@/lib/link-catalog";
 import { normalizePaymentMethods } from "@/lib/payment-methods";
 import { generateThemeFromLogoFile, mergeGeneratedTheme } from "@/lib/logo-theme";
@@ -414,6 +422,7 @@ export function ProfileForm({
   );
   const [contactCard, setContactCard] = useState(normalizeContactCard(profile));
   const [billingProfile, setBillingProfile] = useState(normalizeBillingProfile(profile));
+  const [businessHours, setBusinessHours] = useState(normalizeBusinessHours(profile?.businessHours));
   const [dorikaProfile, setDorikaProfile] = useState(normalizeDorikaProfile(profile?.dorikaProfile, profile));
   const [dorikaCover, setDorikaCover] = useState(null);
   const [dorikaCoverPreviewUrl, setDorikaCoverPreviewUrl] = useState("");
@@ -448,6 +457,7 @@ export function ProfileForm({
     setPaymentMethods(normalizePaymentMethods(profile?.paymentMethods, profile?.profileLinks, profile?.paymentQrUrl, profile?.paymentQrPath));
     setContactCard(normalizeContactCard(profile));
     setBillingProfile(normalizeBillingProfile(profile));
+    setBusinessHours(normalizeBusinessHours(profile?.businessHours));
     setDorikaProfile(normalizeDorikaProfile(profile?.dorikaProfile, profile));
     setDorikaCover(null);
     setDorikaCoverLoadError(false);
@@ -530,6 +540,10 @@ export function ProfileForm({
     () => getBusinessCategoryModuleRecommendation(form.businessCategory),
     [form.businessCategory],
   );
+  const dorikaEligible = useMemo(
+    () => isDorikaEligibleBusiness({ ...profile, city: billingProfile.city, billingProfile }),
+    [billingProfile, profile],
+  );
 
   const dashboardNavItems = useMemo(() => {
     const recommendedIds = getRecommendedWorkspaceIdsForBusinessCategory(form.businessCategory);
@@ -538,6 +552,7 @@ export function ProfileForm({
 
     return [...DASHBOARD_NAV_ITEMS]
       .filter((item) => visibleIds.has(item.id))
+      .filter((item) => item.id !== "dorika" || dorikaEligible)
       .sort((left, right) => {
         const leftPriority = priorityMap.has(left.id) ? priorityMap.get(left.id) : 999;
         const rightPriority = priorityMap.has(right.id) ? priorityMap.get(right.id) : 999;
@@ -554,7 +569,7 @@ export function ProfileForm({
           recommendationLabel: isRecommended && recommendationRank === 0 ? moduleRecommendation.moduleLabel : "Sugerido",
         };
       });
-  }, [form.businessCategory, moduleRecommendation]);
+  }, [dorikaEligible, form.businessCategory, moduleRecommendation]);
 
   useEffect(() => {
     const workspaceIsVisible = dashboardNavItems.some((item) => item.id === activeWorkspace);
@@ -694,6 +709,64 @@ export function ProfileForm({
     });
   }
 
+  function updateBusinessHoursField(field, value) {
+    setBusinessHours((current) => normalizeBusinessHours({
+      ...current,
+      [field]: value,
+    }));
+  }
+
+  function updateBusinessHourDay(dayKey, mapper) {
+    setBusinessHours((current) => {
+      const schedule = normalizeBusinessHours(current);
+      return normalizeBusinessHours({
+        ...schedule,
+        days: schedule.days.map((day) => (
+          day.day === dayKey ? mapper(day) : day
+        )),
+      });
+    });
+  }
+
+  function updateBusinessHourDayOpen(dayKey, isOpen) {
+    updateBusinessHourDay(dayKey, (day) => ({
+      ...day,
+      isOpen,
+      shifts: day.shifts?.length ? day.shifts : createDefaultBusinessHourDay(dayKey).shifts,
+    }));
+  }
+
+  function updateBusinessHourMode(dayKey, mode) {
+    updateBusinessHourDay(dayKey, (day) => {
+      const fallback = createDefaultBusinessHourDay(dayKey);
+      if (mode === "continuous") {
+        return {
+          ...day,
+          mode: "continuous",
+          shifts: [day.shifts?.[0] || fallback.shifts[0] || { start: "08:00", end: "18:00" }],
+        };
+      }
+
+      return {
+        ...day,
+        mode: "split",
+        shifts: [
+          day.shifts?.[0] || fallback.shifts[0] || { start: "08:00", end: "12:00" },
+          day.shifts?.[1] || fallback.shifts[1] || { start: "14:00", end: "18:00" },
+        ],
+      };
+    });
+  }
+
+  function updateBusinessHourShift(dayKey, shiftIndex, field, value) {
+    updateBusinessHourDay(dayKey, (day) => ({
+      ...day,
+      shifts: day.shifts.map((shift, index) => (
+        index === shiftIndex ? { ...shift, [field]: value } : shift
+      )),
+    }));
+  }
+
   function captureDorikaLocation() {
     if (!canEdit) return;
     if (typeof navigator === "undefined" || !navigator.geolocation) {
@@ -792,8 +865,10 @@ export function ProfileForm({
       body.append("customThemes", JSON.stringify(nextCustomThemes));
       body.append("contactCard", JSON.stringify(contactCard));
       body.append("billingProfile", JSON.stringify(billingProfile));
+      body.append("businessHours", JSON.stringify(businessHours));
       body.append("dorikaProfile", JSON.stringify({
         ...dorikaProfile,
+        enabled: dorikaEligible ? dorikaProfile.enabled : false,
         category: form.businessCategory,
         coverImageUrl: dorikaStoredCoverUrl,
       }));
@@ -1094,6 +1169,8 @@ export function ProfileForm({
   ].some((value) => String(value || "").trim());
   const billingDocumentTypeLabel = BILLING_DOCUMENT_OPTIONS.find((item) => item.value === billingProfile.documentType)?.label || "Documento";
   const billingCityOptions = useMemo(() => getCitiesForDepartment(billingProfile.department), [billingProfile.department]);
+  const businessHoursStatus = useMemo(() => getBusinessOpenStatus(businessHours), [businessHours]);
+  const businessHoursConfigured = Boolean(businessHours.enabled);
   const subscriptionTone = getSubscriptionTone(profile?.status);
   const subscriptionLabel = getSubscriptionLabel(profile?.status);
   const subscriptionMessage = getSubscriptionMessage(profile?.status);
@@ -1401,6 +1478,53 @@ export function ProfileForm({
                 </div>
               </div>
 
+              <div className="onboarding-location-card">
+                <div>
+                  <strong>Ciudad del negocio</strong>
+                  <p className="section-copy">Este dato ayuda a ubicar mejor tu negocio dentro de Klicor.</p>
+                </div>
+                <div className="profile-grid">
+                  <div>
+                    <label className="label">Departamento</label>
+                    <select
+                      className="select"
+                      value={billingProfile.department}
+                      onChange={(e) =>
+                        setBillingProfile((current) => ({
+                          ...current,
+                          department: e.target.value,
+                          city: "",
+                        }))
+                      }
+                      disabled={!canEdit}
+                    >
+                      <option value="">Selecciona un departamento</option>
+                      {COLOMBIA_DEPARTMENT_OPTIONS.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="label">Ciudad o municipio</label>
+                    <select
+                      className="select"
+                      value={billingProfile.city}
+                      onChange={(e) => setBillingProfile((current) => ({ ...current, city: e.target.value }))}
+                      disabled={!canEdit || !billingProfile.department}
+                    >
+                      <option value="">{billingProfile.department ? "Selecciona una ciudad o municipio" : "Selecciona primero el departamento"}</option>
+                      {billingCityOptions.map((cityOption) => (
+                        <option key={cityOption.code} value={cityOption.name}>
+                          {cityOption.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              </div>
+
               <div>
                 <label className="label">Frase de apoyo</label>
                 <input
@@ -1438,6 +1562,111 @@ export function ProfileForm({
                     <small>PNG, JPG o WEBP hasta 2 MB</small>
                   </span>
                 </label>
+              </div>
+            </AccordionSection>
+            ) : null}
+
+            {activeWorkspace === "profile" ? (
+            <AccordionSection
+              id="profile-hours"
+              title="Horarios de atención"
+              copy="Define cuándo recibes pedidos y mensajes comerciales desde tu tienda, menú o catálogo."
+              openSection={openProfileSection}
+              onToggle={toggleProfileSection}
+              className="accordion-subsection"
+              trailing={
+                <span className={`status-badge ${businessHoursConfigured ? (businessHoursStatus.isOpen ? "success" : "warning") : ""}`}>
+                  {businessHoursConfigured ? businessHoursStatus.label : "Sin horario"}
+                </span>
+              }
+            >
+              <div className="business-hours-panel">
+                <label className="toggle-card">
+                  <input
+                    type="checkbox"
+                    checked={businessHours.enabled}
+                    onChange={(event) => updateBusinessHoursField("enabled", event.target.checked)}
+                    disabled={!canEdit}
+                  />
+                  <span className="toggle-copy">
+                    <strong>Usar horarios para pedidos</strong>
+                    <small>Cuando esté cerrado, tus clientes podrán ver productos, pero no enviar pedidos.</small>
+                  </span>
+                </label>
+
+                {businessHours.enabled ? (
+                  <div className={`business-hours-status ${businessHoursStatus.isOpen ? "is-open" : "is-closed"}`.trim()}>
+                    <strong>{businessHoursStatus.label}</strong>
+                    <span>{businessHoursStatus.nextOpeningLabel || businessHoursStatus.detail}</span>
+                  </div>
+                ) : (
+                  <div className="notice">
+                    <span>Si no activas horarios, Klicor permitirá pedidos en cualquier momento.</span>
+                  </div>
+                )}
+
+                <div className="business-hours-grid">
+                  {BUSINESS_HOUR_DAY_OPTIONS.map((dayOption) => {
+                    const day = businessHours.days.find((item) => item.day === dayOption.key) || createDefaultBusinessHourDay(dayOption.key);
+                    return (
+                      <article key={dayOption.key} className={`business-hours-day-card ${day.isOpen ? "is-open" : "is-closed"}`.trim()}>
+                        <div className="business-hours-day-head">
+                          <label className="switch-row">
+                            <input
+                              type="checkbox"
+                              checked={day.isOpen}
+                              onChange={(event) => updateBusinessHourDayOpen(dayOption.key, event.target.checked)}
+                              disabled={!canEdit}
+                            />
+                            <span>{dayOption.label}</span>
+                          </label>
+                          <strong>{day.isOpen ? "Abierto" : "Cerrado"}</strong>
+                        </div>
+
+                        {day.isOpen ? (
+                          <div className="business-hours-day-body">
+                            <select
+                              className="select"
+                              value={day.mode}
+                              onChange={(event) => updateBusinessHourMode(dayOption.key, event.target.value)}
+                              disabled={!canEdit}
+                            >
+                              <option value="continuous">Jornada continua</option>
+                              <option value="split">Mañana y tarde</option>
+                            </select>
+
+                            <div className="business-hours-shifts">
+                              {day.shifts.map((shift, index) => (
+                                <div className="business-hours-shift" key={`${dayOption.key}-${index}`}>
+                                  <span>{day.mode === "split" ? (index === 0 ? "Mañana" : "Tarde") : "Horario"}</span>
+                                  <input
+                                    className="input"
+                                    type="time"
+                                    value={shift.start}
+                                    onChange={(event) => updateBusinessHourShift(dayOption.key, index, "start", event.target.value)}
+                                    disabled={!canEdit}
+                                    aria-label={`${dayOption.label} abre ${day.mode === "split" && index === 1 ? "en la tarde" : "en la mañana"}`}
+                                  />
+                                  <input
+                                    className="input"
+                                    type="time"
+                                    value={shift.end}
+                                    onChange={(event) => updateBusinessHourShift(dayOption.key, index, "end", event.target.value)}
+                                    disabled={!canEdit}
+                                    aria-label={`${dayOption.label} cierra ${day.mode === "split" && index === 1 ? "en la tarde" : "en la mañana"}`}
+                                  />
+                                  <small>{formatDisplayTime(shift.start)} - {formatDisplayTime(shift.end)}</small>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        ) : (
+                          <p className="muted">No se recibirán pedidos este día.</p>
+                        )}
+                      </article>
+                    );
+                  })}
+                </div>
               </div>
             </AccordionSection>
             ) : null}
@@ -1822,7 +2051,7 @@ export function ProfileForm({
             </section>
           ) : null}
 
-          {activeWorkspace === "dorika" ? (
+          {activeWorkspace === "dorika" && dorikaEligible ? (
             <section className="dashboard-section panel workspace-panel dorika-profile-panel">
               <div className="dashboard-section-head workspace-panel-head">
                 <div>
@@ -2014,7 +2243,7 @@ export function ProfileForm({
             </section>
           ) : null}
 
-          {activeWorkspace === "dorika" ? (
+          {activeWorkspace === "dorika" && dorikaEligible ? (
             <DorikaMapPicker
               open={dorikaMapOpen}
               businessName={form.businessName}
