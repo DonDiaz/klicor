@@ -700,3 +700,182 @@ Dorika funciona si una persona puede:
 
 La meta no es solo mostrar información. La meta es que Dorika se sienta como una nueva forma de vivir Ocaña.
 
+## 20. Home, Intenciones Y Acceso Al Mapa
+
+La entrada principal de Dorika debe priorizar búsqueda rápida, claridad visual e intención del usuario.
+
+### 20.1 Orden Del Home
+
+El home debe organizarse con este orden base:
+
+1. Buscador principal
+2. Banner dinámico
+3. Chips de intención integrados al banner
+4. Acceso persistente al mapa
+5. Primer carrusel: rutas turísticas
+6. Secciones posteriores del home
+
+#### Buscador Principal
+
+Debe ir en la parte superior y funcionar como la entrada más clara para quien ya sabe qué quiere buscar.
+
+#### Banner Dinámico
+
+Debe existir un banner visual y cálido que cambie según el momento del día:
+
+- mañana
+- tarde
+- noche
+
+El objetivo del banner es dar contexto emocional, hacer que Dorika se sienta viva y reforzar la identidad local y humana del producto.
+
+#### Chips De Intención Integrados Al Banner
+
+En la parte baja del banner deben estar siempre visibles los chips principales de navegación:
+
+- Comer
+- Comprar
+- Turismo
+
+Estos chips representan la intención principal del usuario y deben ser una de las entradas centrales del producto.
+
+#### Acceso Persistente Al Mapa
+
+Debe existir una acción visible y permanente para entrar al mapa, sin depender de una sección específica ni interrumpir el flujo principal del home.
+
+#### Primer Carrusel: Rutas Turísticas
+
+El primer carrusel del home debe ser siempre el de rutas turísticas.
+
+Esta decisión busca posicionar a Dorika no solo como una herramienta para comercio local, sino también como una experiencia de descubrimiento territorial y turístico.
+
+#### Secciones Posteriores Del Home
+
+Después deben venir otras secciones horizontales como:
+
+- Cerca de ti
+- Para comer hoy
+- Tiendas destacadas
+- Turismo
+- otras futuras según evolución del producto
+
+### 20.2 Chips De Intención
+
+Los chips del home no son filtros técnicos. Son puertas de entrada simples a la experiencia.
+
+Por ahora deben existir solo estos tres:
+
+- Comer
+- Comprar
+- Turismo
+
+En el futuro podrán agregarse:
+
+- Reservar
+- Agendar
+
+Pero por ahora no deben mostrarse hasta que esas experiencias estén realmente listas y claras.
+
+Cada chip debe llevar al usuario a una experiencia coherente con esa intención.
+
+Ejemplos:
+
+- Comer: restaurantes, cafés, comidas rápidas, repostería y similares.
+- Comprar: tiendas, productos, negocios comerciales y vitrinas de venta.
+- Turismo: rutas, sitios de interés, experiencias y exploración local.
+
+### 20.3 Acceso Al Mapa
+
+El acceso al mapa no debe resolverse como un botón tradicional dentro del flujo del contenido.
+
+Debe existir como un botón flotante persistente, visible en todo momento, pero sin interrumpir la navegación.
+
+Reglas del botón flotante:
+
+- siempre visible
+- no debe tapar contenido importante
+- debe sentirse integrado al diseño
+- puede reducirse visualmente al hacer scroll
+- debe mantener una pequeña animación o microinteracción sutil para seguir presente sin resultar molesto
+
+El objetivo es que el usuario siempre sienta que el mapa está disponible como acción importante del producto, pero sin convertirlo en una distracción constante.
+
+### 20.4 Comportamiento Del Botón Flotante
+
+El botón flotante de mapa no debe abrir el mapa de forma inmediata en todos los casos.
+
+#### Caso 1: Acceso General Al Mapa
+
+Si el usuario toca el botón flotante sin venir desde una intención específica, primero debe abrirse un bottom sheet selector con la pregunta:
+
+**¿Qué quieres ver en el mapa?**
+
+Opciones:
+
+- Comer
+- Comprar
+- Turismo
+
+Solo después de elegir una intención se abre el mapa.
+
+Esto evita que el mapa se abra vacío, genérico o sin contexto.
+
+#### Caso 2: Acceso Al Mapa Desde Una Intención
+
+Si el usuario ya viene desde un chip o flujo específico, el mapa debe abrirse directamente con esa intención activa, sin volver a preguntar.
+
+Ejemplos:
+
+- Si el usuario viene desde Comer, el mapa muestra solo opciones relacionadas con comida.
+- Si viene desde Comprar, muestra negocios y productos relacionados con compra.
+- Si viene desde Turismo, muestra rutas, lugares de interés y experiencias relacionadas.
+
+### 20.5 Lógica Inicial Del Mapa
+
+El mapa debe abrir siempre con contexto y relevancia, no como una vista genérica de toda la ciudad.
+
+Reglas base:
+
+- iniciar con una intención activa
+- mostrar un radio inicial razonable
+- priorizar resultados cercanos
+- mantener una visual limpia
+- no cargar todo al mismo tiempo
+
+Si el usuario mueve el mapa o hace zoom out, el sistema puede ampliar la zona visible y cargar nuevos resultados según la intención elegida.
+
+### 20.6 Relación Entre Intención Y Datos
+
+Para que Dorika funcione bien a futuro, Klicor debe ir evolucionando hacia una categorización más precisa del negocio.
+
+No basta con categorías demasiado generales.
+
+Dorika se beneficia de que Klicor pueda distinguir con más precisión tipos de negocio como:
+
+- restaurante
+- cafetería
+- comidas rápidas
+- ferretería
+- barbería
+- estilista
+
+Esto permitirá que las intenciones del home y del mapa sean más útiles, más precisas y más naturales para el usuario.
+
+La lógica ideal es:
+
+- Klicor administra y estructura la información del negocio.
+- Dorika usa esa información para mostrar experiencias claras por intención.
+
+### 20.7 Objetivo De Esta Estructura
+
+Esta organización del home y del acceso al mapa busca que Dorika se entienda rápido, se sienta visual y mantenga una navegación clara.
+
+La intención no es mostrar todo desde el inicio, sino ayudar al usuario a entrar por caminos simples:
+
+- buscar
+- elegir intención
+- ver mapa
+- descubrir rutas
+- explorar contenido relevante sin saturación
+
+Dorika no debe sentirse como una lista fría ni como un mapa técnico. Debe sentirse como una experiencia local, clara, visual y fácil de usar.
