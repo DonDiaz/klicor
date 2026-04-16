@@ -285,19 +285,13 @@ export default function HomePage() {
           <div className="cloud-pricing-stack">
             {pricingPlans.map((plan) => (
               <div key={plan.name} className="cloud-price-box">
-                {plan.badge ? (
-                  <>
-                    <div className="pill">{plan.badge}</div>
-                    <br />
-                  </>
-                ) : null}
-                <strong>{plan.name}</strong>
-                <div>{plan.price}</div>
-                <small>{plan.period} · {plan.note}</small>
-                <br />
-                <span>{plan.features.join(" · ")}</span>
-                <br />
-                <br />
+                <div className="cloud-price-content">
+                  {plan.badge ? <div className="pill cloud-price-badge">{plan.badge}</div> : null}
+                  <strong>{plan.name}</strong>
+                  <div className="cloud-price-value">{plan.price}</div>
+                  <small>{plan.period} · {plan.note}</small>
+                  <span>{plan.features.join(" · ")}</span>
+                </div>
                 <div className="actions">
                   <LandingLoginModal
                     triggerLabel={plan.buttonLabel}
