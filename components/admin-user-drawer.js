@@ -5,11 +5,13 @@ import { CalendarClock, CreditCard, ExternalLink, History, Mail, Phone, Shield, 
 import { ADMIN_ACCOUNT_STATUS_OPTIONS, ADMIN_ORIGIN_OPTIONS, ADMIN_PLAN_OPTIONS } from "@/lib/admin-config";
 import { BUSINESS_CATEGORY_OPTIONS } from "@/lib/business-categories";
 import { apiFetch } from "@/lib/client-api";
+import { DEFAULT_PAID_PLAN, getPlanAnnualPrice, normalizeKlicorPlan } from "@/lib/plans";
 
 function getSettingsDefaults(settings = {}) {
   return {
     annualPrice: Number(settings.annualPrice || 0),
     convenioDefaultDays: Number(settings.convenioDefaultDays || 365),
+    settings,
   };
 }
 
@@ -46,9 +48,11 @@ export function AdminUserDrawer({ token, detail, settings, onClose, onUpdated, o
       expiresAt: user.expiresAtIso || "",
     });
 
+    const paymentPlan = user.plan === "trial" ? DEFAULT_PAID_PLAN : normalizeKlicorPlan(user.plan || DEFAULT_PAID_PLAN);
+
     setPaymentForm({
-      amount: user.amountPaid || defaults.annualPrice || 0,
-      plan: user.plan === "trial" ? "annual" : (user.plan || "annual"),
+      amount: user.amountPaid || getPlanAnnualPrice(paymentPlan, defaults.settings) || defaults.annualPrice || 0,
+      plan: paymentPlan,
       durationDays: user.plan === "institutional" ? defaults.convenioDefaultDays : 365,
       method: "manual",
       notes: "",
@@ -334,7 +338,14 @@ export function AdminUserDrawer({ token, detail, settings, onClose, onUpdated, o
             </div>
             <div>
               <label className="label">Plan</label>
-              <select className="select" value={paymentForm.plan} onChange={(event) => setPaymentForm((current) => ({ ...current, plan: event.target.value }))}>
+              <select className="select" value={paymentForm.plan} onChange={(event) => {
+                const nextPlan = event.target.value;
+                setPaymentForm((current) => ({
+                  ...current,
+                  plan: nextPlan,
+                  amount: getPlanAnnualPrice(nextPlan, settings) || current.amount,
+                }));
+              }}>
                 {ADMIN_PLAN_OPTIONS.filter((option) => option.value !== "trial").map((option) => (
                   <option key={option.value} value={option.value}>{option.label}</option>
                 ))}

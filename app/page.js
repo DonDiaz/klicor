@@ -16,6 +16,7 @@ import {
 import { BrandLogo } from "@/components/brand-logo";
 import { LandingLoginModal } from "@/components/landing-login-modal";
 import { MarketingPreview } from "@/components/marketing-preview";
+import { getLandingPricingPlans } from "@/lib/plans";
 
 const platformFlow = [
   {
@@ -81,43 +82,7 @@ const businessCategories = [
   },
 ];
 
-const pricingPlans = [
-  {
-    name: "Esencial",
-    price: "$59.900",
-    features: [
-      "Link personalizado",
-      "Código QR incluido",
-      "Botones (WhatsApp, redes)",
-      "Información del negocio",
-      "Soporte básico",
-    ],
-    buttonLabel: "Empezar",
-  },
-  {
-    name: "Negocio",
-    price: "$109.900",
-    badge: "Más vendido",
-    features: [
-      "Todo lo del plan Esencial",
-      "Hasta 50 productos",
-      "Catálogo organizado",
-      "Personalización mejorada",
-    ],
-    buttonLabel: "Elegir plan",
-  },
-  {
-    name: "Pro",
-    price: "$169.900",
-    features: [
-      "Todo lo del plan Negocio",
-      "Hasta 300 productos",
-      "Mayor capacidad de crecimiento",
-      "Ideal para negocios con alto volumen",
-    ],
-    buttonLabel: "Escalar mi negocio",
-  },
-];
+const pricingPlans = getLandingPricingPlans();
 
 const registerModalProps = {
   allowRegister: true,
@@ -307,9 +272,9 @@ export default function HomePage() {
         <div className="shell cloud-pricing-card">
           <div className="cloud-pricing-copy">
             <span className="pill">Precios</span>
-            <h2 className="landing-section-title">Empieza gratis. Escala cuando tu negocio crezca.</h2>
+            <h2 className="landing-section-title">Precios de lanzamiento para negocios que quieren vender mejor.</h2>
             <p className="section-copy">
-              Elige lo que necesitas hoy y sube de nivel cuando necesites más productos, más orden y más capacidad.
+              Pago anual, sin enredos mensuales. Estos valores hacen parte de nuestra etapa de apertura para primeros negocios aliados.
             </p>
           </div>
 
@@ -324,6 +289,7 @@ export default function HomePage() {
                 ) : null}
                 <strong>{plan.name}</strong>
                 <div>{plan.price}</div>
+                <small>{plan.period} · {plan.note}</small>
                 <br />
                 <span>{plan.features.join(" · ")}</span>
                 <br />

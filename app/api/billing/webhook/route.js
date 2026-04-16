@@ -63,6 +63,7 @@ export async function POST(request) {
         status: payment.status,
         statusDetail: payment.status_detail || "",
         externalReference: payment.external_reference,
+        plan: payment.metadata?.plan || "",
         raw: payment,
       });
     }
@@ -85,6 +86,7 @@ export async function POST(request) {
       status: payment.status,
       statusDetail: payment.status_detail || "",
       externalReference: payment.external_reference,
+      plan: payment.metadata?.plan || "",
       raw: payment,
     });
 

@@ -17,7 +17,13 @@ import {
 } from "lucide-react";
 import { ADMIN_ACCOUNT_STATUS_OPTIONS, ADMIN_ORIGIN_OPTIONS, ADMIN_PLAN_OPTIONS } from "@/lib/admin-config";
 import { apiFetch } from "@/lib/client-api";
+import { BILLABLE_PLAN_OPTIONS, getPlanPriceSettingKey } from "@/lib/plans";
 import { AdminUserDrawer } from "@/components/admin-user-drawer";
+
+const PLAN_PRICE_FIELDS = BILLABLE_PLAN_OPTIONS.map((option) => ({
+  ...option,
+  key: getPlanPriceSettingKey(option.value),
+}));
 
 const ADMIN_SECTIONS = [
   {
@@ -184,6 +190,16 @@ export function AdminPanel({ token, initialData, adminUser }) {
     } finally {
       setSavingSettings(false);
     }
+  }
+
+  function updatePlanPrice(planValue, value) {
+    const key = getPlanPriceSettingKey(planValue);
+    const amount = Number(value);
+    setSettingsForm((current) => ({
+      ...current,
+      [key]: amount,
+      ...(planValue === "commercial" ? { annualPrice: amount } : {}),
+    }));
   }
 
   const filteredUsers = useMemo(() => {
@@ -492,14 +508,16 @@ export function AdminPanel({ token, initialData, adminUser }) {
             <section className="panel admin-settings-panel">
               <div className="admin-section-heading">
                 <h3>Facturación y planes</h3>
-                <p className="muted">Controla precio anual, trial, mensajes de vencimiento y reglas de renovación.</p>
+                <p className="muted">Controla precios de lanzamiento, trial, mensajes de vencimiento y reglas de renovación.</p>
               </div>
 
               <div className="form-grid">
-                <div>
-                  <label className="label">Precio anual (COP)</label>
-                  <input className="input" type="number" min={0} value={settingsForm.annualPrice || 0} onChange={(event) => setSettingsForm((current) => ({ ...current, annualPrice: Number(event.target.value) }))} />
-                </div>
+                {PLAN_PRICE_FIELDS.map((plan) => (
+                  <div key={plan.value}>
+                    <label className="label">Plan {plan.label} (COP/año)</label>
+                    <input className="input" type="number" min={0} value={settingsForm[plan.key] ?? 0} onChange={(event) => updatePlanPrice(plan.value, event.target.value)} />
+                  </div>
+                ))}
                 <div>
                   <label className="label">Días de trial</label>
                   <input className="input" type="number" min={0} value={settingsForm.trialDays || 0} onChange={(event) => setSettingsForm((current) => ({ ...current, trialDays: Number(event.target.value) }))} />
