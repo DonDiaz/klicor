@@ -879,3 +879,75 @@ La intención no es mostrar todo desde el inicio, sino ayudar al usuario a entra
 - explorar contenido relevante sin saturación
 
 Dorika no debe sentirse como una lista fría ni como un mapa técnico. Debe sentirse como una experiencia local, clara, visual y fácil de usar.
+
+## 21. Categorización Específica De Negocios
+
+Dorika necesita entender mejor qué hace o vende cada negocio para ofrecer una experiencia más precisa en búsqueda, mapa, secciones y recomendaciones.
+
+La categoría general de Klicor sigue siendo necesaria, pero no es suficiente para Dorika.
+
+Ejemplo:
+
+- Comida y bebidas es útil para decidir que el negocio pertenece a la intención Comer.
+- Pero Dorika necesita saber si es restaurante, cafetería, pizzería, comidas rápidas, bar, panadería o heladería.
+
+### 21.1 Regla De UX
+
+Este dato no debe alargar el registro inicial.
+
+Debe pedirse de forma progresiva dentro de la ficha:
+
+**Haz que te encuentren en Dorika**
+
+La pregunta debe ser humana:
+
+**¿Qué describe mejor tu negocio?**
+
+No debe sentirse como una clasificación técnica ni como un requisito obligatorio para publicar Klicor.
+
+Microcopy sugerido:
+
+**Esto ayuda a que Dorika te muestre en búsquedas, mapa y secciones más precisas.**
+
+### 21.2 Modelo De Datos
+
+Klicor debe guardar:
+
+- `businessCategory`: categoría general
+- `dorikaProfile.businessType`: tipo específico para Dorika
+
+Ejemplo:
+
+```js
+{
+  businessCategory: "food_drink",
+  dorikaProfile: {
+    businessType: "pizza"
+  }
+}
+```
+
+Esto permite que Dorika agrupe por intención sin perder precisión.
+
+### 21.3 Fuentes De Criterio
+
+La taxonomía inicial debe inspirarse en clasificaciones amplias y reconocidas, pero adaptarse al lenguaje local y comercial.
+
+Referencias útiles:
+
+- NAICS para sectores como comida, retail, servicios, alojamiento y entretenimiento.
+- Schema.org para tipos generales como Restaurant, Store, HealthAndBeautyBusiness, TravelAgency y TouristAttraction.
+- Google Business Profile como criterio UX: la categoría debe describir lo que el negocio es, no una lista de atributos.
+
+### 21.4 Regla De Producto
+
+Dorika debe usar este dato para:
+
+- mostrar negocios en la intención correcta
+- mejorar búsqueda textual
+- mejorar resultados por cercanía
+- construir secciones como "Cafeterías cerca de ti" o "Tiendas de ropa destacadas"
+- ordenar el mapa sin saturarlo
+- sugerir mejores iconos e imágenes por tipo de negocio
+
+Si el negocio no completa este dato, Klicor sigue funcionando. Pero Dorika debe motivar a completarlo porque mejora su visibilidad.

@@ -43,6 +43,7 @@ import {
   applyDefaultLinkPriorityTiers,
   BUSINESS_CATEGORY_OPTIONS,
   getBusinessCategoryModuleRecommendation,
+  getBusinessTypeOptionsForCategory,
   getDefaultPriorityTierForNewLink,
   getPrimaryWorkspaceForBusinessCategory,
   getRecommendedWorkspaceIdsForBusinessCategory,
@@ -663,11 +664,18 @@ export function ProfileForm({
   const dorikaProgressPercent = Number.isFinite(dorikaProgress?.percent) ? dorikaProgress.percent : 0;
   const dorikaTasks = Array.isArray(dorikaProgress?.tasks) ? dorikaProgress.tasks : [];
   const dorikaCategoryLabel = BUSINESS_CATEGORY_OPTIONS.find((option) => option.value === form.businessCategory)?.label || "Tipo de negocio";
+  const dorikaBusinessTypeOptions = useMemo(() => getBusinessTypeOptionsForCategory(form.businessCategory), [form.businessCategory]);
   const dorikaHasExactCoordinates = Number.isFinite(dorikaProfile.latitude) && Number.isFinite(dorikaProfile.longitude);
 
   useEffect(() => {
     setDorikaCoverLoadError(false);
   }, [dorikaStoredCoverUrl]);
+
+  useEffect(() => {
+    if (!dorikaProfile.businessType) return;
+    if (dorikaBusinessTypeOptions.some((option) => option.value === dorikaProfile.businessType)) return;
+    setDorikaProfile((current) => ({ ...current, businessType: "" }));
+  }, [dorikaBusinessTypeOptions, dorikaProfile.businessType]);
 
   useEffect(() => {
     if (!contactCard.whatsappLinkId) return;
@@ -2226,9 +2234,24 @@ export function ProfileForm({
                       <small>La tomamos del tipo de negocio de tu perfil para no pedirte lo mismo dos veces.</small>
                     </div>
                     <div>
-                      <label className="label">Descripción corta</label>
-                      <input className="input" value={dorikaProfile.description} onChange={(e) => updateDorikaField("description", e.target.value)} placeholder="Ej. Pizza artesanal, pedidos rápidos y atención por WhatsApp." disabled={!canEdit} />
+                      <label className="label">¿Qué describe mejor tu negocio?</label>
+                      <select
+                        className="input"
+                        value={dorikaProfile.businessType || ""}
+                        onChange={(e) => updateDorikaField("businessType", e.target.value)}
+                        disabled={!canEdit}
+                      >
+                        <option value="">Selecciona una opción</option>
+                        {dorikaBusinessTypeOptions.map((option) => (
+                          <option key={option.value} value={option.value}>{option.label}</option>
+                        ))}
+                      </select>
+                      <p className="section-copy">Esto ayuda a que Dorika te muestre en búsquedas, mapa y secciones más precisas.</p>
                     </div>
+                  </div>
+                  <div>
+                    <label className="label">Descripción corta</label>
+                    <input className="input" value={dorikaProfile.description} onChange={(e) => updateDorikaField("description", e.target.value)} placeholder="Ej. Pizza artesanal, pedidos rápidos y atención por WhatsApp." disabled={!canEdit} />
                   </div>
                 </div>
 
