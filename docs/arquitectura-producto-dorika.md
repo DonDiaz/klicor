@@ -1648,10 +1648,19 @@ El comportamiento base debe ser:
 
 Reglas:
 
-- deben verse 2 cards completas y media card
-- esto indica que hay más contenido hacia la derecha
-- no usar botón “Ver más”
+- la regla visual base es mostrar cards completas y una card parcial
+- en móviles pequeños, rutas y negocios destacados pueden mostrar 1 card grande y media card
+- en productos puede mantenerse una densidad mayor, idealmente 2 cards completas y media card
+- la card parcial indica que hay más contenido hacia la derecha
+- no usar botón tradicional “Ver más”
+- si una sección necesita salida a más contenido, usar una card final tipo “Explorar más”
 - la exploración se hace mediante scroll e intención
+
+La densidad de cards debe adaptarse al tipo de contenido.
+
+Las rutas y negocios necesitan más aire para comunicar confianza y contexto.
+
+Los productos pueden ser más compactos porque su objetivo es generar deseo rápido, antojo o interés inmediato.
 
 ### 25.8 Carga De Contenido Por Sección
 
@@ -1705,9 +1714,13 @@ Los negocios con mejor perfil tienen mayor visibilidad.
 Los elementos destacados deben generarse automáticamente a partir de una mezcla de:
 
 - calidad del perfil
+- cercanía
+- estado abierto ahora
+
+En una fase posterior, cuando Dorika tenga datos reales de uso, se pueden sumar:
+
 - interacción del usuario, como clics
 - favoritos
-- cercanía
 - novedad, con peso menor
 
 No se deben definir destacados manualmente en esta fase.
@@ -1745,7 +1758,23 @@ El home cambia su orden según la intención seleccionada.
 - Experiencias
 - Recomendados
 
-### 25.14 Reglas De Intención
+### 25.14 Relación Entre Productos Y Negocios
+
+Los productos en Dorika tienen un rol importante: provocar antojo, deseo e intención de compra.
+
+La función de los productos no es reemplazar al negocio, sino abrir una puerta más emocional hacia él.
+
+Reglas:
+
+- los productos pueden aparecer temprano cuando la intención sea comer o comprar
+- las cards de producto deben ser visuales y provocar interés rápido
+- al tocar un producto, el usuario debe poder llegar al negocio o a su tienda en Klicor
+- el negocio debe seguir siendo la fuente de confianza, información y cierre
+- producto despierta deseo; negocio confirma confianza
+
+Esta relación evita que el home se vuelva solo un directorio de negocios y permite que Dorika también funcione como una vitrina de descubrimiento.
+
+### 25.15 Reglas De Intención
 
 Reglas:
 
@@ -1753,7 +1782,7 @@ Reglas:
 - el sistema reorganiza el contenido, no reconstruye completamente el home
 - las rutas solo son primera sección en home general y turismo
 
-### 25.15 Comportamiento Según Hora
+### 25.16 Comportamiento Según Hora
 
 El contenido debe adaptarse al contexto:
 
@@ -1763,7 +1792,7 @@ El contenido debe adaptarse al contexto:
 
 Los negocios cerrados pueden mostrarse, pero con menor prioridad y señalización clara.
 
-### 25.16 Aprendizaje Del Usuario
+### 25.17 Aprendizaje Del Usuario
 
 El home debe adaptarse progresivamente al comportamiento del usuario:
 
@@ -1773,7 +1802,7 @@ El home debe adaptarse progresivamente al comportamiento del usuario:
 
 Esto permitirá mejorar recomendaciones en el tiempo.
 
-### 25.17 Publicación Y Visibilidad De Negocios
+### 25.18 Publicación Y Visibilidad De Negocios
 
 Los negocios se sincronizan automáticamente desde Klicor.
 
@@ -1784,7 +1813,7 @@ Reglas:
 - negocios incompletos aparecen menos
 - negocios completos tienen mayor prioridad
 
-### 25.18 Estado De Preparación Para Dorika
+### 25.19 Estado De Preparación Para Dorika
 
 Un negocio puede existir en Klicor pero no estar listo para Dorika.
 
@@ -1795,7 +1824,7 @@ Reglas:
 
 Esto incentiva al negocio a mejorar su información.
 
-### 25.19 Objetivo Final
+### 25.20 Objetivo Final
 
 El sistema de home debe lograr:
 
