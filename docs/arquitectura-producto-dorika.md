@@ -951,3 +951,129 @@ Dorika debe usar este dato para:
 - sugerir mejores iconos e imágenes por tipo de negocio
 
 Si el negocio no completa este dato, Klicor sigue funcionando. Pero Dorika debe motivar a completarlo porque mejora su visibilidad.
+
+## 22. Favoritos, Historial Y Acceso De Usuario
+
+Dorika no debe requerir registro obligatorio para comenzar a usarse. La exploración, el descubrimiento y el acceso a la información deben ser libres desde el primer momento.
+
+Sin embargo, funcionalidades como favoritos, historial y progreso sí requieren una estrategia de usuario, pero implementada de forma progresiva y sin fricción.
+
+### 22.1 Principio General
+
+El sistema de usuario debe seguir esta regla:
+
+**Primero permitir usar. Luego invitar a guardar. Nunca bloquear la experiencia inicial.**
+
+Esto permite:
+
+- mayor adopción
+- menor fricción de entrada
+- validación real de uso
+- captura progresiva de usuarios
+
+### 22.2 Acceso Sin Registro
+
+Un usuario no autenticado debe poder:
+
+- explorar el home
+- buscar
+- ver negocios
+- ver productos
+- usar el mapa
+- explorar rutas
+
+El registro no debe ser requisito para descubrir.
+
+### 22.3 Sistema De Favoritos
+
+Dorika debe permitir guardar favoritos desde el primer momento, incluso sin cuenta.
+
+Comportamiento inicial:
+
+- al tocar el ícono de favorito, el elemento se guarda localmente
+- debe haber feedback inmediato
+- el ícono debe cambiar visualmente
+- debe existir una microanimación suave
+
+Esto asegura que el usuario sienta que la acción funcionó sin interrupciones.
+
+### 22.4 Favoritos Sin Login
+
+Mientras el usuario no esté autenticado:
+
+- los favoritos se almacenan localmente en el dispositivo
+- el usuario puede acceder a ellos dentro de la app
+- no se deben perder durante la sesión normal
+
+Esto permite que el usuario use la funcionalidad sin necesidad de crear cuenta.
+
+### 22.5 Conversión A Usuario Registrado
+
+El sistema debe invitar al registro solo cuando tenga sentido.
+
+Ejemplos de disparadores:
+
+- el usuario ha guardado varios favoritos
+- el usuario intenta acceder a sus favoritos después de un tiempo
+- el usuario quiere asegurar que no pierde lo guardado
+
+Mensaje sugerido:
+
+**Guarda tus favoritos y accede a ellos desde cualquier dispositivo.**
+
+Opciones:
+
+- continuar con Google
+- continuar con correo
+
+No se deben usar formularios largos ni fricción innecesaria.
+
+### 22.6 Migración De Favoritos
+
+Si el usuario decide registrarse:
+
+- los favoritos almacenados localmente deben migrarse automáticamente a su cuenta
+- el usuario no debe perder información
+- el proceso debe ser transparente
+
+### 22.7 Acceso A Favoritos
+
+Debe existir un acceso claro dentro de la navegación principal, por ejemplo en el bottom nav.
+
+El usuario debe poder:
+
+- ver sus favoritos
+- acceder rápidamente a negocios, productos o rutas guardadas
+- continuar su exploración sin dificultad
+
+### 22.8 Historial Y Evolución
+
+Aunque no es obligatorio en la primera versión, el sistema debe quedar preparado para soportar:
+
+- historial de exploración
+- rutas vistas o iniciadas
+- lugares visitados
+- recomendaciones futuras basadas en comportamiento
+
+### 22.9 Rol Estratégico De Favoritos
+
+El sistema de favoritos no es solo una funcionalidad de usuario. También cumple un rol estratégico:
+
+- identificar intereses reales
+- entender comportamiento de usuarios
+- detectar negocios y productos relevantes
+- mejorar recomendaciones futuras
+- aportar datos útiles para decisiones del producto
+
+### 22.10 Objetivo Final
+
+El sistema de usuario debe sentirse:
+
+- ligero
+- natural
+- no invasivo
+- útil desde el primer momento
+
+Dorika no debe obligar a crear cuenta para ser usado.
+
+Debe permitir descubrir libremente y luego invitar a guardar lo importante.
