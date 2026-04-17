@@ -2301,3 +2301,189 @@ El mapa debe permitir:
 Dorika no debe sentirse como un mapa técnico.
 
 Dorika debe sentirse como una herramienta de exploración visual clara, útil y alineada con la intención del usuario.
+
+## 28. Publicación Y Visibilidad De Negocios (Klicor A Dorika)
+
+El sistema de publicación en Dorika no debe ser manual ni arbitrario.
+
+Debe funcionar de forma automática, basada en la calidad del perfil y la información disponible desde Klicor.
+
+### 28.1 Principio General
+
+El sistema debe seguir esta regla:
+
+**Todos pueden aparecer, pero no todos se ven igual.**
+
+Esto permite:
+
+- inclusión total de negocios
+- incentivo a completar perfiles
+- mejora progresiva de calidad
+- control automático de visibilidad
+
+### 28.2 Mínimo Para Aparecer
+
+Un negocio puede aparecer en Dorika si cumple con el mínimo básico:
+
+- nombre
+- logo
+
+Con este nivel:
+
+- puede aparecer en el home o secciones
+- no aparece en el mapa
+
+### 28.3 Requisito Para Aparecer En El Mapa
+
+Para aparecer en el mapa, el negocio debe tener:
+
+- ubicación geográfica válida, coordenadas
+
+Si no cumple esto:
+
+- no se muestra en el mapa
+- solo aparece en home o categorías
+
+### 28.4 Niveles De Visibilidad
+
+El sistema debe manejar niveles de visibilidad basados en la calidad del perfil.
+
+#### Nivel 1: Básico
+
+Incluye:
+
+- solo nombre y logo
+- sin información adicional
+
+Comportamiento:
+
+- aparece con baja prioridad
+- no aparece en mapa
+- no se muestra en secciones principales
+- puede aparecer en rotación
+
+#### Nivel 2: Medio
+
+Incluye:
+
+- ubicación
+- tipo de negocio
+- información básica
+
+Comportamiento:
+
+- aparece en secciones normales
+- puede aparecer en mapa, si tiene coordenadas
+- visibilidad estándar
+
+#### Nivel 3: Completo
+
+Incluye:
+
+- portada
+- ubicación
+- descripción
+- horario
+- logo
+- tipo de negocio
+- buena estructura general
+
+Comportamiento:
+
+- mayor prioridad
+- mayor exposición
+- mejor posicionamiento
+
+### 28.5 Regla De Rotación
+
+Los negocios de nivel básico y medio:
+
+- no deben quedar ocultos permanentemente
+- deben aparecer de forma rotativa
+
+Esto asegura:
+
+- equidad
+- descubrimiento
+- oportunidad para todos
+
+### 28.6 Regla De Penalización Por Incompletitud
+
+Si un negocio tiene información incompleta:
+
+- se muestra, pero con menor prioridad
+- aparece más abajo
+- tiene menor exposición
+
+Ejemplos:
+
+- sin descripción
+- sin horario
+- sin portada
+
+### 28.7 Indicaciones Humanas
+
+Las indicaciones humanas no afectan directamente la visibilidad.
+
+Sin embargo:
+
+- su ausencia afecta la experiencia del usuario
+- esto reduce indirectamente el rendimiento del negocio
+
+### 28.8 Negocios Sin Catálogo
+
+Un negocio puede aparecer en Dorika sin necesidad de tener productos o catálogo.
+
+Reglas:
+
+- Dorika no depende de catálogo
+- Dorika permite descubrir servicios y lugares
+- el negocio puede dirigir al usuario a su Klicor básico
+
+### 28.9 Sistema De Priorización
+
+El orden de visibilidad debe seguir la misma lógica definida en el sistema del home:
+
+1. calidad del perfil
+2. cercanía
+3. estado, abierto o cerrado
+4. intención del usuario
+5. interacción, como clics o favoritos
+
+### 28.10 Publicación Automática
+
+La visibilidad en Dorika debe ser:
+
+- automática
+- basada en datos
+- sin intervención manual operativa
+
+No debe existir:
+
+- activación manual caso por caso
+- manipulación directa de visibilidad
+
+La excepción es la decisión del negocio de aparecer o no aparecer en Dorika.
+
+Esa decisión sí debe seguir existiendo desde Klicor.
+
+### 28.11 Incentivo Implícito
+
+El sistema debe incentivar al negocio a mejorar su perfil:
+
+- mejor información, mayor visibilidad
+- mejor experiencia, más interacción
+- más interacción, más exposición
+
+### 28.12 Objetivo Final
+
+El sistema de publicación debe lograr:
+
+- incluir a todos los negocios
+- mantener calidad visual en Dorika
+- evitar perfiles pobres dominando la experiencia
+- premiar a quienes construyen mejor su presencia
+
+Dorika no debe filtrar quién entra.
+
+Dorika debe ordenar inteligentemente cómo se ve cada negocio.
