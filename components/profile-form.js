@@ -717,6 +717,25 @@ export function ProfileForm({
     });
   }
 
+  function scrollToDorikaTask(taskId = "") {
+    const targetMap = {
+      visibility: "dorika-visibility",
+      location: "dorika-location",
+      business_type: "dorika-appearance",
+      cover: "dorika-appearance",
+      description: "dorika-description",
+    };
+    const target = targetMap[taskId] || "dorika-visibility";
+    const element = typeof document !== "undefined" ? document.getElementById(target) : null;
+    if (!element) return;
+    element.scrollIntoView({ behavior: "smooth", block: "start" });
+    if (target === "dorika-description") {
+      window.setTimeout(() => {
+        document.getElementById("dorika-description-input")?.focus();
+      }, 280);
+    }
+  }
+
   function updateBusinessHoursField(field, value) {
     setBusinessHours((current) => normalizeBusinessHours({
       ...current,
@@ -2085,16 +2104,21 @@ export function ProfileForm({
 
               <div className="dorika-task-grid">
                 {dorikaTasks.map((task) => (
-                  <div key={task.id} className={`dorika-task-card ${task.complete ? "is-complete" : ""}`.trim()}>
+                  <button
+                    key={task.id}
+                    type="button"
+                    className={`dorika-task-card ${task.complete ? "is-complete" : ""}`.trim()}
+                    onClick={() => scrollToDorikaTask(task.id)}
+                  >
                     <span>{task.complete ? <CheckCircle2 size={16} /> : <Star size={15} />}</span>
                     <strong>{task.label}</strong>
                     <small>{task.copy}</small>
-                  </div>
+                  </button>
                 ))}
               </div>
 
               <div className="section-stack">
-                <label className="toggle-card">
+                <label id="dorika-visibility" className="toggle-card dorika-scroll-target">
                   <input
                     type="checkbox"
                     checked={dorikaProfile.enabled}
@@ -2107,7 +2131,7 @@ export function ProfileForm({
                   </span>
                 </label>
 
-                <div className="dorika-form-block">
+                <div id="dorika-location" className="dorika-form-block dorika-scroll-target">
                   <div>
                     <h3 className="section-title" style={{ fontSize: "1.05rem" }}>Ubicación</h3>
                     <p className="section-copy">Muestra solo lo necesario para que te encuentren sin perder privacidad.</p>
@@ -2197,7 +2221,7 @@ export function ProfileForm({
                   </div>
                 ) : null}
 
-                <div className="dorika-form-block">
+                <div id="dorika-appearance" className="dorika-form-block dorika-scroll-target">
                   <div>
                     <h3 className="section-title" style={{ fontSize: "1.05rem" }}>Cómo te verán</h3>
                     <p className="section-copy">Una portada y una descripción corta hacen que tu ficha se sienta más confiable.</p>
@@ -2249,9 +2273,9 @@ export function ProfileForm({
                       <p className="section-copy">Esto ayuda a que Dorika te muestre en búsquedas, mapa y secciones más precisas.</p>
                     </div>
                   </div>
-                  <div>
+                  <div id="dorika-description" className="dorika-scroll-target">
                     <label className="label">Descripción corta</label>
-                    <input className="input" value={dorikaProfile.description} onChange={(e) => updateDorikaField("description", e.target.value)} placeholder="Ej. Pizza artesanal, pedidos rápidos y atención por WhatsApp." disabled={!canEdit} />
+                    <input id="dorika-description-input" className="input" value={dorikaProfile.description} onChange={(e) => updateDorikaField("description", e.target.value)} placeholder="Ej. Pizza artesanal, pedidos rápidos y atención por WhatsApp." disabled={!canEdit} />
                   </div>
                 </div>
 

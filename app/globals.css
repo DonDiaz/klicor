@@ -4436,13 +4436,30 @@ html[data-theme="dark"] .admin-sidebar-note {
 
 .dorika-task-card {
   display: grid;
-  gap: 0.45rem;
-  padding: 0.9rem;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-areas:
+    "icon title"
+    "icon copy";
+  gap: 0.18rem 0.65rem;
+  align-items: center;
+  min-height: 74px;
+  padding: 0.72rem 0.8rem;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 160ms ease, background-color 160ms ease, transform 160ms ease, box-shadow 160ms ease;
+}
+
+.dorika-task-card:hover,
+.dorika-task-card:focus-visible {
+  transform: translateY(-1px);
+  border-color: rgba(34, 169, 138, 0.34);
+  box-shadow: 0 14px 32px rgba(15, 23, 42, 0.08);
 }
 
 .dorika-task-card span {
-  width: 30px;
-  height: 30px;
+  grid-area: icon;
+  width: 26px;
+  height: 26px;
   display: grid;
   place-items: center;
   border-radius: 999px;
@@ -4466,10 +4483,25 @@ html[data-theme="dark"] .admin-sidebar-note {
   color: var(--text-primary);
 }
 
+.dorika-task-card strong {
+  grid-area: title;
+  font-size: 0.96rem;
+}
+
 .dorika-task-card small,
 .dorika-privacy-option span {
   color: var(--text-secondary);
   line-height: 1.45;
+}
+
+.dorika-task-card small {
+  grid-area: copy;
+  font-size: 0.82rem;
+  line-height: 1.35;
+}
+
+.dorika-scroll-target {
+  scroll-margin-top: 96px;
 }
 
 .dorika-form-block {
