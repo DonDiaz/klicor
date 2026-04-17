@@ -1567,6 +1567,121 @@ El sistema de rutas debe lograr que una persona:
 
 Las rutas deben sentirse como experiencias guiadas de descubrimiento, no como una secuencia técnica de ubicaciones.
 
+### 24.17 Galería Visual De La Ruta
+
+Las rutas en Dorika deben complementar la previsualización animada con una galería visual que refuerce el contexto, el interés y la comprensión del recorrido.
+
+La galería no reemplaza la animación.
+
+La galería la complementa.
+
+#### 24.17.1 Propósito
+
+La galería debe permitir:
+
+- mostrar el ambiente real de la ruta
+- reforzar el atractivo visual
+- dar contexto a los puntos del recorrido
+- aumentar el interés del usuario antes de iniciar
+
+### 24.17.2 Ubicación En La Vista
+
+La galería debe ubicarse debajo del bloque de información de la ruta.
+
+Estructura general:
+
+1. Animación
+2. Información de la ruta
+3. Galería de imágenes
+4. Botones de acción
+
+### 24.17.3 Formato De La Galería
+
+La galería debe usar:
+
+- carrusel horizontal
+- scroll lateral
+- imágenes en formato miniatura
+- visualización parcial de múltiples imágenes
+
+Debe permitir ver varias imágenes a la vez para indicar que hay más contenido disponible.
+
+### 24.17.4 Tipo De Imágenes
+
+La galería puede incluir:
+
+- imágenes de los puntos de la ruta
+- imágenes generales del recorrido
+- imágenes ambientales o contextuales
+
+No es obligatorio que exista una relación estricta uno a uno entre puntos y fotos.
+
+### 24.17.5 Interacción
+
+Al tocar una imagen:
+
+- se abre un visor de imágenes en modo flotante
+- no cambia de pantalla
+- no rompe el contexto de la ruta
+
+### 24.17.6 Visor De Imágenes
+
+El visor debe tener las siguientes características:
+
+- imagen en tamaño grande
+- navegación por swipe horizontal
+- indicador visual de múltiples imágenes
+- botón de cierre en la parte superior derecha
+- posibilidad de cerrar tocando fuera de la imagen
+
+### 24.17.7 Comportamiento Del Visor
+
+El visor debe:
+
+- permitir recorrer todas las imágenes
+- mantener la posición en la galería
+- no reiniciar la animación de la ruta
+- no recargar la vista
+
+Al cerrar el visor, el usuario regresa exactamente al mismo estado de la vista de ruta.
+
+### 24.17.8 Relación Con La Animación
+
+La galería no debe controlar la animación ni depender de ella.
+
+Reglas:
+
+- la animación muestra el recorrido
+- la galería muestra el contexto visual
+- ambas funcionan de forma independiente pero complementaria
+
+### 24.17.9 Reglas De Experiencia
+
+La galería debe cumplir:
+
+- carga rápida
+- navegación fluida
+- claridad visual
+- interacción intuitiva
+
+Evitar:
+
+- sobrecarga de imágenes
+- bloqueos de interacción
+- cambios de contexto innecesarios
+
+### 24.17.10 Objetivo Final
+
+La galería debe lograr que el usuario:
+
+- se imagine la experiencia
+- entienda mejor el recorrido
+- aumente su interés por iniciar la ruta
+
+Dorika no solo muestra dónde ir.
+
+Dorika también debe mostrar cómo se siente estar allí.
+
 ## 25. Sistema De Home Y Secciones
 
 El home de Dorika no debe ser una lista estática de contenido.
