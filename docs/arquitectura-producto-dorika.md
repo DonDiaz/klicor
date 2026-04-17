@@ -2034,6 +2034,10 @@ Reglas:
 - si existe categoría o subcategoría, debe conservarse ese contexto
 - si el producto no puede abrirse directamente, usar fallback hacia la tienda del negocio
 
+Esto debe considerarse requisito técnico para que la vista de producto funcione bien.
+
+No basta con enviar al usuario a la página general del negocio si la intención nació desde un producto concreto.
+
 #### 26.3.6 Navegación
 
 Reglas:
@@ -2244,6 +2248,15 @@ Reglas:
 - actualizar contenido cuando el usuario mueve el mapa
 - actualizar contenido cuando cambia el zoom
 - actualizar contenido cuando cambia la intención
+
+El mapa debe conservar estado de exploración cuando el usuario entra y vuelve desde un detalle.
+
+Estado mínimo a conservar:
+
+- intención activa
+- zona visible
+- nivel de zoom
+- elemento seleccionado, si aplica
 
 La optimización no debe consistir en esconder resultados importantes.
 
@@ -2558,6 +2571,7 @@ Reglas:
 - debe mantener contexto visual
 - debe conservar intención activa cuando sea posible
 - debe conservar zoom y zona visible cuando sea posible
+- debe conservar el punto o negocio seleccionado cuando tenga sentido
 
 #### Desde home
 
@@ -2635,6 +2649,19 @@ El ícono de favorito debe estar en la esquina superior derecha.
 - productos
 - rutas
 
+#### Feedback inmediato
+
+El favorito debe responder de inmediato, incluso si el usuario no tiene cuenta.
+
+Reglas:
+
+- cambiar visualmente el ícono al tocar
+- usar microanimación suave
+- guardar localmente si no hay sesión
+- sincronizar después si el usuario inicia sesión
+
+La acción de guardar no debe bloquear la exploración.
+
 ### 29.8 Comportamiento Visual Del Header
 
 El detalle debe tener un header dinámico:
@@ -2642,6 +2669,15 @@ El detalle debe tener un header dinámico:
 - imagen grande inicial
 - al hacer scroll, se contrae
 - mantiene jerarquía visual
+
+En móvil, esta transición debe sentirse suave.
+
+Reglas:
+
+- evitar saltos bruscos de layout
+- no tapar la acción principal
+- mantener legible el título al contraerse
+- respetar áreas seguras del dispositivo
 
 ### 29.9 Interacción Desde Rutas
 
