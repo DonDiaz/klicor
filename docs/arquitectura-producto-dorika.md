@@ -1077,3 +1077,215 @@ El sistema de usuario debe sentirse:
 Dorika no debe obligar a crear cuenta para ser usado.
 
 Debe permitir descubrir libremente y luego invitar a guardar lo importante.
+
+## 23. Sistema De Cards
+
+Las cards en Dorika no son simples contenedores de información. Son la unidad principal de descubrimiento visual.
+
+Cada tipo de card debe responder a un objetivo distinto y mantener una estructura coherente, clara y diferenciada.
+
+### 23.1 Principio General
+
+El sistema de cards debe seguir esta regla:
+
+**Cada card debe comunicar en menos de 2 segundos qué es, si me interesa y qué puedo hacer con ella.**
+
+Esto implica:
+
+- jerarquía visual clara
+- imagen protagonista
+- texto mínimo necesario
+- acciones simples
+
+Dorika no debe sentirse como un catálogo técnico, sino como un flujo de contenido visual.
+
+### 23.2 Tipos De Cards
+
+Dorika debe manejar tres tipos principales de cards:
+
+- cards de negocio
+- cards de producto
+- cards de rutas
+
+Cada una tiene comportamiento, estructura y propósito diferente.
+
+### 23.3 Card De Negocio
+
+#### Propósito
+
+Resolver una necesidad directa del usuario:
+
+- dónde comer
+- dónde comprar
+- dónde ir
+
+#### Estructura
+
+```text
+[ Imagen del negocio o representativa ]
+
+Nombre del negocio
+Rating opcional
+Tipo de negocio + distancia
+
+[ Ver ] [ Acción principal: Pedir / Reservar / Ir ]
+```
+
+#### Reglas Visuales
+
+- imagen en la parte superior
+- bloque inferior con fondo claro
+- bordes suaves y consistentes
+- espacio suficiente entre elementos
+- no saturar con información
+
+#### Acciones
+
+- botón "Ver", siempre presente
+- botón contextual según tipo:
+  - Pedir
+  - Reservar
+  - Ir
+
+No se deben incluir múltiples acciones innecesarias.
+
+#### Uso
+
+Se utilizan en secciones como:
+
+- Cerca de ti
+- Para comer
+- Recomendados
+- Categorías
+
+### 23.4 Card De Producto
+
+#### Propósito
+
+Generar interés y deseo inmediato.
+
+No busca explicar demasiado, sino llamar la atención.
+
+#### Estructura
+
+```text
+[ Imagen grande del producto ]
+
+Nombre del producto
+Precio
+Negocio + distancia, en tono ligero
+
+Tap directo o acción mínima
+```
+
+#### Reglas Visuales
+
+- la imagen es el elemento dominante
+- no debe existir cajón blanco pesado
+- la información debe ser ligera y directa
+- se puede usar overlay con degradado suave
+- debe sentirse más cercana a un post que a una ficha técnica
+
+#### Acciones
+
+- tap en la card abre detalle
+- opcionalmente, un solo botón pequeño:
+  - Ver
+  - Comprar
+
+No usar múltiples botones ni lógica de carrito compleja en esta vista.
+
+#### Uso
+
+Se utilizan en secciones como:
+
+- Productos que te pueden gustar
+- Destacados
+- Promociones
+- Secciones de impacto visual
+
+### 23.5 Card De Ruta O Turismo
+
+#### Propósito
+
+Inspirar exploración y descubrimiento.
+
+#### Estructura
+
+```text
+[ Imagen de paisaje o experiencia ]
+
+Nombre de la ruta
+Información breve: distancia, número de paradas o tipo
+
+[ Ver ruta ]
+```
+
+#### Reglas Visuales
+
+- imagen amplia y atractiva
+- texto claro y legible
+- puede usar overlay sobre la imagen
+- debe sentirse emocional, no técnica
+
+#### Acciones
+
+- botón principal: Ver ruta
+- tap en la card abre detalle de la ruta
+
+#### Uso
+
+Se utilizan principalmente en:
+
+- primer carrusel del home
+- secciones de turismo
+- exploración
+
+### 23.6 Proporciones Y Layout
+
+Las cards deben diseñarse para scroll horizontal tipo carrusel.
+
+Reglas:
+
+- deben mostrarse 2 cards completas y media card visible
+- esto indica al usuario que puede deslizar horizontalmente
+- el alto de las cards debe ser moderado
+- no deben ocupar toda la pantalla
+- se debe priorizar visibilidad de múltiples elementos sobre tamaño excesivo
+
+### 23.7 Scroll Y Comportamiento
+
+- scroll horizontal para cada sección
+- scroll vertical para cambiar de sección
+- siempre debe verse una card parcial al final del carrusel
+- el movimiento debe ser fluido y natural
+
+### 23.8 Consistencia Visual
+
+El sistema debe mantener coherencia entre cards:
+
+- mismos bordes
+- mismas sombras
+- misma lógica de espaciado
+- consistencia en tipografía
+- uso controlado del color
+
+Evitar variaciones innecesarias que rompan la experiencia.
+
+### 23.9 Reglas De Uso
+
+- no mezclar tipos de card dentro de una misma sección sin intención clara
+- no repetir estructuras visuales sin propósito
+- no saturar con demasiada información
+- no usar más de una acción principal por card
+
+### 23.10 Objetivo Final
+
+El sistema de cards debe permitir:
+
+- entender rápido qué se está viendo
+- generar interés visual inmediato
+- facilitar la interacción
+- mantener una experiencia fluida
+
+Dorika no debe sentirse como una lista de datos, sino como un flujo continuo de descubrimiento visual donde cada card invita a explorar más.
