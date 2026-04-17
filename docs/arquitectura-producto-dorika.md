@@ -1834,3 +1834,215 @@ El sistema de home debe lograr:
 - navegación intuitiva
 
 Dorika no debe sentirse como una lista de opciones, sino como un flujo organizado de descubrimiento donde cada sección invita a explorar más.
+
+## 26. Vista De Detalle De Negocio Y Producto
+
+Las vistas de detalle en Dorika no deben comportarse como páginas tradicionales de ecommerce ni como fichas técnicas.
+
+Deben ser una extensión del descubrimiento, manteniendo claridad, simplicidad y conexión directa con Klicor.
+
+### 26.1 Principio General
+
+Las vistas de detalle deben seguir esta regla:
+
+**Mostrar lo necesario para entender y decidir, y luego dirigir la acción principal fuera de Dorika.**
+
+Dorika no es una plataforma de compra.
+
+Dorika es una plataforma de descubrimiento.
+
+### 26.2 Vista De Detalle De Negocio
+
+#### Propósito
+
+Permitir al usuario:
+
+- entender rápidamente el negocio
+- saber qué ofrece
+- decidir si le interesa
+- dirigirse a su Klicor
+
+#### 26.2.1 Estructura
+
+La vista debe organizarse así:
+
+1. Imagen de portada del negocio
+2. Nombre del negocio
+3. Tipo de negocio y distancia
+4. Estado, abierto o cerrado
+5. Descripción
+6. Dirección
+7. Indicaciones humanas
+8. Productos destacados, si aplica
+9. Botón principal: Ver negocio
+
+#### 26.2.2 Reglas Visuales
+
+Reglas:
+
+- la portada es protagonista
+- diseño limpio y vertical
+- texto claro y corto
+- sin saturación de información
+- jerarquía clara entre título, contexto y acción
+
+#### 26.2.3 Negocios Con Productos
+
+Si el negocio tiene productos:
+
+- mostrar máximo 3 productos destacados
+- usar formato horizontal
+- mostrarlos solo como contexto visual
+
+No convertir esta vista en una tienda.
+
+#### 26.2.4 Negocios Sin Productos
+
+Si el negocio no tiene productos:
+
+- no mostrar bloques vacíos
+- enfocar la vista en ubicación
+- reforzar descripción e indicaciones humanas
+
+El valor del negocio puede estar en su experiencia, servicio o ubicación, no necesariamente en un catálogo.
+
+#### 26.2.5 Botones Y Acciones
+
+Debe existir un botón principal:
+
+**Ver negocio**
+
+Este botón dirige al Klicor.
+
+Acciones opcionales:
+
+- Contactar
+- Ir, abrir ubicación
+
+Estas acciones no deben competir visualmente con el botón principal.
+
+#### 26.2.6 Regla De Adaptación
+
+Regla:
+
+- si tiene productos, mostrar productos destacados
+- si no tiene productos, reforzar experiencia y ubicación
+
+### 26.3 Vista De Detalle De Producto
+
+#### Propósito
+
+Generar interés inmediato y llevar al usuario a la acción dentro de Klicor.
+
+#### 26.3.1 Estructura
+
+La vista debe organizarse así:
+
+1. Carrusel de imágenes del producto
+2. Nombre del producto
+3. Precio
+4. Negocio y distancia
+5. Descripción corta
+6. Botón principal: Ver en tienda
+
+#### 26.3.2 Carrusel De Imágenes
+
+El carrusel debe:
+
+- ocupar la parte superior
+- permitir navegación por swipe
+- mostrar indicador visual, como dots o barra
+- soportar múltiples imágenes del producto
+
+Las imágenes son el elemento más importante del producto y deben ser protagonistas.
+
+#### 26.3.3 Reglas Visuales
+
+Reglas:
+
+- imagen dominante
+- contenido debajo
+- diseño limpio
+- sin sobrecarga de texto
+- navegación fluida
+
+#### 26.3.4 Información
+
+Debe incluir solo lo esencial:
+
+- nombre
+- precio, si aplica
+- negocio
+- distancia
+
+La descripción debe ser breve.
+
+#### 26.3.5 Botones Y Acciones
+
+Botón principal:
+
+**Ver en tienda**
+
+Este botón debe:
+
+- llevar al Klicor
+- abrir el producto directamente
+- mantener contexto de categoría cuando sea posible
+
+Acción opcional:
+
+- Ver negocio
+
+#### 26.3.6 Navegación
+
+Reglas:
+
+- tap en card abre detalle
+- swipe en imágenes cambia foto
+- botón principal redirige a Klicor
+
+La navegación debe ser simple y directa.
+
+### 26.4 Relación Con Klicor
+
+Dorika y Klicor deben mantener roles claros:
+
+- Dorika: descubrimiento
+- Klicor: conversión
+
+Reglas:
+
+- Dorika no gestiona compras
+- Dorika dirige tráfico
+- Klicor gestiona la interacción final
+
+### 26.5 Reglas De UX
+
+Las vistas de detalle deben cumplir:
+
+- claridad inmediata
+- carga rápida
+- navegación simple
+- contenido visual dominante
+- acción principal evidente
+
+Evitar:
+
+- sobrecarga de información
+- múltiples decisiones
+- flujos complejos
+
+Una mala experiencia en esta vista puede romper toda la intención del descubrimiento.
+
+### 26.6 Objetivo Final
+
+El usuario debe:
+
+- entender rápidamente qué está viendo
+- sentirse interesado
+- tener una acción clara
+- moverse sin fricción hacia Klicor
+
+Dorika no debe retener al usuario innecesariamente en estas vistas.
+
+Debe facilitar el paso natural hacia la interacción real con el negocio.
