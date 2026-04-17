@@ -2516,3 +2516,164 @@ El sistema de publicación debe lograr:
 Dorika no debe filtrar quién entra.
 
 Dorika debe ordenar inteligentemente cómo se ve cada negocio.
+
+## 29. Comportamiento De Navegación En Vistas De Detalle
+
+Las vistas de detalle en Dorika no solo deben verse bien.
+
+Deben comportarse de forma coherente, predecible y sin fricción, respetando siempre el contexto desde donde el usuario llegó.
+
+### 29.1 Principio General
+
+El sistema de navegación debe seguir esta regla:
+
+**El usuario siempre debe poder regresar exactamente al contexto desde donde vino.**
+
+Dorika no debe romper el flujo de exploración.
+
+### 29.2 Origen De Entrada
+
+Un negocio puede abrirse desde:
+
+- home
+- mapa
+- rutas, como puntos de ruta
+
+Un producto puede abrirse desde:
+
+- home
+- secciones de productos
+
+### 29.3 Comportamiento Del Botón Atrás
+
+#### Desde mapa
+
+Flujo:
+
+**Mapa → Negocio → Atrás → Mapa**
+
+Reglas:
+
+- debe regresar al mapa
+- debe mantener contexto visual
+- debe conservar intención activa cuando sea posible
+- debe conservar zoom y zona visible cuando sea posible
+
+#### Desde home
+
+Flujo:
+
+**Home → Negocio → Atrás → Home**
+
+Reglas:
+
+- vuelve al home
+- no es obligatorio mantener scroll exacto en la primera fase
+- sí debe mantener la intención activa si existía
+
+### 29.4 Navegación Entre Negocio Y Producto
+
+#### Desde producto hacia negocio
+
+Reglas:
+
+- “Ver negocio” abre detalle del negocio dentro de Dorika
+- no redirige directamente a Klicor
+
+#### Desde negocio hacia productos destacados
+
+Reglas:
+
+- al tocar un producto destacado, abre detalle de producto en Dorika
+- desde ahí se decide ir a Klicor
+
+### 29.5 Acciones Hacia Klicor
+
+Los botones como:
+
+- Ver en tienda
+- Ir al negocio
+- Ver negocio en Klicor
+
+Deben abrir una web externa en navegador.
+
+Reglas:
+
+- no usar webview interno
+- no encerrar Klicor dentro de Dorika
+- mantener roles claros entre descubrimiento y conversión
+
+#### Deep linking
+
+Reglas:
+
+- debe abrir el producto específico
+- no solo la categoría
+- debe preservar contexto cuando sea posible
+
+### 29.6 Manejo De Estado Sin Internet
+
+Si no hay conexión:
+
+- mostrar error claro
+- no simular contenido
+- no mostrar datos incompletos como si fueran válidos
+
+Regla:
+
+**No generar falsa navegación.**
+
+### 29.7 Sistema De Favoritos En Detalle
+
+#### Ubicación
+
+El ícono de favorito debe estar en la esquina superior derecha.
+
+#### Elementos que pueden guardarse
+
+- negocios
+- productos
+- rutas
+
+### 29.8 Comportamiento Visual Del Header
+
+El detalle debe tener un header dinámico:
+
+- imagen grande inicial
+- al hacer scroll, se contrae
+- mantiene jerarquía visual
+
+### 29.9 Interacción Desde Rutas
+
+Si un punto de ruta representa un negocio:
+
+- abre detalle completo del negocio
+- no se queda solo en mini información
+- conserva contexto de la ruta para volver correctamente
+
+### 29.10 Flujo General De Navegación
+
+El flujo completo debe respetar:
+
+- entrada contextual
+- navegación progresiva
+- salida coherente
+
+Ejemplos:
+
+- Home → Producto → Negocio → Klicor
+- Mapa → Negocio → Atrás → Mapa
+- Ruta → Punto → Negocio → Atrás → Ruta
+
+### 29.11 Objetivo Final
+
+El sistema de navegación debe lograr:
+
+- continuidad en la experiencia
+- claridad en las acciones
+- transiciones naturales
+- cero confusión
+
+Dorika no debe sentirse como una app con pantallas separadas.
+
+Dorika debe sentirse como un flujo continuo de exploración.
