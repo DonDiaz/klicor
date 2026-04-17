@@ -1566,3 +1566,242 @@ El sistema de rutas debe lograr que una persona:
 - vea que Dorika ofrece algo más que listados o mapas comunes
 
 Las rutas deben sentirse como experiencias guiadas de descubrimiento, no como una secuencia técnica de ubicaciones.
+
+## 25. Sistema De Home Y Secciones
+
+El home de Dorika no debe ser una lista estática de contenido.
+
+Debe funcionar como un sistema dinámico de descubrimiento visual que organiza negocios, productos y rutas según intención, contexto y relevancia.
+
+### 25.1 Principio General
+
+El home debe seguir esta regla:
+
+**Mostrar primero lo más útil, luego lo más interesante, sin saturar al usuario.**
+
+Esto implica:
+
+- jerarquía clara de secciones
+- contenido organizado por intención
+- carga progresiva
+- descubrimiento visual fluido
+
+Dorika no muestra todo el contenido disponible. Dorika decide qué mostrar primero.
+
+### 25.2 Estructura Base Del Home
+
+El home debe organizarse en este orden:
+
+1. Buscador
+2. Banner dinámico con chips de intención
+3. Secciones horizontales tipo carrusel
+
+### 25.3 Límite De Secciones
+
+Reglas:
+
+- máximo 6 secciones visibles inicialmente
+- al hacer scroll vertical, se cargan más secciones progresivamente
+- no se deben cargar todas las secciones al mismo tiempo
+
+Esto mantiene rendimiento y claridad.
+
+### 25.4 Secciones Fijas
+
+Las siguientes secciones forman parte de la estructura base:
+
+- Rutas
+- Negocios cerca de ti
+- Productos cerca de ti
+
+Estas secciones deben intentar mostrarse siempre.
+
+### 25.5 Condición De Visibilidad De Secciones
+
+Una sección solo debe mostrarse si tiene suficiente contenido.
+
+Ejemplos:
+
+- si no hay suficientes productos, no se muestra “Productos cerca de ti”
+- si no hay suficientes negocios, no se muestra esa sección
+
+Regla:
+
+**No mostrar secciones vacías o débiles.**
+
+### 25.6 Tipos De Secciones
+
+Cada sección debe contener un solo tipo de contenido:
+
+- solo negocios
+- solo productos
+- solo rutas
+
+No se deben mezclar dentro del mismo carrusel.
+
+### 25.7 Scroll Y Layout
+
+El comportamiento base debe ser:
+
+- cada sección usa scroll horizontal
+- el home usa scroll vertical
+
+Reglas:
+
+- deben verse 2 cards completas y media card
+- esto indica que hay más contenido hacia la derecha
+- no usar botón “Ver más”
+- la exploración se hace mediante scroll e intención
+
+### 25.8 Carga De Contenido Por Sección
+
+Reglas:
+
+- cargar inicialmente 5 elementos por sección
+- permitir expansión hasta 10 elementos
+- cargar elementos adicionales de forma progresiva, uno a uno o en pequeños bloques
+
+Esto evita sobrecarga inicial.
+
+### 25.9 Tipos De Secciones Dinámicas
+
+Además de las secciones base, Dorika puede generar secciones dinámicas como:
+
+- Para comer hoy
+- Abiertos ahora
+- Recomendados
+- Populares
+- Destacados
+- Turismo
+
+Estas secciones deben generarse automáticamente según reglas.
+
+### 25.10 Priorización De Contenido
+
+El orden de los elementos dentro de cada sección debe seguir esta prioridad:
+
+1. Calidad del perfil
+2. Cercanía
+3. Estado, abierto o cerrado
+4. Intención del usuario
+5. Destacados automáticos
+
+### 25.11 Calidad Del Perfil
+
+La calidad del perfil se determina por:
+
+- imagen de portada
+- ubicación definida
+- descripción
+- horario
+- logo
+- tipo de negocio
+- indicaciones humanas, como referencias de ubicación
+
+Los negocios con mejor perfil tienen mayor visibilidad.
+
+### 25.12 Destacados Automáticos
+
+Los elementos destacados deben generarse automáticamente a partir de una mezcla de:
+
+- calidad del perfil
+- interacción del usuario, como clics
+- favoritos
+- cercanía
+- novedad, con peso menor
+
+No se deben definir destacados manualmente en esta fase.
+
+### 25.13 Comportamiento Según Intención
+
+El home cambia su orden según la intención seleccionada.
+
+#### Home General
+
+- Rutas
+- Negocios cerca de ti
+- Productos cerca de ti
+- Secciones dinámicas
+
+#### Intención Comer
+
+- Negocios de comida cerca de ti
+- Productos de comida
+- Abiertos ahora, comida
+- Recomendados, comida
+- Rutas gastronómicas, opcional
+
+#### Intención Comprar
+
+- Productos cerca de ti
+- Negocios de compra
+- Recomendados
+- Destacados
+
+#### Intención Turismo
+
+- Rutas
+- Lugares turísticos
+- Experiencias
+- Recomendados
+
+### 25.14 Reglas De Intención
+
+Reglas:
+
+- toda la información debe filtrarse según la intención activa
+- el sistema reorganiza el contenido, no reconstruye completamente el home
+- las rutas solo son primera sección en home general y turismo
+
+### 25.15 Comportamiento Según Hora
+
+El contenido debe adaptarse al contexto:
+
+- priorizar negocios abiertos
+- mostrar información clara de horarios
+- evitar confusión con negocios cerrados
+
+Los negocios cerrados pueden mostrarse, pero con menor prioridad y señalización clara.
+
+### 25.16 Aprendizaje Del Usuario
+
+El home debe adaptarse progresivamente al comportamiento del usuario:
+
+- lo que explora
+- lo que toca
+- lo que guarda
+
+Esto permitirá mejorar recomendaciones en el tiempo.
+
+### 25.17 Publicación Y Visibilidad De Negocios
+
+Los negocios se sincronizan automáticamente desde Klicor.
+
+Reglas:
+
+- no todos los negocios tienen la misma visibilidad
+- la visibilidad depende de la calidad del perfil
+- negocios incompletos aparecen menos
+- negocios completos tienen mayor prioridad
+
+### 25.18 Estado De Preparación Para Dorika
+
+Un negocio puede existir en Klicor pero no estar listo para Dorika.
+
+Reglas:
+
+- si está incompleto, tiene menor visibilidad
+- si está completo, tiene mayor exposición
+
+Esto incentiva al negocio a mejorar su información.
+
+### 25.19 Objetivo Final
+
+El sistema de home debe lograr:
+
+- descubrimiento rápido
+- claridad visual
+- contenido relevante
+- navegación intuitiva
+
+Dorika no debe sentirse como una lista de opciones, sino como un flujo organizado de descubrimiento donde cada sección invita a explorar más.
