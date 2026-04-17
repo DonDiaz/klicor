@@ -2087,3 +2087,203 @@ El usuario debe:
 Dorika no debe retener al usuario innecesariamente en estas vistas.
 
 Debe facilitar el paso natural hacia la interacción real con el negocio.
+
+## 27. Sistema De Mapa Y Exploración Geográfica
+
+El mapa en Dorika no debe funcionar como una herramienta de navegación técnica.
+
+Debe funcionar como un sistema de exploración visual centrado en intención, cercanía y claridad.
+
+### 27.1 Principio General
+
+El mapa debe seguir esta regla:
+
+**Mostrar solo lo relevante según la intención del usuario, de forma clara, visual y sin saturación.**
+
+Dorika no busca replicar un GPS.
+
+Dorika busca facilitar descubrimiento.
+
+### 27.2 Estado Inicial Del Mapa
+
+#### Sin ubicación del usuario
+
+Reglas:
+
+- el mapa se abre centrado en Ocaña
+- se sugiere compartir ubicación para mejorar la experiencia
+
+#### Acceso al mapa
+
+Reglas:
+
+- desde botón general, se muestra selector de intención
+- desde una intención activa, abre directamente filtrado
+
+### 27.3 Zoom Y Área Inicial
+
+Reglas:
+
+- el mapa inicia mostrando un área aproximada entre 1 km y 2 km
+- debe reflejar un rango donde existan aproximadamente 10 a 15 resultados visibles, si hay contenido disponible
+
+### 27.4 Contenido Del Mapa
+
+El mapa siempre debe mostrar contenido filtrado por intención.
+
+Tipos de contenido permitidos:
+
+- negocios
+- rutas
+- lugares turísticos
+
+Restricciones:
+
+- no mostrar productos directamente en el mapa
+- no mostrar contenido fuera de la intención activa
+- no incluir publicidad
+
+### 27.5 Intenciones En El Mapa
+
+#### Comer
+
+Incluye:
+
+- restaurantes
+- cafés
+- negocios de comida
+
+#### Comprar
+
+Incluye:
+
+- tiendas
+- comercios
+
+#### Turismo
+
+Incluye:
+
+- rutas
+- lugares turísticos
+
+En el futuro podrá incluir negocios turísticos.
+
+### 27.6 Sistema De Pins
+
+#### Regla general
+
+Los pins deben mostrar el logo del negocio.
+
+Si no hay logo disponible, usar icono por categoría.
+
+#### Clusters
+
+Los clusters:
+
+- se representan como círculos con número
+- indican cantidad de elementos agrupados
+
+### 27.7 Comportamiento De Clusters
+
+Reglas:
+
+- aparecen en niveles de zoom bajos
+- al tocar, se expanden
+- muestran logos y nombres
+- permiten interacción individual
+
+### 27.8 Interacción Con Puntos
+
+Al tocar un punto del mapa:
+
+- se abre una card flotante
+- no cubre toda la pantalla
+- permite seguir navegando el mapa
+
+### 27.9 Contenido De La Card Flotante De Negocio
+
+Debe incluir:
+
+- imagen
+- nombre
+- tipo
+- distancia
+- estado, abierto o cerrado
+
+### 27.10 Contenido De La Card Flotante De Ruta
+
+Debe incluir:
+
+- imagen de portada
+- nombre
+- duración estimada
+- cantidad de puntos
+- botón: Ver ruta
+
+### 27.11 Navegación Desde El Mapa
+
+Desde la card flotante:
+
+- tap abre detalle completo
+- opción de cerrar con X
+- permite continuar exploración
+
+### 27.12 Carga De Datos
+
+El mapa debe cargar contenido basado en la zona visible.
+
+Reglas:
+
+- cargar todos los elementos dentro del área visible
+- no limitar artificialmente resultados
+- actualizar contenido cuando el usuario mueve el mapa
+- actualizar contenido cuando cambia el zoom
+- actualizar contenido cuando cambia la intención
+
+### 27.13 Comportamiento Dinámico
+
+El mapa responde a:
+
+- movimiento del usuario
+- zoom
+- intención activa
+
+Debe mantenerse fluido y sin recargas bruscas.
+
+### 27.14 Limpieza Visual
+
+El mapa debe ser:
+
+- claro
+- minimalista
+- enfocado
+
+Reglas:
+
+- evitar saturación
+- priorizar legibilidad
+- destacar el contenido sobre el mapa base
+
+### 27.15 Diferenciación Por Cercanía
+
+Internamente, el sistema debe priorizar visualmente:
+
+- elementos cercanos
+- elementos medianos
+- elementos lejanos
+
+Esta diferenciación no debe ser explícita para el usuario, sino parte del comportamiento visual.
+
+### 27.16 Objetivo Final
+
+El mapa debe permitir:
+
+- entender rápidamente qué hay cerca
+- descubrir lugares relevantes
+- interactuar sin fricción
+- navegar de forma intuitiva
+
+Dorika no debe sentirse como un mapa técnico.
+
+Dorika debe sentirse como una herramienta de exploración visual clara, útil y alineada con la intención del usuario.
