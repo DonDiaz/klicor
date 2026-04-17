@@ -1876,6 +1876,14 @@ La vista debe organizarse así:
 8. Productos destacados, si aplica
 9. Botón principal: Ver negocio
 
+Si el negocio está cerrado, la vista debe seguir siendo útil.
+
+Debe mostrar un aviso claro y humano:
+
+**Cerrado ahora. Vuelve a abrir a las [hora].**
+
+Este estado no debe ocultar la información del negocio ni bloquear que el usuario lo conozca.
+
 #### 26.2.2 Reglas Visuales
 
 Reglas:
@@ -1921,6 +1929,13 @@ Acciones opcionales:
 
 Estas acciones no deben competir visualmente con el botón principal.
 
+Reglas de jerarquía:
+
+- Ver negocio es la acción dominante
+- Contactar e Ir son acciones secundarias
+- las acciones secundarias deben verse más livianas
+- no usar tres botones con el mismo peso visual
+
 #### 26.2.6 Regla De Adaptación
 
 Regla:
@@ -1956,6 +1971,15 @@ El carrusel debe:
 
 Las imágenes son el elemento más importante del producto y deben ser protagonistas.
 
+Reglas de rendimiento:
+
+- cargar primero una imagen optimizada y liviana
+- usar carga diferida para imágenes secundarias
+- evitar imágenes pesadas sin compresión
+- mantener la transición fluida incluso con conexión móvil
+
+Si el carrusel tarda demasiado, se pierde el antojo antes de que el producto logre interesar.
+
 #### 26.3.3 Reglas Visuales
 
 Reglas:
@@ -1977,6 +2001,14 @@ Debe incluir solo lo esencial:
 
 La descripción debe ser breve.
 
+Si el producto no tiene precio:
+
+- no mostrar un espacio vacío
+- ocultar el campo de precio
+- reforzar la acción principal “Ver en tienda”
+
+El diseño no debe parecer incompleto cuando el precio no exista.
+
 #### 26.3.5 Botones Y Acciones
 
 Botón principal:
@@ -1992,6 +2024,15 @@ Este botón debe:
 Acción opcional:
 
 - Ver negocio
+
+Para esto, Klicor debe soportar enlaces profundos hacia producto.
+
+Reglas:
+
+- Dorika debe poder enviar al usuario al producto específico
+- el enlace debe abrir el producto correcto en Klicor
+- si existe categoría o subcategoría, debe conservarse ese contexto
+- si el producto no puede abrirse directamente, usar fallback hacia la tienda del negocio
 
 #### 26.3.6 Navegación
 
