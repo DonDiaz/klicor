@@ -2183,6 +2183,8 @@ Los clusters:
 
 - se representan como círculos con número
 - indican cantidad de elementos agrupados
+- deben tener estilo visual propio de Dorika
+- no deben sentirse como clusters genéricos de librería
 
 ### 27.7 Comportamiento De Clusters
 
@@ -2192,6 +2194,7 @@ Reglas:
 - al tocar, se expanden
 - muestran logos y nombres
 - permiten interacción individual
+- pueden usar agregación del lado del servidor cuando haya alta densidad de resultados
 
 ### 27.8 Interacción Con Puntos
 
@@ -2235,11 +2238,18 @@ El mapa debe cargar contenido basado en la zona visible.
 
 Reglas:
 
-- cargar todos los elementos dentro del área visible
-- no limitar artificialmente resultados
+- cargar todos los elementos relevantes dentro del área visible y la intención activa
+- no ocultar artificialmente negocios válidos dentro de esa intención
+- optimizar la representación visual con clusters, agregación o carga progresiva
 - actualizar contenido cuando el usuario mueve el mapa
 - actualizar contenido cuando cambia el zoom
 - actualizar contenido cuando cambia la intención
+
+La optimización no debe consistir en esconder resultados importantes.
+
+Si un negocio pertenece a la intención activa y está dentro del área visible, debe poder aparecer en el mapa.
+
+Cuando exista alta densidad de resultados, el sistema debe agrupar, clusterizar o agregar visualmente sin perder la posibilidad de descubrir negocios individuales.
 
 ### 27.13 Comportamiento Dinámico
 
@@ -2274,6 +2284,10 @@ Internamente, el sistema debe priorizar visualmente:
 - elementos lejanos
 
 Esta diferenciación no debe ser explícita para el usuario, sino parte del comportamiento visual.
+
+La cercanía puede expresarse principalmente mediante tamaño, presencia visual o prioridad de aparición.
+
+Evitar usar demasiados colores para distancia, porque puede competir con las categorías, estados e intención activa.
 
 ### 27.16 Objetivo Final
 
