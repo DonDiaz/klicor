@@ -1289,3 +1289,280 @@ El sistema de cards debe permitir:
 - mantener una experiencia fluida
 
 Dorika no debe sentirse como una lista de datos, sino como un flujo continuo de descubrimiento visual donde cada card invita a explorar más.
+
+## 24. Sistema De Rutas Y Previsualización Animada
+
+Las rutas en Dorika no deben sentirse como registros estáticos ni como mapas técnicos. Deben construirse y mostrarse como experiencias guiadas, visuales y memorables.
+
+La ruta no es solo una colección de puntos. La ruta es una narrativa espacial que debe ayudar al usuario a imaginar el recorrido antes de iniciarlo.
+
+### 24.1 Principio General
+
+El sistema de rutas debe seguir esta regla:
+
+**Antes de empezar una ruta, el usuario debe poder entenderla y desear recorrerla.**
+
+Por eso, cada ruta debe combinar:
+
+- contexto visual
+- secuencia clara de puntos
+- previsualización del recorrido
+- acciones simples para comenzar o revisar
+
+Dorika no debe mostrar rutas como una lista fría de ubicaciones. Debe mostrar rutas como experiencias.
+
+### 24.2 Estructura General De La Vista De Ruta
+
+La vista pública de una ruta debe organizarse así:
+
+- bloque superior con previsualización animada del recorrido
+- bloque inferior con información y acciones
+
+La animación debe ocupar aproximadamente la mitad superior de la pantalla.
+
+Debajo de esa animación deben aparecer:
+
+- nombre de la ruta
+- descripción
+- duración estimada
+- dificultad
+- cantidad de puntos u otra información útil
+- botones de acción
+
+Esto permite equilibrar emoción, comprensión y control.
+
+### 24.3 Animación De Previsualización
+
+Cada ruta debe incluir una animación automática que se reproduce al abrir el detalle de la ruta.
+
+No debe depender de que el usuario descubra un botón para verla.
+
+Objetivos de esta animación:
+
+- generar impacto emocional
+- explicar visualmente el recorrido
+- preparar al usuario antes de iniciar la experiencia
+
+La animación no debe parecer un replay técnico de GPS ni un mapa de navegación frío. Debe sentirse visual, suave y propia de Dorika.
+
+### 24.4 Tipo De Recorrido
+
+Por ahora, la ruta debe representarse con una línea conceptual estilizada entre puntos.
+
+No es necesario en esta fase que siga calles o caminos exactos.
+
+Razones:
+
+- mejor control visual
+- implementación más rápida
+- mejor resultado estético para las primeras rutas
+- suficiente para presentar el concepto y conseguir respaldo institucional
+
+En fases futuras, si el producto lo requiere, podrá evaluarse una evolución hacia recorridos más precisos.
+
+### 24.5 Comportamiento De La Animación
+
+La secuencia ideal debe ser:
+
+1. Vista general del área de la ruta.
+   El mapa aparece limpio, con la zona general visible.
+
+2. Inicio del trazo.
+   La línea comienza a dibujarse desde el primer punto.
+
+3. Avance entre puntos.
+   La línea continúa dibujándose de forma suave, punto a punto.
+
+4. Aparición de mini cards por punto.
+   Cuando la animación llega a cada punto, debe aparecer una mini card breve con:
+
+   - imagen del lugar
+   - nombre del punto
+
+   Ejemplos:
+
+   - Casa Antón García de Bonilla
+   - Columna de los Esclavos
+   - Complejo Histórico La Gran Convención
+
+5. Finalización del recorrido.
+   La ruta completa queda visible en el mapa.
+
+La animación debe sentirse fluida, no interrumpida, y no debe convertirse en un slideshow.
+
+### 24.6 Regla De Las Mini Cards De Puntos
+
+Cuando la animación alcance cada punto, no debe cortar a una pantalla nueva ni reemplazar la experiencia completa del mapa.
+
+Debe mostrarse una mini card flotante rápida, integrada a la animación.
+
+La mini card debe contener:
+
+- imagen representativa del punto
+- nombre del punto
+
+Reglas:
+
+- aparición breve
+- transición suave
+- no bloquear el recorrido
+- desaparecer para permitir continuar la animación
+
+La intención es enriquecer la experiencia, no romperla.
+
+### 24.7 Duración Y Ritmo
+
+La animación debe ser breve y agradable.
+
+Recomendación:
+
+- duración aproximada entre 3 y 6 segundos
+- depende de la cantidad de puntos y del ritmo visual
+
+No debe sentirse lenta ni convertirse en una intro excesiva.
+
+Debe reproducirse automáticamente una sola vez al entrar.
+
+Luego, la vista puede quedar estática con la ruta visible.
+
+### 24.8 Estado Final Después De La Animación
+
+Una vez terminada la animación, la ruta debe quedar visible y estable.
+
+Debajo deben mantenerse disponibles los botones de acción principales:
+
+- Empezar ruta
+- Ver puntos
+- Guardar
+
+Esto permite que el usuario elija si quiere comenzar de inmediato, revisar antes o guardar la experiencia para después.
+
+### 24.9 Diseño Del Mapa En Rutas
+
+El mapa dentro de la vista de ruta debe ser claro, suave y visual.
+
+Reglas:
+
+- mapa limpio
+- fondo discreto
+- la ruta debe ser protagonista
+- color propio Dorika para la línea
+- puntos bien visibles
+- transiciones suaves
+
+No debe sentirse como una herramienta técnica de navegación, sino como una vista guiada de exploración.
+
+### 24.10 Rol Estratégico De Las Primeras Rutas
+
+Las primeras rutas deben verse especialmente bien, ya que cumplirán un rol estratégico para validación y presentación del proyecto.
+
+Estas primeras rutas deben:
+
+- tener buena portada
+- usar imágenes atractivas de cada punto
+- estar bien ordenadas
+- tener narrativa clara
+- reflejar el potencial turístico y cultural de Ocaña
+
+No son solo contenido de prueba. Son parte del argumento de valor del producto.
+
+### 24.11 Constructor De Rutas En El Panel Administrativo
+
+El panel administrativo de Dorika debe permitir crear rutas de forma visual y controlada.
+
+No debe sentirse como un formulario tradicional, sino como un constructor de experiencias.
+
+### 24.12 Flujo Del Constructor De Rutas
+
+La creación de una ruta debe incluir al menos estos pasos:
+
+#### Paso 1: Información Base
+
+- nombre de la ruta
+- descripción corta
+- descripción completa
+- tipo de ruta
+- portada principal
+
+#### Paso 2: Puntos De La Ruta
+
+Cada punto debe permitir definir:
+
+- nombre
+- descripción
+- imagen
+- ubicación
+- orden dentro de la ruta
+
+#### Paso 3: Organización Visual
+
+- reordenar puntos
+- editar puntos
+- eliminar puntos
+- revisar secuencia
+
+#### Paso 4: Vista Previa
+
+- ver cómo se verá la ruta en Dorika
+- ver el trazado conceptual
+- ver la secuencia de mini cards
+
+#### Paso 5: Publicación
+
+- guardar borrador
+- publicar
+- pausar
+
+### 24.13 Generación De La Animación
+
+La animación no debe diseñarse manualmente punto por punto.
+
+Debe generarse automáticamente a partir de:
+
+- orden de puntos
+- coordenadas
+- imágenes asociadas
+- estilo visual definido por Dorika
+
+Esto permite mantener escalabilidad y consistencia.
+
+### 24.14 Nivel De Control En El Panel
+
+Para esta fase, el panel debe permitir controlar solo lo necesario para lograr un resultado visual fuerte sin convertir el sistema en una herramienta compleja de edición.
+
+Debe permitir:
+
+- ordenar puntos
+- cambiar imagen de cada punto
+- editar textos
+- previsualizar el resultado
+
+No debe exigir edición avanzada tipo timeline, keyframes o animación manual.
+
+La idea es:
+
+**El usuario construye la ruta y Dorika genera automáticamente la experiencia visual.**
+
+### 24.15 Uso Exclusivo De La Animación
+
+En esta fase, la animación de recorrido debe existir solo dentro del detalle de la ruta.
+
+No debe reproducirse en cards del home ni como mini preview automática en listados.
+
+Esto ayuda a:
+
+- conservar el impacto
+- evitar sobrecarga visual
+- reducir complejidad y costo
+- hacer que la experiencia de abrir una ruta se sienta especial
+
+### 24.16 Objetivo Final
+
+El sistema de rutas debe lograr que una persona:
+
+- entienda rápidamente el recorrido
+- se imagine haciendo la experiencia
+- sienta interés por empezarla
+- vea que Dorika ofrece algo más que listados o mapas comunes
+
+Las rutas deben sentirse como experiencias guiadas de descubrimiento, no como una secuencia técnica de ubicaciones.
