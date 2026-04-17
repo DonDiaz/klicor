@@ -2326,12 +2326,16 @@ Esto permite:
 Un negocio puede aparecer en Dorika si cumple con el mínimo básico:
 
 - nombre
-- logo
+- logo o imagen principal
 
 Con este nivel:
 
 - puede aparecer en el home o secciones
 - no aparece en el mapa
+
+El logo no debe ser una barrera rígida para negocios pequeños.
+
+Si no hay logo, una imagen principal clara puede cumplir el mínimo visual inicial.
 
 ### 28.3 Requisito Para Aparecer En El Mapa
 
@@ -2352,7 +2356,7 @@ El sistema debe manejar niveles de visibilidad basados en la calidad del perfil.
 
 Incluye:
 
-- solo nombre y logo
+- solo nombre y logo o imagen principal
 - sin información adicional
 
 Comportamiento:
@@ -2407,6 +2411,15 @@ Esto asegura:
 - descubrimiento
 - oportunidad para todos
 
+La rotación no debe romper la relevancia.
+
+Debe dar oportunidades, pero siempre respetando:
+
+- intención activa
+- cercanía razonable
+- calidad mínima visual
+- estado abierto o cerrado cuando aplique
+
 ### 28.6 Regla De Penalización Por Incompletitud
 
 Si un negocio tiene información incompleta:
@@ -2450,6 +2463,12 @@ El orden de visibilidad debe seguir la misma lógica definida en el sistema del 
 4. intención del usuario
 5. interacción, como clics o favoritos
 
+En la primera fase, la interacción debe tener bajo peso.
+
+Esto evita crear un círculo donde solo los negocios populares se vuelven cada vez más visibles.
+
+Cuando Dorika tenga más datos reales, el peso de interacción puede aumentar de forma gradual.
+
 ### 28.10 Publicación Automática
 
 La visibilidad en Dorika debe ser:
@@ -2474,6 +2493,16 @@ El sistema debe incentivar al negocio a mejorar su perfil:
 - mejor información, mayor visibilidad
 - mejor experiencia, más interacción
 - más interacción, más exposición
+
+Klicor debe mostrar tareas concretas para mejorar presencia en Dorika.
+
+Ejemplos:
+
+- agrega una portada para verte mejor
+- agrega ubicación para aparecer en el mapa
+- agrega horario para que sepan cuándo atenderte
+- agrega una descripción corta para explicar qué ofreces
+- agrega indicaciones para que te encuentren más fácil
 
 ### 28.12 Objetivo Final
 
