@@ -8996,15 +8996,16 @@ html[data-theme="dark"] .admin-sidebar-note {
   align-items: center;
   justify-content: center;
   flex: 0 0 auto;
-  min-height: 2.28rem;
+  min-height: 2.05rem;
   border-radius: 8px;
   border: 1px solid var(--commerce-primary-border);
-  background: var(--commerce-surface-soft);
+  background: color-mix(in srgb, var(--commerce-surface) 92%, var(--commerce-primary) 8%);
   color: var(--commerce-muted);
-  padding: 0.48rem 0.78rem;
-  font-size: 0.86rem;
+  padding: 0.38rem 0.66rem;
+  font-size: 0.8rem;
   font-weight: 800;
-  box-shadow: 0 8px 16px var(--commerce-shadow);
+  white-space: nowrap;
+  box-shadow: none;
   scroll-snap-align: start;
   transition: transform 160ms ease, background-color 160ms ease, box-shadow 160ms ease;
 }
@@ -9864,6 +9865,20 @@ html[data-theme="dark"] .admin-sidebar-note {
 
 .commerce-board-dot svg {
   flex: 0 0 auto;
+}
+
+.commerce-board-dot.has-image {
+  overflow: hidden;
+  padding: 0;
+  background: #f8fafc;
+  color: inherit;
+}
+
+.commerce-board-dot.has-image img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
 }
 
 .commerce-board-dot.is-subcategory {

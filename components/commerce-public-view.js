@@ -14,6 +14,7 @@ import {
   X,
 } from "lucide-react";
 import { FONT_FAMILY_STYLE_MAP } from "@/app/fonts";
+import { getBusinessOpenStatus } from "@/lib/business-hours";
 import { apiFetch } from "@/lib/client-api";
 import { resolveCommerceModeMeta } from "@/lib/commerce-config";
 import { buildWhatsappLink } from "@/lib/utils";
@@ -125,6 +126,16 @@ function normalizePublicProductImages(value = [], fallback = {}) {
     imageWidth: Number(fallback.imageWidth || 0) || 0,
     imageHeight: Number(fallback.imageHeight || 0) || 0,
   }];
+}
+
+function normalizeBusinessHoursStatus(value = {}) {
+  return {
+    configured: Boolean(value?.configured),
+    isOpen: value?.isOpen !== false,
+    label: value?.label || "Pedidos disponibles",
+    detail: value?.detail || "",
+    nextOpeningLabel: value?.nextOpeningLabel || "",
+  };
 }
 
 function normalizePublicProducts(value = []) {
@@ -329,17 +340,12 @@ export function CommercePublicView({ bootstrap, preview = false }) {
     photoThumb: safeBootstrap.business?.photoThumb || safeBootstrap.business?.photo || "",
     settings: safeBootstrap.business?.settings || {},
     username: safeBootstrap.business?.username || "",
+    businessHours: safeBootstrap.business?.businessHours || {},
   };
   const safeConfig = {
     currency: safeBootstrap.config?.currency || "COP",
   };
-  const businessHoursStatus = {
-    configured: Boolean(safeBootstrap.businessHoursStatus?.configured),
-    isOpen: safeBootstrap.businessHoursStatus?.isOpen !== false,
-    label: safeBootstrap.businessHoursStatus?.label || "Pedidos disponibles",
-    detail: safeBootstrap.businessHoursStatus?.detail || "",
-    nextOpeningLabel: safeBootstrap.businessHoursStatus?.nextOpeningLabel || "",
-  };
+  const [businessHoursStatus, setBusinessHoursStatus] = useState(() => normalizeBusinessHoursStatus(safeBootstrap.businessHoursStatus));
   const orderingEnabled = Boolean(businessHoursStatus.isOpen);
   const safeMode = safeBootstrap.mode || safeBootstrap.config?.activeMode || "";
   const safeModeMeta = safeBootstrap.modeMeta || resolveCommerceModeMeta(safeMode);
@@ -400,6 +406,7 @@ export function CommercePublicView({ bootstrap, preview = false }) {
   const requestCounterRef = useRef(0);
   const prefetchedKeysRef = useRef(new Set());
   const [isPending, startTransition] = useTransition();
+  const businessHoursKey = useMemo(() => JSON.stringify(safeBusiness.businessHours || {}), [safeBusiness.businessHours]);
 
   const cartTotal = useMemo(
     () => cartItems.reduce((accumulator, item) => accumulator + (Number(item.price || 0) * item.quantity), 0),
@@ -608,6 +615,19 @@ export function CommercePublicView({ bootstrap, preview = false }) {
     const timeoutId = window.setTimeout(schedulePrefetch, 700);
     return () => window.clearTimeout(timeoutId);
   }, [cache, categories, preview, safeBusiness.username, safeMode, selection.categoryId]);
+
+  useEffect(() => {
+    const updateBusinessHoursStatus = () => {
+      setBusinessHoursStatus(normalizeBusinessHoursStatus(getBusinessOpenStatus(safeBusiness.businessHours)));
+    };
+
+    updateBusinessHoursStatus();
+
+    if (preview || !safeBusiness.businessHours?.enabled) return undefined;
+
+    const intervalId = window.setInterval(updateBusinessHoursStatus, 30000);
+    return () => window.clearInterval(intervalId);
+  }, [businessHoursKey, preview]);
 
   useEffect(() => {
     if (!detailProduct) return undefined;
@@ -1014,10 +1034,7 @@ export function CommercePublicView({ bootstrap, preview = false }) {
               aria-label="Cerrar carrito"
               onClick={() => setCartOpen(false)}
             >
-              <span className="commerce-modal-close-icon" aria-hidden="true">
-                <span />
-                <span />
-              </span>
+              <X size={18} aria-hidden="true" />
             </button>
 
             <div className="commerce-cart-sheet-content">

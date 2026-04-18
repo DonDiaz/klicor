@@ -90,6 +90,7 @@ const COMMERCE_MODES_BY_BUSINESS_CATEGORY = {
   food_drink: ["mimenu", "micatalogo"],
   retail_sales: ["mitienda", "micatalogo"],
 };
+const COMMERCE_PRODUCT_MAX_IMAGES = 4;
 
 function getCommerceModeOptionsForCategory(category = "") {
   const allowedModes = COMMERCE_MODES_BY_BUSINESS_CATEGORY[String(category || "").trim()];
@@ -588,6 +589,12 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
     const result = await runAction("create_subcategory", { categoryId, name });
     if (result) {
       setSubcategoryDrafts((current) => ({ ...current, [categoryId]: "" }));
+      setMobileView("section");
+      setSectionMode("products");
+      openProductEditor(
+        categories.find((category) => category.id === categoryId) || selectedCategory || { id: categoryId, name: "Categoría seleccionada" },
+        { id: result.subcategoryId, name },
+      );
     }
   }
 
@@ -640,9 +647,23 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
   }
 
   function addProductEditorImages(fileList = []) {
-    const nextEntries = createPendingImageEntries(Array.from(fileList || []));
+    const files = Array.from(fileList || []).filter(Boolean);
+    if (!files.length) return;
+
+    const currentImagesCount = (Array.isArray(productEditor?.images) ? productEditor.images : []).length
+      + (Array.isArray(productEditor?.pendingImages) ? productEditor.pendingImages : []).length;
+    const availableSlots = Math.max(0, COMMERCE_PRODUCT_MAX_IMAGES - currentImagesCount);
+    if (!availableSlots) {
+      setProductEditorError(`Puedes subir máximo ${COMMERCE_PRODUCT_MAX_IMAGES} fotos por producto.`);
+      return;
+    }
+
+    const acceptedFiles = files.slice(0, availableSlots);
+    const nextEntries = createPendingImageEntries(acceptedFiles);
     if (!nextEntries.length) return;
-    setProductEditorError("");
+    setProductEditorError(files.length > acceptedFiles.length
+      ? `Solo agregamos ${acceptedFiles.length} foto${acceptedFiles.length === 1 ? "" : "s"}. El máximo es ${COMMERCE_PRODUCT_MAX_IMAGES}.`
+      : "");
     setProductEditor((current) => {
       if (!current) {
         revokePendingImageEntries(nextEntries);
@@ -760,8 +781,12 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
                   ) : (
                     <>
                       <button className="commerce-board-row-main" type="button" onClick={() => selectCategory(category)} aria-pressed={selected}>
-                        <span className="commerce-board-dot">
-                          <CommerceCategoryIcon iconKey={category.iconKey} size={17} />
+                        <span className={`commerce-board-dot ${category.imageThumbUrl || category.imageUrl ? "has-image" : ""}`.trim()}>
+                          {category.imageThumbUrl || category.imageUrl ? (
+                            <img src={category.imageThumbUrl || category.imageUrl} alt="" loading="lazy" decoding="async" />
+                          ) : (
+                            <CommerceCategoryIcon iconKey={category.iconKey} size={17} />
+                          )}
                         </span>
                         <span>
                           <strong>{category.name}</strong>
@@ -1002,6 +1027,7 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
     const pendingImages = Array.isArray(productEditor.pendingImages) ? productEditor.pendingImages : [];
     const totalImages = existingImages.length + pendingImages.length;
     const priceIsRequired = requiresCommercePrice(productEditor.mode || configForm.activeMode);
+    const remainingImages = Math.max(0, COMMERCE_PRODUCT_MAX_IMAGES - totalImages);
 
     return (
       <div className="commerce-modal-backdrop" role="dialog" aria-modal="true" aria-label="Editor de producto">
@@ -1033,13 +1059,18 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
                 type="file"
                 accept="image/png,image/jpeg,image/webp"
                 multiple
+                disabled={totalImages >= COMMERCE_PRODUCT_MAX_IMAGES}
                 onChange={(event) => {
                   addProductEditorImages(event.target.files || []);
                   event.target.value = "";
                 }}
               />
               <span>{pendingImages.length ? `${pendingImages.length} fotos nuevas listas para guardar` : "Agregar fotos del producto"}</span>
-              <small>Puedes subir varias fotos para tienda, menú o catálogo.</small>
+              <small>
+                {remainingImages
+                  ? `Puedes agregar hasta ${remainingImages} foto${remainingImages === 1 ? "" : "s"} más.`
+                  : `Ya tienes el máximo de ${COMMERCE_PRODUCT_MAX_IMAGES} fotos.`}
+              </small>
             </label>
             {existingImages.length ? (
               <div className="commerce-board-image-group">
@@ -1076,6 +1107,7 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
               </div>
             ) : null}
             {!totalImages ? <small className="commerce-board-note">Agrega al menos una foto para guardar el producto.</small> : null}
+            {totalImages > COMMERCE_PRODUCT_MAX_IMAGES ? <small className="commerce-board-note">El producto solo puede tener hasta {COMMERCE_PRODUCT_MAX_IMAGES} fotos.</small> : null}
             {productEditor.id ? <small className="commerce-board-note">Puedes agregar fotos nuevas o eliminar las que ya no quieras mostrar.</small> : null}
             {productEditorError ? (
               <div className="notice notice-danger commerce-editor-error">
@@ -1096,11 +1128,17 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
             <button className="btn btn-primary" type="button" onClick={async () => {
               const validationMessage = !String(productEditor.name || "").trim()
                 ? "Agrega el nombre del producto."
-                : priceIsRequired && !String(productEditor.price ?? "").trim()
-                  ? "Agrega el precio del producto."
+                : String(productEditor.name || "").trim().length < 2
+                  ? "El nombre debe tener al menos 2 caracteres."
+                  : priceIsRequired && (!String(productEditor.price ?? "").trim() || !Number.isFinite(Number(productEditor.price)) || Number(productEditor.price) <= 0)
+                    ? "Agrega un precio válido mayor a cero."
+                    : String(productEditor.price ?? "").trim() && (!Number.isFinite(Number(productEditor.price)) || Number(productEditor.price) < 0)
+                      ? "El precio debe ser un número válido."
                   : !totalImages
                     ? "Agrega al menos una foto del producto."
-                    : "";
+                    : totalImages > COMMERCE_PRODUCT_MAX_IMAGES
+                      ? `Deja máximo ${COMMERCE_PRODUCT_MAX_IMAGES} fotos en este producto.`
+                      : "";
 
               if (validationMessage) {
                 setProductEditorError(validationMessage);
