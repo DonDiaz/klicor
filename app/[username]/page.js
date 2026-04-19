@@ -1,6 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 import { buildPublicProfileDescription, getPublicProfileByUsername } from "@/lib/public-profiles";
 import { buildVanityProfileUrl } from "@/lib/public-profile-links";
+import { buildCommercePublicUrl, normalizeCommerceMode } from "@/lib/commerce-config";
 import { LandingView } from "@/components/landing-view";
 
 const SHARE_IMAGE_VERSION = "v3";
@@ -47,15 +48,24 @@ export async function generateMetadata({ params }) {
   };
 }
 
-export default async function PublicPage({ params }) {
+export default async function PublicPage({ params, searchParams }) {
   const { username } = await params;
+  const query = await searchParams;
   const data = await getPublicProfileByUsername(username);
   if (!data) {
     notFound();
   }
 
+  const canonicalUsername = data.usernameLower || username.toLowerCase();
+  const productId = String(query?.producto || query?.product || query?.productId || "").trim();
+  const activeCommerceMode = normalizeCommerceMode(data.commerce?.activeMode);
+
+  if (productId && activeCommerceMode) {
+    redirect(`${buildCommercePublicUrl(canonicalUsername, activeCommerceMode)}?producto=${encodeURIComponent(productId)}`);
+  }
+
   if (data.usernameLower && data.usernameLower !== username.toLowerCase()) {
-    redirect(`/${data.usernameLower}`);
+    redirect(`/${canonicalUsername}`);
   }
 
   if (["suspended", "cancelled"].includes(data.status)) {

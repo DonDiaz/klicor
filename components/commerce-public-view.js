@@ -402,9 +402,11 @@ export function CommercePublicView({ bootstrap, preview = false }) {
   });
   const [detailProduct, setDetailProduct] = useState(null);
   const [detailImageIndex, setDetailImageIndex] = useState(0);
+  const [deepLinkProductId, setDeepLinkProductId] = useState("");
   const [pendingSelection, setPendingSelection] = useState(null);
   const requestCounterRef = useRef(0);
   const prefetchedKeysRef = useRef(new Set());
+  const deepLinkHandledRef = useRef("");
   const [isPending, startTransition] = useTransition();
   const businessHoursKey = useMemo(() => JSON.stringify(safeBusiness.businessHours || {}), [safeBusiness.businessHours]);
 
@@ -466,6 +468,51 @@ export function CommercePublicView({ bootstrap, preview = false }) {
     : {
       backgroundImage: `linear-gradient(135deg, ${appearance.primaryColor}, ${appearance.secondaryColor})`,
     };
+
+  function findLoadedProduct(productId) {
+    const cleanProductId = String(productId || "").trim();
+    if (!cleanProductId) return null;
+
+    const currentProduct = normalizePublicProducts(products).find((product) => product.id === cleanProductId);
+    if (currentProduct) {
+      return { product: currentProduct, section: null };
+    }
+
+    const cachedSection = Object.values(cache).find((section) => (
+      normalizePublicProducts(section?.products).some((product) => product.id === cleanProductId)
+    ));
+    if (!cachedSection) return null;
+
+    return {
+      product: normalizePublicProducts(cachedSection.products).find((product) => product.id === cleanProductId),
+      section: cachedSection,
+    };
+  }
+
+  function openDeepLinkedProduct(product, section = null) {
+    if (!product) return;
+
+    const nextSelection = {
+      categoryId: String(product.categoryId || section?.selection?.categoryId || selection.categoryId || ""),
+      subcategoryId: String(product.subcategoryId ?? section?.selection?.subcategoryId ?? ""),
+    };
+    const cacheKey = `${nextSelection.categoryId}:${nextSelection.subcategoryId}`;
+    const cachedSection = cache[cacheKey] || section;
+
+    if (cachedSection) {
+      setSelection(cachedSection.selection || nextSelection);
+      setSubcategories(cachedSection.subcategories || subcategories);
+      setProducts(cachedSection.products || products);
+      setPagination({
+        hasMore: Boolean(cachedSection.hasMore),
+        nextCursor: cachedSection.nextCursor ?? null,
+      });
+    } else {
+      setSelection(nextSelection);
+    }
+
+    openProductDetail(product);
+  }
 
   function applyChunk(nextSelection, nextChunk, append = false) {
     const resolvedSelection = {
@@ -591,6 +638,58 @@ export function CommercePublicView({ bootstrap, preview = false }) {
       prefetchedKeysRef.current.delete(cacheKey);
     }
   }
+
+  useEffect(() => {
+    if (preview || typeof window === "undefined") return;
+
+    const params = new URLSearchParams(window.location.search);
+    setDeepLinkProductId(String(params.get("producto") || params.get("product") || params.get("productId") || "").trim());
+  }, [preview]);
+
+  useEffect(() => {
+    if (preview || !deepLinkProductId || !safeMode || !safeBusiness.username) return undefined;
+    if (deepLinkHandledRef.current === deepLinkProductId) return undefined;
+
+    const loadedMatch = findLoadedProduct(deepLinkProductId);
+    if (loadedMatch?.product) {
+      deepLinkHandledRef.current = deepLinkProductId;
+      openDeepLinkedProduct(loadedMatch.product, loadedMatch.section);
+      return undefined;
+    }
+
+    let cancelled = false;
+    deepLinkHandledRef.current = deepLinkProductId;
+
+    startTransition(async () => {
+      try {
+        const params = new URLSearchParams({
+          mode: safeMode,
+          producto: deepLinkProductId,
+        });
+        const response = await apiFetch(`/api/public/commerce/${safeBusiness.username}?${params.toString()}`);
+        if (cancelled) return;
+
+        const data = response?.data || {};
+        const nextSelection = {
+          categoryId: String(data.categoryId || data.product?.categoryId || ""),
+          subcategoryId: String(data.subcategoryId ?? data.product?.subcategoryId ?? ""),
+        };
+        applyChunk(nextSelection, data, false);
+
+        const targetProduct = normalizePublicProducts([data.product]).find(Boolean)
+          || normalizePublicProducts(data.products).find((product) => product.id === deepLinkProductId);
+        if (targetProduct) {
+          openProductDetail(targetProduct);
+        }
+      } catch {
+        deepLinkHandledRef.current = "";
+      }
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [deepLinkProductId, preview, safeBusiness.username, safeMode]);
 
   useEffect(() => {
     if (preview || !safeMode || !safeBusiness.username || categories.length < 2) return undefined;
