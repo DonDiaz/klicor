@@ -228,10 +228,19 @@ img { max-width: 100%; display: block; }
 }
 
 .kpi {
+  min-width: 0;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   padding: 16px;
+}
+
+.kpi strong,
+.kpi p,
+.kpi .muted {
+  min-width: 0;
+  overflow-wrap: break-word;
+  word-break: normal;
 }
 
 .pill {
@@ -2556,6 +2565,7 @@ main.cloud-home-root .cloud-final-card {
 }
 
 .dashboard-section {
+  min-width: 0;
   padding: 1.5rem;
   display: grid;
   gap: 1rem;
@@ -4553,6 +4563,10 @@ html[data-theme="dark"] .admin-sidebar-note {
   align-items: center;
 }
 
+.dorika-location-capture > div {
+  min-width: 0;
+}
+
 .dorika-location-actions {
   display: flex;
   flex-wrap: wrap;
@@ -4569,6 +4583,8 @@ html[data-theme="dark"] .admin-sidebar-note {
 .dorika-category-note small {
   color: var(--text-secondary);
   line-height: 1.45;
+  overflow-wrap: break-word;
+  word-break: normal;
 }
 
 .dorika-location-status {
@@ -4999,6 +5015,7 @@ html[data-theme="dark"] .admin-sidebar-note {
 }
 
 .appearance-control {
+  min-width: 0;
   padding: 1rem;
   border-radius: 12px;
   border: 1px solid var(--border);
@@ -5074,6 +5091,7 @@ html[data-theme="dark"] .admin-sidebar-note {
 }
 
 .segmented-control {
+  min-width: 0;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.35rem;
@@ -5126,6 +5144,7 @@ html[data-theme="dark"] .admin-sidebar-note {
 }
 
 .segmented-button {
+  min-width: 0;
   border: 0;
   background: transparent;
   border-radius: 10px;
@@ -5133,6 +5152,10 @@ html[data-theme="dark"] .admin-sidebar-note {
   cursor: pointer;
   color: var(--text-secondary);
   font-weight: 600;
+  line-height: 1.25;
+  white-space: normal;
+  overflow-wrap: break-word;
+  word-break: normal;
 }
 
 .segmented-button.is-active {
@@ -5172,6 +5195,71 @@ html[data-theme="dark"] .admin-sidebar-note {
   .theme-save-actions {
     grid-template-columns: minmax(0, 1fr) auto;
     align-items: center;
+  }
+}
+
+@media (max-width: 1180px) {
+  .dashboard-shell {
+    overflow-x: hidden;
+  }
+
+  .dashboard-body {
+    overflow-x: hidden;
+  }
+
+  .editor-layout,
+  .editor-layout.is-nav-collapsed {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "topbar"
+      "editor"
+      "preview";
+    height: auto;
+    min-height: 0;
+    overflow: visible;
+    padding-left: 4.85rem;
+  }
+
+  .editor-layout.is-commerce-workspace,
+  .editor-layout.is-booking-workspace,
+  .editor-layout.is-reservations-workspace {
+    grid-template-areas:
+      "topbar"
+      "editor";
+  }
+
+  .appearance-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .appearance-grid-colors > :last-child:nth-child(odd) {
+    grid-column: auto;
+  }
+
+  .dorika-task-grid,
+  .dorika-privacy-grid,
+  .grid-3 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .dorika-location-capture {
+    grid-template-columns: 1fr;
+  }
+
+  .dorika-location-actions {
+    justify-content: stretch;
+  }
+
+  .dorika-location-actions .btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 980px) {
+  .dorika-task-grid,
+  .dorika-privacy-grid,
+  .grid-3 {
+    grid-template-columns: 1fr;
   }
 }
 
