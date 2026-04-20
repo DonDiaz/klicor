@@ -5207,27 +5207,6 @@ html[data-theme="dark"] .admin-sidebar-note {
     overflow-x: hidden;
   }
 
-  .editor-layout,
-  .editor-layout.is-nav-collapsed {
-    grid-template-columns: 1fr;
-    grid-template-areas:
-      "topbar"
-      "editor"
-      "preview";
-    height: auto;
-    min-height: 0;
-    overflow: visible;
-    padding-left: 4.85rem;
-  }
-
-  .editor-layout.is-commerce-workspace,
-  .editor-layout.is-booking-workspace,
-  .editor-layout.is-reservations-workspace {
-    grid-template-areas:
-      "topbar"
-      "editor";
-  }
-
   .appearance-grid {
     grid-template-columns: 1fr;
   }
@@ -9950,7 +9929,8 @@ html[data-theme="dark"] .admin-sidebar-note {
 .commerce-board-product-copy strong {
   display: block;
   min-width: 0;
-  overflow-wrap: anywhere;
+  word-break: normal;
+  overflow-wrap: break-word;
 }
 
 .commerce-board-row-main small,
@@ -10428,6 +10408,16 @@ html[data-theme="dark"] .admin-sidebar-note {
   .commerce-board-row-actions button {
     min-width: 2rem;
     height: 2rem;
+  }
+
+  .commerce-board-products-panel .commerce-board-product-row {
+    grid-template-columns: 56px minmax(0, 1fr);
+    align-items: center;
+  }
+
+  .commerce-board-products-panel .commerce-board-product-actions {
+    grid-column: 1 / -1;
+    justify-content: flex-end;
   }
 }
 
