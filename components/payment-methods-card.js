@@ -50,15 +50,17 @@ function PaymentMethodRow({
           >
             <Copy size={15} />
           </button>
-          <button
-            className="payment-method-icon-button is-qr"
-            type="button"
-            onClick={() => onOpenQr(method.qrImageUrl)}
-            disabled={preview || !hasQr}
-            aria-label={hasQr ? "Ver QR oficial" : "QR no disponible"}
-          >
-            <QrCode size={15} />
-          </button>
+          {hasQr ? (
+            <button
+              className="payment-method-icon-button is-qr"
+              type="button"
+              onClick={() => onOpenQr(method.qrImageUrl)}
+              disabled={preview}
+              aria-label="Ver QR oficial"
+            >
+              <QrCode size={15} />
+            </button>
+          ) : null}
         </div>
       </div>
 
