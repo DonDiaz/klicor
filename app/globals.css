@@ -10283,8 +10283,24 @@ html[data-theme="dark"] .admin-sidebar-note {
     padding: 0.75rem;
   }
 
+  .commerce-board-header {
+    grid-template-columns: minmax(0, 1fr);
+    align-items: start;
+  }
+
+  .commerce-board-title {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .commerce-board-title span,
+  .commerce-board-title h2 {
+    overflow-wrap: normal;
+    word-break: normal;
+  }
+
   .commerce-board-toolbar {
-    grid-template-columns: minmax(8.6rem, 1fr) minmax(9.5rem, 1fr) auto auto auto;
+    grid-template-columns: minmax(11rem, 1fr) minmax(13rem, 1fr) repeat(3, minmax(7.2rem, auto));
+    width: 100%;
   }
 
   .commerce-board-panel-head {

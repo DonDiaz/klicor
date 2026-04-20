@@ -960,7 +960,6 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
         <div className="commerce-board-product-summary">
           <span>{countLabel(visibleProducts, "visible", "visibles")}</span>
           <span>{countLabel(hiddenProducts, "oculto", "ocultos")}</span>
-          <span>{sectionLabel}</span>
         </div>
 
         {targetSubcategory ? (
