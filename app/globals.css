@@ -3331,6 +3331,8 @@ html[data-theme="dark"] .admin-sidebar-note {
   height: 100dvh;
   min-height: 0;
   overflow: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
   transition: width 0.2s ease, padding 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -3353,6 +3355,15 @@ html[data-theme="dark"] .admin-sidebar-note {
   align-content: start;
   min-height: 0;
   overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.editor-sidebar::-webkit-scrollbar,
+.editor-sidebar-nav::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
 }
 
 .editor-sidebar-footer {
