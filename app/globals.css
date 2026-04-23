@@ -9134,8 +9134,9 @@ html[data-theme="dark"] .admin-sidebar-note {
   display: -webkit-box;
   overflow: hidden;
   color: inherit;
-  font-size: 0.77rem;
-  line-height: 1.08;
+  font-size: 0.72rem;
+  line-height: 1.06;
+  overflow-wrap: anywhere;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
 }
