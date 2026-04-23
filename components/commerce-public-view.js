@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import {
@@ -17,7 +17,7 @@ import { getBusinessOpenStatus } from "@/lib/business-hours";
 import { apiFetch } from "@/lib/client-api";
 import { resolveCommerceModeMeta } from "@/lib/commerce-config";
 import { buildWhatsappLink } from "@/lib/utils";
-import { normalizeAppearance } from "@/lib/theme-system";
+import { hexToRgba, normalizeAppearance } from "@/lib/theme-system";
 
 function formatCurrency(value, currency = "COP") {
   if (value === null || value === undefined || value === "") return "";
@@ -67,13 +67,13 @@ function buildOrderMessage({ items, total, note, customer, payment, currency }) 
   lines.push("");
   lines.push("Datos del cliente:");
   lines.push(`Nombre: ${cleanCustomer.name}`);
-  lines.push(`Teléfono: ${cleanCustomer.phone}`);
-  lines.push(`Dirección: ${cleanCustomer.address}`);
+  lines.push(`Tel?fono: ${cleanCustomer.phone}`);
+  lines.push(`Direcci?n: ${cleanCustomer.address}`);
   lines.push("");
   lines.push("Forma de pago:");
 
   if (cleanPayment.method === "transfer") {
-    lines.push("Transferencia. Por favor envíame el link de Klicor con los medios de pago.");
+    lines.push("Transferencia. Por favor env?ame el link de Klicor con los medios de pago.");
   } else {
     lines.push("Efectivo");
     lines.push(`Pago con: ${formatCashAmount(cleanPayment.cashAmount, currency)}`);
@@ -161,7 +161,7 @@ function normalizePublicSubcategories(value = []) {
       .map((subcategory, index) => ({
         ...subcategory,
         id: String(subcategory.id || `subcategory-${index}`),
-        name: String(subcategory.name || "Subcategoría"),
+        name: String(subcategory.name || "Subcategor?a"),
         iconKey: String(subcategory.iconKey || "tag"),
         productCount: Number(subcategory.productCount || 0) || 0,
         visibleProductCount: Number(subcategory.visibleProductCount ?? subcategory.productCount ?? 0) || 0,
@@ -177,7 +177,7 @@ function normalizePublicCategories(value = []) {
       .map((category, index) => ({
         ...category,
         id: String(category.id || `category-${index}`),
-        name: String(category.name || "Categoría"),
+        name: String(category.name || "Categor?a"),
         iconKey: String(category.iconKey || "tag"),
         imageUrl: String(category.imageUrl || category.previewImage?.imageUrl || ""),
         imageThumbUrl: String(category.imageThumbUrl || category.previewImage?.imageThumbUrl || category.previewImage?.imageUrl || category.imageUrl || ""),
@@ -287,7 +287,7 @@ function ProductsGrid({
         {!safeProducts.length ? (
           <div className="commerce-empty-state commerce-products-empty">
             <strong>{emptyLabel}</strong>
-            <p>Publica productos desde tu dashboard para verlos aquí.</p>
+            <p>Publica productos desde tu dashboard para verlos aqu?.</p>
           </div>
         ) : null}
       </div>
@@ -300,7 +300,7 @@ function ProductsGrid({
           disabled={preview || isPending}
         >
           {isPending ? <LoaderCircle size={16} className="spin" /> : <ChevronRight size={16} />}
-          Cargar más
+          Cargar m?s
         </button>
       ) : null}
     </div>
@@ -820,7 +820,7 @@ export function CommercePublicView({ bootstrap, preview = false }) {
 
   function handleDetailWhatsapp(product) {
     if (preview || !safeBootstrap.orderWhatsapp || !orderingEnabled || !product) return;
-    const message = `Hola, vi este producto en su catálogo y quiero más información sobre: ${product.name}`;
+    const message = `Hola, vi este producto en su cat?logo y quiero m?s informaci?n sobre: ${product.name}`;
     window.open(buildWhatsappLink(safeBootstrap.orderWhatsapp, message), "_blank", "noopener,noreferrer");
   }
 
@@ -870,8 +870,8 @@ export function CommercePublicView({ bootstrap, preview = false }) {
               </div>
             ) : null}
 
-            <nav className="commerce-navigation-panel" aria-label="Navegación de productos">
-              <div className="commerce-category-rail" aria-label="Categorías">
+            <nav className="commerce-navigation-panel" aria-label="Navegaci?n de productos">
+              <div className="commerce-category-rail" aria-label="Categor?as">
                 {categories.map((category) => {
                   const isActive = selection.categoryId === category.id;
                   const categoryImage = category.imageThumbUrl || category.imageUrl;
@@ -897,7 +897,7 @@ export function CommercePublicView({ bootstrap, preview = false }) {
               </div>
 
               {selection.categoryId && subcategories.length ? (
-                <div className="commerce-subcategory-rail" aria-label="Subcategorías">
+                <div className="commerce-subcategory-rail" aria-label="Subcategor?as">
                   {subcategories.map((subcategory) => {
                     const isActive = selection.subcategoryId === subcategory.id;
                     return (
@@ -933,8 +933,8 @@ export function CommercePublicView({ bootstrap, preview = false }) {
               />
             ) : (
               <div className="commerce-empty-state commerce-subcategory-empty">
-                <strong>Selecciona una subcategoría</strong>
-                <p>Elige una opción para ver sus productos.</p>
+                <strong>Selecciona una subcategor?a</strong>
+                <p>Elige una opci?n para ver sus productos.</p>
               </div>
             )}
           </section>
@@ -1020,7 +1020,7 @@ export function CommercePublicView({ bootstrap, preview = false }) {
               </div>
 
               {detailImages.length > 1 ? (
-                <div className="commerce-product-detail-thumbs" aria-label="Galería del producto">
+                <div className="commerce-product-detail-thumbs" aria-label="Galer?a del producto">
                   {detailImages.map((image, index) => (
                     <button
                       key={image.id}
@@ -1043,7 +1043,7 @@ export function CommercePublicView({ bootstrap, preview = false }) {
               {detailProduct.description ? (
                 <p>{detailProduct.description}</p>
               ) : (
-                <p>Escríbenos por WhatsApp para conocer más detalles de este producto.</p>
+                <p>Escr?benos por WhatsApp para conocer m?s detalles de este producto.</p>
               )}
             </div>
 
@@ -1145,7 +1145,7 @@ export function CommercePublicView({ bootstrap, preview = false }) {
                 </div>
               ) : (
                 <div className="commerce-empty-state commerce-cart-empty">
-                  <strong>Tu pedido está vacío</strong>
+                  <strong>Tu pedido est? vac?o</strong>
                   <p>Agrega productos para ver el total y enviarlo por WhatsApp.</p>
                 </div>
               )}
@@ -1175,7 +1175,7 @@ export function CommercePublicView({ bootstrap, preview = false }) {
                 />
                 <input
                   className="input"
-                  placeholder="Teléfono"
+                  placeholder="Tel?fono"
                   inputMode="tel"
                   autoComplete="tel"
                   value={customer.phone}
@@ -1183,7 +1183,7 @@ export function CommercePublicView({ bootstrap, preview = false }) {
                 />
                 <input
                   className="input"
-                  placeholder="Dirección de entrega"
+                  placeholder="Direcci?n de entrega"
                   autoComplete="street-address"
                   value={customer.address}
                   onChange={(event) => setCustomer((current) => ({ ...current, address: event.target.value }))}
@@ -1193,7 +1193,7 @@ export function CommercePublicView({ bootstrap, preview = false }) {
               <section className="commerce-cart-payment" aria-label="Forma de pago">
                 <div className="commerce-cart-section-title">
                   <strong>Forma de pago</strong>
-                  <span>Así el negocio puede preparar cambio o enviarte su link Klicor.</span>
+                  <span>As? el negocio puede preparar cambio o enviarte su link Klicor.</span>
                 </div>
                 <div className="commerce-cart-payment-options">
                   <button
@@ -1215,7 +1215,7 @@ export function CommercePublicView({ bootstrap, preview = false }) {
                 {payment.method === "cash" ? (
                   <input
                     className="input"
-                    placeholder="¿Con cuánto vas a pagar?"
+                    placeholder="?Con cu?nto vas a pagar?"
                     inputMode="numeric"
                     autoComplete="off"
                     value={payment.cashAmount}
@@ -1223,7 +1223,7 @@ export function CommercePublicView({ bootstrap, preview = false }) {
                   />
                 ) : (
                   <p className="commerce-transfer-note">
-                    El negocio te responderá con su link Klicor para que elijas el medio de pago.
+                    El negocio te responder? con su link Klicor para que elijas el medio de pago.
                   </p>
                 )}
               </section>
@@ -1242,7 +1242,7 @@ export function CommercePublicView({ bootstrap, preview = false }) {
 
             <div className="commerce-cart-sheet-footer">
               {!orderingEnabled ? (
-                <span className="commerce-cart-submit-hint">El negocio está cerrado. Podrás enviar el pedido cuando vuelva a abrir.</span>
+                <span className="commerce-cart-submit-hint">El negocio est? cerrado. Podr?s enviar el pedido cuando vuelva a abrir.</span>
               ) : cartItems.length && !canSendOrder ? (
                 <span className="commerce-cart-submit-hint">Completa datos de entrega y pago para enviar el pedido.</span>
               ) : null}
@@ -1261,3 +1261,4 @@ export function CommercePublicView({ bootstrap, preview = false }) {
     </main>
   );
 }
+
