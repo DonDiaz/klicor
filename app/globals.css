@@ -9284,19 +9284,23 @@ html[data-theme="dark"] .admin-sidebar-note {
 }
 
 .commerce-visual-product-card .commerce-product-add-button {
-  min-height: 2.9rem;
-  min-width: 2.9rem;
-  width: 2.9rem;
+  min-height: 2.55rem;
+  min-width: 2.55rem;
+  width: 2.55rem;
   border-radius: 8px;
   padding: 0;
   font-size: 0;
   transition: transform 160ms ease, box-shadow 160ms ease;
   align-self: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .commerce-visual-product-card .commerce-product-add-button svg {
-  width: 18px;
-  height: 18px;
+  width: 17px;
+  height: 17px;
+  flex: 0 0 auto;
 }
 
 .commerce-visual-product-card.supports-cart .commerce-product-add-button {
