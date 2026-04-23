@@ -9234,11 +9234,12 @@ html[data-theme="dark"] .admin-sidebar-note {
 
 .commerce-visual-product-card .commerce-product-copy {
   display: grid;
-  gap: 0.22rem;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: 0.18rem;
   padding: 0;
-  align-content: start;
+  align-content: stretch;
   min-width: 0;
-  min-height: 84px;
+  height: 84px;
 }
 
 .commerce-visual-product-card .commerce-product-copy strong {
@@ -9259,16 +9260,17 @@ html[data-theme="dark"] .admin-sidebar-note {
   font-size: 0.82rem;
   line-height: 1.24;
   display: -webkit-box;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  align-self: start;
 }
 
 .commerce-visual-product-card .commerce-product-footer {
-  margin-top: auto;
   display: flex;
   align-items: center;
   min-height: 1.35rem;
+  align-self: end;
 }
 
 .commerce-visual-product-card .commerce-product-copy span {
@@ -9295,15 +9297,18 @@ html[data-theme="dark"] .admin-sidebar-note {
   line-height: 0;
   transition: transform 160ms ease, box-shadow 160ms ease;
   align-self: end;
-  display: grid;
-  place-items: center;
+  position: relative;
+  display: block;
   gap: 0;
 }
 
 .commerce-visual-product-card .commerce-product-add-button svg {
   width: 15px;
   height: 15px;
-  flex: 0 0 auto;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   display: block;
 }
 
