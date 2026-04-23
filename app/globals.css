@@ -8983,11 +8983,11 @@ html[data-theme="dark"] .admin-sidebar-note {
   align-items: center;
   justify-content: flex-start;
   gap: 0.75rem;
-  border-radius: 1.35rem;
-  padding: 1rem;
-  background: color-mix(in srgb, var(--commerce-surface) 94%, white);
-  border: 1px solid color-mix(in srgb, var(--commerce-primary) 12%, white);
-  box-shadow: 0 16px 34px rgba(11, 16, 32, 0.08);
+  border-radius: 0;
+  padding: 0.15rem 0 0.55rem;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
 }
 
 .commerce-header.commerce-public-summary .commerce-hero-brand {

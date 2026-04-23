@@ -858,20 +858,8 @@ export function CommercePublicView({ bootstrap, preview = false }) {
 
         <div className={`commerce-shop-layout ${safeBootstrap.supportsCart ? "has-cart" : "has-no-cart"}`.trim()}>
           <section className="commerce-menu-board">
-            {!orderingEnabled ? (
-              <div className="commerce-closed-notice" role="status">
-                <strong>{businessHoursStatus.label}</strong>
-                <span>{businessHoursStatus.nextOpeningLabel || businessHoursStatus.detail}</span>
-              </div>
-            ) : businessHoursStatus.configured ? (
-              <div className="commerce-open-notice" role="status">
-                <strong>{businessHoursStatus.label}</strong>
-                <span>{businessHoursStatus.detail}</span>
-              </div>
-            ) : null}
-
-            <nav className="commerce-navigation-panel" aria-label="Navegaci?n de productos">
-              <div className="commerce-category-rail" aria-label="Categor?as">
+            <nav className="commerce-navigation-panel" aria-label="Navegación de productos">
+              <div className="commerce-category-rail" aria-label="Categorías">
                 {categories.map((category) => {
                   const isActive = selection.categoryId === category.id;
                   const categoryImage = category.imageThumbUrl || category.imageUrl;
