@@ -161,7 +161,7 @@ function normalizePublicSubcategories(value = []) {
       .map((subcategory, index) => ({
         ...subcategory,
         id: String(subcategory.id || `subcategory-${index}`),
-        name: String(subcategory.name || "Subcategor?a"),
+        name: String(subcategory.name || "Subcategoría"),
         iconKey: String(subcategory.iconKey || "tag"),
         productCount: Number(subcategory.productCount || 0) || 0,
         visibleProductCount: Number(subcategory.visibleProductCount ?? subcategory.productCount ?? 0) || 0,
@@ -177,7 +177,7 @@ function normalizePublicCategories(value = []) {
       .map((category, index) => ({
         ...category,
         id: String(category.id || `category-${index}`),
-        name: String(category.name || "Categor?a"),
+        name: String(category.name || "Categoría"),
         iconKey: String(category.iconKey || "tag"),
         imageUrl: String(category.imageUrl || category.previewImage?.imageUrl || ""),
         imageThumbUrl: String(category.imageThumbUrl || category.previewImage?.imageThumbUrl || category.previewImage?.imageUrl || category.imageUrl || ""),
@@ -885,7 +885,7 @@ export function CommercePublicView({ bootstrap, preview = false }) {
               </div>
 
               {selection.categoryId && subcategories.length ? (
-                <div className="commerce-subcategory-rail" aria-label="Subcategor?as">
+                <div className="commerce-subcategory-rail" aria-label="Subcategorías">
                   {subcategories.map((subcategory) => {
                     const isActive = selection.subcategoryId === subcategory.id;
                     return (
@@ -921,8 +921,8 @@ export function CommercePublicView({ bootstrap, preview = false }) {
               />
             ) : (
               <div className="commerce-empty-state commerce-subcategory-empty">
-                <strong>Selecciona una subcategor?a</strong>
-                <p>Elige una opci?n para ver sus productos.</p>
+                <strong>Selecciona una subcategoría</strong>
+                <p>Elige una opción para ver sus productos.</p>
               </div>
             )}
           </section>
