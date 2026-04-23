@@ -1002,6 +1002,12 @@ export function CommercePublicView({ bootstrap, preview = false }) {
                   <span>{detailProduct.name?.slice(0, 1) || "P"}</span>
                 )}
 
+                {detailImages.length ? (
+                  <span className="commerce-product-detail-counter">
+                    {detailImageIndex + 1}/{detailImages.length}
+                  </span>
+                ) : null}
+
                 {detailImages.length > 1 ? (
                   <>
                     <button
@@ -1054,6 +1060,7 @@ export function CommercePublicView({ bootstrap, preview = false }) {
 
             {safeBootstrap.supportsCart ? (
               <div className="commerce-product-detail-actions">
+                <div className="commerce-product-detail-quantity-label">Cantidad</div>
                 <div className="commerce-quantity-stepper" aria-label={`Cantidad de ${detailProduct.name}`}>
                   <button type="button" onClick={() => handleProductQuantityStep(detailProduct.id, -1)} disabled={preview || !orderingEnabled || getProductQuantity(detailProduct.id) <= 1} aria-label="Reducir cantidad">
                     <Minus size={16} />
@@ -1072,7 +1079,11 @@ export function CommercePublicView({ bootstrap, preview = false }) {
                   }}
                   disabled={preview || !orderingEnabled}
                 >
-                  <ShoppingCart size={18} /> {orderingEnabled ? "Agregar al pedido" : "Cerrado ahora"}
+                  <ShoppingCart size={18} />
+                  <span>{orderingEnabled ? "Agregar al pedido" : "Cerrado ahora"}</span>
+                  {detailProduct.price !== null && detailProduct.price !== undefined ? (
+                    <strong>{formatCurrency(Number(detailProduct.price || 0) * getProductQuantity(detailProduct.id), safeConfig.currency)}</strong>
+                  ) : null}
                 </button>
               </div>
             ) : (
