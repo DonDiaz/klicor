@@ -967,9 +967,18 @@ export function CommercePublicView({ bootstrap, preview = false }) {
 
       {safeBootstrap.supportsCart ? (
         <button className="commerce-order-bar" type="button" onClick={() => setCartOpen(true)} disabled={preview || !orderingEnabled}>
-          <ShoppingCart size={20} />
-          <span>{orderingEnabled ? `Ver pedido (${cartCount}) - ${formatCurrency(cartTotal, safeConfig.currency)}` : "Cerrado ahora"}</span>
-          <ChevronRight size={20} />
+          <span className="commerce-order-bar-icon" aria-hidden="true">
+            <ShoppingCart size={20} />
+            {orderingEnabled && cartCount ? <em>{cartCount}</em> : null}
+          </span>
+          <span className="commerce-order-bar-copy">
+            <strong>{orderingEnabled ? "Ver pedido" : "Cerrado ahora"}</strong>
+            <small>{orderingEnabled ? `${cartCount} ${cartCount === 1 ? "producto" : "productos"}` : "Pedidos desactivados"}</small>
+          </span>
+          <span className="commerce-order-bar-total">
+            {orderingEnabled ? formatCurrency(cartTotal, safeConfig.currency) : "—"}
+          </span>
+          <ChevronRight size={20} aria-hidden="true" />
         </button>
       ) : null}
 
