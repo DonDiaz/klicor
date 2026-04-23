@@ -9200,6 +9200,7 @@ html[data-theme="dark"] .admin-sidebar-note {
   background: var(--commerce-surface-strong);
   box-shadow: 0 12px 28px var(--commerce-shadow);
   transition: transform 180ms ease, box-shadow 180ms ease;
+  align-items: end;
 }
 
 .commerce-category-chip:active,
@@ -9237,6 +9238,7 @@ html[data-theme="dark"] .admin-sidebar-note {
   padding: 0;
   align-content: start;
   min-width: 0;
+  min-height: 84px;
 }
 
 .commerce-visual-product-card .commerce-product-copy strong {
@@ -9284,27 +9286,29 @@ html[data-theme="dark"] .admin-sidebar-note {
 }
 
 .commerce-visual-product-card .commerce-product-add-button {
-  min-height: 2.55rem;
-  min-width: 2.55rem;
-  width: 2.55rem;
+  min-height: 2.15rem;
+  min-width: 2.15rem;
+  width: 2.15rem;
   border-radius: 8px;
   padding: 0;
   font-size: 0;
+  line-height: 0;
   transition: transform 160ms ease, box-shadow 160ms ease;
-  align-self: center;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  align-self: end;
+  display: grid;
+  place-items: center;
+  gap: 0;
 }
 
 .commerce-visual-product-card .commerce-product-add-button svg {
-  width: 17px;
-  height: 17px;
+  width: 15px;
+  height: 15px;
   flex: 0 0 auto;
+  display: block;
 }
 
 .commerce-visual-product-card.supports-cart .commerce-product-add-button {
-  align-self: center;
+  align-self: end;
 }
 
 .commerce-visual-product-card.is-catalog-card {
