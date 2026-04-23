@@ -8,7 +8,6 @@ import {
   MessageCircle,
   Minus,
   Plus,
-  Share2,
   ShoppingCart,
   Trash2,
   X,
@@ -18,7 +17,7 @@ import { getBusinessOpenStatus } from "@/lib/business-hours";
 import { apiFetch } from "@/lib/client-api";
 import { resolveCommerceModeMeta } from "@/lib/commerce-config";
 import { buildWhatsappLink } from "@/lib/utils";
-import { hexToRgba, normalizeAppearance } from "@/lib/theme-system";
+import { normalizeAppearance } from "@/lib/theme-system";
 
 function formatCurrency(value, currency = "COP") {
   if (value === null || value === undefined || value === "") return "";
@@ -436,8 +435,6 @@ export function CommercePublicView({ bootstrap, preview = false }) {
   const isSectionLoading = Boolean(pendingSelection);
   const detailImages = normalizePublicProductImages(detailProduct?.images, detailProduct || {});
   const activeDetailImage = detailImages[detailImageIndex] || detailImages[0] || null;
-  const coverImage = safeBusiness.photo || safeBusiness.photoThumb || "";
-
   const pageBackground = appearance.backgroundColor;
 
   const rootStyle = {
@@ -461,14 +458,6 @@ export function CommercePublicView({ bootstrap, preview = false }) {
     "--commerce-shadow": hexToRgba(appearance.textPrimaryColor, 0.08),
     "--commerce-button-text": appearance.buttonPrimaryTextColor,
   };
-  const headerStyle = coverImage
-    ? {
-      backgroundImage: `linear-gradient(180deg, ${hexToRgba(appearance.textPrimaryColor, 0.08)}, ${hexToRgba(appearance.textPrimaryColor, 0.72)}), url("${coverImage}")`,
-    }
-    : {
-      backgroundImage: `linear-gradient(135deg, ${appearance.primaryColor}, ${appearance.secondaryColor})`,
-    };
-
   function findLoadedProduct(productId) {
     const cleanProductId = String(productId || "").trim();
     if (!cleanProductId) return null;
@@ -835,25 +824,6 @@ export function CommercePublicView({ bootstrap, preview = false }) {
     window.open(buildWhatsappLink(safeBootstrap.orderWhatsapp, message), "_blank", "noopener,noreferrer");
   }
 
-  async function handleShare() {
-    if (preview || typeof window === "undefined") return;
-    const payload = {
-      title: safeBusiness.businessName,
-      text: `Mira ${safeBusiness.businessName} en Klicor.`,
-      url: window.location.href,
-    };
-
-    try {
-      if (navigator.share) {
-        await navigator.share(payload);
-        return;
-      }
-      await navigator.clipboard?.writeText(window.location.href);
-    } catch {
-      // El usuario puede cancelar el diálogo nativo de compartir.
-    }
-  }
-
   function handleCheckout() {
     if (preview || !orderingEnabled || !canSendOrder) return;
     const message = buildOrderMessage({
@@ -870,15 +840,7 @@ export function CommercePublicView({ bootstrap, preview = false }) {
   return (
     <main className={`commerce-page ${preview ? "is-preview" : ""}`} style={rootStyle}>
       <section className="commerce-shell">
-        <header className="commerce-header commerce-visual-hero" style={headerStyle}>
-          <div className="commerce-hero-actions">
-            {!preview ? (
-              <button className="commerce-hero-action" type="button" onClick={handleShare} aria-label="Compartir">
-                <Share2 size={18} />
-              </button>
-            ) : null}
-          </div>
-
+        <header className="commerce-header commerce-public-summary">
           <div className="commerce-hero-brand">
             {safeBusiness.photo ? (
               <img className="commerce-avatar" src={safeBusiness.photoThumb || safeBusiness.photo} alt={safeBusiness.businessName} />

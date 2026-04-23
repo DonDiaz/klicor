@@ -8978,6 +8978,56 @@ html[data-theme="dark"] .admin-sidebar-note {
   backdrop-filter: blur(14px);
 }
 
+.commerce-header.commerce-public-summary {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.75rem;
+  border-radius: 1.35rem;
+  padding: 1rem;
+  background: color-mix(in srgb, var(--commerce-surface) 94%, white);
+  border: 1px solid color-mix(in srgb, var(--commerce-primary) 12%, white);
+  box-shadow: 0 16px 34px rgba(11, 16, 32, 0.08);
+}
+
+.commerce-header.commerce-public-summary .commerce-hero-brand {
+  width: 100%;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.8rem;
+}
+
+.commerce-header.commerce-public-summary .commerce-avatar,
+.commerce-header.commerce-public-summary .commerce-avatar-fallback {
+  width: 3.2rem;
+  height: 3.2rem;
+  border: 1px solid color-mix(in srgb, var(--commerce-primary) 14%, white);
+  background: color-mix(in srgb, var(--commerce-surface) 94%, white);
+  box-shadow: 0 10px 24px rgba(11, 16, 32, 0.1);
+}
+
+.commerce-header.commerce-public-summary .commerce-hero-brand h1 {
+  color: var(--commerce-text);
+  font-size: clamp(1.15rem, 5vw, 1.55rem);
+  text-shadow: none;
+}
+
+.commerce-header.commerce-public-summary .commerce-hero-brand-copy {
+  gap: 0.42rem;
+}
+
+.commerce-header.commerce-public-summary .commerce-hours-pill {
+  min-height: 1.8rem;
+  padding: 0.24rem 0.65rem;
+  background: color-mix(in srgb, var(--commerce-primary) 10%, white);
+  color: color-mix(in srgb, var(--commerce-primary) 72%, black 18%);
+  box-shadow: none;
+}
+
+.commerce-header.commerce-public-summary .commerce-hours-pill.is-closed {
+  background: rgba(239, 68, 68, 0.1);
+  color: #991b1b;
+}
+
 .commerce-shop-layout,
 .commerce-menu-board,
 .commerce-navigation-panel,
