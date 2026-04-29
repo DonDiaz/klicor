@@ -368,9 +368,7 @@ export function DashboardOnboarding({ token, profile, onCompleted, onSkip }) {
   function addPaymentMethod() {
     setWizard((current) => ({
       ...current,
-      paymentMethods: current.paymentMethods.length >= 2
-        ? current.paymentMethods
-        : [...current.paymentMethods, createEmptyPaymentMethod(current.paymentMethods.length)],
+      paymentMethods: [...current.paymentMethods, createEmptyPaymentMethod(current.paymentMethods.length)],
     }));
   }
 
@@ -781,10 +779,10 @@ export function DashboardOnboarding({ token, profile, onCompleted, onSkip }) {
               })}
 
               <div className="payment-method-toolbar">
-                <button className="btn btn-secondary" type="button" onClick={addPaymentMethod} disabled={wizard.paymentMethods.length >= 2}>
+                <button className="btn btn-secondary" type="button" onClick={addPaymentMethod}>
                   <Plus size={16} /> Agregar método de pago
                 </button>
-                <p className="muted">Puedes guardar hasta 2 métodos. Si dejas este paso vacío, no se mostrará en tu link.</p>
+                <p className="muted">Puedes guardar varios métodos. Si dejas este paso vacío, no se mostrará en tu link.</p>
               </div>
             </div>
           ) : null}

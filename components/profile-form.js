@@ -49,7 +49,6 @@ import {
   getRecommendedWorkspaceIdsForBusinessCategory,
   getVisibleWorkspaceIdsForBusinessCategory,
   isSocialLinkType,
-  LINK_PRIORITY_LIMITS,
   normalizeBusinessCategory,
 } from "@/lib/business-categories";
 import {
@@ -71,8 +70,9 @@ import { resolveContactCardData } from "@/lib/contact-card";
 import { DorikaMapPicker } from "@/components/dorika-map-picker";
 import { calculateDorikaProfileProgress, DORIKA_LOCATION_PRIVACY_OPTIONS, normalizeDorikaProfile } from "@/lib/dorika-profile";
 import { isDorikaEligibleBusiness } from "@/lib/dorika-eligibility";
-import { canAddLinkType, getLinkTypeCount, getLinkTypeLimit, LINK_CATALOG, LINK_CATALOG_MAP } from "@/lib/link-catalog";
+import { getLinkTypeCount, LINK_CATALOG, LINK_CATALOG_MAP } from "@/lib/link-catalog";
 import { normalizePaymentMethods } from "@/lib/payment-methods";
+import { mergeSystemProfileLinks } from "@/lib/system-profile-links";
 import { generateThemeFromLogoFile, mergeGeneratedTheme } from "@/lib/logo-theme";
 import { FONT_FAMILY_STYLE_MAP } from "@/app/fonts";
 import {
@@ -130,7 +130,7 @@ function normalizeLinks(profile) {
   const category = normalizeBusinessCategory(profile?.businessCategory);
 
   if (Array.isArray(profile?.profileLinks) && profile.profileLinks.length) {
-    return applyDefaultLinkPriorityTiers(profile.profileLinks
+    return applyDefaultLinkPriorityTiers(mergeSystemProfileLinks(profile.profileLinks
       .filter((item) => item?.type !== "payment_key")
       .map((item) => ({
       id: item.id,
@@ -139,12 +139,12 @@ function normalizeLinks(profile) {
       value: item.value,
       message: item.message || "",
       priorityTier: item.priorityTier,
-    })), category);
+    })), profile), category);
   }
 
   const legacy = profile?.links || {};
   return applyDefaultLinkPriorityTiers(
-    Object.entries(legacy)
+    mergeSystemProfileLinks(Object.entries(legacy)
       .filter(([type]) => type !== "payment_key")
       .filter(([, value]) => value)
       .map(([type, value], index) => ({
@@ -153,7 +153,7 @@ function normalizeLinks(profile) {
         label: LINK_CATALOG_MAP[type]?.label || "Enlace",
         value,
         message: type === "whatsapp" ? "Hola, quiero información" : "",
-      })),
+      })), profile),
     category,
   );
 }
@@ -641,9 +641,7 @@ export function ProfileForm({
     });
   }, [customThemes]);
   const availableLinkTypes = useMemo(() => LINK_CATALOG.filter((item) => item.type !== "payment_key"), []);
-  const selectedTypeLimit = selectedType ? getLinkTypeLimit(selectedType) : 0;
   const selectedTypeCount = selectedType ? getLinkTypeCount(profileLinks, selectedType) : 0;
-  const selectedTypeAvailable = selectedType ? canAddLinkType(profileLinks, selectedType) : false;
   const selectedLinkMeta = selectedType ? LINK_CATALOG_MAP[selectedType] : null;
   const whatsappLinks = useMemo(() => profileLinks.filter((item) => item.type === "whatsapp" && item.value?.trim()), [profileLinks]);
   const emailLink = useMemo(() => profileLinks.find((item) => item.type === "email" && item.value?.trim()), [profileLinks]);
@@ -947,15 +945,6 @@ export function ProfileForm({
       return;
     }
 
-    if (!selectedTypeAvailable) {
-      setAlertMessage(
-        selectedType === "whatsapp"
-          ? "Solo puedes agregar hasta 2 enlaces de WhatsApp."
-          : `Solo puedes agregar 1 enlace de ${meta.label}.`,
-      );
-      return;
-    }
-
     const cleanValue = selectedLinkValue.trim();
     if (!cleanValue) {
       setAlertMessage("Escribe el enlace o dato de contacto antes de agregar el botón.");
@@ -995,17 +984,10 @@ export function ProfileForm({
 
   function updateLinkPriority(id, nextTier) {
     const tier = Number(nextTier);
-    const maxAllowed = LINK_PRIORITY_LIMITS[tier] || Number.POSITIVE_INFINITY;
 
     setProfileLinks((current) => {
       const currentItem = current.find((item) => item.id === id);
       if (!currentItem || !canConfigureActionPriority(currentItem.type)) return current;
-
-      const tierCount = current.filter((item) => item.id !== id && canConfigureActionPriority(item.type) && Number(item.priorityTier || 3) === tier).length;
-      if (tierCount >= maxAllowed) {
-        setAlertMessage(tier === 1 ? "Solo puedes tener 1 botón en prioridad 1." : "Solo puedes tener hasta 2 botones en prioridad 2.");
-        return current;
-      }
 
       return current.map((item) => (item.id === id ? { ...item, priorityTier: tier } : item));
     });
@@ -1013,11 +995,6 @@ export function ProfileForm({
 
   function addPaymentMethod() {
     setPaymentMethods((current) => {
-      if (current.length >= 2) {
-        setAlertMessage("Solo puedes configurar hasta 2 métodos de pago.");
-        return current;
-      }
-
       return [
         ...current,
         {
@@ -2332,7 +2309,6 @@ export function ProfileForm({
               {availableLinkTypes.map((item) => (
                 <option key={item.type} value={item.type}>
                   {item.label}
-                  {getLinkTypeCount(profileLinks, item.type) >= getLinkTypeLimit(item.type) ? " - limite alcanzado" : ""}
                 </option>
               ))}
             </select>
@@ -2343,10 +2319,10 @@ export function ProfileForm({
                 onChange={(e) => setSelectedLinkValue(e.target.value)}
                 placeholder={selectedLinkMeta.placeholder}
                 aria-label={`Dato para ${selectedLinkMeta.label}`}
-                disabled={!canEdit || !selectedTypeAvailable}
+                disabled={!canEdit}
               />
             ) : null}
-            <button className="btn btn-secondary" type="button" onClick={addLink} disabled={!canEdit || !selectedTypeAvailable}>
+            <button className="btn btn-secondary" type="button" onClick={addLink} disabled={!canEdit || !selectedType}>
               <Plus size={16} /> Agregar enlace
             </button>
           </div>
@@ -2354,9 +2330,7 @@ export function ProfileForm({
           <p className="muted">
             {!selectedType
               ? "Elige qué botón quieres sumar a tu página. Luego escribe el enlace o dato y agrégalo."
-              : selectedType === "whatsapp"
-              ? `WhatsApp permite hasta ${selectedTypeLimit} enlaces. Ya tienes ${selectedTypeCount}.`
-              : `${selectedLinkMeta?.label || "Esta red"} permite solo ${selectedTypeLimit} enlace. Ya tienes ${selectedTypeCount}.`}
+              : `${selectedLinkMeta?.label || "Este botón"}: ya tienes ${selectedTypeCount}. Puedes agregar más si necesitas.`}
           </p>
 
           <div className="section-divider" />
@@ -2364,9 +2338,9 @@ export function ProfileForm({
           <div className="dashboard-section-head">
             <div>
               <h3 className="section-title" style={{ fontSize: "1.05rem" }}>Información de pago</h3>
-              <p className="section-copy">Configura hasta 2 métodos para cobrar. Puedes usar cuenta bancaria, billetera o llave Bre-B.</p>
+              <p className="section-copy">Configura los métodos que necesites para cobrar. Puedes usar cuenta bancaria, billetera o llave Bre-B.</p>
             </div>
-            <span className="status-badge">{paymentMethods.length}/2 métodos</span>
+            <span className="status-badge">{paymentMethods.length} métodos</span>
           </div>
 
           <div className="section-stack">
@@ -2468,10 +2442,10 @@ export function ProfileForm({
             </div>
 
             <div className="payment-method-toolbar">
-              <button className="btn btn-secondary" type="button" onClick={addPaymentMethod} disabled={!canEdit || paymentMethods.length >= 2}>
+              <button className="btn btn-secondary" type="button" onClick={addPaymentMethod} disabled={!canEdit}>
                 <Plus size={16} /> Agregar método de pago
               </button>
-              <p className="muted">Puedes configurar hasta 2 métodos visibles en tu página.</p>
+              <p className="muted">Puedes configurar varios métodos visibles en tu página.</p>
             </div>
 
           </div>
@@ -2518,7 +2492,7 @@ export function ProfileForm({
                             </option>
                           ))}
                         </select>
-                        <p className="muted">Prioridad 1 admite 1 botón y prioridad 2 admite hasta 2.</p>
+                        <p className="muted">La prioridad ordena tus botones: 1 sale primero, 2 después y 3 queda como apoyo.</p>
                       </div>
                     </div>
                   ) : null}
