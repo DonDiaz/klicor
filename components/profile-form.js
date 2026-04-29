@@ -666,6 +666,7 @@ export function ProfileForm({
   const dorikaCategoryLabel = BUSINESS_CATEGORY_OPTIONS.find((option) => option.value === form.businessCategory)?.label || "Tipo de negocio";
   const dorikaBusinessTypeOptions = useMemo(() => getBusinessTypeOptionsForCategory(form.businessCategory), [form.businessCategory]);
   const dorikaHasExactCoordinates = Number.isFinite(dorikaProfile.latitude) && Number.isFinite(dorikaProfile.longitude);
+  const showDorikaFeaturedProductsNote = ["food_drink", "retail_sales"].includes(form.businessCategory);
 
   useEffect(() => {
     setDorikaCoverLoadError(false);
@@ -2279,13 +2280,15 @@ export function ProfileForm({
                   </div>
                 </div>
 
-                <div className="dorika-form-block dorika-featured-note">
-                  <MapPin size={18} />
-                  <div>
-                    <strong>Productos destacados para Dorika</strong>
-                    <p className="section-copy">En Mi tienda, Mi menú o Mi catálogo podrás marcar con estrella los productos que quieres mostrar primero en Dorika.</p>
+                {showDorikaFeaturedProductsNote ? (
+                  <div className="dorika-form-block dorika-featured-note">
+                    <MapPin size={18} />
+                    <div>
+                      <strong>Productos destacados para Dorika</strong>
+                      <p className="section-copy">En Mi tienda, Mi menú o Mi catálogo podrás marcar con estrella los productos que quieres mostrar primero en Dorika.</p>
+                    </div>
                   </div>
-                </div>
+                ) : null}
               </div>
             </section>
           ) : null}
