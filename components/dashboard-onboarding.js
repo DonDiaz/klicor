@@ -5,10 +5,15 @@ import dynamic from "next/dynamic";
 import {
   ArrowLeft,
   ArrowRight,
+  BriefcaseBusiness,
   CheckCircle2,
+  HeartPulse,
   ImagePlus,
+  MapPin,
   Plus,
+  ShoppingBag,
   Trash2,
+  Utensils,
   UploadCloud,
 } from "lucide-react";
 import { apiFetch } from "@/lib/client-api";
@@ -45,6 +50,39 @@ const DashboardPreview = dynamic(
     ),
   },
 );
+
+const CATEGORY_OPTIONS = [
+  {
+    value: "food_drink",
+    label: "Comida y bebidas",
+    copy: "Pedidos, menu y ubicacion en un solo lugar.",
+    icon: Utensils,
+  },
+  {
+    value: "retail_sales",
+    label: "Tiendas y ventas",
+    copy: "Catalogo, compra y contacto para vender por redes.",
+    icon: ShoppingBag,
+  },
+  {
+    value: "services",
+    label: "Servicios",
+    copy: "Cotizaciones, agenda y atencion desde una sola pagina.",
+    icon: BriefcaseBusiness,
+  },
+  {
+    value: "health_wellness",
+    label: "Salud y bienestar",
+    copy: "Reservas, servicios y contacto para atender rapido.",
+    icon: HeartPulse,
+  },
+  {
+    value: "tourism_experiences",
+    label: "Turismo y experiencias",
+    copy: "Planes, reservas y ubicacion para compartir facil.",
+    icon: MapPin,
+  },
+];
 
 function hasPaymentMethodInput(method = {}) {
   return Boolean(method.entityId || method.accountType || method.accountNumber || method.brebKey || method.qrFile || method.qrImageUrl);
@@ -106,12 +144,26 @@ export function DashboardOnboarding({ token, profile, onCompleted, onSkip }) {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [usernameCheck, setUsernameCheck] = useState({ value: "", status: "idle", message: "" });
+  const [usernameEdited, setUsernameEdited] = useState(false);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    const previousTheme = root.dataset.theme;
+    root.dataset.theme = "light";
+
+    return () => {
+      if (previousTheme === "dark" || previousTheme === "light") {
+        root.dataset.theme = previousTheme;
+      }
+    };
+  }, []);
 
   useEffect(() => {
     setWizard(buildOnboardingInitialState(profile));
     setStepIndex(0);
     setError("");
     setUsernameCheck({ value: "", status: "idle", message: "" });
+    setUsernameEdited(false);
   }, [profile]);
 
   const currentStep = ONBOARDING_STEPS[stepIndex];
@@ -138,6 +190,7 @@ export function DashboardOnboarding({ token, profile, onCompleted, onSkip }) {
       const nextUsername = sanitizeSlug(value);
       setError("");
       setUsernameCheck({ value: nextUsername, status: "idle", message: "" });
+      setUsernameEdited(true);
       setWizard((current) => ({
         ...current,
         username: nextUsername,
@@ -145,11 +198,18 @@ export function DashboardOnboarding({ token, profile, onCompleted, onSkip }) {
       return;
     }
 
+    if (field === "businessName" && !usernameEdited) {
+      setUsernameCheck({ value: sanitizeSlug(value), status: "idle", message: "" });
+    }
+
     setWizard((current) => ({
       ...current,
       [field]: value,
       ...(field === "businessName"
         ? {
+          username: usernameEdited && current.username && current.username !== sanitizeSlug(current.businessName)
+            ? current.username
+            : sanitizeSlug(value),
           customThemes: current.customThemes.map((theme) => (
             theme.id === "generated-logo-theme"
               ? { ...theme, name: value ? `Tema ${value}` : "Tema de tu negocio" }
@@ -510,23 +570,24 @@ export function DashboardOnboarding({ token, profile, onCompleted, onSkip }) {
         <div className="onboarding-step">
           {currentStep.id === "category" ? (
             <div className="onboarding-category-grid">
-              {[
-                { value: "food_drink", label: "Comida y bebidas", copy: "Pedidos, menú y ubicación en un solo lugar." },
-                { value: "retail_sales", label: "Tiendas y ventas", copy: "Catálogo, compra y contacto para vender por redes." },
-                { value: "services", label: "Servicios", copy: "Cotizaciones, agenda y atención desde una sola página." },
-                { value: "health_wellness", label: "Salud y bienestar", copy: "Reservas, servicios y contacto para atender rápido." },
-                { value: "tourism_experiences", label: "Turismo y experiencias", copy: "Planes, reservas y ubicación para compartir fácil." },
-              ].map((option) => (
-                <button
-                  key={option.value}
-                  className={`onboarding-category-card ${wizard.businessCategory === option.value ? "is-active" : ""}`}
-                  type="button"
-                  onClick={() => handleCategorySelect(option.value)}
-                >
-                  <strong>{option.label}</strong>
-                  <span>{option.copy}</span>
-                </button>
-              ))}
+              {CATEGORY_OPTIONS.map((option) => {
+                const CategoryIcon = option.icon;
+                return (
+                  <button
+                    key={option.value}
+                    className={`onboarding-category-card ${wizard.businessCategory === option.value ? "is-active" : ""}`}
+                    type="button"
+                    onClick={() => handleCategorySelect(option.value)}
+                  >
+                    <span className="onboarding-category-icon"><CategoryIcon size={23} /></span>
+                    <span className="onboarding-category-copy">
+                      <strong>{option.label}</strong>
+                      <span>{option.copy}</span>
+                    </span>
+                    <ArrowRight className="onboarding-category-arrow" size={18} />
+                  </button>
+                );
+              })}
             </div>
           ) : null}
 
@@ -534,12 +595,12 @@ export function DashboardOnboarding({ token, profile, onCompleted, onSkip }) {
             <div className="section-stack">
               <div className="profile-grid">
                 <div>
-                  <label className="label">Nombre del negocio</label>
+                  <label className="label">Nombre de tu negocio</label>
                   <input
                     className="input"
                     value={wizard.businessName}
                     onChange={(event) => updateWizardField("businessName", event.target.value)}
-                    placeholder="Ej. Puro Burger"
+                    placeholder="Ej. Palermo Pizzeria"
                   />
                 </div>
                 <div>
@@ -563,8 +624,8 @@ export function DashboardOnboarding({ token, profile, onCompleted, onSkip }) {
 
               <div className="onboarding-location-card">
                 <div>
-                  <strong>Ciudad donde atiendes</strong>
-                  <p className="section-copy">Así tus clientes entienden desde el inicio dónde está tu negocio.</p>
+                  <strong>Ubicacion de tu negocio</strong>
+                  <p className="section-copy">Asi tus clientes saben desde el inicio donde estas.</p>
                 </div>
                 <div className="profile-grid">
                   <div>
@@ -599,7 +660,7 @@ export function DashboardOnboarding({ token, profile, onCompleted, onSkip }) {
 
               <div className="profile-grid">
                 <div>
-                  <label className="label">Título comercial</label>
+                  <label className="label">Slogan de tu negocio</label>
                   <input
                     className="input"
                     value={wizard.businessHeadline}
@@ -625,7 +686,7 @@ export function DashboardOnboarding({ token, profile, onCompleted, onSkip }) {
                 />
                 <span className="upload-icon">{wizard.photoUrl ? <ImagePlus size={20} /> : <UploadCloud size={20} />}</span>
                 <span className="upload-copy">
-                  <strong>{wizard.photoUrl ? "Cambiar logo o foto" : "Subir logo o foto"}</strong>
+                  <strong>{wizard.photoUrl ? "Cambiar logo o foto" : "Carga el logo de tu negocio"}</strong>
                   <span>Este será el elemento principal de tu Klicor.</span>
                 </span>
               </label>

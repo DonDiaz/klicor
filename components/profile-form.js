@@ -600,6 +600,8 @@ export function ProfileForm({
     businessCategory: form.businessCategory,
     businessHeadline: form.businessHeadline,
     businessSubheadline: form.businessSubheadline,
+    commerce: profile?.commerce,
+    bookingConfig: profile?.bookingConfig,
     photo: photoPreviewUrl || profile?.photo || "",
     photoThumb: photoPreviewUrl || profile?.photoThumb || profile?.photo || "",
     paymentMethods: paymentMethods.map((method) => ({
@@ -619,7 +621,7 @@ export function ProfileForm({
         ...item,
         url: normalizeLinkUrl(item),
       })),
-  }), [appearance, contactCard.enabled, contactCard.name, contactCard.phone, contactCard.title, contactCard.whatsappLinkId, form.businessCategory, form.businessHeadline, form.businessName, form.businessSubheadline, form.username, paymentMethods, photoPreviewUrl, profile?.photo, profile?.photoThumb, profile?.publicLinkId, profileLinks]);
+  }), [appearance, contactCard.enabled, contactCard.name, contactCard.phone, contactCard.title, contactCard.whatsappLinkId, form.businessCategory, form.businessHeadline, form.businessName, form.businessSubheadline, form.username, paymentMethods, photoPreviewUrl, profile?.bookingConfig, profile?.commerce, profile?.photo, profile?.photoThumb, profile?.publicLinkId, profileLinks]);
 
   const previewPublicUrl = useMemo(() => {
     if (publicUrl) return publicUrl;
