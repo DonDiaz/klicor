@@ -409,6 +409,7 @@ export function ProfileForm({
     businessName: profile?.businessName || "",
     username: profile?.username || "",
     businessCategory: normalizeBusinessCategory(profile?.businessCategory),
+    businessType: profile?.businessType || profile?.dorikaProfile?.businessType || "",
     businessHeadline: profile?.businessHeadline || "",
     businessSubheadline: profile?.businessSubheadline || "",
   });
@@ -447,6 +448,7 @@ export function ProfileForm({
       businessName: profile?.businessName || "",
       username: profile?.username || "",
       businessCategory: normalizeBusinessCategory(profile?.businessCategory),
+      businessType: profile?.businessType || profile?.dorikaProfile?.businessType || "",
       businessHeadline: profile?.businessHeadline || "",
       businessSubheadline: profile?.businessSubheadline || "",
     });
@@ -598,6 +600,7 @@ export function ProfileForm({
     businessName: form.businessName || "Tu negocio",
     username: form.username || "tu-usuario",
     businessCategory: form.businessCategory,
+    businessType: form.businessType,
     businessHeadline: form.businessHeadline,
     businessSubheadline: form.businessSubheadline,
     commerce: profile?.commerce,
@@ -621,7 +624,7 @@ export function ProfileForm({
         ...item,
         url: normalizeLinkUrl(item),
       })),
-  }), [appearance, contactCard.enabled, contactCard.name, contactCard.phone, contactCard.title, contactCard.whatsappLinkId, form.businessCategory, form.businessHeadline, form.businessName, form.businessSubheadline, form.username, paymentMethods, photoPreviewUrl, profile?.bookingConfig, profile?.commerce, profile?.photo, profile?.photoThumb, profile?.publicLinkId, profileLinks]);
+  }), [appearance, contactCard.enabled, contactCard.name, contactCard.phone, contactCard.title, contactCard.whatsappLinkId, form.businessCategory, form.businessHeadline, form.businessName, form.businessSubheadline, form.businessType, form.username, paymentMethods, photoPreviewUrl, profile?.bookingConfig, profile?.commerce, profile?.photo, profile?.photoThumb, profile?.publicLinkId, profileLinks]);
 
   const previewPublicUrl = useMemo(() => {
     if (publicUrl) return publicUrl;
@@ -664,7 +667,8 @@ export function ProfileForm({
   const dorikaProgressPercent = Number.isFinite(dorikaProgress?.percent) ? dorikaProgress.percent : 0;
   const dorikaTasks = Array.isArray(dorikaProgress?.tasks) ? dorikaProgress.tasks : [];
   const dorikaCategoryLabel = BUSINESS_CATEGORY_OPTIONS.find((option) => option.value === form.businessCategory)?.label || "Tipo de negocio";
-  const dorikaBusinessTypeOptions = useMemo(() => getBusinessTypeOptionsForCategory(form.businessCategory), [form.businessCategory]);
+  const businessTypeOptions = useMemo(() => getBusinessTypeOptionsForCategory(form.businessCategory), [form.businessCategory]);
+  const businessTypeLabel = businessTypeOptions.find((option) => option.value === form.businessType)?.label || "Sin definir";
   const dorikaHasExactCoordinates = Number.isFinite(dorikaProfile.latitude) && Number.isFinite(dorikaProfile.longitude);
   const showDorikaFeaturedProductsNote = ["food_drink", "retail_sales"].includes(form.businessCategory);
 
@@ -673,10 +677,10 @@ export function ProfileForm({
   }, [dorikaStoredCoverUrl]);
 
   useEffect(() => {
-    if (!dorikaProfile.businessType) return;
-    if (dorikaBusinessTypeOptions.some((option) => option.value === dorikaProfile.businessType)) return;
-    setDorikaProfile((current) => ({ ...current, businessType: "" }));
-  }, [dorikaBusinessTypeOptions, dorikaProfile.businessType]);
+    if (!form.businessType) return;
+    if (businessTypeOptions.some((option) => option.value === form.businessType)) return;
+    setForm((current) => ({ ...current, businessType: "" }));
+  }, [businessTypeOptions, form.businessType]);
 
   useEffect(() => {
     if (!contactCard.whatsappLinkId) return;
@@ -881,6 +885,7 @@ export function ProfileForm({
       body.append("businessName", form.businessName);
       body.append("username", form.username);
       body.append("businessCategory", form.businessCategory);
+      body.append("businessType", form.businessType);
       body.append("businessHeadline", form.businessHeadline);
       body.append("businessSubheadline", form.businessSubheadline);
       body.append("profileLinks", JSON.stringify(profileLinks.filter((item) => String(item.value || "").trim())));
@@ -898,6 +903,7 @@ export function ProfileForm({
         ...dorikaProfile,
         enabled: dorikaEligible ? dorikaProfile.enabled : false,
         category: form.businessCategory,
+        businessType: form.businessType,
         coverImageUrl: dorikaStoredCoverUrl,
       }));
       body.append("removePaymentQrIds", JSON.stringify(paymentMethods.filter((method) => method.removeQr).map((method) => method.id)));
@@ -1463,7 +1469,15 @@ export function ProfileForm({
                   <select
                     className="select"
                     value={form.businessCategory}
-                    onChange={(e) => setForm({ ...form, businessCategory: e.target.value })}
+                    onChange={(e) => {
+                      const nextCategory = e.target.value;
+                      const nextOptions = getBusinessTypeOptionsForCategory(nextCategory);
+                      setForm({
+                        ...form,
+                        businessCategory: nextCategory,
+                        businessType: nextOptions.some((option) => option.value === form.businessType) ? form.businessType : "",
+                      });
+                    }}
                     disabled={!canEdit}
                   >
                     {BUSINESS_CATEGORY_OPTIONS.map((option) => (
@@ -1474,7 +1488,26 @@ export function ProfileForm({
                   </select>
                 </div>
                 <div>
-                  <label className="label">Título comercial</label>
+                  <label className="label">Que hace o vende</label>
+                  <select
+                    className="select"
+                    value={form.businessType}
+                    onChange={(e) => setForm({ ...form, businessType: e.target.value })}
+                    disabled={!canEdit}
+                  >
+                    <option value="">Selecciona una opcion</option>
+                    {businessTypeOptions.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="profile-grid">
+                <div>
+                  <label className="label">Slogan de tu negocio</label>
                   <input
                     className="input"
                     value={form.businessHeadline}
@@ -2238,19 +2271,11 @@ export function ProfileForm({
                       <small>La tomamos del tipo de negocio de tu perfil para no pedirte lo mismo dos veces.</small>
                     </div>
                     <div>
-                      <label className="label">¿Qué describe mejor tu negocio?</label>
-                      <select
-                        className="input"
-                        value={dorikaProfile.businessType || ""}
-                        onChange={(e) => updateDorikaField("businessType", e.target.value)}
-                        disabled={!canEdit}
-                      >
-                        <option value="">Selecciona una opción</option>
-                        {dorikaBusinessTypeOptions.map((option) => (
-                          <option key={option.value} value={option.value}>{option.label}</option>
-                        ))}
-                      </select>
-                      <p className="section-copy">Esto ayuda a que Dorika te muestre en búsquedas, mapa y secciones más precisas.</p>
+                      <span className="dashboard-link-label">Actividad del negocio</span>
+                      <div className="dorika-category-note">
+                        <strong>{businessTypeLabel}</strong>
+                        <small>Se toma de tu perfil de Klicor. Cambialo en Identidad si necesitas ajustar filtros, mapa y secciones.</small>
+                      </div>
                     </div>
                   </div>
                   <div id="dorika-description" className="dorika-scroll-target">
@@ -2494,7 +2519,6 @@ export function ProfileForm({
                             </option>
                           ))}
                         </select>
-                        <p className="muted">La prioridad ordena tus botones: 1 sale primero, 2 después y 3 queda como apoyo.</p>
                       </div>
                     </div>
                   ) : null}

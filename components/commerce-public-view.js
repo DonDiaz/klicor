@@ -13,6 +13,7 @@ import {
   X,
 } from "lucide-react";
 import { FONT_FAMILY_STYLE_MAP } from "@/app/fonts";
+import { CommerceCategoryAsset } from "@/components/commerce-category-asset";
 import { getBusinessOpenStatus } from "@/lib/business-hours";
 import { apiFetch } from "@/lib/client-api";
 import { resolveCommerceModeMeta } from "@/lib/commerce-config";
@@ -91,6 +92,125 @@ function buildOrderMessage({ items, total, note, customer, payment, currency }) 
   return lines.join("\n");
 }
 
+const COMMERCE_THEME_PALETTES = {
+  food_pizzeria: {
+    background: "#FFF6ED",
+    surface: "#FFFFFF",
+    primary: "#EA3B16",
+    secondary: "#F97316",
+    text: "#1F130D",
+    muted: "#775C4D",
+  },
+  food_warm: {
+    background: "#FFF7ED",
+    surface: "#FFFFFF",
+    primary: "#F97316",
+    secondary: "#B45309",
+    text: "#1C1917",
+    muted: "#78716C",
+  },
+  food_healthy: {
+    background: "#F1FAF1",
+    surface: "#FFFFFF",
+    primary: "#16A34A",
+    secondary: "#65A30D",
+    text: "#102014",
+    muted: "#536A57",
+  },
+  grocery_fresh: {
+    background: "#F3FAF2",
+    surface: "#FFFFFF",
+    primary: "#15803D",
+    secondary: "#22C55E",
+    text: "#102014",
+    muted: "#556B5A",
+  },
+  fashion_female: {
+    background: "#FFF5F7",
+    surface: "#FFFFFF",
+    primary: "#DB2777",
+    secondary: "#B76E79",
+    text: "#211018",
+    muted: "#765B65",
+  },
+  fashion_male: {
+    background: "#F5F7FA",
+    surface: "#FFFFFF",
+    primary: "#111827",
+    secondary: "#1E3A8A",
+    text: "#101828",
+    muted: "#586174",
+  },
+  fashion_mixed: {
+    background: "#F7F7F5",
+    surface: "#FFFFFF",
+    primary: "#1F2937",
+    secondary: "#6B7280",
+    text: "#111827",
+    muted: "#5E6470",
+  },
+  fashion_neutral: {
+    background: "#F7F7F5",
+    surface: "#FFFFFF",
+    primary: "#1F2937",
+    secondary: "#6B7280",
+    text: "#111827",
+    muted: "#5E6470",
+  },
+  tech_blue: {
+    background: "#F1F6FF",
+    surface: "#FFFFFF",
+    primary: "#0F5EC8",
+    secondary: "#2563EB",
+    text: "#0F172A",
+    muted: "#556174",
+  },
+  general_market: {
+    background: "#F7F5FF",
+    surface: "#FFFFFF",
+    primary: "#6D28D9",
+    secondary: "#8B5CF6",
+    text: "#171321",
+    muted: "#655D74",
+  },
+  services_clean: {
+    background: "#F6FAFF",
+    surface: "#FFFFFF",
+    primary: "#2563EB",
+    secondary: "#0F766E",
+    text: "#0F172A",
+    muted: "#5B6575",
+  },
+  health_soft: {
+    background: "#F2FBF8",
+    surface: "#FFFFFF",
+    primary: "#0D9488",
+    secondary: "#8B5CF6",
+    text: "#10201D",
+    muted: "#58716B",
+  },
+  tourism_earth: {
+    background: "#F8F6EF",
+    surface: "#FFFFFF",
+    primary: "#0F766E",
+    secondary: "#B45309",
+    text: "#171B17",
+    muted: "#66675C",
+  },
+};
+
+function resolveCommercePalette(experience = {}, appearance = {}) {
+  const theme = String(experience?.theme || "general_market");
+  return COMMERCE_THEME_PALETTES[theme] || {
+    background: "#F7F5FF",
+    surface: "#FFFFFF",
+    primary: appearance.primaryColor || "#6D28D9",
+    secondary: appearance.secondaryColor || "#8B5CF6",
+    text: "#111827",
+    muted: "#64748B",
+  };
+}
+
 function normalizePagination(value) {
   return {
     hasMore: Boolean(value?.hasMore),
@@ -163,6 +283,7 @@ function normalizePublicSubcategories(value = []) {
         id: String(subcategory.id || `subcategory-${index}`),
         name: String(subcategory.name || "Subcategoría"),
         iconKey: String(subcategory.iconKey || "tag"),
+        color: String(subcategory.color || ""),
         productCount: Number(subcategory.productCount || 0) || 0,
         visibleProductCount: Number(subcategory.visibleProductCount ?? subcategory.productCount ?? 0) || 0,
       }))
@@ -179,6 +300,7 @@ function normalizePublicCategories(value = []) {
         id: String(category.id || `category-${index}`),
         name: String(category.name || "Categoría"),
         iconKey: String(category.iconKey || "tag"),
+        color: String(category.color || ""),
         imageUrl: String(category.imageUrl || category.previewImage?.imageUrl || ""),
         imageThumbUrl: String(category.imageThumbUrl || category.previewImage?.imageThumbUrl || category.previewImage?.imageUrl || category.imageUrl || ""),
         hasSubcategories: Boolean(category.hasSubcategories),
@@ -221,6 +343,7 @@ function ProductCard({
 }) {
   const hasDescription = Boolean(String(product.description || "").trim());
   const hasPrice = product.price !== null && product.price !== undefined;
+  const isCatalog = !supportsCart;
 
   return (
     <article className={`commerce-product-card commerce-visual-product-card ${supportsCart ? "supports-cart" : "is-catalog-card"}`.trim()}>
@@ -240,12 +363,12 @@ function ProductCard({
         </div>
         <div className="commerce-product-copy">
           <strong>{product.name}</strong>
-          {hasDescription ? <p>{product.description}</p> : null}
+          {hasDescription && !isCatalog ? <p>{product.description}</p> : null}
           <div className="commerce-product-footer">
             {hasPrice ? (
               <span>{formatCurrency(product.price, currency)}</span>
             ) : (
-              <span className="commerce-product-price-placeholder">Ver detalle</span>
+              <span className="commerce-product-price-placeholder">{isCatalog ? "Consultar" : "Ver detalle"}</span>
             )}
           </div>
         </div>
@@ -347,6 +470,7 @@ export function CommercePublicView({ bootstrap, preview = false }) {
     photoThumb: safeBootstrap.business?.photoThumb || safeBootstrap.business?.photo || "",
     settings: safeBootstrap.business?.settings || {},
     username: safeBootstrap.business?.username || "",
+    businessCategory: safeBootstrap.business?.businessCategory || "",
     businessHours: safeBootstrap.business?.businessHours || {},
   };
   const safeConfig = {
@@ -355,6 +479,7 @@ export function CommercePublicView({ bootstrap, preview = false }) {
   const [businessHoursStatus, setBusinessHoursStatus] = useState(() => normalizeBusinessHoursStatus(safeBootstrap.businessHoursStatus));
   const orderingEnabled = Boolean(businessHoursStatus.isOpen);
   const safeMode = safeBootstrap.mode || safeBootstrap.config?.activeMode || "";
+  const safeExperience = safeBootstrap.experience || {};
   const safeModeMeta = safeBootstrap.modeMeta || resolveCommerceModeMeta(safeMode);
   const safeInitialSelection = {
     categoryId: String(safeBootstrap.initialSelection?.categoryId || ""),
@@ -443,27 +568,28 @@ export function CommercePublicView({ bootstrap, preview = false }) {
   const isSectionLoading = Boolean(pendingSelection);
   const detailImages = normalizePublicProductImages(detailProduct?.images, detailProduct || {});
   const activeDetailImage = detailImages[detailImageIndex] || detailImages[0] || null;
-  const pageBackground = appearance.backgroundColor;
+  const commercePalette = resolveCommercePalette(safeExperience, appearance);
+  const pageBackground = commercePalette.background;
 
   const rootStyle = {
     fontFamily,
     background: pageBackground,
-    color: appearance.textPrimaryColor,
+    color: commercePalette.text,
     "--commerce-background": pageBackground,
-    "--commerce-surface": appearance.surfaceColor,
-    "--commerce-surface-soft": hexToRgba(appearance.surfaceColor, 0.92),
-    "--commerce-surface-strong": hexToRgba(appearance.surfaceColor, 0.96),
-    "--commerce-primary": appearance.primaryColor,
-    "--commerce-primary-strong": appearance.primaryColor,
-    "--commerce-primary-soft": hexToRgba(appearance.primaryColor, 0.12),
-    "--commerce-primary-border": hexToRgba(appearance.primaryColor, 0.16),
-    "--commerce-primary-shadow": hexToRgba(appearance.primaryColor, 0.24),
-    "--commerce-secondary": appearance.secondaryColor,
+    "--commerce-surface": commercePalette.surface,
+    "--commerce-surface-soft": hexToRgba(commercePalette.surface, 0.92),
+    "--commerce-surface-strong": hexToRgba(commercePalette.surface, 0.96),
+    "--commerce-primary": commercePalette.primary,
+    "--commerce-primary-strong": commercePalette.primary,
+    "--commerce-primary-soft": hexToRgba(commercePalette.primary, 0.12),
+    "--commerce-primary-border": hexToRgba(commercePalette.primary, 0.16),
+    "--commerce-primary-shadow": hexToRgba(commercePalette.primary, 0.24),
+    "--commerce-secondary": commercePalette.secondary,
     "--commerce-tertiary": appearance.tertiaryColor,
-    "--commerce-text": appearance.textPrimaryColor,
-    "--commerce-muted": appearance.textSecondaryColor,
-    "--commerce-line": hexToRgba(appearance.textPrimaryColor, 0.1),
-    "--commerce-shadow": hexToRgba(appearance.textPrimaryColor, 0.08),
+    "--commerce-text": commercePalette.text,
+    "--commerce-muted": commercePalette.muted,
+    "--commerce-line": hexToRgba(commercePalette.text, 0.1),
+    "--commerce-shadow": hexToRgba(commercePalette.text, 0.08),
     "--commerce-button-text": appearance.buttonPrimaryTextColor,
   };
   function findLoadedProduct(productId) {
@@ -828,7 +954,7 @@ export function CommercePublicView({ bootstrap, preview = false }) {
 
   function handleDetailWhatsapp(product) {
     if (preview || !safeBootstrap.orderWhatsapp || !orderingEnabled || !product) return;
-    const message = `Hola, vi este producto en su catálogo y quiero más información sobre: ${product.name}`;
+    const message = `Hola, vi este producto en tu catalogo:\n${product.name}\n\nEsta disponible?`;
     window.open(buildWhatsappLink(safeBootstrap.orderWhatsapp, message), "_blank", "noopener,noreferrer");
   }
 
@@ -846,7 +972,7 @@ export function CommercePublicView({ bootstrap, preview = false }) {
   }
 
   return (
-    <main className={`commerce-page ${preview ? "is-preview" : ""}`} style={rootStyle}>
+    <main className={`commerce-page commerce-mode-${safeMode || "commerce"} commerce-layout-${safeExperience.layout || "standard"} commerce-theme-${safeExperience.theme || "default"} commerce-variant-${safeExperience.variant || "neutral"} ${safeBootstrap.supportsCart ? "has-cart-mode" : "has-catalog-mode"} ${preview ? "is-preview" : ""}`} style={rootStyle}>
       <section className="commerce-shell">
         <header className="commerce-header commerce-public-summary">
           <div className="commerce-hero-brand">
@@ -870,7 +996,6 @@ export function CommercePublicView({ bootstrap, preview = false }) {
               <div className="commerce-category-rail" aria-label="Categorías">
                 {categories.map((category) => {
                   const isActive = selection.categoryId === category.id;
-                  const categoryImage = category.imageThumbUrl || category.imageUrl;
                   return (
                     <button
                       key={category.id}
@@ -880,11 +1005,7 @@ export function CommercePublicView({ bootstrap, preview = false }) {
                       aria-pressed={isActive}
                     >
                       <span className="commerce-category-image" aria-hidden="true">
-                        {categoryImage ? (
-                          <img src={categoryImage} alt="" loading="lazy" decoding="async" />
-                        ) : (
-                          <span>{category.name.slice(0, 1)}</span>
-                        )}
+                        <CommerceCategoryAsset iconKey={category.iconKey} vertical={safeBusiness.businessCategory} label={category.name} />
                       </span>
                       <span className="commerce-category-name">{category.name}</span>
                     </button>

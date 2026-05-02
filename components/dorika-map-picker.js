@@ -93,6 +93,11 @@ export function DorikaMapPicker({
   initialCity,
   initialZone,
   initialAddress,
+  eyebrow = "Ubicacion para Dorika",
+  title = "Ubica tu negocio en el mapa",
+  copy = "Busca la direccion, usa tu ubicacion actual o mueve el mapa hasta dejar el pin sobre el local.",
+  saveLabel = "Guardar ubicacion",
+  savedMessage = "Punto ajustado. Guarda para usarlo en Dorika.",
   onClose,
   onSave,
 }) {
@@ -177,7 +182,7 @@ export function DorikaMapPicker({
       ...nextPoint,
     }));
     setSelectedLabel(mode === "drag" ? "Punto ajustado en el mapa" : "Punto elegido en el mapa");
-    setMapMessage("Punto ajustado. Guarda para usarlo en Dorika.");
+    setMapMessage(savedMessage);
   }
 
   function getPointFromClient(clientX, clientY, zoom = center.zoom) {
@@ -232,7 +237,7 @@ export function DorikaMapPicker({
     }
     if (drag.moved) {
       setSelectedLabel("Punto ajustado en el mapa");
-      setMapMessage("Punto ajustado. Guarda para usarlo en Dorika.");
+      setMapMessage(savedMessage);
       return;
     }
     moveMapFromPointer(event);
@@ -407,9 +412,9 @@ export function DorikaMapPicker({
       <section className="dorika-map-modal" role="dialog" aria-modal="true" aria-labelledby="dorika-map-title">
         <div className="dorika-map-head">
           <div>
-            <span className="dashboard-link-label">Ubicación para Dorika</span>
-            <h3 id="dorika-map-title">Ubica tu negocio en el mapa</h3>
-            <p>Busca la dirección, usa tu ubicación actual o mueve el mapa hasta dejar el pin sobre el local.</p>
+            <span className="dashboard-link-label">{eyebrow}</span>
+            <h3 id="dorika-map-title">{title}</h3>
+            <p>{copy}</p>
           </div>
           <button className="icon-button" type="button" onClick={onClose} aria-label="Cerrar mapa">
             <X size={18} />
@@ -502,7 +507,7 @@ export function DorikaMapPicker({
             <span>{center.latitude.toFixed(6)}, {center.longitude.toFixed(6)}</span>
           </div>
           <button className="btn btn-primary" type="button" onClick={handleSave}>
-            Guardar ubicación
+            {saveLabel}
           </button>
         </div>
 

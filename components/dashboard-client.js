@@ -76,6 +76,12 @@ export function DashboardClient() {
     bootstrap().catch((err) => setError(err.message));
   }, [user]);
 
+  useEffect(() => {
+    if (!loading && !user) {
+      router.replace("/");
+    }
+  }, [loading, router, user]);
+
   const canEdit = useMemo(() => {
     const status = data?.user?.status;
     return status === "trial" || status === "active";
@@ -231,7 +237,6 @@ export function DashboardClient() {
   }
 
   if (!user) {
-    router.replace("/");
     return <main className="shell page-shell"><div className="kpi">Redirigiendo al inicio...</div></main>;
   }
 

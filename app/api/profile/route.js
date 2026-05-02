@@ -31,6 +31,7 @@ export async function POST(request) {
       businessName: formData.get("businessName"),
       username: formData.get("username"),
       businessCategory: formData.get("businessCategory"),
+      businessType: formData.get("businessType") || "",
       businessHeadline: formData.get("businessHeadline"),
       businessSubheadline: formData.get("businessSubheadline"),
       profileLinks: JSON.parse(typeof linksJson === "string" ? linksJson : "[]"),

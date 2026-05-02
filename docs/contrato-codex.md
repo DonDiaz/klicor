@@ -72,32 +72,47 @@ Reglas obligatorias:
 - Tienda, menu y catalogo no deben depender visualmente del tema del link in bio.
 - El producto debe ser protagonista.
 - La experiencia debe adaptarse al modo:
-  - `mitienda`: productos con precio y carrito.
-  - `mimenu`: platos/bebidas con pedido.
-  - `micatalogo`: catalogo flexible, sin precio obligatorio y sin carrito obligatorio.
+  - `mimenu`: comida, lista vertical, cards horizontales, precio, boton `+`, carrito fijo y pedido por WhatsApp.
+  - `mitienda`: ecommerce ligero, grid/lista de productos, precio, boton `+`, carrito fijo y pedido por WhatsApp.
+  - `micatalogo`: catalogo visual tipo feed, precio opcional, SIN carrito, SIN boton `+`, consulta directa por WhatsApp.
 - Si se crea `commerceTheme`, debe estar aislado de `appearance`.
+- Catalogo no es tienda sin precio; catalogo es una experiencia visual de consulta.
+- En `micatalogo`, al preguntar por un producto, el mensaje de WhatsApp debe incluir automaticamente el producto consultado.
+
+Mensaje base esperado para catalogo:
+
+```txt
+Hola, vi este producto en tu catalogo:
+[Nombre producto]
+
+Esta disponible?
+```
 
 Prohibido:
 
 - Usar `appearance` como unica fuente visual para tienda/menu/catalogo en nuevos redisenos.
 - Rehacer todo commerce de una vez si la tarea es una fase puntual.
 - Crear muchos temas antes de validar un set pequeno y bien hecho.
+- Agregar carrito, checkout, totales o boton `+` al modo `micatalogo`.
 
 ## 6. Categorias de Commerce
 
 Reglas obligatorias:
 
-- Las categorias SIEMPRE deben usar icono, color y nombre.
+- Las categorias SIEMPRE deben usar icono/asset visual semantico y nombre.
+- El color visible de categorias en tienda/menu/catalogo debe venir del tema, no de una decision manual del usuario.
 - Las categorias NO deben depender de fotos como experiencia principal.
 - Si existe un campo de imagen en categorias, no debe usarse como render principal sin aprobacion explicita.
-- El selector de iconos debe ser visual.
+- El selector de iconos debe ser visual y curado por vertical.
 - El usuario debe escoger viendo iconos, no solo leyendo una lista de palabras.
 - Los iconos deben sugerirse segun la informacion que ya dio el negocio.
+- La base semantica debe cubrir comida, retail, servicios, salud/belleza y turismo, incluyendo sinonimos comunes.
+- Las palabras ambiguas deben resolverse con la vertical del negocio cuando exista.
 
 Render esperado:
 
 ```txt
-icono + color + nombre
+icono/asset visual + nombre
 ```
 
 Prohibido:
@@ -105,6 +120,7 @@ Prohibido:
 - Pedir foto obligatoria para una categoria.
 - Renderizar categorias como tarjetas fotograficas por defecto.
 - Usar iconos aleatorios sin curaduria por vertical.
+- Pedir al usuario que escoja color manual para categorias en commerce publico.
 
 ## 7. Productos
 
@@ -124,24 +140,52 @@ Prohibido:
 Reglas obligatorias:
 
 - Los temas deben definirse por vertical, audiencia e intencion comercial.
+- Los temas deben separar modulo, categoria, subcategoria y variante.
 - Moda y calzado no deben tematizarse con estereotipos simples.
 - Ropa y zapatos deben compartir sistema de moda cuando aplique.
 - El usuario debe poder cambiar el tema sugerido.
 
+Modelo recomendado general:
+
+```txt
+commerceExperience.module: mimenu | mitienda | micatalogo
+commerceExperience.category: food | store | services | health | tourism
+commerceExperience.subcategory: pizza | grocery | fashion | shoes | tech | general | etc
+commerceExperience.variant: female | male | mixed | neutral
+commerceLayout: menu_list | store_grid | catalog_feed
+commerceTheme: food_warm | food_pizzeria | grocery_fresh | fashion_female | fashion_male | fashion_mixed | tech_blue | general_market | services_clean | health_soft | tourism_earth | etc
+```
+
 Modelo recomendado para moda:
 
 ```txt
-commerceVertical: fashion
-fashionProductMix: clothing | shoes | clothing_shoes | accessories | general
-fashionAudience: women | men | unisex
-commerceTheme: fashion_women | fashion_men | fashion_unisex
+theme.base: fashion
+theme.variant: female | male | mixed
+theme.subcategory: clothing | shoes | clothing_shoes | accessories | general
 ```
+
+Reglas de variante para moda y calzado:
+
+- Los tipos guardados desde registro deben ser explicitos cuando aplique:
+  - `clothing_female`, `clothing_male`, `clothing_mixed`
+  - `shoes_female`, `shoes_male`, `shoes_mixed`
+- Los valores legacy `clothing` y `shoes` pueden existir, pero deben resolverse como `neutral`.
+- `female`: fondo claro blanco/crema, primario rosado/nude/morado suave, mas aire visual, tipografia ligera, imagenes lifestyle cuando aplique.
+- `male`: fondo blanco/gris claro, primario negro/azul oscuro/verde militar, cards mas compactas, tipografia solida, imagen producto directo o lifestyle sobrio.
+- `mixed`: no es mezcla de colores; es neutralidad + organizacion.
+- `mixed` debe usar fondo blanco/gris claro/beige, primario neutro negro/gris oscuro y acento suave tomado de marca cuando exista.
+- En moda/calzado mixto debe existir filtro visible para separar `Mujer` y `Hombre` cuando el catalogo tenga ambos.
+- En moda/calzado mixto las imagenes deben verse equilibradas y con mas enfoque en producto que en un solo perfil de modelo.
+- Zapatos comparte base `fashion`, pero debe dar mas protagonismo a la imagen, usar cards mas grandes, menos texto y mas detalle visual del producto.
 
 Prohibido:
 
 - Asumir `ropa = rosado`.
 - Asumir `zapatos = cafe`.
 - Crear tema distinto para cada producto si la audiencia resuelve mejor el problema.
+- Crear temas separados como `ropa_mujer` y `zapatos_mujer` si pueden resolverse con `base: fashion`, `variant` y `subcategory`.
+- En `mixed`, combinar rosado y negro sin estructura o mezclar estilos incompatibles.
+- En `mixed`, ocultar la separacion hombre/mujer cuando ambos tipos de producto existen.
 
 ## 9. Onboarding
 
@@ -152,6 +196,8 @@ Reglas obligatorias:
 - Los indicadores de progreso deben ser compactos.
 - Los formularios deben evitar scroll excesivo.
 - Las cards de seleccion deben ser eficientes, no enormes.
+- La ubicacion del negocio debe evolucionar a coordenadas seleccionadas en mapa, no a un link manual de Google Maps.
+- Si se genera un enlace de mapa para el link in bio, debe salir de las coordenadas guardadas.
 
 Cambios de copy obligatorios cuando se toque onboarding:
 
@@ -203,6 +249,7 @@ Reglas obligatorias:
 - Priorizar claridad, conversion y velocidad de configuracion.
 - Compactar antes de agregar complejidad.
 - Reducir scroll en pantallas pequenas.
+- El editor completo debe usar densidad compacta por defecto, especialmente en Enlaces, Diseno, Perfil y Dorika.
 - Usar visuales donde ayudan a decidir, no como decoracion pesada.
 - Las referencias visuales deben traducirse a reglas concretas antes de implementar.
 
@@ -212,6 +259,15 @@ Prohibido:
 - Crear UI mas grande si el usuario pidio compactar.
 - Usar cards enormes para selecciones simples.
 - Agregar textos explicativos largos dentro de la UI.
+
+## 12.1 Lector de Logo y Temas
+
+Reglas obligatorias:
+
+- El color principal sugerido desde un logo debe priorizar colores de marca, no fondos.
+- El fondo de una imagen no debe usarse como color principal salvo que sea claramente parte de la marca.
+- Si un color dominante esta en bordes o zonas de fondo, debe penalizarse frente a colores con mas intencion visual.
+- Los temas generados por logo deben seguir siendo editables por el usuario.
 
 ## 13. Referencias Visuales
 

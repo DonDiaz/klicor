@@ -107,6 +107,7 @@ Modos actuales:
 - `mitienda`: tienda con productos, precios y carrito.
 - `mimenu`: menu con platos/bebidas, precios y pedido.
 - `micatalogo`: catalogo sin precio obligatorio y sin carrito obligatorio.
+- `micatalogo` debe evolucionar como experiencia visual tipo feed/Instagram, no como tienda sin precio.
 
 El modo define:
 
@@ -114,6 +115,7 @@ El modo define:
 - Si el precio es obligatorio.
 - Si soporta carrito.
 - URL publica.
+- Si la accion principal es carrito o consulta directa por WhatsApp.
 
 Problema actual:
 
@@ -178,6 +180,22 @@ Tema visual:
 - Debe tener `commerceTheme` propio en el futuro.
 - Debe elegirse por vertical, tipo de producto y audiencia.
 
+Regla clave:
+
+- `mimenu` y `mitienda` pueden compartir logica de carrito, pero no deben verse iguales.
+- `micatalogo` no debe compartir carrito, checkout, totales ni boton `+`.
+- `micatalogo` debe usar una experiencia visual tipo feed: imagen dominante, texto minimo, detalle full screen y CTA fijo a WhatsApp.
+- Al consultar un producto desde `micatalogo`, el mensaje de WhatsApp debe armarse con el producto consultado.
+
+Mensaje base:
+
+```txt
+Hola, vi este producto en tu catalogo:
+[Nombre producto]
+
+Esta disponible?
+```
+
 ### Agenda
 
 Es una experiencia de reserva.
@@ -230,7 +248,8 @@ Estado: aprobado, pendiente de implementar.
 
 Regla:
 
-- Categorias = iconos + color + nombre.
+- Categorias = iconos/assets visuales semanticos + nombre.
+- El color visible de categorias lo decide el tema del comercio, no el usuario manualmente.
 - Productos = fotos.
 - Banners/portadas = imagenes emocionales.
 
@@ -247,7 +266,9 @@ Se debe crear un selector visual de iconos, no una lista de texto.
 
 Primera aproximacion:
 
-- Usar un catalogo curado de iconos por vertical.
+- Usar un catalogo curado de iconos/assets por vertical.
+- Cubrir sinonimos y negocios comunes de comida, retail, servicios, salud/belleza y turismo.
+- Resolver palabras ambiguas usando la vertical del negocio cuando exista.
 - Mantener compatibilidad con una libreria gratuita.
 - Preferir catalogo controlado antes que un buscador infinito.
 
@@ -276,23 +297,113 @@ Mejor modelo:
 
 ```txt
 businessCategory: retail_sales
-commerceVertical: fashion
-fashionProductMix: clothing | shoes | clothing_shoes | accessories | general
-fashionAudience: women | men | unisex
-commerceTheme: fashion_women | fashion_men | fashion_unisex
+theme.base: fashion
+theme.variant: female | male | mixed
+theme.subcategory: clothing | shoes | clothing_shoes | accessories | general
 ```
 
 Los temas deben depender de audiencia/estilo comercial, no solo del producto.
 
 Temas iniciales sugeridos:
 
-- `fashion_women`: moda mujer, zapatos mujer, accesorios mujer.
-- `fashion_men`: moda hombre, zapatos hombre.
-- `fashion_unisex`: tiendas mixtas, ropa y zapatos, moda general.
+- `fashion_female`: moda mujer, zapatos mujer, accesorios mujer.
+- `fashion_male`: moda hombre, zapatos hombre.
+- `fashion_mixed`: tiendas mixtas, ropa y zapatos, moda general.
 
 La persona debe poder cambiar el tema sugerido si su marca va por otra direccion.
 
-### 5.4 Onboarding debe compactarse antes de agregar mas preguntas
+No crear temas separados para cada combinacion como `ropa_mujer`, `zapatos_mujer`, `ropa_hombre` y `zapatos_hombre`. Moda y calzado deben compartir base `fashion`, cambiar por `variant` y ajustar detalles por `subcategory`.
+
+Valores operativos en registro:
+
+- `clothing_female`, `clothing_male`, `clothing_mixed`
+- `shoes_female`, `shoes_male`, `shoes_mixed`
+- `clothing` y `shoes` quedan como compatibilidad legacy/general.
+
+Reglas de variantes:
+
+#### Female
+
+- Aplica a ropa mujer, zapatos mujer y accesorios mujer.
+- Fondo claro: blanco, crema o nude muy suave.
+- Primario: rosado, nude o morado suave.
+- Cards con mas aire.
+- Tipografia mas ligera.
+- Imagenes lifestyle con modelo cuando el negocio tenga ese tipo de material.
+- Sensacion: estetica y aspiracional.
+
+#### Male
+
+- Aplica a ropa hombre y zapatos hombre.
+- Fondo blanco o gris claro.
+- Primario: negro, azul oscuro o verde militar.
+- Cards mas compactas.
+- Tipografia mas solida.
+- Imagenes de producto directo o lifestyle sobrio.
+- Sensacion: fuerte, directo y practico.
+
+#### Mixed
+
+- No es mezcla de colores; es neutralidad + organizacion.
+- Fondo blanco, gris claro o beige.
+- Primario neutro: negro o gris oscuro.
+- Acento suave tomado del negocio cuando exista.
+- Debe evitar sesgo visual hacia mujer u hombre.
+- Si el negocio vende para ambos, debe existir filtro visible arriba: `Mujer` y `Hombre`.
+- Puede separar categorias como `Mujer` y `Hombre` cuando ayude a explorar.
+- Imagenes equilibradas, con mas enfoque en producto y no solo modelos.
+- Sensacion: tienda real, amplia y ordenada.
+
+Reglas para zapatos:
+
+- Zapatos comparte base `fashion`, pero no debe verse exactamente igual a ropa.
+- Cards mas grandes.
+- Imagen mas protagonista.
+- Menos texto.
+- Mas foco en detalle, textura, silueta y tipo de producto.
+
+Errores a evitar:
+
+- Mezclar rosado y negro sin logica.
+- Mezclar estilos incompatibles, por ejemplo elegante y urbano sin estructura.
+- Tratar `mixed` como suma de `female` + `male`.
+- No separar hombre/mujer en tiendas mixtas cuando el producto lo requiere.
+
+### 5.4 Sistema de modulos commerce y layout
+
+Estado: aprobado, pendiente de implementar.
+
+Klicor debe separar tema visual, modulo y layout.
+
+Modelo recomendado:
+
+```txt
+commerceExperience.module: mimenu | mitienda | micatalogo
+commerceExperience.category: food | store | services | health | tourism
+commerceExperience.subcategory: pizza | grocery | fashion | shoes | tech | general | etc
+commerceExperience.variant: female | male | mixed | neutral
+commerceLayout: menu_list | store_grid | catalog_feed
+commerceTheme: food_warm | food_pizzeria | grocery_fresh | fashion_female | fashion_male | fashion_mixed | tech_blue | general_market | services_clean | health_soft | tourism_earth | etc
+```
+
+Reglas por modulo:
+
+- `mimenu`: lista vertical, cards horizontales, imagen, nombre, precio, boton `+`, carrito fijo y pedido por WhatsApp.
+- `mitienda`: grid de productos, cards compactas, precio, boton `+`, carrito fijo y pedido por WhatsApp.
+- `micatalogo`: feed visual, imagen dominante, nombre minimo, precio opcional, SIN carrito, SIN checkout, SIN totales, consulta por WhatsApp.
+
+Temas base iniciales:
+
+- Comida: crema, naranja/rojo calido, producto protagonista, sensacion de apetito.
+- Supermercado: verde, fresco, iconos simples, sensacion de compra diaria.
+- Moda: base `fashion` con variantes `female`, `male`, `mixed`.
+- Zapatos: usa base `fashion`; cambia layout y detalle visual por `subcategory`.
+- Tecnologia: azul/oscuro, mas contraste, sensacion premium.
+- Servicios: blanco/azul, limpio, profesional, confianza.
+- Salud: menta/lavanda, aire, calma.
+- Turismo: tierra/azul cielo, visual, inmersivo, experiencia.
+
+### 5.5 Onboarding debe compactarse antes de agregar mas preguntas
 
 Estado: aprobado, alta prioridad.
 
@@ -307,7 +418,7 @@ Cambios pendientes:
 - Hacer mas pequenas las cards de temas.
 - Hacer mas compacto pagos/contacto/diseno.
 
-### 5.5 Nombre del negocio y usuario publico
+### 5.6 Nombre del negocio y usuario publico
 
 Estado: aprobado, pendiente de implementar.
 
@@ -323,7 +434,7 @@ Usuario/nickname:
 - La mayoria usara el mismo nombre del negocio.
 - Solo si el usuario esta ocupado se debe sugerir una variacion.
 
-### 5.6 Cambios de copy en onboarding
+### 5.7 Cambios de copy en onboarding
 
 Estado: aprobado, pendiente de implementar.
 
@@ -333,7 +444,7 @@ Cambios:
 - Si no hay logo cargado, el upload debe decir `Carga el logo de tu negocio`.
 - Donde el enlace corresponde a Google Maps no debe decir `Servicios`; debe decir `Ubicacion`.
 
-### 5.7 Dorika no debe duplicar seleccion de negocio
+### 5.8 Dorika no debe duplicar seleccion de negocio
 
 Estado: aprobado, pendiente de implementar.
 
@@ -349,6 +460,43 @@ Dorika debe leer:
 - Productos destacados si aplica.
 
 No debe pedir otra vez la misma clasificacion si ya existe.
+
+### 5.9 Ubicacion del negocio en onboarding
+
+Estado: aprobado, implementado como base.
+
+El registro rapido no debe pedir un link manual de Google Maps. La ubicacion debe capturarse con un mapa y guardarse como coordenadas.
+
+Reglas:
+
+- El usuario selecciona el punto del negocio en el mapa.
+- El sistema guarda latitud y longitud.
+- Si se necesita boton de ubicacion en el link publico, el enlace se genera desde las coordenadas.
+- Dorika puede reutilizar esa misma ubicacion sin volver a preguntarla.
+
+### 5.10 Editor compacto por defecto
+
+Estado: aprobado, implementado como base visual.
+
+El editor completo debe ocupar menos alto en pantallas pequenas de PC. Enlaces, Diseno, Perfil y Dorika deben usar padding reducido, inputs mas densos y cards mas pequenas.
+
+Reglas:
+
+- Compactar sin quitar funcionalidad.
+- No tocar la vista previa del telefono si esta funcionando.
+- Mantener legibilidad y acciones claras.
+
+### 5.11 Lector de colores del logo
+
+Estado: aprobado, implementado como primera mejora.
+
+El tema sugerido desde el logo debe evitar tomar fondos como color principal.
+
+Reglas:
+
+- Penalizar colores dominantes en bordes o fondos.
+- Priorizar colores con saturacion e intencion de marca.
+- Mantener fallback si el logo no permite extraer una paleta confiable.
 
 ## 6. Mejoras propuestas por area
 
@@ -413,15 +561,15 @@ Pendiente:
 - Crear catalogo de iconos por vertical.
 - Cambiar categorias para usar icono/color en vez de foto.
 - Definir si el modo usa carrito o consulta WhatsApp.
+- Crear layout separado para `micatalogo` tipo feed visual.
+- Generar mensaje automatico de WhatsApp con el nombre del producto consultado en `micatalogo`.
 
 Temas MVP sugeridos:
 
 - `food_pizzeria`: oscuro calido, naranja/rojo, producto protagonista.
 - `food_menu_clean`: restaurante/cafe claro y limpio.
 - `grocery_fresh`: supermercado, verdes, ofertas y productos diarios.
-- `fashion_women`: moda mujer, elegante, no necesariamente rosado.
-- `fashion_men`: moda hombre, sobrio.
-- `fashion_unisex`: moda mixta/general.
+- `fashion`: moda/calzado base con variantes `female`, `male`, `mixed`.
 - `tech_blue`: tecnologia, azul/frio, fichas claras.
 - `general_market`: tienda general, multi categoria.
 - `premium_catalog`: catalogo elegante sin carrito obligatorio.
@@ -433,6 +581,8 @@ No tocar por ahora:
 - No rehacer todo commerce de una vez.
 - No hacer una app nativa.
 - No cambiar la base de productos si no hace falta.
+- No convertir `micatalogo` en tienda sin precio.
+- No agregar carrito ni checkout al catalogo.
 
 ### Agenda
 
@@ -540,13 +690,16 @@ Estas decisiones evitan perder tiempo y tokens en direcciones que no son MVP.
 1. Compactar onboarding actual.
 2. Ajustar textos actuales del onboarding.
 3. Autogenerar usuario desde nombre del negocio.
-4. Reducir selector de temas del link in bio.
-5. Agregar campos de clasificacion comercial de forma controlada.
-6. Crear `commerceTheme` separado de `appearance`.
-7. Crear catalogo curado de iconos por vertical.
-8. Migrar categorias de commerce a icono/color/nombre.
-9. Crear primeros temas MVP para commerce.
-10. Conectar Dorika a la clasificacion real del negocio.
+4. Capturar ubicacion con mapa y coordenadas en onboarding.
+5. Compactar editor completo: Enlaces, Diseno, Perfil y Dorika.
+6. Mejorar lectura de colores del logo para temas sugeridos.
+7. Reducir selector de temas del link in bio.
+8. Agregar campos de clasificacion comercial de forma controlada.
+9. Crear `commerceTheme` separado de `appearance`.
+10. Crear catalogo curado de iconos por vertical.
+11. Migrar categorias de commerce a icono/color/nombre.
+12. Crear primeros temas MVP para commerce.
+13. Conectar Dorika a la clasificacion real del negocio.
 
 ## 10. Estado del documento
 

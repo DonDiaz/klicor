@@ -9,6 +9,7 @@ import {
   CheckCircle2,
   HeartPulse,
   ImagePlus,
+  LocateFixed,
   MapPin,
   Plus,
   ShoppingBag,
@@ -16,6 +17,7 @@ import {
   Utensils,
   UploadCloud,
 } from "lucide-react";
+import { DorikaMapPicker } from "@/components/dorika-map-picker";
 import { apiFetch } from "@/lib/client-api";
 import { COLOMBIA_DEPARTMENT_OPTIONS, getCitiesForDepartment } from "@/lib/colombia-locations";
 import {
@@ -31,6 +33,7 @@ import {
   buildOnboardingPreviewUser,
   createEmptyPaymentMethod,
   ONBOARDING_STEPS,
+  resolveOnboardingBusinessTypeOptions,
   updateOnboardingActionSlots,
 } from "@/lib/dashboard-onboarding";
 import { generateThemeFromLogoFile, mergeGeneratedTheme } from "@/lib/logo-theme";
@@ -98,9 +101,15 @@ function getPaymentMethodError(method = {}) {
   return method.accountNumber || method.brebKey ? "" : "Agrega el número de cuenta o la llave Bre-B.";
 }
 
+function hasMapPoint(dorikaProfile = {}) {
+  return Number.isFinite(dorikaProfile.latitude) && Number.isFinite(dorikaProfile.longitude);
+}
+
 function getStepValidationError(stepId, wizard) {
   if (stepId === "category") {
-    return wizard.businessCategory ? "" : "Selecciona el tipo de negocio para continuar.";
+    if (!wizard.businessCategory) return "Selecciona el tipo de negocio para continuar.";
+    if (!wizard.businessType) return "Selecciona que hace o vende tu negocio.";
+    return "";
   }
 
   if (stepId === "identity") {
@@ -118,6 +127,10 @@ function getStepValidationError(stepId, wizard) {
 
     if (!String(wizard.billingProfile?.city || "").trim()) {
       return "Selecciona la ciudad o municipio donde atiende tu negocio.";
+    }
+
+    if (!hasMapPoint(wizard.dorikaProfile)) {
+      return "Selecciona el punto exacto del negocio en el mapa.";
     }
 
     return "";
@@ -145,6 +158,7 @@ export function DashboardOnboarding({ token, profile, onCompleted, onSkip }) {
   const [error, setError] = useState("");
   const [usernameCheck, setUsernameCheck] = useState({ value: "", status: "idle", message: "" });
   const [usernameEdited, setUsernameEdited] = useState(false);
+  const [locationMapOpen, setLocationMapOpen] = useState(false);
 
   useEffect(() => {
     const root = document.documentElement;
@@ -178,11 +192,15 @@ export function DashboardOnboarding({ token, profile, onCompleted, onSkip }) {
     });
   }, [wizard.customThemes]);
   const onboardingSocialTypes = new Set(["instagram", "facebook", "tiktok"]);
-  const onboardingActionSlots = wizard.actionSlots.filter((slot) => !onboardingSocialTypes.has(slot.type));
+  const onboardingActionSlots = wizard.actionSlots.filter((slot) => !onboardingSocialTypes.has(slot.type) && slot.type !== "maps");
   const onboardingSocialSlots = wizard.actionSlots.filter((slot) => onboardingSocialTypes.has(slot.type));
   const onboardingCityOptions = useMemo(
     () => getCitiesForDepartment(wizard.billingProfile?.department || ""),
     [wizard.billingProfile?.department],
+  );
+  const businessTypeOptions = useMemo(
+    () => resolveOnboardingBusinessTypeOptions(wizard.businessCategory),
+    [wizard.businessCategory],
   );
 
   function updateWizardField(field, value) {
@@ -228,7 +246,34 @@ export function DashboardOnboarding({ token, profile, onCompleted, onSkip }) {
         [field]: value,
         ...(field === "department" ? { city: "" } : {}),
       },
+      dorikaProfile: {
+        ...(current.dorikaProfile || {}),
+        ...(field === "city" ? { city: value } : {}),
+        ...(field === "department" ? { city: "" } : {}),
+      },
     }));
+  }
+
+  function handleSaveMapLocation(location) {
+    setWizard((current) => {
+      const city = current.billingProfile?.city || current.dorikaProfile?.city || "";
+      return {
+        ...current,
+        dorikaProfile: {
+          ...(current.dorikaProfile || {}),
+          enabled: current.dorikaProfile?.enabled !== false,
+          showLocation: true,
+          locationPrivacy: "exact",
+          city,
+          address: location.addressLabel || current.dorikaProfile?.address || "",
+          latitude: location.latitude,
+          longitude: location.longitude,
+          locationAccuracyMeters: location.locationAccuracyMeters,
+          mapLocationUpdatedAt: new Date().toISOString(),
+        },
+      };
+    });
+    setLocationMapOpen(false);
   }
 
   async function validateUsernameAvailability({ quiet = false } = {}) {
@@ -285,10 +330,12 @@ export function DashboardOnboarding({ token, profile, onCompleted, onSkip }) {
   function handleCategorySelect(nextCategory) {
     const previousTemplate = getBusinessCategoryTemplate(wizard.businessCategory);
     const nextTemplate = getBusinessCategoryTemplate(nextCategory);
+    const nextTypeOptions = resolveOnboardingBusinessTypeOptions(nextCategory);
 
     setWizard((current) => ({
       ...current,
       businessCategory: nextCategory,
+      businessType: nextTypeOptions.some((option) => option.value === current.businessType) ? current.businessType : "",
       businessHeadline: !current.businessHeadline || current.businessHeadline === previousTemplate.headline
         ? nextTemplate.headline
         : current.businessHeadline,
@@ -501,6 +548,7 @@ export function DashboardOnboarding({ token, profile, onCompleted, onSkip }) {
       body.append("businessName", payload.businessName);
       body.append("username", payload.username);
       body.append("businessCategory", payload.businessCategory);
+      body.append("businessType", payload.businessType);
       body.append("businessHeadline", payload.businessHeadline);
       body.append("businessSubheadline", payload.businessSubheadline);
       body.append("profileLinks", JSON.stringify(payload.profileLinks));
@@ -509,6 +557,7 @@ export function DashboardOnboarding({ token, profile, onCompleted, onSkip }) {
       body.append("customThemes", JSON.stringify(payload.customThemes));
       body.append("contactCard", JSON.stringify(payload.contactCard));
       body.append("billingProfile", JSON.stringify(payload.billingProfile));
+      body.append("dorikaProfile", JSON.stringify(payload.dorikaProfile));
       body.append("removePaymentQrIds", JSON.stringify([]));
 
       if (wizard.photo) {
@@ -569,25 +618,48 @@ export function DashboardOnboarding({ token, profile, onCompleted, onSkip }) {
 
         <div className="onboarding-step">
           {currentStep.id === "category" ? (
-            <div className="onboarding-category-grid">
-              {CATEGORY_OPTIONS.map((option) => {
-                const CategoryIcon = option.icon;
-                return (
-                  <button
-                    key={option.value}
-                    className={`onboarding-category-card ${wizard.businessCategory === option.value ? "is-active" : ""}`}
-                    type="button"
-                    onClick={() => handleCategorySelect(option.value)}
-                  >
-                    <span className="onboarding-category-icon"><CategoryIcon size={23} /></span>
-                    <span className="onboarding-category-copy">
-                      <strong>{option.label}</strong>
-                      <span>{option.copy}</span>
-                    </span>
-                    <ArrowRight className="onboarding-category-arrow" size={18} />
-                  </button>
-                );
-              })}
+            <div className="section-stack">
+              <div className="onboarding-category-grid">
+                {CATEGORY_OPTIONS.map((option) => {
+                  const CategoryIcon = option.icon;
+                  return (
+                    <button
+                      key={option.value}
+                      className={`onboarding-category-card ${wizard.businessCategory === option.value ? "is-active" : ""}`}
+                      type="button"
+                      onClick={() => handleCategorySelect(option.value)}
+                    >
+                      <span className="onboarding-category-icon"><CategoryIcon size={23} /></span>
+                      <span className="onboarding-category-copy">
+                        <strong>{option.label}</strong>
+                        <span>{option.copy}</span>
+                      </span>
+                      <ArrowRight className="onboarding-category-arrow" size={18} />
+                    </button>
+                  );
+                })}
+              </div>
+
+              {businessTypeOptions.length ? (
+                <div className="onboarding-type-panel">
+                  <div>
+                    <strong>Que hace o vende tu negocio</strong>
+                    <p className="section-copy">Esto nos ayuda a sugerir modulo, tema, iconos y experiencia comercial.</p>
+                  </div>
+                  <div className="onboarding-type-grid">
+                    {businessTypeOptions.map((option) => (
+                      <button
+                        key={option.value}
+                        className={`onboarding-type-chip ${wizard.businessType === option.value ? "is-active" : ""}`}
+                        type="button"
+                        onClick={() => updateWizardField("businessType", option.value)}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
             </div>
           ) : null}
 
@@ -656,6 +728,25 @@ export function DashboardOnboarding({ token, profile, onCompleted, onSkip }) {
                     </select>
                   </div>
                 </div>
+                <div className="onboarding-map-capture">
+                  <div>
+                    <strong>Ubicacion exacta</strong>
+                    <span>
+                      {hasMapPoint(wizard.dorikaProfile)
+                        ? `${Number(wizard.dorikaProfile.latitude).toFixed(6)}, ${Number(wizard.dorikaProfile.longitude).toFixed(6)}`
+                        : "Abre el mapa y deja el pin sobre tu negocio."}
+                    </span>
+                  </div>
+                  <button
+                    className="btn btn-secondary"
+                    type="button"
+                    onClick={() => setLocationMapOpen(true)}
+                    disabled={!wizard.billingProfile?.city}
+                  >
+                    <LocateFixed size={16} />
+                    {hasMapPoint(wizard.dorikaProfile) ? "Ajustar punto" : "Ubicar en mapa"}
+                  </button>
+                </div>
               </div>
 
               <div className="profile-grid">
@@ -696,7 +787,7 @@ export function DashboardOnboarding({ token, profile, onCompleted, onSkip }) {
           {currentStep.id === "actions" ? (
             <div className="section-stack">
               <div className="notice">
-                <span>WhatsApp es el contacto principal. Página, ubicación y redes son opcionales: si las dejas vacías no aparecerán en tu link público.</span>
+                <span>WhatsApp es el contacto principal. Pagina y redes son opcionales. La ubicacion ya quedo definida desde el mapa.</span>
               </div>
               {onboardingActionSlots.map((slot) => (
                 <div key={slot.id} className="link-row onboarding-link-row">
@@ -916,6 +1007,22 @@ export function DashboardOnboarding({ token, profile, onCompleted, onSkip }) {
           <DashboardPreview user={previewUser} />
         </div>
       </aside>
+      <DorikaMapPicker
+        open={locationMapOpen}
+        businessName={wizard.businessName}
+        initialLatitude={wizard.dorikaProfile?.latitude}
+        initialLongitude={wizard.dorikaProfile?.longitude}
+        initialCity={wizard.billingProfile?.city || wizard.dorikaProfile?.city}
+        initialZone={wizard.dorikaProfile?.zone}
+        initialAddress={wizard.dorikaProfile?.address}
+        eyebrow="Ubicacion del negocio"
+        title="Ubica tu negocio en el mapa"
+        copy="Busca la direccion, usa tu ubicacion actual o mueve el mapa hasta dejar el pin sobre el local."
+        saveLabel="Usar esta ubicacion"
+        savedMessage="Punto ajustado. Guarda para usarlo en tu Klicor."
+        onClose={() => setLocationMapOpen(false)}
+        onSave={handleSaveMapLocation}
+      />
     </section>
   );
 }
