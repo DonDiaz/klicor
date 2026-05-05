@@ -8,6 +8,7 @@ import {
   MessageCircle,
   Minus,
   Plus,
+  Share2,
   ShoppingCart,
   Trash2,
   X,
@@ -443,7 +444,22 @@ function ProductCard({
 
   return (
     <article className={`commerce-product-card commerce-visual-product-card ${supportsCart ? "supports-cart" : "is-catalog-card"}`.trim()}>
-      <button className="commerce-product-main" type="button" onClick={() => onOpenDetails(product)} disabled={preview}>
+      <div
+        className="commerce-product-main"
+        role="button"
+        tabIndex={preview ? -1 : 0}
+        aria-disabled={preview}
+        onClick={() => {
+          if (!preview) onOpenDetails(product);
+        }}
+        onKeyDown={(event) => {
+          if (preview) return;
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            onOpenDetails(product);
+          }
+        }}
+      >
         <div className="commerce-product-image-shell" aria-hidden="true">
           {product.imageThumbUrl || product.imageUrl ? (
             <img
@@ -466,15 +482,25 @@ function ProductCard({
             ) : (
               <span className="commerce-product-price-placeholder">{isCatalog ? "Consultar" : "Ver detalle"}</span>
             )}
+            {supportsCart ? (
+              <button
+                className="commerce-product-add-button"
+                type="button"
+                aria-label={orderingEnabled ? `Agregar ${product.name}` : "Tienda cerrada"}
+                title={orderingEnabled ? "Agregar" : "Cerrado"}
+                onClick={(event) => {
+                  event.preventDefault();
+                  event.stopPropagation();
+                  onAdd(product, 1);
+                }}
+                disabled={preview || !orderingEnabled}
+              >
+                <Plus size={16} strokeWidth={2.5} />
+              </button>
+            ) : null}
           </div>
         </div>
-      </button>
-
-      {supportsCart ? (
-        <button className="commerce-product-add-button" type="button" onClick={() => onAdd(product, 1)} disabled={preview || !orderingEnabled}>
-          {orderingEnabled ? "Agregar" : "Cerrado"} <Plus size={16} />
-        </button>
-      ) : null}
+      </div>
     </article>
   );
 }
@@ -1054,6 +1080,29 @@ export function CommercePublicView({ bootstrap, preview = false }) {
     window.open(buildWhatsappLink(safeBootstrap.orderWhatsapp, message), "_blank", "noopener,noreferrer");
   }
 
+  async function handleShareStore() {
+    if (preview || typeof window === "undefined") return;
+    const shareUrl = window.location.href;
+    const shareData = {
+      title: safeBusiness.businessName,
+      text: `Mira la tienda de ${safeBusiness.businessName} en Klicor`,
+      url: shareUrl,
+    };
+
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+        return;
+      } catch {
+        return;
+      }
+    }
+
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(shareUrl);
+    }
+  }
+
   function handleCheckout() {
     if (preview || !orderingEnabled || !canSendOrder) return;
     const message = buildOrderMessage({
@@ -1077,11 +1126,16 @@ export function CommercePublicView({ bootstrap, preview = false }) {
             ) : (
               <div className="commerce-avatar commerce-avatar-fallback">{safeBusiness.businessName?.slice(0, 1) || "K"}</div>
             )}
-            <div className="commerce-hero-brand-copy">
+            <div className="commerce-hero-brand-copy" aria-label={safeBusiness.businessName}>
               <h1>{safeBusiness.businessName}</h1>
+            </div>
+            <div className="commerce-header-actions">
               <span className={`commerce-hours-pill ${orderingEnabled ? "is-open" : "is-closed"}`.trim()}>
-                {businessHoursStatus.label}
+                {orderingEnabled ? "Abierto" : "Cerrado"}
               </span>
+              <button type="button" className="commerce-share-button" onClick={handleShareStore} aria-label="Compartir tienda">
+                <Share2 size={17} />
+              </button>
             </div>
           </div>
         </header>
