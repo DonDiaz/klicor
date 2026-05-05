@@ -302,15 +302,15 @@ export function BookingPublicView({ bootstrap }) {
     setError("");
 
     if (config.allowStaffSelection === false) {
-      const nextDates = await loadDates(serviceId, nextStaffId);
-      if (nextDates[0]?.date) {
+      setStepIndex(2);
+      loadDates(serviceId, nextStaffId).then(async (nextDates) => {
+        if (!nextDates[0]?.date) return;
         setSelection((current) => ({
           ...current,
           appointmentDate: nextDates[0].date,
         }));
         await loadSlots(nextDates[0].date, serviceId, nextStaffId);
-      }
-      setStepIndex(2);
+      });
       return;
     }
 
@@ -326,14 +326,16 @@ export function BookingPublicView({ bootstrap }) {
       startTime: "",
     }));
     setSlots([]);
-    const nextDates = await loadDates(selection.serviceId, nextStaffId);
-    if (nextDates[0]?.date) {
+    setAvailabilityDates([]);
+    setStepIndex(2);
+    loadDates(selection.serviceId, nextStaffId).then(async (nextDates) => {
+      if (!nextDates[0]?.date) return;
       setSelection((current) => ({
         ...current,
         appointmentDate: nextDates[0].date,
       }));
       await loadSlots(nextDates[0].date, selection.serviceId, nextStaffId);
-    }
+    });
   }
 
   async function handleSelectDate(date) {
