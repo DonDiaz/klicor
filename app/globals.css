@@ -9233,8 +9233,135 @@ html[data-theme="dark"] .admin-sidebar-note {
   color: var(--booking-text, #0f172a);
 }
 
+.booking-public-page .booking-schedule-picker {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.booking-public-page .booking-calendar {
+  padding: 0.7rem;
+  border: 1px solid var(--booking-border, rgba(15, 23, 42, 0.08));
+  border-radius: 8px;
+  background: var(--booking-card, rgba(255, 255, 255, 0.88));
+}
+
+.booking-public-date-strip {
+  display: flex;
+  gap: 0.45rem;
+  overflow-x: auto;
+  padding-bottom: 0.1rem;
+  scrollbar-width: none;
+}
+
+.booking-public-date-strip::-webkit-scrollbar {
+  display: none;
+}
+
+.booking-public-date-strip .booking-calendar-day {
+  flex: 0 0 4.2rem;
+  min-height: 4.2rem;
+  text-transform: capitalize;
+}
+
 .booking-public-page .booking-calendar-day[disabled] {
   background: transparent;
+}
+
+.booking-public-page .booking-slot-panel {
+  display: grid;
+  gap: 0.65rem;
+  padding: 0.8rem;
+  border: 1px solid var(--booking-border, rgba(15, 23, 42, 0.08));
+  border-radius: 8px;
+  background: var(--booking-card, rgba(255, 255, 255, 0.88));
+}
+
+.booking-public-page .booking-slot-panel > strong {
+  color: var(--booking-text, #0f172a);
+  font-size: 1.05rem;
+}
+
+.booking-public-page .booking-slot-panel > p {
+  margin: -0.3rem 0 0;
+  color: var(--booking-muted, #475569);
+}
+
+.booking-hour-status {
+  justify-self: start;
+  min-height: 2rem;
+  border-radius: 999px;
+  padding: 0.45rem 0.8rem;
+  display: inline-flex;
+  align-items: center;
+  background: rgba(244, 63, 94, 0.95);
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 850;
+}
+
+.booking-hour-status.is-selected {
+  background: var(--booking-primary, #2563eb);
+  color: var(--booking-button-text, #fff);
+}
+
+.booking-staff-strip {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.booking-staff-strip > span {
+  color: var(--booking-muted, #475569);
+  font-size: 0.82rem;
+  font-weight: 750;
+}
+
+.booking-staff-strip-list {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.booking-staff-strip-list::-webkit-scrollbar {
+  display: none;
+}
+
+.booking-public-page .booking-staff-strip-list .booking-staff-card {
+  flex: 0 0 15rem;
+  grid-template-columns: 3rem minmax(0, 1fr);
+  align-items: center;
+}
+
+.booking-time-periods {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.35rem;
+  padding: 0.32rem;
+  border: 1px solid var(--booking-border, rgba(15, 23, 42, 0.08));
+  border-radius: 999px;
+  background: var(--booking-input, #fff);
+}
+
+.booking-period-tab {
+  min-height: 2.45rem;
+  border: 0;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  background: transparent;
+  color: var(--booking-muted, #475569);
+  font-weight: 850;
+}
+
+.booking-period-tab.is-active {
+  background: var(--booking-primary, #2563eb);
+  color: var(--booking-button-text, #fff);
+}
+
+.booking-period-tab:disabled {
+  opacity: 0.45;
 }
 
 .booking-public-page .booking-time-grid {
@@ -9246,6 +9373,11 @@ html[data-theme="dark"] .admin-sidebar-note {
 .booking-public-page .booking-time-chip {
   min-height: 2.75rem;
   padding: 0.65rem 0.45rem;
+}
+
+.booking-public-page .booking-time-grid .booking-loading-state,
+.booking-public-page .booking-time-grid .booking-empty-state {
+  grid-column: 1 / -1;
 }
 
 .booking-public-page .booking-summary-card {

@@ -2,11 +2,9 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { addMonths, startOfMonth, subMonths } from "date-fns";
-import { CheckCircle2, ChevronLeft, ChevronRight, LoaderCircle, MessageCircle } from "lucide-react";
+import { CheckCircle2, ChevronLeft, ChevronRight, CloudSun, LoaderCircle, MessageCircle, Moon, Sun } from "lucide-react";
 import { apiFetch } from "@/lib/client-api";
 import {
-  BOOKING_DAY_OPTIONS,
-  buildBookingCalendarMonth,
   canMoveBookingMonth,
   formatBookingDateLabel,
   formatBookingMonthLabel,
@@ -23,18 +21,20 @@ import {
 
 const PUBLIC_STEPS = [
   { id: "service", label: "Servicio" },
-  { id: "staff", label: "Profesional" },
-  { id: "date", label: "Fecha" },
-  { id: "time", label: "Hora" },
+  { id: "schedule", label: "Fecha y hora" },
   { id: "data", label: "Tus datos" },
 ];
 
 const PUBLIC_STEP_TITLES = [
   "Elige un servicio",
-  "Elige profesional",
-  "Elige una fecha",
-  "Elige una hora",
+  "Selecciona fecha y hora",
   "Tus datos",
+];
+
+const TIME_PERIODS = [
+  { id: "morning", label: "Mañana", icon: Sun, start: 0, end: 12 * 60 },
+  { id: "afternoon", label: "Tarde", icon: CloudSun, start: 12 * 60, end: 18 * 60 },
+  { id: "night", label: "Noche", icon: Moon, start: 18 * 60, end: 24 * 60 },
 ];
 
 const BOOKING_RESULT_COPY = {
@@ -152,6 +152,25 @@ function validateBookingDetails(selection) {
   return "";
 }
 
+function timeToMinutesValue(value = "") {
+  const [hours = "0", minutes = "0"] = String(value || "").split(":");
+  return (Number(hours) || 0) * 60 + (Number(minutes) || 0);
+}
+
+function groupSlotsByPeriod(slots = []) {
+  return TIME_PERIODS.reduce((groups, period) => {
+    groups[period.id] = slots.filter((slot) => {
+      const minutes = timeToMinutesValue(slot.startTime);
+      return minutes >= period.start && minutes < period.end;
+    });
+    return groups;
+  }, {});
+}
+
+function getFirstAvailablePeriod(groups = {}) {
+  return TIME_PERIODS.find((period) => groups[period.id]?.length)?.id || TIME_PERIODS[0].id;
+}
+
 export function BookingPublicView({ bootstrap }) {
   const business = bootstrap?.business || {};
   const appearance = bootstrap?.appearance || {};
@@ -173,6 +192,7 @@ export function BookingPublicView({ bootstrap }) {
   const [slots, setSlots] = useState([]);
   const [loadingDates, setLoadingDates] = useState(false);
   const [loadingSlots, setLoadingSlots] = useState(false);
+  const [activeTimePeriod, setActiveTimePeriod] = useState(TIME_PERIODS[0].id);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(null);
@@ -193,21 +213,15 @@ export function BookingPublicView({ bootstrap }) {
     () => staff.find((item) => item.id === selection.staffId) || null,
     [staff, selection.staffId],
   );
-  const availableDateMap = useMemo(
-    () => new Set(availabilityDates.map((item) => item.date)),
-    [availabilityDates],
-  );
   const calendarBounds = useMemo(
     () => getBookingCalendarBounds(config.maxDaysAhead || 30),
     [config.maxDaysAhead],
   );
-  const calendarDays = useMemo(
-    () => buildBookingCalendarMonth(calendarMonth, {
-      minDate: calendarBounds.minDate,
-      maxDate: calendarBounds.maxDate,
-    }),
-    [calendarBounds.maxDate, calendarBounds.minDate, calendarMonth],
-  );
+  const visibleAvailabilityDates = useMemo(() => availabilityDates.filter((item) => {
+    const date = new Date(`${item.date}T00:00:00`);
+    return date.getMonth() === calendarMonth.getMonth() && date.getFullYear() === calendarMonth.getFullYear();
+  }), [availabilityDates, calendarMonth]);
+  const slotsByPeriod = useMemo(() => groupSlotsByPeriod(slots), [slots]);
 
   const rootStyle = useMemo(() => ({
     "--booking-primary": publicTheme.primary,
@@ -240,10 +254,13 @@ export function BookingPublicView({ bootstrap }) {
     setError("");
     try {
       const response = await apiFetch(`/api/public/booking/${business.usernameLower || business.username}?serviceId=${encodeURIComponent(nextServiceId)}&staffId=${encodeURIComponent(nextStaffId || "any")}`);
-      setAvailabilityDates(Array.isArray(response.data?.availableDates) ? response.data.availableDates : []);
+      const nextDates = Array.isArray(response.data?.availableDates) ? response.data.availableDates : [];
+      setAvailabilityDates(nextDates);
+      return nextDates;
     } catch (nextError) {
       setError(nextError.message);
       setAvailabilityDates([]);
+      return [];
     } finally {
       setLoadingDates(false);
     }
@@ -255,10 +272,15 @@ export function BookingPublicView({ bootstrap }) {
     setError("");
     try {
       const response = await apiFetch(`/api/public/booking/${business.usernameLower || business.username}?serviceId=${encodeURIComponent(nextServiceId)}&staffId=${encodeURIComponent(nextStaffId || "any")}&date=${encodeURIComponent(nextDate)}`);
-      setSlots(Array.isArray(response.data?.slots) ? response.data.slots : []);
+      const nextSlots = Array.isArray(response.data?.slots) ? response.data.slots : [];
+      const nextGroups = groupSlotsByPeriod(nextSlots);
+      setSlots(nextSlots);
+      setActiveTimePeriod(getFirstAvailablePeriod(nextGroups));
+      return nextSlots;
     } catch (nextError) {
       setError(nextError.message);
       setSlots([]);
+      return [];
     } finally {
       setLoadingSlots(false);
     }
@@ -277,12 +299,14 @@ export function BookingPublicView({ bootstrap }) {
     setSlots([]);
     setError("");
 
-    if (config.allowStaffSelection === false) {
-      await loadDates(serviceId, nextStaffId);
-      setStepIndex(2);
-      return;
+    const nextDates = await loadDates(serviceId, nextStaffId);
+    if (nextDates[0]?.date) {
+      setSelection((current) => ({
+        ...current,
+        appointmentDate: nextDates[0].date,
+      }));
+      await loadSlots(nextDates[0].date, serviceId, nextStaffId);
     }
-
     setStepIndex(1);
   }
 
@@ -295,8 +319,14 @@ export function BookingPublicView({ bootstrap }) {
       startTime: "",
     }));
     setSlots([]);
-    await loadDates(selection.serviceId, nextStaffId);
-    setStepIndex(2);
+    const nextDates = await loadDates(selection.serviceId, nextStaffId);
+    if (nextDates[0]?.date) {
+      setSelection((current) => ({
+        ...current,
+        appointmentDate: nextDates[0].date,
+      }));
+      await loadSlots(nextDates[0].date, selection.serviceId, nextStaffId);
+    }
   }
 
   async function handleSelectDate(date) {
@@ -306,7 +336,6 @@ export function BookingPublicView({ bootstrap }) {
       startTime: "",
     }));
     await loadSlots(date);
-    setStepIndex(3);
   }
 
   function handleSelectTime(startTime) {
@@ -314,7 +343,7 @@ export function BookingPublicView({ bootstrap }) {
       ...current,
       startTime,
     }));
-    setStepIndex(4);
+    setStepIndex(2);
   }
 
   async function handleSubmit(event) {
@@ -386,107 +415,128 @@ export function BookingPublicView({ bootstrap }) {
               ) : null}
 
               {stepIndex === 1 ? (
-                <div className="booking-choice-grid">
-                  <BookingStaffCard
-                    staff={{ name: "Cualquiera disponible", roleOrSpecialty: "Te asignaremos un profesional libre" }}
-                    highlight
-                    selected={selection.staffId === "any"}
-                    onClick={() => handleSelectStaff("any")}
-                  />
-                  {config.allowStaffSelection !== false ? eligibleStaff.map((member) => (
-                    <BookingStaffCard
-                      key={member.id}
-                      staff={member}
-                      selected={selection.staffId === member.id}
-                      onClick={() => handleSelectStaff(member.id)}
-                    />
-                  )) : null}
-                </div>
-              ) : null}
-
-              {stepIndex === 2 ? (
-                <div className="booking-calendar">
-                  <div className="booking-calendar-header">
-                    <button
-                      className="booking-calendar-nav"
-                      type="button"
-                      onClick={() => setCalendarMonth((current) => subMonths(current, 1))}
-                      disabled={!canMoveBookingMonth(calendarMonth, -1, calendarBounds)}
-                    >
-                      <ChevronLeft size={16} />
-                    </button>
-                    <strong>{formatBookingMonthLabel(calendarMonth)}</strong>
-                    <button
-                      className="booking-calendar-nav"
-                      type="button"
-                      onClick={() => setCalendarMonth((current) => addMonths(current, 1))}
-                      disabled={!canMoveBookingMonth(calendarMonth, 1, calendarBounds)}
-                    >
-                      <ChevronRight size={16} />
-                    </button>
-                  </div>
-                  <div className="booking-calendar-weekdays">
-                    {BOOKING_DAY_OPTIONS.map((day) => (
-                      <span key={day.value}>{day.shortLabel}</span>
-                    ))}
-                  </div>
-                  {loadingDates ? (
-                    <div className="booking-loading-state">
-                      <LoaderCircle size={18} className="spin" />
-                      <span>Buscando fechas disponibles...</span>
+                <div className="booking-schedule-picker">
+                  <div className="booking-calendar">
+                    <div className="booking-calendar-header">
+                      <button
+                        className="booking-calendar-nav"
+                        type="button"
+                        onClick={() => setCalendarMonth((current) => subMonths(current, 1))}
+                        disabled={!canMoveBookingMonth(calendarMonth, -1, calendarBounds)}
+                      >
+                        <ChevronLeft size={16} />
+                      </button>
+                      <strong>{formatBookingMonthLabel(calendarMonth)}</strong>
+                      <button
+                        className="booking-calendar-nav"
+                        type="button"
+                        onClick={() => setCalendarMonth((current) => addMonths(current, 1))}
+                        disabled={!canMoveBookingMonth(calendarMonth, 1, calendarBounds)}
+                      >
+                        <ChevronRight size={16} />
+                      </button>
                     </div>
-                  ) : (
-                    <div className="booking-calendar-grid">
-                      {calendarDays.map((day) => {
-                        if (!day.inMonth) {
-                          return <span key={day.key} className="booking-calendar-placeholder" aria-hidden="true" />;
-                        }
+                    {loadingDates ? (
+                      <div className="booking-loading-state">
+                        <LoaderCircle size={18} className="spin" />
+                        <span>Buscando fechas disponibles...</span>
+                      </div>
+                    ) : (
+                      <div className="booking-public-date-strip">
+                        {visibleAvailabilityDates.map((item) => {
+                          const date = new Date(`${item.date}T00:00:00`);
+                          const selected = selection.appointmentDate === item.date;
 
-                        const enabled = !day.isBeforeRange && !day.isAfterRange && availableDateMap.has(day.dateString);
-                        const selected = selection.appointmentDate === day.dateString;
+                          return (
+                            <button
+                              key={item.date}
+                              className={`booking-calendar-day ${selected ? "is-selected" : ""}`.trim()}
+                              type="button"
+                              onClick={() => handleSelectDate(item.date)}
+                            >
+                              <span>{date.toLocaleDateString("es-CO", { weekday: "short" })}</span>
+                              <strong>{date.getDate()}</strong>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
 
+                  <section className="booking-slot-panel">
+                    <span className={`booking-hour-status ${selection.startTime ? "is-selected" : ""}`.trim()}>
+                      {selection.startTime ? formatTimeLabel(selection.startTime) : "Sin hora seleccionada"}
+                    </span>
+                    <strong>{selectedService?.name}</strong>
+                    <p>
+                      {selectedService ? `${selectedService.durationMinutes} min · ${summary?.professional} · ${money(selectedService.price, currency)}` : ""}
+                    </p>
+
+                    <div className="booking-staff-strip">
+                      <span>Colaborador seleccionado:</span>
+                      <div className="booking-staff-strip-list">
+                        {config.allowStaffSelection !== false ? (
+                          <BookingStaffCard
+                            staff={{ name: "Cualquiera disponible", roleOrSpecialty: "Máxima disponibilidad" }}
+                            highlight
+                            selected={selection.staffId === "any"}
+                            onClick={() => handleSelectStaff("any")}
+                          />
+                        ) : null}
+                        {config.allowStaffSelection !== false ? eligibleStaff.map((member) => (
+                          <BookingStaffCard
+                            key={member.id}
+                            staff={member}
+                            selected={selection.staffId === member.id}
+                            onClick={() => handleSelectStaff(member.id)}
+                          />
+                        )) : selectedStaff ? (
+                          <BookingStaffCard staff={selectedStaff} selected onClick={() => {}} />
+                        ) : null}
+                      </div>
+                    </div>
+
+                    <div className="booking-time-periods">
+                      {TIME_PERIODS.map((period) => {
+                        const Icon = period.icon;
                         return (
                           <button
-                            key={day.key}
-                            className={`booking-calendar-day ${selected ? "is-selected" : ""}`.trim()}
+                            key={period.id}
+                            className={`booking-period-tab ${activeTimePeriod === period.id ? "is-active" : ""}`.trim()}
                             type="button"
-                            disabled={!enabled}
-                            onClick={() => handleSelectDate(day.dateString)}
+                            onClick={() => setActiveTimePeriod(period.id)}
+                            disabled={!slotsByPeriod[period.id]?.length}
                           >
-                            <strong>{day.date.getDate()}</strong>
-                            <span>{day.date.toLocaleDateString("es-CO", { month: "short" })}</span>
+                            <Icon size={16} /> {period.label}
                           </button>
                         );
                       })}
                     </div>
-                  )}
+                    <div className="booking-time-grid">
+                      {loadingSlots ? (
+                        <div className="booking-loading-state">
+                          <LoaderCircle size={18} className="spin" />
+                          <span>Cargando horarios...</span>
+                        </div>
+                      ) : slotsByPeriod[activeTimePeriod]?.length ? slotsByPeriod[activeTimePeriod].map((slot) => (
+                        <BookingTimeChip
+                          key={slot.startTime}
+                          label={slot.label}
+                          selected={selection.startTime === slot.startTime}
+                          onClick={() => handleSelectTime(slot.startTime)}
+                        />
+                      )) : (
+                        <div className="booking-empty-state">
+                          <strong>Sin horarios en este bloque</strong>
+                          <p>Prueba con otro momento del día.</p>
+                        </div>
+                      )}
+                    </div>
+                  </section>
                 </div>
               ) : null}
 
-              {stepIndex === 3 ? (
-                <div className="booking-time-grid">
-                  {loadingSlots ? (
-                    <div className="booking-loading-state">
-                      <LoaderCircle size={18} className="spin" />
-                      <span>Cargando horarios...</span>
-                    </div>
-                  ) : slots.length ? slots.map((slot) => (
-                    <BookingTimeChip
-                      key={slot.startTime}
-                      label={slot.label}
-                      selected={selection.startTime === slot.startTime}
-                      onClick={() => handleSelectTime(slot.startTime)}
-                    />
-                  )) : (
-                    <div className="booking-empty-state">
-                      <strong>Sin horarios disponibles</strong>
-                      <p>Prueba con otra fecha o profesional.</p>
-                    </div>
-                  )}
-                </div>
-              ) : null}
-
-              {stepIndex === 4 ? (
+              {stepIndex === 2 ? (
                 <form className="booking-data-form" onSubmit={handleSubmit}>
                   <div className="booking-summary-card">
                     <strong>{bookingCopy.summaryTitle}</strong>
