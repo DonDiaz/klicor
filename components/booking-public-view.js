@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { addMonths, startOfMonth, subMonths } from "date-fns";
-import { ChevronLeft, ChevronRight, LoaderCircle, MessageCircle } from "lucide-react";
+import { CheckCircle2, ChevronLeft, ChevronRight, LoaderCircle, MessageCircle } from "lucide-react";
 import { apiFetch } from "@/lib/client-api";
 import {
   BOOKING_DAY_OPTIONS,
@@ -26,8 +26,109 @@ const PUBLIC_STEPS = [
   { id: "staff", label: "Profesional" },
   { id: "date", label: "Fecha" },
   { id: "time", label: "Hora" },
-  { id: "data", label: "Datos" },
+  { id: "data", label: "Tus datos" },
 ];
+
+const PUBLIC_STEP_TITLES = [
+  "Elige un servicio",
+  "Elige profesional",
+  "Elige una fecha",
+  "Elige una hora",
+  "Tus datos",
+];
+
+const BOOKING_RESULT_COPY = {
+  confirmed: {
+    summaryTitle: "Resumen de la cita",
+    submitLabel: "Confirmar cita",
+    submittingLabel: "Confirmando cita...",
+    successTitle: "Cita confirmada",
+    successMessage: "Tu cita quedó agendada. Si necesitas ajustar algo, puedes seguir la conversación por WhatsApp.",
+    whatsappLabel: "Hablar por WhatsApp",
+  },
+  pending: {
+    summaryTitle: "Resumen de la solicitud",
+    submitLabel: "Enviar solicitud",
+    submittingLabel: "Enviando solicitud...",
+    successTitle: "Solicitud enviada",
+    successMessage: "El negocio revisará tu solicitud y te confirmará pronto por WhatsApp.",
+    whatsappLabel: "Escribir por WhatsApp",
+  },
+};
+
+const PUBLIC_THEME_VERTICALS = {
+  barber: {
+    id: "barber",
+    kicker: "Barberia",
+    primary: "#d7a642",
+    primarySoft: "rgba(215, 166, 66, 0.18)",
+    page: "#050607",
+    surface: "#0d0f11",
+    surfaceSoft: "#111417",
+    card: "rgba(255, 255, 255, 0.045)",
+    chip: "rgba(255, 255, 255, 0.065)",
+    input: "rgba(255, 255, 255, 0.055)",
+    border: "rgba(215, 166, 66, 0.26)",
+    text: "#f8fafc",
+    muted: "#a7b0ba",
+    buttonText: "#090909",
+    glow: "rgba(215, 166, 66, 0.2)",
+  },
+  beauty: {
+    id: "beauty",
+    kicker: "Salon de belleza",
+    primary: "#df5b98",
+    primarySoft: "rgba(223, 91, 152, 0.16)",
+    page: "#fff7fb",
+    surface: "#ffffff",
+    surfaceSoft: "#fff1f7",
+    card: "rgba(255, 255, 255, 0.92)",
+    chip: "#fff7fb",
+    input: "#ffffff",
+    border: "rgba(223, 91, 152, 0.2)",
+    text: "#17131a",
+    muted: "#706676",
+    buttonText: "#ffffff",
+    glow: "rgba(223, 91, 152, 0.2)",
+  },
+  clinic: {
+    id: "clinic",
+    kicker: "Agenda profesional",
+    primary: "#0f63df",
+    primarySoft: "rgba(15, 99, 223, 0.14)",
+    page: "#f6f9ff",
+    surface: "#ffffff",
+    surfaceSoft: "#edf5ff",
+    card: "rgba(255, 255, 255, 0.92)",
+    chip: "#f8fbff",
+    input: "#ffffff",
+    border: "rgba(15, 99, 223, 0.18)",
+    text: "#101827",
+    muted: "#526174",
+    buttonText: "#ffffff",
+    glow: "rgba(15, 99, 223, 0.18)",
+  },
+};
+
+const BEAUTY_TYPES = new Set(["beauty_salon", "nails", "spa", "aesthetics", "massage"]);
+const CLINIC_TYPES = new Set(["dental", "medical_office", "psychology", "physical_therapy", "nutrition"]);
+
+function resolvePublicTheme(business = {}, appearance = {}) {
+  const type = String(business.businessType || appearance.businessType || "").toLowerCase();
+  const category = String(business.businessCategory || appearance.businessCategory || "").toLowerCase();
+  const name = String(business.businessName || "").toLowerCase();
+
+  if (type === "barber_shop" || name.includes("barber") || name.includes("barberia") || name.includes("barbería")) {
+    return PUBLIC_THEME_VERTICALS.barber;
+  }
+  if (BEAUTY_TYPES.has(type) || name.includes("salon") || name.includes("belleza") || name.includes("estil")) {
+    return PUBLIC_THEME_VERTICALS.beauty;
+  }
+  if (CLINIC_TYPES.has(type) || category === "health_wellness" || name.includes("clinic") || name.includes("clinica") || name.includes("clínica") || name.includes("consultorio")) {
+    return PUBLIC_THEME_VERTICALS.clinic;
+  }
+  return PUBLIC_THEME_VERTICALS.clinic;
+}
 
 function money(value, currency = "COP") {
   if (value === null || value === undefined || value === "") return "Sin precio";
@@ -76,6 +177,9 @@ export function BookingPublicView({ bootstrap }) {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(null);
   const [calendarMonth, setCalendarMonth] = useState(() => startOfMonth(new Date()));
+  const bookingMode = config.autoConfirmBooking === true ? "confirmed" : "pending";
+  const bookingCopy = BOOKING_RESULT_COPY[bookingMode];
+  const publicTheme = useMemo(() => resolvePublicTheme(business, appearance), [appearance, business]);
 
   const selectedService = useMemo(
     () => services.find((item) => item.id === selection.serviceId) || null,
@@ -106,14 +210,20 @@ export function BookingPublicView({ bootstrap }) {
   );
 
   const rootStyle = useMemo(() => ({
-    "--booking-primary": appearance.primaryColor || "#2563eb",
-    "--booking-primary-soft": `${appearance.primaryColor || "#2563eb"}1A`,
-    "--booking-surface": appearance.surfaceColor || "#ffffff",
-    "--booking-surface-soft": appearance.backgroundColor || "#f8fafc",
-    "--booking-text": appearance.textPrimaryColor || "#0f172a",
-    "--booking-muted": appearance.textSecondaryColor || "#475569",
-    "--booking-button-text": appearance.buttonPrimaryTextColor || "#ffffff",
-  }), [appearance]);
+    "--booking-primary": appearance.primaryColor || publicTheme.primary,
+    "--booking-primary-soft": appearance.primarySoftColor || publicTheme.primarySoft,
+    "--booking-page": publicTheme.page,
+    "--booking-surface": appearance.surfaceColor || publicTheme.surface,
+    "--booking-surface-soft": appearance.backgroundColor || publicTheme.surfaceSoft,
+    "--booking-card": publicTheme.card,
+    "--booking-chip": publicTheme.chip,
+    "--booking-input": publicTheme.input,
+    "--booking-border": publicTheme.border,
+    "--booking-text": appearance.textPrimaryColor || publicTheme.text,
+    "--booking-muted": appearance.textSecondaryColor || publicTheme.muted,
+    "--booking-button-text": appearance.buttonPrimaryTextColor || publicTheme.buttonText,
+    "--booking-glow": publicTheme.glow,
+  }), [appearance, publicTheme]);
 
   useEffect(() => {
     if (!selection.appointmentDate) return;
@@ -238,28 +348,20 @@ export function BookingPublicView({ bootstrap }) {
     duration: `${selectedService.durationMinutes} min`,
     price: money(selectedService.price, currency),
   } : null;
+  const resultMode = success?.appointment?.status === "confirmed" ? "confirmed" : bookingMode;
+  const resultCopy = BOOKING_RESULT_COPY[resultMode];
 
   return (
-    <main className="booking-public-page" style={rootStyle}>
+    <main className={`booking-public-page is-${publicTheme.id}`} style={rootStyle}>
       <section className="booking-public-shell">
-        <header className="booking-public-header">
-          <div className="booking-public-brand">
-            {business.photoThumb || business.photo ? (
-              <img src={business.photoThumb || business.photo} alt={business.businessName} />
-            ) : (
-              <span>{business.businessName?.slice(0, 1) || "K"}</span>
-            )}
-            <div>
-              {business.businessName ? <strong>{business.businessName}</strong> : null}
-              <h1>Agenda tu cita</h1>
-            </div>
-          </div>
-        </header>
-
         <section className="booking-wizard-card">
           {!success ? (
             <>
               <BookingStepper steps={PUBLIC_STEPS} activeIndex={stepIndex} />
+              <div className="booking-step-head">
+                {business.businessName ? <span>{publicTheme.kicker} · {business.businessName}</span> : null}
+                <h1>{PUBLIC_STEP_TITLES[stepIndex] || "Agenda"}</h1>
+              </div>
 
               {error ? <div className="notice notice-danger"><span>{error}</span></div> : null}
 
@@ -387,7 +489,7 @@ export function BookingPublicView({ bootstrap }) {
               {stepIndex === 4 ? (
                 <form className="booking-data-form" onSubmit={handleSubmit}>
                   <div className="booking-summary-card">
-                    <strong>Resumen de la cita</strong>
+                    <strong>{bookingCopy.summaryTitle}</strong>
                     <div>
                       <span>Servicio</span>
                       <b>{summary?.service}</b>
@@ -437,15 +539,16 @@ export function BookingPublicView({ bootstrap }) {
                   />
                   <button className="btn btn-primary booking-submit-button" type="submit" disabled={submitting}>
                     {submitting ? <LoaderCircle size={18} className="spin" /> : null}
-                    Confirmar cita
+                    {submitting ? bookingCopy.submittingLabel : bookingCopy.submitLabel}
                   </button>
                 </form>
               ) : null}
             </>
           ) : (
             <div className="booking-success-card">
-              <strong>Tu cita quedó registrada</strong>
-              <p>Ya reservamos tu espacio. Si quieres, puedes seguir la conversación por WhatsApp.</p>
+              <CheckCircle2 className="booking-success-icon" size={58} aria-hidden="true" />
+              <strong>{resultCopy.successTitle}</strong>
+              <p>{resultCopy.successMessage}</p>
               <div className="booking-summary-card is-success">
                 <div>
                   <span>Servicio</span>
@@ -465,7 +568,7 @@ export function BookingPublicView({ bootstrap }) {
                 </div>
               </div>
               <a className="booking-whatsapp-cta" href={success.appointment?.whatsappUrl || buildWhatsappLink(config.whatsappNumber)} target="_blank" rel="noreferrer">
-                <MessageCircle size={18} /> Hablar por WhatsApp
+                <MessageCircle size={18} /> {resultCopy.whatsappLabel}
               </a>
             </div>
           )}

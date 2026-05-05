@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Check, Clock3, MessageCircle, UserRound } from "lucide-react";
+import { Check, CheckCircle2, ChevronRight, Clock3, MessageCircle, UserRound, XCircle } from "lucide-react";
 import { BOOKING_DAY_OPTIONS, formatTimeLabel } from "@/lib/booking-config";
 
 function money(value, currency = "COP") {
@@ -31,13 +31,27 @@ export function BookingStepper({ steps = [], activeIndex = 0 }) {
 }
 
 export function BookingServiceCard({ service, selected = false, onClick, currency = "COP" }) {
+  const [imageError, setImageError] = useState(false);
+  const imageUrl = !imageError ? service.photoThumbUrl || service.photoUrl || "" : "";
+
   return (
     <button className={`booking-choice-card booking-service-card ${selected ? "is-selected" : ""}`.trim()} type="button" onClick={onClick}>
+      <div className="booking-service-thumb">
+        {imageUrl ? (
+          <img src={imageUrl} alt={service.name} onError={() => setImageError(true)} />
+        ) : (
+          <Clock3 size={18} />
+        )}
+      </div>
       <div className="booking-choice-copy">
         <strong>{service.name}</strong>
         <span><Clock3 size={14} /> {service.durationMinutes} min</span>
+        {service.description ? <p>{service.description}</p> : null}
       </div>
-      <b>{money(service.price, currency)}</b>
+      <div className="booking-service-action">
+        <b>{money(service.price, currency)}</b>
+        <ChevronRight className="booking-choice-arrow" size={18} aria-hidden="true" />
+      </div>
     </button>
   );
 }
@@ -88,7 +102,30 @@ export function BookingStatusBadge({ statusMeta }) {
   );
 }
 
-export function BookingAppointmentCard({ appointment, onWhatsapp, onStatusChange }) {
+export function BookingAppointmentCard({ appointment, compact = false, onWhatsapp, onReschedule, onStatusChange }) {
+  if (compact) {
+    return (
+      <article className="booking-appointment-card is-compact">
+        <div className="booking-appointment-copy">
+          <strong>{appointment.customerName}</strong>
+          <span>{appointment.serviceNameSnapshot}</span>
+          <small>{formatTimeLabel(appointment.startTime)} - {formatTimeLabel(appointment.endTime)}</small>
+        </div>
+        <BookingStatusBadge statusMeta={appointment.statusMeta} />
+        <div className="booking-appointment-actions">
+          {appointment.status === "pending" ? (
+            <button className="booking-status-action is-confirm" type="button" onClick={() => onStatusChange?.(appointment.id, "confirmed")}>
+              Aceptar
+            </button>
+          ) : null}
+          <button className="booking-status-action" type="button" onClick={() => onReschedule?.(appointment)}>
+            Reprogramar
+          </button>
+        </div>
+      </article>
+    );
+  }
+
   return (
     <article className="booking-appointment-card">
       <div className="booking-appointment-main">
@@ -107,12 +144,25 @@ export function BookingAppointmentCard({ appointment, onWhatsapp, onStatusChange
         <BookingStatusBadge statusMeta={appointment.statusMeta} />
       </div>
       <div className="booking-appointment-actions">
+        {appointment.status === "pending" ? (
+          <>
+            <button className="booking-status-action is-confirm" type="button" onClick={() => onStatusChange?.(appointment.id, "confirmed")}>
+              <CheckCircle2 size={16} /> Aceptar
+            </button>
+            <button className="booking-status-action is-cancel" type="button" onClick={() => onStatusChange?.(appointment.id, "cancelled_by_business")}>
+              <XCircle size={16} /> Rechazar
+            </button>
+          </>
+        ) : null}
+        <button className="booking-status-action" type="button" onClick={() => onReschedule?.(appointment)}>
+          Reprogramar
+        </button>
         <select
           className="select"
           value={appointment.status}
           onChange={(event) => onStatusChange?.(appointment.id, event.target.value)}
         >
-          <option value="pending">Pendiente</option>
+          <option value="pending">Solicitud pendiente</option>
           <option value="confirmed">Confirmada</option>
           <option value="completed">Completada</option>
           <option value="cancelled_by_customer">Cancelada por cliente</option>

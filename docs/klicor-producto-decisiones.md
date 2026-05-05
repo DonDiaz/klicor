@@ -1,6 +1,6 @@
 # Klicor - Producto, Estado Actual y Decisiones
 
-Este documento es la fuente de verdad para seguir construyendo Klicor sin depender de la memoria de un chat. Antes de hacer cambios grandes de UX, UI, onboarding, tienda, menu, catalogo, agenda o Dorika, se debe leer este documento y contrastarlo con el codigo actual.
+Este documento es la fuente de verdad para seguir construyendo Klicor sin depender de la memoria de un chat. Antes de hacer cambios grandes de UX, UI, onboarding, tienda, menu, catalogo, agenda o Dorika, se debe leer este documento, `docs/contrato-codex.md` y contrastarlo con el codigo actual.
 
 ## 1. Que es Klicor
 
@@ -77,6 +77,8 @@ Decision reciente:
 - Los enlaces ya no deben tener limite artificial por tipo.
 - Los metodos de pago ya no deben estar limitados a 2.
 - Los botones automaticos de tienda, menu, catalogo o agenda deben aparecer tambien en configuracion de enlaces para poder editar etiqueta y prioridad.
+- El link in bio es la pantalla publica de inicio del negocio. La portada con logo, foto, slogan, redes y boton principal pertenece al link in bio, no a Agenda.
+- El recorrido esperado es: cliente entra al link in bio, toca Agenda y desde ahi empieza el flujo de reserva.
 
 ### Editor completo
 
@@ -129,6 +131,27 @@ Existe configuracion de agenda mediante `bookingConfig` y componentes como `Book
 
 Debe mantenerse como modulo de citas/servicios.
 
+Estado funcional actual:
+
+- Servicios con duracion, precio, descripcion y profesionales asignados.
+- Profesionales con foto, especialidad, servicios y horario individual.
+- Horario general del negocio.
+- Disponibilidad calculada para evitar cruces de horario.
+- Citas con estados.
+- Creacion manual de citas desde el panel.
+- Vista publica en `/{username}/agenda`.
+
+Decision de producto:
+
+- Una reserva publica debe entenderse como solicitud de cita cuando el negocio usa confirmacion manual.
+- Si el negocio usa confirmacion automatica, la reserva publica debe comunicarse como cita confirmada.
+- El negocio debe tener control para aceptar, rechazar o cambiar una solicitud antes de que se envie una confirmacion definitiva.
+- La confirmacion automatica puede existir, pero no debe ser la suposicion principal para negocios que necesitan revisar su agenda.
+- La experiencia publica de Agenda no debe duplicar el inicio del link in bio; debe enfocarse en servicios, profesional, fecha/hora, datos y resultado.
+- El dashboard de Agenda debe conservar identidad Klicor, aunque la experiencia publica de Agenda tenga tono visual por vertical.
+- Agenda debe servir a negocios que venden servicios por tiempo: barberias, salones de belleza, consultorios, salud/bienestar, asesorias, tecnicos, clases o sesiones.
+- Los estados funcionales base son `pending`, `confirmed`, `completed`, `cancelled_by_customer`, `cancelled_by_business` y `no_show`.
+
 ### Dorika
 
 Existe `dorikaProfile` y logica para decidir elegibilidad.
@@ -137,6 +160,13 @@ Decision importante:
 
 - Dorika no debe volver a pedir informacion que Klicor ya sabe del negocio.
 - Dorika debe usar los datos base del perfil, tipo de negocio, ubicacion y modulo activo.
+- Dorika publico tiene su propio documento de producto en `../dorika/docs/arquitectura-producto-dorika.md`.
+- Si se trabaja el buscador de Dorika desde un hilo de Klicor, se debe revisar ese documento antes de implementar.
+- El buscador de Dorika debe consultar negocios, productos, rutas, categorias y descripciones de productos.
+- Las sugerencias del buscador deben producir un cambio real: filtrar la experiencia, navegar a mapa/rutas/intencion o abrir resultados concretos.
+- Un click en sugerencia o resultado no debe dejar al usuario en el mismo home sin cambio visible.
+- Los resultados de producto deben abrir el producto correcto en Dorika o llevar al Klicor profundo correcto cuando esa sea la accion definida.
+- La experiencia visual del buscador debe seguir el patron de Dorika: logo + barra compacta superior, como el estado que aparece al hacer scroll, no un modal pesado.
 
 ## 4. Modelo mental del producto
 
@@ -156,12 +186,14 @@ Sirve para:
 - Mostrar metodos de pago.
 - Guardar contacto.
 - Llevar a tienda, menu, catalogo o agenda.
+- Ser el punto de entrada publico antes de que el cliente abra Agenda.
 
 Tema visual:
 
 - Usa `appearance`.
 - Puede tomar colores del logo.
 - Debe ser flexible y sencillo.
+- No debe ser duplicado por la pantalla publica de Agenda.
 
 ### Tienda / menu / catalogo
 
@@ -206,6 +238,20 @@ Sirve para:
 - Citas.
 - Profesionales.
 - Horarios.
+- Solicitudes de cita.
+- Confirmacion manual o automatica segun configuracion.
+- Reprogramacion y cambios de agenda.
+- Recordatorios y mensajes posteriores cuando el negocio los active.
+
+Regla mental:
+
+- Agenda es para servicios reservables por tiempo.
+- Agenda no es tienda, menu ni catalogo de productos.
+- Agenda no es Reservas de turismo, planes, cupos o experiencias.
+- Reservas debe quedar como modulo separado para experiencias, actividades, fechas especiales y cupos.
+- Agenda publica empieza despues del link in bio; no necesita portada propia del negocio.
+- El tono visual publico de Agenda puede variar por vertical o marca.
+- El admin de Agenda mantiene el sistema visual de Klicor.
 
 ### Dorika
 
@@ -216,6 +262,8 @@ Sirve para:
 - Mostrar negocios en ciudad.
 - Filtrar por intencion.
 - Aprovechar datos ya configurados en Klicor.
+- Permitir busqueda rapida por negocio, producto, descripcion de producto, categoria y ruta.
+- Llevar al usuario a una vista con contexto, no a enlaces genericos que se sientan falsos.
 
 ## 5. Decisiones tomadas
 
@@ -586,16 +634,47 @@ No tocar por ahora:
 
 ### Agenda
 
-Prioridad: media.
+Prioridad: media-alta cuando el foco sea servicios/citas.
 
 Objetivo:
 
 - Mantenerla como modulo para servicios/citas.
 - Se debe beneficiar de la categoria del negocio, pero no mezclarse con tienda.
+- Dar control al negocio sobre solicitudes, confirmaciones y cambios de agenda.
+- Convertir Agenda en una herramienta operativa para negocios con uno o varios profesionales.
+- Mantener el dashboard de Agenda dentro del sistema visual de Klicor.
+- Permitir que la experiencia publica de Agenda adapte tono por vertical sin duplicar el link in bio.
+- Permitir una ruta basica con servicios, profesionales, horarios, link publico, solicitudes/citas, estados y confirmacion manual o automatica.
+- Permitir una ruta pro con operacion diaria avanzada, citas manuales, reprogramacion, disponibilidad por profesional/horario, notificaciones, recordatorios, reactivacion e historial basico del cliente.
+
+Pendiente funcional:
+
+- Tratar la reserva publica como solicitud cuando la confirmacion manual este activa.
+- Usar lenguaje de cita confirmada cuando la confirmacion automatica este activa.
+- Enviar confirmacion definitiva solo despues de aceptar la cita.
+- Permitir rechazo o cambio/reprogramacion de una solicitud.
+- Mejorar operacion diaria con disponibilidad por profesional y horario.
+- Permitir agendamiento manual completo desde el negocio.
+- Mantener navegacion interna contextual de Agenda sin reemplazar la navegacion global lateral de Klicor.
+- Configurar notificaciones al negocio y al cliente.
+- Configurar recordatorios antes de la cita.
+- Configurar reactivacion de clientes por dias sin volver, apagada por defecto.
+- Preparar historial basico de cliente cuando se pueda identificar por telefono.
+
+No definido todavia:
+
+- UX/UI final de la agenda operativa.
+- Imagenes de apoyo.
+- Copy final de correos, WhatsApp o mensajes automatizados.
+- Variantes visuales finales del flujo publico por vertical.
 
 No tocar por ahora:
 
 - No rehacer booking mientras se trabaja commerce/onboarding.
+- No mezclar Agenda con Reservas de turismo, planes o cupos.
+- No activar automatizaciones de retorno sin decision explicita.
+- No crear una portada publica de Agenda que repita el link in bio.
+- No hacer que el dashboard de Agenda herede el tema publico del negocio.
 
 ### Dorika
 
@@ -700,6 +779,18 @@ Estas decisiones evitan perder tiempo y tokens en direcciones que no son MVP.
 11. Migrar categorias de commerce a icono/color/nombre.
 12. Crear primeros temas MVP para commerce.
 13. Conectar Dorika a la clasificacion real del negocio.
+
+Orden recomendado cuando el foco sea Agenda:
+
+1. Consolidar regla de solicitud pendiente y confirmacion manual por defecto.
+2. Separar mensajes de solicitud recibida y cita confirmada segun configuracion del negocio.
+3. Agregar acciones de aceptar, rechazar y reprogramar solicitud.
+4. Mejorar agendamiento manual y cambios de cita desde el negocio.
+5. Construir disponibilidad operativa por profesional y horario.
+6. Agregar notificaciones configurables para negocio y cliente.
+7. Agregar recordatorios configurables antes de la cita.
+8. Agregar reactivacion de clientes apagada por defecto y configurable por dias.
+9. Agregar historial basico de cliente por telefono.
 
 ## 10. Estado del documento
 

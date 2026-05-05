@@ -4,6 +4,7 @@ import { formatApiError } from "@/lib/api-errors";
 import { createServerTiming } from "@/lib/server-timing";
 import {
   createBookingAppointment,
+  deleteBookingStaff,
   getBookingAdminState,
   getBookingAvailability,
   saveBookingConfig,
@@ -11,6 +12,7 @@ import {
   saveBookingStaff,
   toggleBookingService,
   toggleBookingStaff,
+  updateBookingAppointmentSchedule,
   updateBookingAppointmentStatus,
 } from "@/lib/booking-firestore";
 
@@ -43,6 +45,7 @@ export async function GET(request) {
           serviceId: String(searchParams.get("serviceId") || "").trim(),
           staffId: String(searchParams.get("staffId") || "").trim(),
           date: String(searchParams.get("date") || "").trim(),
+          excludeAppointmentId: String(searchParams.get("excludeAppointmentId") || "").trim(),
         }, user),
         "booking-availability",
       );
@@ -89,7 +92,9 @@ export async function POST(request) {
         result = await timing.measure("mutation", () => saveBookingConfig(user.uid, payload, user), action);
         break;
       case "save_service":
-        result = await timing.measure("mutation", () => saveBookingService(user.uid, payload, user), action);
+        result = await timing.measure("mutation", () => saveBookingService(user.uid, payload, {
+          photo: photo?.size ? photo : null,
+        }, user), action);
         break;
       case "toggle_service":
         result = await timing.measure("mutation", () => toggleBookingService(user.uid, payload.serviceId, payload.isActive, user), action);
@@ -102,11 +107,17 @@ export async function POST(request) {
       case "toggle_staff":
         result = await timing.measure("mutation", () => toggleBookingStaff(user.uid, payload.staffId, payload.isActive, user), action);
         break;
+      case "delete_staff":
+        result = await timing.measure("mutation", () => deleteBookingStaff(user.uid, payload.staffId, user), action);
+        break;
       case "create_appointment":
         result = await timing.measure("mutation", () => createBookingAppointment(user.uid, payload, { channel: "admin" }, user), action);
         break;
       case "update_appointment_status":
         result = await timing.measure("mutation", () => updateBookingAppointmentStatus(user.uid, payload, user), action);
+        break;
+      case "reschedule_appointment":
+        result = await timing.measure("mutation", () => updateBookingAppointmentSchedule(user.uid, payload, user), action);
         break;
       default:
         throw new Error("Acción de agenda no soportada.");

@@ -56,6 +56,8 @@ Reglas obligatorias:
 - Los botones publicos viven en `profileLinks`.
 - Los metodos de pago viven en `paymentMethods`.
 - Los botones automaticos de tienda, menu, catalogo y agenda deben ser editables desde configuracion de enlaces cuando existan.
+- El link in bio es la pantalla publica de inicio del negocio; Agenda no debe duplicar esa portada.
+- El acceso publico a Agenda debe nacer desde el boton/enlace de Agenda configurado en el link in bio.
 - No volver a imponer limites artificiales de cantidad de enlaces o metodos de pago salvo instruccion explicita.
 
 Prohibido:
@@ -63,6 +65,7 @@ Prohibido:
 - Convertir el link in bio en una tienda.
 - Usar temas de comercio para pintar el link in bio.
 - Ocultar botones automaticos del editor si aparecen en la vista publica.
+- Crear una pantalla de inicio de Agenda que repita logo, redes, slogan y CTA principal del link in bio sin aprobacion explicita.
 
 ## 5. Commerce: Tienda, Menu y Catalogo
 
@@ -216,18 +219,29 @@ Prohibido:
 
 ## 10. Dorika
 
+Esta seccion aplica solo a cambios de Klicor que alimentan Dorika. Si la tarea toca Dorika publico, mapa, rutas, buscador, admin de Dorika o experiencia de descubrimiento, Codex debe leer el contrato especifico de Dorika en `../dorika/docs/contrato-codex-dorika.md` cuando ese repositorio exista en el workspace.
+
 Reglas obligatorias:
 
 - Dorika no debe pedir informacion que Klicor ya tiene.
 - Dorika debe usar datos existentes del negocio.
 - La clasificacion del negocio debe vivir en Klicor como dato base.
 - Dorika debe leer categoria, tipo de negocio, vertical comercial, ubicacion, modulo activo y productos destacados si aplica.
+- Si la tarea toca Dorika publico, Codex debe leer tambien `../dorika/docs/arquitectura-producto-dorika.md` cuando ese repositorio exista en el workspace.
+- El buscador de Dorika es una experiencia de descubrimiento, no un modal tecnico ni un formulario que redirige sin contexto.
+- El buscador de Dorika debe buscar negocios, productos, rutas, categorias y descripciones de productos.
+- Las sugerencias del buscador deben modificar la experiencia visible o navegar a una vista con contexto real; esta prohibido que un click deje al usuario en el mismo home sin cambio perceptible.
+- Los resultados del buscador deben abrir el detalle correcto: negocio, producto o ruta. No deben mandar a un home generico salvo que el resultado sea una intencion o seccion claramente definida.
+- La UI del buscador debe respetar el patron existente de Dorika: al hacer scroll queda logo + barra de busqueda compacta. Al activar busqueda, la experiencia debe sentirse como extension de ese patron, no como popup pesado.
+- La busqueda debe ser rapida; si consulta base de datos, debe usar limites, indices/vistas o fallback controlado. No cargar datasets completos en cliente.
 
 Prohibido:
 
 - Duplicar preguntas de tipo de negocio dentro de Dorika.
 - Mezclar temas de commerce con logica visual de Dorika.
 - Redisenar mapa o rutas desde tareas de Klicor salvo orden explicita.
+- Crear overlays que rompan la navegacion, tapen el bottom nav sin intencion o corten el contexto visual.
+- Implementar sugerencias falsas que parezcan accionables pero no cambien nada.
 
 ## 11. Agenda
 
@@ -236,11 +250,27 @@ Reglas obligatorias:
 - Agenda debe mantenerse como modulo de citas/servicios.
 - No debe mezclarse con tienda/menu/catalogo.
 - Puede usar categoria del negocio para sugerencias, pero su flujo debe seguir separado.
+- Agenda publica debe tratar una reserva como solicitud cuando la confirmacion manual esta activa.
+- La confirmacion manual debe ser el comportamiento recomendado por defecto para evitar que el negocio reciba citas confirmadas sin revisar.
+- Una cita solicitada por el cliente debe poder quedar en estado `pending` hasta que el negocio la acepte, rechace o reprograme.
+- Si el negocio activa confirmacion automatica, la experiencia publica debe comunicar cita confirmada y no solicitud pendiente.
+- El lenguaje publico de Agenda debe depender de la configuracion del negocio: solicitud cuando hay confirmacion manual, cita confirmada cuando hay confirmacion automatica.
+- El correo o mensaje de confirmacion de cita solo debe enviarse cuando la cita pase a `confirmed`, salvo que exista una configuracion explicita para enviar acuse de recibo de solicitud.
+- Los recordatorios por correo o WhatsApp deben ser configurables por el negocio y no asumirse como obligatorios.
+- La reactivacion de clientes despues de varios dias sin volver debe ser opcional, apagada por defecto y configurable por cantidad de dias.
+- Agenda puede evolucionar hacia una capa operativa diaria para negocios con varios profesionales, manteniendo servicios, profesionales, horarios, disponibilidad, citas manuales y cambios de agenda como conceptos separados.
+- La experiencia publica de Agenda puede adaptar tono visual por vertical o marca del negocio.
+- El dashboard administrativo de Agenda debe mantener el sistema visual de Klicor y no heredar el tema publico del negocio.
+- La navegacion global de Klicor debe mantenerse lateral; la navegacion interna de Agenda debe tratarse como navegacion contextual del modulo.
 
 Prohibido:
 
 - Rehacer booking mientras la tarea es commerce/onboarding.
 - Convertir agenda en catalogo de productos.
+- Enviar confirmaciones definitivas antes de que el negocio acepte una cita cuando la confirmacion manual esta activa.
+- Activar recordatorios invasivos o campanas de retorno sin configuracion explicita del negocio.
+- Mezclar Agenda con Reservas de turismo, planes, cupos o experiencias.
+- Hacer que el dashboard administrativo de Agenda cambie de estilo por barberia, salon, consultorio u otra vertical.
 
 ## 12. Diseno y UX
 

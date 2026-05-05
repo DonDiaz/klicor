@@ -3,6 +3,8 @@ node_modules
 .env.local
 .env
 firebase-debug.log
+dev-server*.log
 .vercel
 .vercel-home
 .config
+docs/contexto-de-trabajo-codex.md

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import {
   CalendarClock,
   CalendarDays,
@@ -19,8 +19,11 @@ import {
   formatBookingDateLabel,
   formatScheduleWindowsLabel,
   formatTimeLabel,
+  getDayScheduleWindows,
+  minutesToTime,
   normalizeBookingConfig,
   normalizeWeeklySchedule,
+  timeToMinutes,
 } from "@/lib/booking-config";
 import {
   BookingAppointmentCard,
@@ -34,7 +37,7 @@ import {
 const ADMIN_SECTIONS = [
   { id: "agenda", label: "Agenda", icon: CalendarDays },
   { id: "services", label: "Servicios", icon: CalendarClock },
-  { id: "staff", label: "Personal", icon: UserRound },
+  { id: "staff", label: "Profesionales", icon: UserRound },
   { id: "hours", label: "Horarios", icon: CalendarClock },
   { id: "settings", label: "Configuración", icon: Settings2 },
 ];
@@ -44,7 +47,7 @@ const APPOINTMENT_STEPS = [
   { id: "staff", label: "Profesional" },
   { id: "date", label: "Fecha" },
   { id: "time", label: "Hora" },
-  { id: "data", label: "Datos" },
+  { id: "data", label: "Tus datos" },
 ];
 
 function money(value, currency = "COP") {
@@ -65,6 +68,9 @@ function buildDefaultServiceForm() {
     price: "",
     isActive: true,
     staffIds: [],
+    photoFile: null,
+    photoThumbUrl: "",
+    photoUrl: "",
   };
 }
 
@@ -84,6 +90,7 @@ function buildDefaultStaffForm(schedule = BOOKING_DEFAULT_BUSINESS_SCHEDULE) {
 
 function buildDefaultAppointmentForm() {
   return {
+    id: "",
     serviceId: "",
     staffId: "any",
     appointmentDate: "",
@@ -105,6 +112,32 @@ function validateAppointmentForm(form) {
   }
 
   return "";
+}
+
+function buildAgendaGrid({ dateString, config, staff = [], appointments = [], selectedStaffId = "" }) {
+  const date = dateString ? new Date(`${dateString}T00:00:00`) : new Date();
+  const dayOfWeek = date.getDay();
+  const businessDay = normalizeWeeklySchedule(config.businessSchedule).find((item) => item.dayOfWeek === dayOfWeek);
+  const windows = getDayScheduleWindows(businessDay);
+  const firstWindow = windows[0] || { startMinutes: 8 * 60, endMinutes: 18 * 60 };
+  const startMinutes = Math.floor(firstWindow.startMinutes / 30) * 30;
+  const endMinutes = Math.ceil((windows.at(-1)?.endMinutes || firstWindow.endMinutes) / 30) * 30;
+  const rows = [];
+  for (let minutes = startMinutes; minutes < endMinutes; minutes += 30) {
+    rows.push({ minutes, time: minutesToTime(minutes), label: formatTimeLabel(minutes) });
+  }
+
+  const columns = staff
+    .filter((member) => member.isActive !== false)
+    .filter((member) => !selectedStaffId || member.id === selectedStaffId);
+  const appointmentsByStaff = appointments.reduce((map, appointment) => {
+    const current = map.get(appointment.staffId) || [];
+    current.push(appointment);
+    map.set(appointment.staffId, current);
+    return map;
+  }, new Map());
+
+  return { rows, columns, appointmentsByStaff };
 }
 
 export function BookingWorkspace({ token, active = false, canEdit = true }) {
@@ -140,9 +173,18 @@ export function BookingWorkspace({ token, active = false, canEdit = true }) {
     loadState(filters);
   }, [active]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  async function loadState(nextFilters = filters) {
-    setLoading(true);
-    setError("");
+  useEffect(() => {
+    if (!message) return undefined;
+    const timeout = window.setTimeout(() => setMessage(""), 2800);
+    return () => window.clearTimeout(timeout);
+  }, [message]);
+
+  async function loadState(nextFilters = filters, options = {}) {
+    const silent = options.silent === true;
+    if (!silent) {
+      setLoading(true);
+      setError("");
+    }
     try {
       const params = new URLSearchParams({
         date: nextFilters.date,
@@ -155,7 +197,9 @@ export function BookingWorkspace({ token, active = false, canEdit = true }) {
     } catch (nextError) {
       setError(nextError.message);
     } finally {
-      setLoading(false);
+      if (!silent) {
+        setLoading(false);
+      }
     }
   }
 
@@ -175,8 +219,8 @@ export function BookingWorkspace({ token, active = false, canEdit = true }) {
         body,
         isFormData: true,
       });
-      await loadState(filters);
       setMessage("Cambios guardados.");
+      loadState(filters, { silent: true });
       return response.result;
     } catch (nextError) {
       setError(nextError.message);
@@ -199,6 +243,9 @@ export function BookingWorkspace({ token, active = false, canEdit = true }) {
       if (nextAppointment.appointmentDate) {
         params.set("date", nextAppointment.appointmentDate);
       }
+      if (nextAppointment.id) {
+        params.set("excludeAppointmentId", nextAppointment.id);
+      }
       const response = await apiFetch(`/api/booking?${params.toString()}`, { token });
       setAvailabilityDates(Array.isArray(response.availability?.availableDates) ? response.availability.availableDates : []);
       setSlots(Array.isArray(response.availability?.slots) ? response.availability.slots : []);
@@ -216,6 +263,7 @@ export function BookingWorkspace({ token, active = false, canEdit = true }) {
       ...buildDefaultServiceForm(),
       ...service,
       price: service.price ?? "",
+      photoFile: null,
     } : buildDefaultServiceForm());
   }
 
@@ -228,13 +276,30 @@ export function BookingWorkspace({ token, active = false, canEdit = true }) {
     } : buildDefaultStaffForm(configForm.businessSchedule));
   }
 
-  function openAppointmentEditor() {
+  function openAppointmentEditor(appointment = null, options = {}) {
+    const isExistingAppointment = Boolean(appointment?.id);
+    const form = appointment ? {
+      ...buildDefaultAppointmentForm(),
+      id: appointment.id,
+      serviceId: appointment.serviceId,
+      staffId: appointment.staffId || "any",
+      appointmentDate: appointment.appointmentDate,
+      startTime: appointment.startTime,
+      customerName: appointment.customerName,
+      customerPhone: appointment.customerPhone,
+      customerNote: appointment.customerNote || "",
+    } : buildDefaultAppointmentForm();
+
     setAppointmentModal({
-      stepIndex: 0,
-      form: buildDefaultAppointmentForm(),
+      mode: isExistingAppointment ? "reschedule" : "create",
+      stepIndex: options.startStep ?? (isExistingAppointment ? 2 : 0),
+      form,
     });
     setAvailabilityDates([]);
     setSlots([]);
+    if (isExistingAppointment) {
+      loadAvailability({ ...form, appointmentDate: "" });
+    }
   }
 
   async function copyPublicUrl() {
@@ -260,8 +325,8 @@ export function BookingWorkspace({ token, active = false, canEdit = true }) {
     return (
       <header className="booking-admin-header">
         <div>
-          <span>Módulo de agenda</span>
-          <h2>Agenda y reservas</h2>
+          <span>Módulo de citas y servicios</span>
+          <h2>Agenda</h2>
         </div>
         <div className="booking-admin-header-actions">
           <button className="btn btn-secondary" type="button" onClick={copyPublicUrl} disabled={!publicUrl}>
@@ -276,6 +341,14 @@ export function BookingWorkspace({ token, active = false, canEdit = true }) {
   }
 
   function renderAgendaSection() {
+    const agendaGrid = buildAgendaGrid({
+      dateString: filters.date,
+      config: configForm,
+      staff,
+      appointments,
+      selectedStaffId: filters.staffId,
+    });
+
     return (
       <section className="booking-admin-panel">
         <div className="booking-admin-toolbar">
@@ -293,7 +366,7 @@ export function BookingWorkspace({ token, active = false, canEdit = true }) {
             />
           </label>
           <label>
-            <span>Empleado</span>
+            <span>Profesional</span>
             <select
               className="select"
               value={filters.staffId}
@@ -316,26 +389,66 @@ export function BookingWorkspace({ token, active = false, canEdit = true }) {
 
         <div className="booking-admin-kpis">
           <article><strong>{summary.total}</strong><span>Citas del día</span></article>
-          <article><strong>{summary.pendingCount}</strong><span>Pendientes</span></article>
+          <article><strong>{summary.pendingCount}</strong><span>Solicitudes</span></article>
           <article><strong>{summary.confirmedCount}</strong><span>Confirmadas</span></article>
           <article><strong>{summary.hasAvailability ? "Sí" : "No"}</strong><span>Agenda libre</span></article>
         </div>
 
-        {appointments.length ? (
-          <div className="booking-appointment-list">
-            {appointments.map((appointment) => (
-              <BookingAppointmentCard
-                key={appointment.id}
-                appointment={appointment}
-                onStatusChange={(appointmentId, status) => runAction("update_appointment_status", { id: appointmentId, status })}
-                onWhatsapp={(item) => window.open(item.whatsappUrl, "_blank", "noopener,noreferrer")}
-              />
-            ))}
+        {agendaGrid.columns.length ? (
+          <div className="booking-agenda-board">
+            <div className="booking-agenda-grid" style={{ "--booking-agenda-columns": agendaGrid.columns.length }}>
+              <div className="booking-agenda-head is-time">Hora</div>
+              {agendaGrid.columns.map((member) => (
+                <div key={member.id} className="booking-agenda-head">
+                  <BookingStaffCard staff={member} onClick={() => openStaffEditor(member)} />
+                </div>
+              ))}
+              {agendaGrid.rows.map((row) => (
+                <Fragment key={row.time}>
+                  <div className="booking-agenda-time">{row.label}</div>
+                  {agendaGrid.columns.map((member) => {
+                    const cellAppointments = (agendaGrid.appointmentsByStaff.get(member.id) || [])
+                      .filter((appointment) => appointment.startMinutes >= row.minutes && appointment.startMinutes < row.minutes + 30);
+                    const isBusy = cellAppointments.length > 0;
+
+                    return (
+                      <div key={`${member.id}-${row.time}`} className={`booking-agenda-cell ${isBusy ? "is-busy" : "is-free"}`.trim()}>
+                        {isBusy ? cellAppointments.map((appointment) => (
+                          <BookingAppointmentCard
+                            key={appointment.id}
+                            appointment={appointment}
+                            compact
+                            onStatusChange={(appointmentId, status) => runAction("update_appointment_status", { id: appointmentId, status })}
+                            onReschedule={(item) => openAppointmentEditor(item)}
+                            onWhatsapp={(item) => window.open(item.whatsappUrl, "_blank", "noopener,noreferrer")}
+                          />
+                        )) : (
+                          <button
+                            className="booking-agenda-add"
+                            type="button"
+                            onClick={() => openAppointmentEditor({
+                              staffId: member.id,
+                              appointmentDate: filters.date,
+                              startTime: row.time,
+                              customerName: "",
+                              customerPhone: "",
+                              customerNote: "",
+                            }, { startStep: 0 })}
+                          >
+                            +
+                          </button>
+                        )}
+                      </div>
+                    );
+                  })}
+                </Fragment>
+              ))}
+            </div>
           </div>
         ) : (
           <div className="booking-empty-state">
-            <strong>Sin citas para esta fecha</strong>
-            <p>Cuando entren nuevas reservas o crees una manualmente, aparecerán aquí.</p>
+            <strong>Sin profesionales activos</strong>
+            <p>Crea o activa al menos un profesional para ver la agenda por horarios.</p>
           </div>
         )}
       </section>
@@ -347,8 +460,8 @@ export function BookingWorkspace({ token, active = false, canEdit = true }) {
       <section className="booking-admin-panel">
         <div className="booking-admin-section-head">
           <div>
-            <strong>Servicios</strong>
-            <span>Define duración, precio y personal asignado.</span>
+            <strong>Servicios agendables</strong>
+            <span>Define duración, precio y profesionales asignados.</span>
           </div>
           <button className="btn btn-primary" type="button" onClick={() => openServiceEditor()} disabled={!canEdit}>
             <Plus size={16} /> Crear servicio
@@ -388,7 +501,7 @@ export function BookingWorkspace({ token, active = false, canEdit = true }) {
       <section className="booking-admin-panel">
         <div className="booking-admin-section-head">
           <div>
-            <strong>Personal</strong>
+            <strong>Profesionales</strong>
             <span>Gestiona profesionales, especialidad y servicios habilitados.</span>
           </div>
           <button className="btn btn-primary" type="button" onClick={() => openStaffEditor()} disabled={!canEdit}>
@@ -412,6 +525,13 @@ export function BookingWorkspace({ token, active = false, canEdit = true }) {
                 <button className="btn btn-secondary" type="button" onClick={() => openStaffEditor(member)}>Editar</button>
                 <button className="btn btn-secondary" type="button" onClick={() => runAction("toggle_staff", { staffId: member.id, isActive: !member.isActive })}>
                   {member.isActive ? "Desactivar" : "Activar"}
+                </button>
+                <button className="btn btn-danger" type="button" onClick={() => {
+                  if (window.confirm(`¿Eliminar a ${member.name}? Esta acción no se puede deshacer.`)) {
+                    runAction("delete_staff", { staffId: member.id });
+                  }
+                }}>
+                  Eliminar
                 </button>
               </div>
             </article>
@@ -499,7 +619,31 @@ export function BookingWorkspace({ token, active = false, canEdit = true }) {
           </label>
           <label className="switch-row">
             <input type="checkbox" checked={configForm.autoConfirmBooking === true} onChange={(event) => setConfigForm((current) => ({ ...current, autoConfirmBooking: event.target.checked }))} />
-            <span>Confirmación automática</span>
+            <span>Confirmar citas automáticamente</span>
+          </label>
+          <label className="switch-row">
+            <input type="checkbox" checked={configForm.notifyBusinessOnRequest !== false} onChange={(event) => setConfigForm((current) => ({ ...current, notifyBusinessOnRequest: event.target.checked }))} />
+            <span>Avisar al negocio cuando llegue una solicitud</span>
+          </label>
+          <label className="switch-row">
+            <input type="checkbox" checked={configForm.notifyCustomerOnConfirmation !== false} onChange={(event) => setConfigForm((current) => ({ ...current, notifyCustomerOnConfirmation: event.target.checked }))} />
+            <span>Avisar al cliente cuando se confirme</span>
+          </label>
+          <label className="switch-row">
+            <input type="checkbox" checked={configForm.reminderEnabled === true} onChange={(event) => setConfigForm((current) => ({ ...current, reminderEnabled: event.target.checked }))} />
+            <span>Recordatorio antes de la cita</span>
+          </label>
+          <label>
+            <span>Minutos antes del recordatorio</span>
+            <input className="input" type="number" min="15" max="1440" value={configForm.reminderMinutesBefore} onChange={(event) => setConfigForm((current) => ({ ...current, reminderMinutesBefore: event.target.value }))} />
+          </label>
+          <label className="switch-row">
+            <input type="checkbox" checked={configForm.reactivationEnabled === true} onChange={(event) => setConfigForm((current) => ({ ...current, reactivationEnabled: event.target.checked }))} />
+            <span>Reactivar clientes sin volver</span>
+          </label>
+          <label>
+            <span>Días sin volver</span>
+            <input className="input" type="number" min="7" max="180" value={configForm.reactivationDays} onChange={(event) => setConfigForm((current) => ({ ...current, reactivationDays: event.target.value }))} />
           </label>
           <label>
             <span>WhatsApp</span>
@@ -536,11 +680,24 @@ export function BookingWorkspace({ token, active = false, canEdit = true }) {
           </button>
           <div className="commerce-modal-head">
             <strong>{serviceEditor.id ? "Editar servicio" : "Crear servicio"}</strong>
-            <span>Configura nombre, duración, precio y personal asignado.</span>
+            <span>Configura nombre, duración, precio y profesionales asignados.</span>
           </div>
           <div className="booking-editor-form">
             <input className="input" placeholder="Nombre del servicio" value={serviceEditor.name} onChange={(event) => setServiceEditor((current) => ({ ...current, name: event.target.value }))} />
             <textarea className="textarea" rows={4} placeholder="Descripción" value={serviceEditor.description} onChange={(event) => setServiceEditor((current) => ({ ...current, description: event.target.value }))} />
+            <label className="upload-card booking-upload-preview">
+              <input className="upload-input" type="file" accept="image/png,image/jpeg,image/webp" onChange={(event) => setServiceEditor((current) => ({ ...current, photoFile: event.target.files?.[0] || null }))} />
+              {serviceEditor.photoFile ? (
+                <span>{serviceEditor.photoFile.name}</span>
+              ) : serviceEditor.photoThumbUrl || serviceEditor.photoUrl ? (
+                <>
+                  <img src={serviceEditor.photoThumbUrl || serviceEditor.photoUrl} alt={serviceEditor.name || "Servicio"} />
+                  <span>Cambiar foto del servicio</span>
+                </>
+              ) : (
+                <span>Subir foto del servicio</span>
+              )}
+            </label>
             <div className="booking-inline-fields">
               <input className="input" type="number" min="5" step="5" placeholder="Duración (min)" value={serviceEditor.durationMinutes} onChange={(event) => setServiceEditor((current) => ({ ...current, durationMinutes: event.target.value }))} />
               <input className="input" type="number" min="0" step="1000" placeholder="Precio" value={serviceEditor.price} onChange={(event) => setServiceEditor((current) => ({ ...current, price: event.target.value }))} />
@@ -571,7 +728,8 @@ export function BookingWorkspace({ token, active = false, canEdit = true }) {
           <div className="commerce-modal-actions">
             <button className="btn btn-secondary" type="button" onClick={() => setServiceEditor(null)}>Cancelar</button>
             <button className="btn btn-primary" type="button" onClick={async () => {
-              const result = await runAction("save_service", serviceEditor);
+              const { photoFile, ...payload } = serviceEditor;
+              const result = await runAction("save_service", payload, photoFile);
               if (result) setServiceEditor(null);
             }}>
               <Save size={16} /> Guardar servicio
@@ -597,9 +755,18 @@ export function BookingWorkspace({ token, active = false, canEdit = true }) {
           <div className="booking-editor-form">
             <input className="input" placeholder="Nombre" value={staffEditor.name} onChange={(event) => setStaffEditor((current) => ({ ...current, name: event.target.value }))} />
             <input className="input" placeholder="Cargo o especialidad" value={staffEditor.roleOrSpecialty} onChange={(event) => setStaffEditor((current) => ({ ...current, roleOrSpecialty: event.target.value }))} />
-            <label className="upload-card">
+            <label className="upload-card booking-upload-preview">
               <input className="upload-input" type="file" accept="image/png,image/jpeg,image/webp" onChange={(event) => setStaffEditor((current) => ({ ...current, photoFile: event.target.files?.[0] || null }))} />
-              <span>{staffEditor.photoFile ? staffEditor.photoFile.name : "Subir foto opcional"}</span>
+              {staffEditor.photoFile ? (
+                <span>{staffEditor.photoFile.name}</span>
+              ) : staffEditor.photoThumbUrl || staffEditor.photoUrl ? (
+                <>
+                  <img src={staffEditor.photoThumbUrl || staffEditor.photoUrl} alt={staffEditor.name || "Profesional"} />
+                  <span>Cambiar foto del profesional</span>
+                </>
+              ) : (
+                <span>Subir foto del profesional</span>
+              )}
             </label>
             <label className="switch-row">
               <input type="checkbox" checked={staffEditor.isActive !== false} onChange={(event) => setStaffEditor((current) => ({ ...current, isActive: event.target.checked }))} />
@@ -659,9 +826,29 @@ export function BookingWorkspace({ token, active = false, canEdit = true }) {
     }
   }
 
+  function handleModalServiceSelect(serviceId, nextForm) {
+    const selected = services.find((item) => item.id === serviceId) || null;
+    const formWithService = { ...nextForm, serviceId };
+    if (formWithService.staffId && formWithService.staffId !== "any" && formWithService.appointmentDate && formWithService.startTime) {
+      const assigned = selected?.staffIds?.includes(formWithService.staffId)
+        ? formWithService.staffId
+        : "any";
+      setAppointmentModal((current) => current ? {
+        ...current,
+        form: { ...formWithService, staffId: assigned },
+        stepIndex: 4,
+      } : current);
+      return;
+    }
+
+    handleAppointmentFlow({ ...formWithService, staffId: "any", appointmentDate: "", startTime: "" }, 1);
+  }
+
   function renderAppointmentModal() {
     if (!appointmentModal) return null;
     const form = appointmentModal.form;
+    const isReschedule = appointmentModal.mode === "reschedule";
+    const hasFixedSlot = form.staffId !== "any" && form.appointmentDate && form.startTime && !isReschedule;
     const selectedService = services.find((item) => item.id === form.serviceId) || null;
     const eligibleStaff = staff.filter((item) => selectedService ? item.serviceIds.includes(selectedService.id) : false);
 
@@ -672,10 +859,10 @@ export function BookingWorkspace({ token, active = false, canEdit = true }) {
             <X size={16} />
           </button>
           <div className="commerce-modal-head">
-            <strong>Nueva cita</strong>
-            <span>Usa la misma lógica de disponibilidad de la vista pública.</span>
+            <strong>{isReschedule ? "Reprogramar cita" : "Nueva cita"}</strong>
+            <span>{hasFixedSlot ? "Completa servicio y datos del cliente." : "Usa la misma lógica de disponibilidad de la vista pública."}</span>
           </div>
-          <BookingStepper steps={APPOINTMENT_STEPS} activeIndex={appointmentModal.stepIndex} />
+          {hasFixedSlot ? null : <BookingStepper steps={APPOINTMENT_STEPS} activeIndex={appointmentModal.stepIndex} />}
 
           {appointmentModal.stepIndex === 0 ? (
             <div className="booking-choice-grid">
@@ -684,7 +871,7 @@ export function BookingWorkspace({ token, active = false, canEdit = true }) {
                   key={service.id}
                   service={service}
                   selected={form.serviceId === service.id}
-                  onClick={() => handleAppointmentFlow({ ...form, serviceId: service.id, staffId: "any", appointmentDate: "", startTime: "" }, 1)}
+                  onClick={() => handleModalServiceSelect(service.id, form)}
                 />
               ))}
             </div>
@@ -791,10 +978,10 @@ export function BookingWorkspace({ token, active = false, canEdit = true }) {
                   setError(validationError);
                   return;
                 }
-                const result = await runAction("create_appointment", form);
+                const result = await runAction(isReschedule ? "reschedule_appointment" : "create_appointment", form);
                 if (result) setAppointmentModal(null);
               }}>
-                <Save size={16} /> Crear cita
+                <Save size={16} /> {isReschedule ? "Guardar cambio" : "Crear cita"}
               </button>
             ) : null}
           </div>
@@ -815,13 +1002,13 @@ export function BookingWorkspace({ token, active = false, canEdit = true }) {
         <div className="kpi"><LoaderCircle size={18} className="spin" /> Cargando agenda...</div>
       ) : (
         <div className="booking-workspace-layout">
-          <aside className="booking-admin-sidebar">
+          <nav className="booking-admin-nav" aria-label="Secciones de agenda">
             {ADMIN_SECTIONS.map((section) => {
               const Icon = section.icon;
               return (
                 <button
                   key={section.id}
-                  className={`booking-admin-sidebar-item ${activeSection === section.id ? "is-active" : ""}`.trim()}
+                  className={`booking-admin-nav-item ${activeSection === section.id ? "is-active" : ""}`.trim()}
                   type="button"
                   onClick={() => setActiveSection(section.id)}
                 >
@@ -830,7 +1017,7 @@ export function BookingWorkspace({ token, active = false, canEdit = true }) {
                 </button>
               );
             })}
-          </aside>
+          </nav>
           <div className="booking-admin-content">
             {renderSectionContent()}
           </div>
