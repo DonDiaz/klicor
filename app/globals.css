@@ -9332,6 +9332,10 @@ html[data-theme="dark"] .admin-sidebar-note {
   align-items: center;
 }
 
+.booking-staff-strip-list.is-readonly .booking-staff-card {
+  cursor: default;
+}
+
 .booking-time-periods {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));

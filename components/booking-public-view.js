@@ -21,12 +21,14 @@ import {
 
 const PUBLIC_STEPS = [
   { id: "service", label: "Servicio" },
+  { id: "staff", label: "Profesional" },
   { id: "schedule", label: "Fecha y hora" },
   { id: "data", label: "Tus datos" },
 ];
 
 const PUBLIC_STEP_TITLES = [
   "Elige un servicio",
+  "Elige profesional",
   "Selecciona fecha y hora",
   "Tus datos",
 ];
@@ -299,14 +301,19 @@ export function BookingPublicView({ bootstrap }) {
     setSlots([]);
     setError("");
 
-    const nextDates = await loadDates(serviceId, nextStaffId);
-    if (nextDates[0]?.date) {
-      setSelection((current) => ({
-        ...current,
-        appointmentDate: nextDates[0].date,
-      }));
-      await loadSlots(nextDates[0].date, serviceId, nextStaffId);
+    if (config.allowStaffSelection === false) {
+      const nextDates = await loadDates(serviceId, nextStaffId);
+      if (nextDates[0]?.date) {
+        setSelection((current) => ({
+          ...current,
+          appointmentDate: nextDates[0].date,
+        }));
+        await loadSlots(nextDates[0].date, serviceId, nextStaffId);
+      }
+      setStepIndex(2);
+      return;
     }
+
     setStepIndex(1);
   }
 
@@ -343,7 +350,7 @@ export function BookingPublicView({ bootstrap }) {
       ...current,
       startTime,
     }));
-    setStepIndex(2);
+    setStepIndex(3);
   }
 
   async function handleSubmit(event) {
@@ -415,6 +422,25 @@ export function BookingPublicView({ bootstrap }) {
               ) : null}
 
               {stepIndex === 1 ? (
+                <div className="booking-choice-grid">
+                  <BookingStaffCard
+                    staff={{ name: "Cualquiera disponible", roleOrSpecialty: "Máxima disponibilidad" }}
+                    highlight
+                    selected={selection.staffId === "any"}
+                    onClick={() => handleSelectStaff("any")}
+                  />
+                  {config.allowStaffSelection !== false ? eligibleStaff.map((member) => (
+                    <BookingStaffCard
+                      key={member.id}
+                      staff={member}
+                      selected={selection.staffId === member.id}
+                      onClick={() => handleSelectStaff(member.id)}
+                    />
+                  )) : null}
+                </div>
+              ) : null}
+
+              {stepIndex === 2 ? (
                 <div className="booking-schedule-picker">
                   <div className="booking-calendar">
                     <div className="booking-calendar-header">
@@ -474,25 +500,15 @@ export function BookingPublicView({ bootstrap }) {
 
                     <div className="booking-staff-strip">
                       <span>Colaborador seleccionado:</span>
-                      <div className="booking-staff-strip-list">
-                        {config.allowStaffSelection !== false ? (
-                          <BookingStaffCard
-                            staff={{ name: "Cualquiera disponible", roleOrSpecialty: "Máxima disponibilidad" }}
-                            highlight
-                            selected={selection.staffId === "any"}
-                            onClick={() => handleSelectStaff("any")}
-                          />
-                        ) : null}
-                        {config.allowStaffSelection !== false ? eligibleStaff.map((member) => (
-                          <BookingStaffCard
-                            key={member.id}
-                            staff={member}
-                            selected={selection.staffId === member.id}
-                            onClick={() => handleSelectStaff(member.id)}
-                          />
-                        )) : selectedStaff ? (
-                          <BookingStaffCard staff={selectedStaff} selected onClick={() => {}} />
-                        ) : null}
+                      <div className="booking-staff-strip-list is-readonly">
+                        <BookingStaffCard
+                          staff={selection.staffId === "any"
+                            ? { name: "Cualquiera disponible", roleOrSpecialty: "Máxima disponibilidad" }
+                            : selectedStaff || { name: "Profesional", roleOrSpecialty: "Seleccionado" }}
+                          highlight={selection.staffId === "any"}
+                          selected
+                          onClick={() => {}}
+                        />
                       </div>
                     </div>
 
@@ -536,7 +552,7 @@ export function BookingPublicView({ bootstrap }) {
                 </div>
               ) : null}
 
-              {stepIndex === 2 ? (
+              {stepIndex === 3 ? (
                 <form className="booking-data-form" onSubmit={handleSubmit}>
                   <div className="booking-summary-card">
                     <strong>{bookingCopy.summaryTitle}</strong>
