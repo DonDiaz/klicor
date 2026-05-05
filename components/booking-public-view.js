@@ -257,7 +257,18 @@ export function BookingPublicView({ bootstrap }) {
     try {
       const response = await apiFetch(`/api/public/booking/${business.usernameLower || business.username}?serviceId=${encodeURIComponent(nextServiceId)}&staffId=${encodeURIComponent(nextStaffId || "any")}`);
       const nextDates = Array.isArray(response.data?.availableDates) ? response.data.availableDates : [];
+      const nextSlots = Array.isArray(response.data?.slots) ? response.data.slots : [];
+      const nextGroups = groupSlotsByPeriod(nextSlots);
       setAvailabilityDates(nextDates);
+      setSlots(nextSlots);
+      setActiveTimePeriod(getFirstAvailablePeriod(nextGroups));
+      if (response.data?.date) {
+        setSelection((current) => ({
+          ...current,
+          appointmentDate: response.data.date,
+          startTime: "",
+        }));
+      }
       return nextDates;
     } catch (nextError) {
       setError(nextError.message);
@@ -309,7 +320,6 @@ export function BookingPublicView({ bootstrap }) {
           ...current,
           appointmentDate: nextDates[0].date,
         }));
-        await loadSlots(nextDates[0].date, serviceId, nextStaffId);
       });
       return;
     }
@@ -334,7 +344,6 @@ export function BookingPublicView({ bootstrap }) {
         ...current,
         appointmentDate: nextDates[0].date,
       }));
-      await loadSlots(nextDates[0].date, selection.serviceId, nextStaffId);
     });
   }
 
