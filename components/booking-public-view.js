@@ -210,20 +210,20 @@ export function BookingPublicView({ bootstrap }) {
   );
 
   const rootStyle = useMemo(() => ({
-    "--booking-primary": appearance.primaryColor || publicTheme.primary,
-    "--booking-primary-soft": appearance.primarySoftColor || publicTheme.primarySoft,
+    "--booking-primary": publicTheme.primary,
+    "--booking-primary-soft": publicTheme.primarySoft,
     "--booking-page": publicTheme.page,
-    "--booking-surface": appearance.surfaceColor || publicTheme.surface,
-    "--booking-surface-soft": appearance.backgroundColor || publicTheme.surfaceSoft,
+    "--booking-surface": publicTheme.surface,
+    "--booking-surface-soft": publicTheme.surfaceSoft,
     "--booking-card": publicTheme.card,
     "--booking-chip": publicTheme.chip,
     "--booking-input": publicTheme.input,
     "--booking-border": publicTheme.border,
-    "--booking-text": appearance.textPrimaryColor || publicTheme.text,
-    "--booking-muted": appearance.textSecondaryColor || publicTheme.muted,
-    "--booking-button-text": appearance.buttonPrimaryTextColor || publicTheme.buttonText,
+    "--booking-text": publicTheme.text,
+    "--booking-muted": publicTheme.muted,
+    "--booking-button-text": publicTheme.buttonText,
     "--booking-glow": publicTheme.glow,
-  }), [appearance, publicTheme]);
+  }), [publicTheme]);
 
   useEffect(() => {
     if (!selection.appointmentDate) return;
