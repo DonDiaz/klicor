@@ -1,9 +1,17 @@
 import { NextResponse } from "next/server";
 import { verifyRequest } from "@/lib/auth";
 import { isUsernameAvailable } from "@/lib/firestore";
+import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
 import { sanitizeSlug } from "@/lib/utils";
 
 export async function GET(request) {
+  const rate = checkRateLimit(request, {
+    key: "username-check",
+    limit: 45,
+    windowMs: 60_000,
+  });
+  if (rate.limited) return rateLimitResponse(rate);
+
   try {
     const { user } = await verifyRequest(request);
     const username = sanitizeSlug(request.nextUrl.searchParams.get("username") || "");

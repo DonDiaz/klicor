@@ -18,6 +18,7 @@ No se busco cambiar funcionalidades visibles de agenda, comercio, Dorika o link 
 - Vercel CLI: https://vercel.com/docs/cli
 - Next.js Image remotePatterns: https://nextjs.org/docs/pages/api-reference/components/image
 - Firebase Storage Security Rules: https://firebase.google.com/docs/reference/security/storage
+- Vercel WAF Rate Limiting: https://vercel.com/docs/vercel-firewall/vercel-waf/rate-limiting
 
 ## Hallazgos
 
@@ -295,17 +296,122 @@ Archivo tocado:
 
 - `app/api/commerce/route.js`
 
+## Cuarta capa aplicada
+
+### Imagenes demo migradas
+
+Pendiente anterior:
+
+- Las tiendas demo dependian de imagenes externas (`loremflickr.com`) y logos externos (`ui-avatars.com`).
+
+Decision aplicada:
+
+- Se creo `scripts/migrate-demo-images-to-storage.mjs`.
+- Se migraron las 10 tiendas demo a Firebase Storage propio.
+- Cada producto quedo con variantes `thumb` (384 px), `card` (768 px) y `large` (1440 px).
+- Las rutas usan nombres con hash para permitir cache largo: `Cache-Control: public, max-age=31536000, immutable`.
+- Se agrego metadata por variante: tamano, bytes, contentType, path, url, variante, fecha de migracion y URL original.
+- Se actualizaron las secciones publicas para que el frontend pueda usar la variante correcta.
+
+Error corregido durante esta capa:
+
+- La primera ejecucion creo rutas nuevas en Storage (`demo-products` y `demo-assets`) sin haber actualizado primero `storage.rules`.
+- Eso produjo imagenes rotas por `403 Forbidden`.
+- Se corrigio agregando lectura publica para esas rutas y desplegando reglas de Storage.
+- Este error quedo registrado tambien en el contexto privado de trabajo para evitar repetirlo en otras tareas.
+
+Verificacion:
+
+- Las 10 demos quedaron con `0` productos externos.
+- Las 10 demos quedaron con `0` productos sin `imageCardUrl` o `imageThumbUrl`.
+- Las 10 demos tienen logo en Storage propio.
+- Se probo una URL real de Storage y respondio `200 OK` con cache largo.
+
+### Rate limiting basico en rutas publicas
+
+Pendiente anterior:
+
+- Revisar proteccion contra abuso en clicks, agenda publica y comercio publico.
+
+Decision aplicada:
+
+- Se agrego `lib/rate-limit.js` con un limitador local por IP y ventana de tiempo.
+- Se aplico limite a `app/api/analytics/click/route.js`.
+- Se aplico limite a `app/api/public/booking/[username]/route.js` para lectura de agenda y creacion de citas publicas.
+- Se aplico limite a `app/api/public/commerce/[username]/route.js` para consultas publicas de comercio.
+- Se aplico limite a `app/api/username/route.js` para evitar abuso del verificador de usuarios.
+
+Limites actuales:
+
+- Clicks publicos: 90 solicitudes por minuto por IP.
+- Lectura de agenda publica: 120 solicitudes por minuto por IP.
+- Creacion de citas publicas: 12 intentos por minuto por IP.
+- Comercio publico: 180 solicitudes por minuto por IP.
+- Verificacion de username: 45 solicitudes por minuto por IP.
+
+Nota tecnica:
+
+- Esta capa es una proteccion de aplicacion y funciona como contencion basica.
+- En produccion, una proteccion mas fuerte debe complementarse con Vercel WAF/Rate Limiting o una capa distribuida, porque los limites en memoria no son globales entre instancias serverless.
+
+### Alertas transitivas de Firebase Admin
+
+Pendiente anterior:
+
+- Monitorear 8 alertas bajas internas de Google Cloud / Firebase Admin.
+
+Verificacion actual:
+
+- `firebase-admin` esta en la ultima version disponible (`13.8.0`).
+- `npm audit --omit=dev` sigue mostrando 8 alertas bajas.
+- `npm audit fix --force` sigue proponiendo bajar `firebase-admin` a `10.3.0`.
+
+Decision:
+
+- No se aplico downgrade.
+- Se actualizaron parches sanos de runtime:
+  - `next` a `15.5.16`
+  - `react` y `react-dom` a `19.2.6`
+  - `resend` a `6.12.3`
+- Las 8 alertas bajas quedan documentadas como transitivas sin arreglo seguro disponible hoy.
+
+### Build local en Windows / Node 24
+
+Pendiente anterior:
+
+- Revisar si el build necesitaba `NEXT_PRIVATE_BUILD_WORKER=1`.
+
+Verificacion actual:
+
+- Se ejecuto `npm run build` sin `NEXT_PRIVATE_BUILD_WORKER=1`.
+- El build completo paso con Next `15.5.16`.
+
+Decision:
+
+- No se agrego variable permanente.
+- El pendiente queda cerrado en este entorno mientras el build normal siga pasando.
+
+### Limpieza CSS y componentes ocultos
+
+Pendiente anterior:
+
+- Revisar si quedaba CSS muerto, componentes ocultos o elementos heredados que debian eliminarse.
+
+Verificacion aplicada:
+
+- Se mapearon clases de `app/globals.css` contra `app/`, `components/` y `lib/`.
+- No aparecieron clases claramente huerfanas despues de las limpiezas anteriores.
+- Se revisaron componentes de `components/` contra imports del proyecto.
+- No aparecieron archivos de componente sin referencia clara.
+- Se revisaron patrones de `display: none`, mockups y rutas heredadas.
+
+Decision:
+
+- No se elimino CSS ni componentes adicionales en esta capa porque no hubo candidatos seguros.
+- La ruta `/comparar/home-anterior` se conserva porque existe como comparacion historica explicita del home.
+- Cualquier limpieza mas agresiva debe hacerse con navegador abierto y comparacion visual de pantallas reales.
+
 ## Pendientes
-
-### Revisar estrategia de imagenes demo
-
-Las tiendas demo usan imagenes externas (`loremflickr.com`) y logos externos (`ui-avatars.com`).
-
-Esto funciona, pero no es lo mas estable para demos de producto porque dependemos de servicios externos.
-
-Recomendacion:
-
-- Migrar imagenes demo importantes a Storage propio o a archivos locales versionados.
 
 ### Monitorear alertas transitivas de Firebase Admin
 
@@ -318,19 +424,20 @@ Recomendacion:
 - Revisar periodicamente nuevas versiones de `firebase-admin`.
 - Actualizar cuando Google publique una version que corrija esas dependencias transitivas sin downgrade.
 
-### Revisar build local en Windows / Node 24
+### Complementar rate limiting en produccion
 
-El build paso con worker unico.
+La aplicacion ya tiene una capa basica por IP en memoria.
 
 Recomendacion:
 
-- Mantener la opcion `NEXT_PRIVATE_BUILD_WORKER=1` solo para este entorno si el problema se repite.
-- Probar build en el entorno real de despliegue antes de convertir esa variable en configuracion permanente.
+- Configurar una capa distribuida en Vercel WAF/Rate Limiting cuando el proyecto lo permita.
+- Mantener el limitador de aplicacion como defensa adicional.
 
-### Siguiente capa de limpieza
+### Siguiente capa de limpieza visual
 
-Esta auditoria aplico varias capas seguras. Todavia queda trabajo posible:
+La auditoria ya elimino CSS muerto evidente y la cuarta capa no encontro candidatos seguros adicionales.
 
-- Revisar rate limiting en rutas publicas, especialmente clicks, agenda publica y formularios.
-- Revisar si algunos estilos de dashboard/comercio antiguos pueden eliminarse despues de comparar pantallas reales.
-- Revisar si hay componentes ocultos que ya no deberian existir, pero solo despues de mapearlos contra las vistas activas.
+Recomendacion:
+
+- Revisar estilos de dashboard/comercio solo con pantallas reales abiertas.
+- Eliminar componentes heredados unicamente cuando se confirme que no tienen ruta activa ni uso de producto.

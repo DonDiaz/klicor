@@ -4,6 +4,7 @@ import { createBookingAppointment, getBookingAvailability } from "@/lib/booking-
 import { getAdminAuth } from "@/lib/firebase-admin";
 import { getUserByUsername } from "@/lib/firestore";
 import { getPublicBookingBootstrapByUsername } from "@/lib/public-booking";
+import { checkRateLimit, rateLimitHeaders, rateLimitResponse } from "@/lib/rate-limit";
 import { createServerTiming } from "@/lib/server-timing";
 
 async function readCustomerAuth(request) {
@@ -30,6 +31,12 @@ async function readCustomerAuth(request) {
 
 export async function GET(request, { params }) {
   const timing = createServerTiming();
+  const rate = checkRateLimit(request, {
+    key: "public-booking-read",
+    limit: 120,
+    windowMs: 60_000,
+  });
+  if (rate.limited) return rateLimitResponse(rate);
 
   try {
     const { username } = await params;
@@ -38,7 +45,7 @@ export async function GET(request, { params }) {
       const payload = { error: "No encontramos ese negocio." };
       return NextResponse.json(payload, {
         status: 404,
-        headers: timing.headers(payload),
+        headers: timing.headers(payload, rateLimitHeaders(rate)),
       });
     }
 
@@ -58,13 +65,13 @@ export async function GET(request, { params }) {
         const payload = { error: "Este negocio no tiene agenda activa." };
         return NextResponse.json(payload, {
           status: 404,
-          headers: timing.headers(payload),
+          headers: timing.headers(payload, rateLimitHeaders(rate)),
         });
       }
 
       const payload = { data };
       return NextResponse.json(payload, {
-        headers: timing.headers(payload),
+        headers: timing.headers(payload, rateLimitHeaders(rate)),
       });
     }
 
@@ -75,19 +82,25 @@ export async function GET(request, { params }) {
     );
     const payload = { data: availability };
     return NextResponse.json(payload, {
-      headers: timing.headers(payload),
+      headers: timing.headers(payload, rateLimitHeaders(rate)),
     });
   } catch (error) {
     const payload = { error: formatApiError(error, "No pudimos cargar la agenda pública.") };
     return NextResponse.json(payload, {
       status: 400,
-      headers: timing.headers(payload),
+      headers: timing.headers(payload, rateLimitHeaders(rate)),
     });
   }
 }
 
 export async function POST(request, { params }) {
   const timing = createServerTiming();
+  const rate = checkRateLimit(request, {
+    key: "public-booking-create",
+    limit: 12,
+    windowMs: 60_000,
+  });
+  if (rate.limited) return rateLimitResponse(rate, "Demasiados intentos de agenda. Intenta de nuevo en unos segundos.");
 
   try {
     const { username } = await params;
@@ -96,7 +109,7 @@ export async function POST(request, { params }) {
       const payload = { error: "No encontramos ese negocio." };
       return NextResponse.json(payload, {
         status: 404,
-        headers: timing.headers(payload),
+        headers: timing.headers(payload, rateLimitHeaders(rate)),
       });
     }
 
@@ -110,13 +123,13 @@ export async function POST(request, { params }) {
 
     const payload = { ok: true, result };
     return NextResponse.json(payload, {
-      headers: timing.headers(payload),
+      headers: timing.headers(payload, rateLimitHeaders(rate)),
     });
   } catch (error) {
     const payload = { error: formatApiError(error, "No pudimos agendar la cita.") };
     return NextResponse.json(payload, {
       status: 400,
-      headers: timing.headers(payload),
+      headers: timing.headers(payload, rateLimitHeaders(rate)),
     });
   }
 }

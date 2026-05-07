@@ -5,10 +5,17 @@ import {
   getPublicCommerceProductDeepLinkByUsername,
 } from "@/lib/public-commerce";
 import { normalizeCommerceMode } from "@/lib/commerce-config";
+import { checkRateLimit, rateLimitHeaders, rateLimitResponse } from "@/lib/rate-limit";
 import { createServerTiming } from "@/lib/server-timing";
 
 export async function GET(request, { params }) {
   const timing = createServerTiming();
+  const rate = checkRateLimit(request, {
+    key: "public-commerce-read",
+    limit: 180,
+    windowMs: 60_000,
+  });
+  if (rate.limited) return rateLimitResponse(rate);
 
   try {
     const { username } = await params;
@@ -34,13 +41,13 @@ export async function GET(request, { params }) {
         const payload = { error: "No encontramos ese producto publicado." };
         return NextResponse.json(payload, {
           status: 404,
-          headers: timing.headers(payload),
+          headers: timing.headers(payload, rateLimitHeaders(rate)),
         });
       }
 
       const payload = { data: deepLink };
       return NextResponse.json(payload, {
-        headers: timing.headers(payload),
+        headers: timing.headers(payload, rateLimitHeaders(rate)),
       });
     }
 
@@ -54,13 +61,13 @@ export async function GET(request, { params }) {
         const payload = { error: "No encontramos ese comercio." };
         return NextResponse.json(payload, {
           status: 404,
-          headers: timing.headers(payload),
+          headers: timing.headers(payload, rateLimitHeaders(rate)),
         });
       }
 
       const payload = { data: bootstrap };
       return NextResponse.json(payload, {
-        headers: timing.headers(payload),
+        headers: timing.headers(payload, rateLimitHeaders(rate)),
       });
     }
 
@@ -74,20 +81,20 @@ export async function GET(request, { params }) {
       const payload = { error: "No encontramos esa sección comercial." };
       return NextResponse.json(payload, {
         status: 404,
-        headers: timing.headers(payload),
+        headers: timing.headers(payload, rateLimitHeaders(rate)),
       });
     }
 
     const payload = { data: chunk };
     return NextResponse.json(payload, {
-      headers: timing.headers(payload),
+      headers: timing.headers(payload, rateLimitHeaders(rate)),
     });
   } catch (error) {
     console.error("[public-commerce]", error?.message || error);
     const payload = { error: "No pudimos cargar el comercio publico." };
     return NextResponse.json(payload, {
       status: 400,
-      headers: timing.headers(payload),
+      headers: timing.headers(payload, rateLimitHeaders(rate)),
     });
   }
 }

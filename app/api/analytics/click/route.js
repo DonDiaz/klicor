@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { resolveContactCardData } from "@/lib/contact-card";
 import { trackClick } from "@/lib/firestore";
 import { getPublicProfileByUsername } from "@/lib/public-profiles";
+import { checkRateLimit, rateLimitHeaders } from "@/lib/rate-limit";
 import { sanitizeSlug } from "@/lib/utils";
 
 function resolveTrackedTarget(user, { button, linkId }) {
@@ -26,6 +27,18 @@ async function safelyTrackClick(username, button) {
 }
 
 export async function GET(request) {
+  const rate = checkRateLimit(request, {
+    key: "analytics-click",
+    limit: 90,
+    windowMs: 60_000,
+  });
+  if (rate.limited) {
+    return new NextResponse("Too many requests", {
+      status: 429,
+      headers: rateLimitHeaders(rate),
+    });
+  }
+
   const username = sanitizeSlug(request.nextUrl.searchParams.get("username"));
   const button = String(request.nextUrl.searchParams.get("button") || "unknown").trim();
   const linkId = request.nextUrl.searchParams.get("linkId") || "";
@@ -42,5 +55,9 @@ export async function GET(request) {
   }
 
   await safelyTrackClick(username, button);
-  return NextResponse.redirect(new URL(target, request.url), 307);
+  const response = NextResponse.redirect(new URL(target, request.url), 307);
+  for (const [key, value] of Object.entries(rateLimitHeaders(rate))) {
+    response.headers.set(key, value);
+  }
+  return response;
 }
