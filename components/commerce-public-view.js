@@ -323,22 +323,25 @@ function normalizePublicProductImages(value = [], fallback = {}) {
       .map((image, index) => ({
         id: String(image.id || `image-${index + 1}`),
         imageUrl: String(image.imageUrl || "").trim(),
-        imageThumbUrl: String(image.imageThumbUrl || image.imageUrl || "").trim(),
+        imageCardUrl: String(image.imageCardUrl || image.imageUrl || image.imageThumbUrl || "").trim(),
+        imageThumbUrl: String(image.imageThumbUrl || image.imageCardUrl || image.imageUrl || "").trim(),
         imageWidth: Number(image.imageWidth || 0) || 0,
         imageHeight: Number(image.imageHeight || 0) || 0,
       }))
-      .filter((image) => image.imageUrl || image.imageThumbUrl)
+      .filter((image) => image.imageUrl || image.imageCardUrl || image.imageThumbUrl)
     : [];
 
   if (items.length) return items;
 
   const fallbackImageUrl = String(fallback.imageUrl || "").trim();
-  const fallbackThumbUrl = String(fallback.imageThumbUrl || fallback.imageUrl || "").trim();
-  if (!fallbackImageUrl && !fallbackThumbUrl) return [];
+  const fallbackCardUrl = String(fallback.imageCardUrl || fallback.imageUrl || fallback.imageThumbUrl || "").trim();
+  const fallbackThumbUrl = String(fallback.imageThumbUrl || fallback.imageCardUrl || fallback.imageUrl || "").trim();
+  if (!fallbackImageUrl && !fallbackCardUrl && !fallbackThumbUrl) return [];
 
   return [{
     id: "image-1",
     imageUrl: fallbackImageUrl,
+    imageCardUrl: fallbackCardUrl,
     imageThumbUrl: fallbackThumbUrl,
     imageWidth: Number(fallback.imageWidth || 0) || 0,
     imageHeight: Number(fallback.imageHeight || 0) || 0,
@@ -365,7 +368,8 @@ function normalizePublicProducts(value = []) {
         name: String(product.name || "Producto"),
         description: String(product.description || ""),
         imageUrl: String(product.imageUrl || ""),
-        imageThumbUrl: String(product.imageThumbUrl || product.imageUrl || ""),
+        imageCardUrl: String(product.imageCardUrl || product.imageUrl || product.imageThumbUrl || ""),
+        imageThumbUrl: String(product.imageThumbUrl || product.imageCardUrl || product.imageUrl || ""),
         images: normalizePublicProductImages(product.images, product),
         price: product.price === null || product.price === undefined || product.price === "" ? null : Number(product.price || 0),
       }))
@@ -443,7 +447,7 @@ function ProductCard({
   const hasDescription = Boolean(String(product.description || "").trim());
   const hasPrice = product.price !== null && product.price !== undefined;
   const isCatalog = !supportsCart;
-  const productImageUrl = product.imageThumbUrl || product.imageUrl || "";
+  const productImageUrl = product.imageCardUrl || product.imageThumbUrl || product.imageUrl || "";
 
   return (
     <article className={`commerce-product-card commerce-visual-product-card ${supportsCart ? "supports-cart" : "is-catalog-card"}`.trim()}>
@@ -695,7 +699,7 @@ export function CommercePublicView({ bootstrap, preview = false }) {
   const isSectionLoading = Boolean(pendingSelection);
   const detailImages = normalizePublicProductImages(detailProduct?.images, detailProduct || {});
   const activeDetailImage = detailImages[detailImageIndex] || detailImages[0] || null;
-  const activeDetailImageUrl = activeDetailImage?.imageUrl || activeDetailImage?.imageThumbUrl || "";
+  const activeDetailImageUrl = activeDetailImage?.imageUrl || activeDetailImage?.imageCardUrl || activeDetailImage?.imageThumbUrl || "";
   const commercePalette = resolveCommercePalette(safeExperience, appearance);
   const pageBackground = commercePalette.background;
 
@@ -1055,7 +1059,8 @@ export function CommercePublicView({ bootstrap, preview = false }) {
         price: Number(product.price || 0),
         quantity,
         imageUrl: product.imageUrl || "",
-        imageThumbUrl: product.imageThumbUrl || product.imageUrl || "",
+        imageCardUrl: product.imageCardUrl || product.imageUrl || "",
+        imageThumbUrl: product.imageThumbUrl || product.imageCardUrl || product.imageUrl || "",
       }];
     });
   }
@@ -1329,9 +1334,9 @@ export function CommercePublicView({ bootstrap, preview = false }) {
                       type="button"
                       onClick={() => setDetailImageIndex(index)}
                     >
-                      {image.imageThumbUrl || image.imageUrl ? (
+                      {image.imageThumbUrl || image.imageCardUrl || image.imageUrl ? (
                         <Image
-                          src={image.imageThumbUrl || image.imageUrl}
+                          src={image.imageThumbUrl || image.imageCardUrl || image.imageUrl}
                           alt=""
                           fill
                           sizes="70px"
@@ -1423,9 +1428,9 @@ export function CommercePublicView({ bootstrap, preview = false }) {
                   {cartItems.map((item) => (
                     <article className="commerce-cart-item" key={item.id}>
                       <div className="commerce-cart-thumb" aria-hidden="true">
-                        {item.imageThumbUrl || item.imageUrl ? (
+                        {item.imageThumbUrl || item.imageCardUrl || item.imageUrl ? (
                           <Image
-                            src={item.imageThumbUrl || item.imageUrl}
+                            src={item.imageThumbUrl || item.imageCardUrl || item.imageUrl}
                             alt=""
                             fill
                             sizes="70px"

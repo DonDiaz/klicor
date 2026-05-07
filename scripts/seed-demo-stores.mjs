@@ -77,8 +77,10 @@ function image(url, index = 1) {
   return {
     id: `image-${index}`,
     imageUrl: url,
+    imageCardUrl: url,
     imageThumbUrl: url,
     imagePath: "",
+    imageCardPath: "",
     imageThumbPath: "",
     imageWidth: 900,
     imageHeight: 900,
@@ -1042,8 +1044,10 @@ function buildProduct(raw, business, category, productIndex, globalIndex) {
     featuredInDorika: productIndex <= 2,
     orderIndex: productIndex * ORDER_STEP,
     imageUrl: photo,
+    imageCardUrl: photo,
     imageThumbUrl: photo,
     imagePath: "",
+    imageCardPath: "",
     imageThumbPath: "",
     imageWidth: 900,
     imageHeight: 900,
@@ -1101,12 +1105,14 @@ function productSummary(product) {
     featuredInDorika: product.featuredInDorika,
     orderIndex: product.orderIndex,
     imageUrl: product.imageUrl,
+    imageCardUrl: product.imageCardUrl,
     imageThumbUrl: product.imageThumbUrl,
     imageWidth: product.imageWidth,
     imageHeight: product.imageHeight,
     images: product.images.map((item) => ({
       id: item.id,
       imageUrl: item.imageUrl,
+      imageCardUrl: item.imageCardUrl,
       imageThumbUrl: item.imageThumbUrl,
       imageWidth: item.imageWidth,
       imageHeight: item.imageHeight,
@@ -1129,7 +1135,7 @@ function publicSections(categories, products) {
         subcategories: [],
         products: pageProducts.map(productSummary),
         previewImage: categoryProducts[0]
-          ? { imageUrl: categoryProducts[0].imageUrl, imageThumbUrl: categoryProducts[0].imageThumbUrl }
+          ? { imageUrl: categoryProducts[0].imageUrl, imageCardUrl: categoryProducts[0].imageCardUrl, imageThumbUrl: categoryProducts[0].imageThumbUrl }
           : null,
         hasMore: categoryProducts.length > PAGE_SIZE,
         nextCursor: categoryProducts.length > PAGE_SIZE ? pageProducts.at(-1)?.orderIndex || null : null,
