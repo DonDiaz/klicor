@@ -16,6 +16,14 @@ export async function GET(request) {
       }, { status: 400 });
     }
 
+    if (username.length > 30) {
+      return NextResponse.json({
+        username,
+        available: false,
+        message: "El usuario debe tener maximo 30 caracteres.",
+      }, { status: 400 });
+    }
+
     const available = await isUsernameAvailable(username, user.uid);
 
     return NextResponse.json({

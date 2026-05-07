@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { verifyRequest } from "@/lib/auth";
 import { getAdminStorage } from "@/lib/firebase-admin";
+import { sanitizeSlug } from "@/lib/utils";
 
 export async function GET(request) {
   try {
@@ -14,7 +15,7 @@ export async function GET(request) {
     return new NextResponse(buffer, {
       headers: {
         "Content-Type": "image/png",
-        "Content-Disposition": `attachment; filename="${user.username || "klicor"}-qr.png"`,
+        "Content-Disposition": `attachment; filename="${sanitizeSlug(user.username) || "klicor"}-qr.png"`,
         "Cache-Control": "private, no-store",
       },
     });

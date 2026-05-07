@@ -17,6 +17,14 @@ function resolveTrackedTarget(user, { button, linkId }) {
   return user.profileLinks?.find((item) => item.id === safeLinkId && item.type === button)?.url || "";
 }
 
+async function safelyTrackClick(username, button) {
+  try {
+    await trackClick(username, button);
+  } catch (error) {
+    console.error("[analytics-click]", error?.message || error);
+  }
+}
+
 export async function GET(request) {
   const username = sanitizeSlug(request.nextUrl.searchParams.get("username"));
   const button = String(request.nextUrl.searchParams.get("button") || "unknown").trim();
@@ -33,6 +41,6 @@ export async function GET(request) {
     return new NextResponse("Not found", { status: 404 });
   }
 
-  await trackClick(username, button);
+  await safelyTrackClick(username, button);
   return NextResponse.redirect(new URL(target, request.url), 307);
 }

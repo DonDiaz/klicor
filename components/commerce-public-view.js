@@ -1,5 +1,6 @@
 ﻿"use client";
 
+import Image from "next/image";
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import {
   ChevronLeft,
@@ -438,9 +439,11 @@ function ProductCard({
   onAdd,
   onOpenDetails,
 }) {
+  const [imageFailed, setImageFailed] = useState(false);
   const hasDescription = Boolean(String(product.description || "").trim());
   const hasPrice = product.price !== null && product.price !== undefined;
   const isCatalog = !supportsCart;
+  const productImageUrl = product.imageThumbUrl || product.imageUrl || "";
 
   return (
     <article className={`commerce-product-card commerce-visual-product-card ${supportsCart ? "supports-cart" : "is-catalog-card"}`.trim()}>
@@ -461,13 +464,15 @@ function ProductCard({
         }}
       >
         <div className="commerce-product-image-shell" aria-hidden="true">
-          {product.imageThumbUrl || product.imageUrl ? (
-            <img
+          {productImageUrl && !imageFailed ? (
+            <Image
               className="commerce-product-image"
-              src={product.imageThumbUrl || product.imageUrl}
+              src={productImageUrl}
               alt={product.name}
+              fill
+              sizes="(max-width: 640px) 46vw, (max-width: 960px) 30vw, 220px"
               loading="lazy"
-              decoding="async"
+              onError={() => setImageFailed(true)}
             />
           ) : (
             <span>{product.name.slice(0, 1)}</span>
@@ -690,6 +695,7 @@ export function CommercePublicView({ bootstrap, preview = false }) {
   const isSectionLoading = Boolean(pendingSelection);
   const detailImages = normalizePublicProductImages(detailProduct?.images, detailProduct || {});
   const activeDetailImage = detailImages[detailImageIndex] || detailImages[0] || null;
+  const activeDetailImageUrl = activeDetailImage?.imageUrl || activeDetailImage?.imageThumbUrl || "";
   const commercePalette = resolveCommercePalette(safeExperience, appearance);
   const pageBackground = commercePalette.background;
 
@@ -1122,7 +1128,14 @@ export function CommercePublicView({ bootstrap, preview = false }) {
         <header className="commerce-header commerce-public-summary">
           <div className="commerce-hero-brand">
             {safeBusiness.photo ? (
-              <img className="commerce-avatar" src={safeBusiness.photoThumb || safeBusiness.photo} alt={safeBusiness.businessName} />
+              <Image
+                className="commerce-avatar"
+                src={safeBusiness.photoThumb || safeBusiness.photo}
+                alt={safeBusiness.businessName}
+                width={56}
+                height={56}
+                sizes="56px"
+              />
             ) : (
               <div className="commerce-avatar commerce-avatar-fallback">{safeBusiness.businessName?.slice(0, 1) || "K"}</div>
             )}
@@ -1267,8 +1280,14 @@ export function CommercePublicView({ bootstrap, preview = false }) {
 
             <div className="commerce-product-detail-gallery">
               <div className="commerce-product-detail-main-image">
-                {activeDetailImage?.imageUrl || activeDetailImage?.imageThumbUrl ? (
-                  <img src={activeDetailImage.imageUrl || activeDetailImage.imageThumbUrl} alt={detailProduct.name} />
+                {activeDetailImageUrl ? (
+                  <Image
+                    src={activeDetailImageUrl}
+                    alt={detailProduct.name}
+                    fill
+                    sizes="(max-width: 760px) 100vw, 620px"
+                    loading="eager"
+                  />
                 ) : (
                   <span>{detailProduct.name?.slice(0, 1) || "P"}</span>
                 )}
@@ -1310,7 +1329,15 @@ export function CommercePublicView({ bootstrap, preview = false }) {
                       type="button"
                       onClick={() => setDetailImageIndex(index)}
                     >
-                      {image.imageThumbUrl || image.imageUrl ? <img src={image.imageThumbUrl || image.imageUrl} alt="" /> : <span>{index + 1}</span>}
+                      {image.imageThumbUrl || image.imageUrl ? (
+                        <Image
+                          src={image.imageThumbUrl || image.imageUrl}
+                          alt=""
+                          fill
+                          sizes="70px"
+                          loading="lazy"
+                        />
+                      ) : <span>{index + 1}</span>}
                     </button>
                   ))}
                 </div>
@@ -1397,7 +1424,13 @@ export function CommercePublicView({ bootstrap, preview = false }) {
                     <article className="commerce-cart-item" key={item.id}>
                       <div className="commerce-cart-thumb" aria-hidden="true">
                         {item.imageThumbUrl || item.imageUrl ? (
-                          <img src={item.imageThumbUrl || item.imageUrl} alt="" loading="lazy" decoding="async" />
+                          <Image
+                            src={item.imageThumbUrl || item.imageUrl}
+                            alt=""
+                            fill
+                            sizes="70px"
+                            loading="lazy"
+                          />
                         ) : (
                           <span>{item.name.slice(0, 1)}</span>
                         )}

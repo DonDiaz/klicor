@@ -95,6 +95,7 @@ export async function POST(request) {
       verified: true,
     });
   } catch (error) {
-    return NextResponse.json({ error: error.message }, { status: 400 });
+    console.error("[billing-webhook]", error?.message || error);
+    return NextResponse.json({ error: "No pudimos procesar el webhook." }, { status: 400 });
   }
 }

@@ -22,6 +22,7 @@ export async function GET(_request, { params }) {
       },
     });
   } catch (error) {
-    return NextResponse.json({ error: error.message || "No se pudo cargar el QR oficial" }, { status: 400 });
+    console.error("[public-payment-qr]", error?.message || error);
+    return NextResponse.json({ error: "No se pudo cargar el QR oficial" }, { status: 400 });
   }
 }

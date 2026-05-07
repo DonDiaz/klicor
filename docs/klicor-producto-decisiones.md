@@ -140,6 +140,9 @@ Estado funcional actual:
 - Citas con estados.
 - Creacion manual de citas desde el panel.
 - Vista publica en `/{username}/agenda`.
+- Configuracion inicial de notificaciones en `bookingConfig`: aviso al negocio, aviso al cliente cuando se confirme, recordatorios y reactivacion.
+- El proyecto ya usa Firebase Auth para dueños del negocio y puede extender esa misma base a clientes publicos de Agenda.
+- El proyecto ya usa Resend en `lib/mailer.js` para correo transaccional.
 
 Decision de producto:
 
@@ -151,6 +154,13 @@ Decision de producto:
 - El dashboard de Agenda debe conservar identidad Klicor, aunque la experiencia publica de Agenda tenga tono visual por vertical.
 - Agenda debe servir a negocios que venden servicios por tiempo: barberias, salones de belleza, consultorios, salud/bienestar, asesorias, tecnicos, clases o sesiones.
 - Los estados funcionales base son `pending`, `confirmed`, `completed`, `cancelled_by_customer`, `cancelled_by_business` y `no_show`.
+- El cliente publico debe identificarse preferiblemente con login de Google mediante Firebase Auth. Asi Klicor obtiene nombre, email, foto y verificacion del proveedor sin pedir que escriba el correo.
+- El primer uso de Agenda puede pedir login; en usos posteriores debe reutilizar la sesion persistida del navegador/dispositivo para no repetir registro si el cliente sigue autenticado.
+- El telefono/WhatsApp se sigue pidiendo o confirmando porque es necesario para contacto operativo y recordatorios, pero el email para notificaciones debe salir de la cuenta autenticada cuando exista.
+- El correo de notificacion al negocio debe usar por defecto el mismo correo con el que el negocio se logea en Klicor (`user.email`). No se debe pedir otro correo obligatorio para empezar.
+- El correo al cliente y al negocio debe respetar el estado real: solicitud recibida, cita confirmada, cita reprogramada, cita cancelada/rechazada, o cambio operativo.
+- WhatsApp debe ser principalmente recordatorio antes de la cita. No debe reemplazar el correo de confirmacion ni enviar reactivaciones por defecto.
+- Para WhatsApp automatico se debe usar WhatsApp Business Platform/Cloud API con plantillas aprobadas cuando Klicor inicia el mensaje. Los recordatorios deben ser mensajes de utilidad, con consentimiento y configuracion del negocio.
 
 ### Dorika
 
@@ -660,6 +670,16 @@ Pendiente funcional:
 - Configurar recordatorios antes de la cita.
 - Configurar reactivacion de clientes por dias sin volver, apagada por defecto.
 - Preparar historial basico de cliente cuando se pueda identificar por telefono.
+- Agregar identidad de cliente publico con Firebase Auth/Google para Agenda, separada de la cuenta del negocio.
+- Guardar en cada cita, cuando exista sesion, `customerUid`, `customerEmail`, `customerEmailVerified`, `customerPhotoURL`, `customerAuthProvider` y telefono normalizado.
+- Crear una coleccion o subcoleccion de clientes por negocio para recordar nombre, email autenticado, telefono, ultima cita y preferencias/consentimiento de mensajes.
+- Enviar correo al negocio cuando entre una solicitud o cita nueva, usando por defecto `user.email` del dueño de Klicor.
+- Enviar correo al cliente cuando la cita quede confirmada, y tambien cuando haya reprogramacion, cancelacion/rechazo o cambio relevante.
+- Si el negocio activa confirmacion automatica, enviar correo de cita confirmada al cliente inmediatamente despues de crear la cita.
+- Si el negocio usa confirmacion manual, no enviar confirmacion definitiva al cliente hasta que el estado cambie a `confirmed`; opcionalmente permitir acuse de recibo de solicitud como configuracion separada.
+- Separar el envio de mensajes de la escritura de la cita para que una falla de correo o WhatsApp no duplique ni bloquee la agenda; registrar estado de envio o evento pendiente para reintento.
+- Definir plantillas de correo transaccional de Agenda dentro de `lib/mailer.js` o una capa equivalente, reutilizando Resend.
+- Definir plantillas oficiales de WhatsApp para recordatorio de cita antes de activar ese canal en produccion.
 
 No definido todavia:
 
@@ -667,6 +687,8 @@ No definido todavia:
 - Imagenes de apoyo.
 - Copy final de correos, WhatsApp o mensajes automatizados.
 - Variantes visuales finales del flujo publico por vertical.
+- Proveedor final de WhatsApp si se usa Cloud API directo de Meta o un BSP; la regla funcional no cambia: deben ser plantillas aprobadas y mensajes configurables.
+- Si habra modo invitado sin Google para negocios que quieran menos friccion; por ahora la ruta preferida para notificaciones por email es cliente autenticado.
 
 No tocar por ahora:
 
@@ -787,10 +809,12 @@ Orden recomendado cuando el foco sea Agenda:
 3. Agregar acciones de aceptar, rechazar y reprogramar solicitud.
 4. Mejorar agendamiento manual y cambios de cita desde el negocio.
 5. Construir disponibilidad operativa por profesional y horario.
-6. Agregar notificaciones configurables para negocio y cliente.
-7. Agregar recordatorios configurables antes de la cita.
-8. Agregar reactivacion de clientes apagada por defecto y configurable por dias.
-9. Agregar historial basico de cliente por telefono.
+6. Agregar login de cliente publico con Google/Firebase Auth para Agenda.
+7. Persistir cliente autenticado y asociarlo a citas del negocio.
+8. Agregar notificaciones configurables para negocio y cliente.
+9. Agregar recordatorios configurables antes de la cita.
+10. Agregar reactivacion de clientes apagada por defecto y configurable por dias.
+11. Agregar historial basico de cliente por telefono y/o usuario autenticado.
 
 ## 10. Estado del documento
 

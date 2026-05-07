@@ -262,6 +262,17 @@ Reglas obligatorias:
 - La experiencia publica de Agenda puede adaptar tono visual por vertical o marca del negocio.
 - El dashboard administrativo de Agenda debe mantener el sistema visual de Klicor y no heredar el tema publico del negocio.
 - La navegacion global de Klicor debe mantenerse lateral; la navegacion interna de Agenda debe tratarse como navegacion contextual del modulo.
+- La identidad del cliente en Agenda publica debe resolverse preferiblemente con login de Google usando Firebase Auth, no pidiendo correo escrito manualmente como fuente principal.
+- Si el cliente ya inicio sesion en el mismo navegador/dispositivo, Agenda debe reutilizar esa sesion para no pedir registro otra vez.
+- El correo del cliente para notificaciones debe venir de la cuenta autenticada y verificada por el proveedor; no debe confiarse en un email libre escrito en el formulario publico.
+- El telefono/WhatsApp del cliente puede seguir siendo requerido para contacto operativo y recordatorios, pero debe guardarse asociado al cliente autenticado cuando exista sesion.
+- Las citas deben poder guardar referencia de cliente autenticado: `customerUid`, `customerEmail`, `customerEmailVerified`, `customerPhotoURL`, `customerAuthProvider` y telefono normalizado, sin romper citas antiguas que solo tengan nombre y telefono.
+- El correo de notificacion al negocio debe enviarse por defecto al correo de la cuenta Klicor del negocio (`user.email`). Mas adelante puede existir una lista opcional de destinatarios, pero no debe obligarse al negocio a configurar otro correo para recibir solicitudes.
+- Cuando la confirmacion manual este activa, el negocio debe recibir correo de nueva solicitud si `notifyBusinessOnRequest` esta activo; el cliente solo debe recibir confirmacion definitiva cuando el negocio acepte, salvo que exista acuse de recibo de solicitud claramente configurado.
+- Cuando la confirmacion automatica este activa, la cita nace `confirmed`; el cliente puede recibir correo de cita confirmada inmediatamente si `notifyCustomerOnConfirmation` esta activo y el negocio debe recibir aviso operativo de la nueva cita.
+- Reprogramaciones, cancelaciones, rechazo/no aceptacion y cambios de estado deben generar mensajes transaccionales coherentes al cliente cuando haya email autenticado, y al negocio cuando aplique como control operativo.
+- WhatsApp debe usarse como recordatorio operativo, no como canal principal de confirmacion por defecto. Para mensajes iniciados por Klicor fuera de una conversacion activa se deben usar plantillas oficiales aprobadas de WhatsApp Business Platform, respetar consentimiento y evitar textos de reactivacion invasivos.
+- Las fuentes tecnicas base para implementar esta capa son Firebase Auth para login/identidad, Resend para correo transaccional ya presente en el proyecto, y WhatsApp Business Platform/Cloud API para recordatorios por plantilla cuando se active ese canal.
 
 Prohibido:
 
@@ -269,6 +280,9 @@ Prohibido:
 - Convertir agenda en catalogo de productos.
 - Enviar confirmaciones definitivas antes de que el negocio acepte una cita cuando la confirmacion manual esta activa.
 - Activar recordatorios invasivos o campanas de retorno sin configuracion explicita del negocio.
+- Pedir al cliente que escriba un correo si ya existe una sesion autenticada que lo entrega de forma confiable.
+- Enviar al cliente una "cita confirmada" cuando el negocio esta en confirmacion manual y aun no acepto la solicitud.
+- Enviar mensajes de WhatsApp libres como recordatorio automatico fuera de las reglas oficiales de plantillas y ventanas de conversacion.
 - Mezclar Agenda con Reservas de turismo, planes, cupos o experiencias.
 - Hacer que el dashboard administrativo de Agenda cambie de estilo por barberia, salon, consultorio u otra vertical.
 

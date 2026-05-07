@@ -83,7 +83,8 @@ export async function GET(request, { params }) {
       headers: timing.headers(payload),
     });
   } catch (error) {
-    const payload = { error: error.message };
+    console.error("[public-commerce]", error?.message || error);
+    const payload = { error: "No pudimos cargar el comercio publico." };
     return NextResponse.json(payload, {
       status: 400,
       headers: timing.headers(payload),

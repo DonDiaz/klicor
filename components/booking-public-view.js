@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { addMonths, startOfMonth, subMonths } from "date-fns";
 import { CheckCircle2, ChevronLeft, ChevronRight, CloudSun, LoaderCircle, MessageCircle, Moon, Sun } from "lucide-react";
+import { browserLocalPersistence, onAuthStateChanged, setPersistence, signInWithPopup, signInWithRedirect } from "firebase/auth";
 import { apiFetch } from "@/lib/client-api";
 import {
   canMoveBookingMonth,
@@ -11,6 +12,7 @@ import {
   formatTimeLabel,
   getBookingCalendarBounds,
 } from "@/lib/booking-config";
+import { getClientAuth, getGoogleProvider } from "@/lib/firebase-client";
 import { buildWhatsappLink } from "@/lib/utils";
 import {
   BookingServiceCard,
@@ -142,6 +144,10 @@ function money(value, currency = "COP") {
 }
 
 function validateBookingDetails(selection) {
+  if (!selection.customerUid) {
+    return "Inicia sesion con Google para enviar la cita.";
+  }
+
   if (!String(selection.customerName || "").trim() || String(selection.customerName || "").trim().length < 2) {
     return "Escribe tu nombre completo.";
   }
@@ -189,6 +195,8 @@ export function BookingPublicView({ bootstrap }) {
     customerName: "",
     customerPhone: "",
     customerNote: "",
+    customerUid: "",
+    customerEmail: "",
   });
   const [availabilityDates, setAvailabilityDates] = useState([]);
   const [slots, setSlots] = useState([]);
@@ -196,6 +204,9 @@ export function BookingPublicView({ bootstrap }) {
   const [loadingSlots, setLoadingSlots] = useState(false);
   const [activeTimePeriod, setActiveTimePeriod] = useState(TIME_PERIODS[0].id);
   const [submitting, setSubmitting] = useState(false);
+  const [authLoading, setAuthLoading] = useState(true);
+  const [authSubmitting, setAuthSubmitting] = useState(false);
+  const [customerAuth, setCustomerAuth] = useState(null);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(null);
   const [calendarMonth, setCalendarMonth] = useState(() => startOfMonth(new Date()));
@@ -250,6 +261,33 @@ export function BookingPublicView({ bootstrap }) {
     if (selection.appointmentDate || !availabilityDates.length) return;
     setCalendarMonth(startOfMonth(new Date(`${availabilityDates[0].date}T00:00:00`)));
   }, [availabilityDates, selection.appointmentDate]);
+
+  useEffect(() => {
+    const auth = getClientAuth();
+    if (!auth) {
+      setAuthLoading(false);
+      return undefined;
+    }
+
+    return onAuthStateChanged(auth, (user) => {
+      const nextCustomer = user ? {
+        uid: user.uid,
+        name: user.displayName || "",
+        email: user.email || "",
+        emailVerified: Boolean(user.emailVerified),
+        photoURL: user.photoURL || "",
+      } : null;
+
+      setCustomerAuth(nextCustomer);
+      setSelection((current) => ({
+        ...current,
+        customerUid: nextCustomer?.uid || "",
+        customerEmail: nextCustomer?.email || "",
+        customerName: current.customerName || nextCustomer?.name || "",
+      }));
+      setAuthLoading(false);
+    });
+  }, []);
 
   async function loadDates(nextServiceId, nextStaffId = "any") {
     setLoadingDates(true);
@@ -362,6 +400,34 @@ export function BookingPublicView({ bootstrap }) {
       startTime,
     }));
     setStepIndex(3);
+  }
+
+  async function handleGoogleSignIn() {
+    const auth = getClientAuth();
+    if (!auth) {
+      setError("No pudimos iniciar sesion en este navegador.");
+      return;
+    }
+
+    setAuthSubmitting(true);
+    setError("");
+    try {
+      await setPersistence(auth, browserLocalPersistence);
+      const provider = getGoogleProvider();
+      try {
+        await signInWithPopup(auth, provider);
+      } catch (popupError) {
+        if (popupError?.code === "auth/popup-blocked" || popupError?.code === "auth/operation-not-supported-in-this-environment") {
+          await signInWithRedirect(auth, provider);
+          return;
+        }
+        throw popupError;
+      }
+    } catch (nextError) {
+      setError(nextError.message || "No pudimos iniciar sesion con Google.");
+    } finally {
+      setAuthSubmitting(false);
+    }
   }
 
   async function handleSubmit(event) {
@@ -600,6 +666,30 @@ export function BookingPublicView({ bootstrap }) {
                     onChange={(event) => setSelection((current) => ({ ...current, customerName: event.target.value }))}
                     required
                   />
+                  <div className="booking-customer-auth-card">
+                    {authLoading ? (
+                      <span><LoaderCircle size={16} className="spin" /> Revisando tu sesion...</span>
+                    ) : customerAuth ? (
+                      <div className="booking-customer-auth-user">
+                        {customerAuth.photoURL ? <img src={customerAuth.photoURL} alt="" /> : null}
+                        <span>
+                          <strong>{customerAuth.name || selection.customerName || "Cuenta conectada"}</strong>
+                          <small>{customerAuth.email || "Correo de Google conectado"}</small>
+                        </span>
+                      </div>
+                    ) : (
+                      <>
+                        <span>
+                          <strong>Continua con Google</strong>
+                          <small>Asi podemos enviarte confirmaciones y cambios de tu cita.</small>
+                        </span>
+                        <button className="btn btn-secondary" type="button" onClick={handleGoogleSignIn} disabled={authSubmitting}>
+                          {authSubmitting ? <LoaderCircle size={16} className="spin" /> : null}
+                          {authSubmitting ? "Conectando..." : "Iniciar sesion"}
+                        </button>
+                      </>
+                    )}
+                  </div>
                   <input
                     className="input"
                     placeholder="Teléfono"
@@ -614,7 +704,7 @@ export function BookingPublicView({ bootstrap }) {
                     value={selection.customerNote}
                     onChange={(event) => setSelection((current) => ({ ...current, customerNote: event.target.value }))}
                   />
-                  <button className="btn btn-primary booking-submit-button" type="submit" disabled={submitting}>
+                  <button className="btn btn-primary booking-submit-button" type="submit" disabled={submitting || authLoading || !customerAuth}>
                     {submitting ? <LoaderCircle size={18} className="spin" /> : null}
                     {submitting ? bookingCopy.submittingLabel : bookingCopy.submitLabel}
                   </button>

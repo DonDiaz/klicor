@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { verifyRequest } from "@/lib/auth";
+import { formatApiError } from "@/lib/api-errors";
 import { createServerTiming } from "@/lib/server-timing";
 import {
   createCommerceCategory,
@@ -57,7 +58,7 @@ export async function GET(request) {
       headers: timing.headers(payload),
     });
   } catch (error) {
-    const payload = { error: error.message };
+    const payload = { error: formatApiError(error, "No pudimos cargar el modulo comercial.") };
     return NextResponse.json(payload, {
       status: 400,
       headers: timing.headers(payload),
@@ -130,7 +131,7 @@ export async function POST(request) {
       headers: timing.headers(payloadResponse),
     });
   } catch (error) {
-    const payloadResponse = { error: error.message };
+    const payloadResponse = { error: formatApiError(error, "No pudimos guardar los cambios del modulo comercial.") };
     return NextResponse.json(payloadResponse, {
       status: 400,
       headers: timing.headers(payloadResponse),
