@@ -658,6 +658,8 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
     const selectedIconText = normalizeCommerceCategoryIconText(selectedIconRaw);
     const selectedAsset = resolveCommerceCategoryAsset(selectedIconRaw, profile?.businessCategory);
     const selectedAssetLabel = normalizeCommerceCategoryIconText(selectedAsset.label);
+    const selectedAliasAsset = resolveCommerceCategoryAsset(selectedIconAlias, profile?.businessCategory);
+    const selectedAliasAssetLabel = normalizeCommerceCategoryIconText(selectedAliasAsset.label);
 
     return (
       <div className="commerce-icon-picker" aria-label="Selector visual de asset de categoria">
@@ -685,8 +687,10 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
                   const optionSelected = selectedIcon === option.iconKey
                     || selectedIconAlias === option.iconKey
                     || selectedAsset.key === optionAsset.key
+                    || selectedAliasAsset.key === optionAsset.key
                     || (selectedIconText && selectedIconText === normalizeCommerceCategoryIconText(option.label))
-                    || (selectedAssetLabel && selectedAssetLabel === optionAssetLabel);
+                    || (selectedAssetLabel && selectedAssetLabel === optionAssetLabel)
+                    || (selectedAliasAssetLabel && selectedAliasAssetLabel === optionAssetLabel);
                   return (
                     <button
                       key={option.iconKey}
