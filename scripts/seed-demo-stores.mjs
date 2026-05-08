@@ -2,6 +2,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { cert, getApps, initializeApp } from "firebase-admin/app";
 import { getAuth } from "firebase-admin/auth";
 import { FieldValue, getFirestore } from "firebase-admin/firestore";
+import { resolveDemoCategoryIcon } from "./demo-category-icons.mjs";
 
 const DEMO_PASSWORD = "KlicorDemo2026!";
 const ORDER_STEP = 1024;
@@ -1063,6 +1064,7 @@ function flattenCommerce(business) {
   let globalProductIndex = 0;
 
   business.categories.forEach((rawCategory, categoryIndex) => {
+    const icon = resolveDemoCategoryIcon(rawCategory.name, business);
     const categoryProducts = rawCategory.products.map((rawProduct, productIndex) => {
       globalProductIndex += 1;
       return buildProduct(rawProduct, business, rawCategory, productIndex + 1, globalProductIndex);
@@ -1073,10 +1075,10 @@ function flattenCommerce(business) {
       id: rawCategory.id,
       name: rawCategory.name,
       slug: slugify(rawCategory.name),
-      normalizedKey: key(rawCategory.name),
-      iconKey: key(rawCategory.name),
-      iconSource: "seed",
-      iconMatchedAlias: "",
+      normalizedKey: icon.normalizedKey,
+      iconKey: icon.iconKey,
+      iconSource: icon.iconSource,
+      iconMatchedAlias: icon.iconMatchedAlias || "",
       imageUrl: preview?.imageUrl || "",
       imageThumbUrl: preview?.imageThumbUrl || "",
       orderIndex: (categoryIndex + 1) * ORDER_STEP,
