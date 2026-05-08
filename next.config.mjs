@@ -33,6 +33,9 @@ const nextConfig = {
   outputFileTracingRoot: __dirname,
   serverExternalPackages: ["@loskir/styled-qr-code-node", "skia-canvas"],
   images: {
+    deviceSizes: [360, 414, 640, 750, 828, 1080, 1200, 1440, 1920],
+    imageSizes: [32, 48, 56, 64, 70, 96, 128, 192, 256, 384],
+    qualities: [60, 75, 85],
     remotePatterns: [
       {
         protocol: "https",

@@ -67,7 +67,6 @@ import {
 } from "@/lib/colombia-financial-entities";
 import { COLOMBIA_DEPARTMENT_OPTIONS, getCitiesForDepartment, resolveCityName, resolveDepartmentName } from "@/lib/colombia-locations";
 import { resolveContactCardData } from "@/lib/contact-card";
-import { DorikaMapPicker } from "@/components/dorika-map-picker";
 import { calculateDorikaProfileProgress, DORIKA_LOCATION_PRIVACY_OPTIONS, normalizeDorikaProfile } from "@/lib/dorika-profile";
 import { isDorikaEligibleBusiness } from "@/lib/dorika-eligibility";
 import { getLinkTypeCount, LINK_CATALOG, LINK_CATALOG_MAP } from "@/lib/link-catalog";
@@ -123,6 +122,14 @@ const BookingWorkspace = dynamic(
         <p className="section-copy">Preparamos servicios, personal, horarios y reservas.</p>
       </section>
     ),
+  },
+);
+
+const DorikaMapPicker = dynamic(
+  () => import("@/components/dorika-map-picker").then((mod) => mod.DorikaMapPicker),
+  {
+    ssr: false,
+    loading: () => null,
   },
 );
 

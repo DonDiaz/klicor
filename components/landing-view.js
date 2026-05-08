@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { Globe, Save, Share2 } from "lucide-react";
 import { buildLandingLayout } from "@/lib/landing-layout";
 import { resolveContactCardData } from "@/lib/contact-card";
@@ -225,13 +226,14 @@ export function LandingView({ user, preview = false }) {
           <div className="public-accent-bar" style={{ background: appearance.primaryColor }} />
           {user.photo ? (
             <span className="avatar-shell" style={{ borderRadius: AVATAR_RADIUS_MAP[appearance.avatarShape] }}>
-              <img
+              <Image
                 className="avatar-image"
                 src={user.photoThumb || user.photo}
                 alt={user.businessName}
-                loading="eager"
-                decoding="async"
-                fetchPriority="high"
+                width={128}
+                height={128}
+                sizes="128px"
+                priority={!preview}
               />
             </span>
           ) : (

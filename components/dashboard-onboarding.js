@@ -17,7 +17,6 @@ import {
   Utensils,
   UploadCloud,
 } from "lucide-react";
-import { DorikaMapPicker } from "@/components/dorika-map-picker";
 import { apiFetch } from "@/lib/client-api";
 import { COLOMBIA_DEPARTMENT_OPTIONS, getCitiesForDepartment } from "@/lib/colombia-locations";
 import {
@@ -51,6 +50,14 @@ const DashboardPreview = dynamic(
         </div>
       </div>
     ),
+  },
+);
+
+const DorikaMapPicker = dynamic(
+  () => import("@/components/dorika-map-picker").then((mod) => mod.DorikaMapPicker),
+  {
+    ssr: false,
+    loading: () => null,
   },
 );
 

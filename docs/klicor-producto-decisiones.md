@@ -861,6 +861,25 @@ Estas decisiones evitan perder tiempo y tokens en direcciones que no son MVP.
 - No tocar la autenticacion salvo bug real.
 - No hacer cambios visuales grandes sin revisar este documento.
 
+## 8.1 Pendiente pre-produccion: proteccion de trafico
+
+Estado: pendiente para la semana previa a produccion.
+
+Klicor ya tiene un limitador basico dentro de la aplicacion para frenar muchas solicitudes repetidas por IP en rutas publicas sensibles.
+
+Ese limitador sirve como primera defensa, pero no debe ser la unica proteccion en produccion porque Vercel puede ejecutar varias instancias de la app y cada instancia puede tener memoria separada.
+
+Antes de salir a produccion comercial se debe configurar una proteccion en la entrada de la plataforma, como Vercel Firewall/WAF o rate limiting equivalente, para que el trafico abusivo se frene antes de llegar al codigo de Klicor.
+
+Prioridad recomendada:
+
+1. Rutas publicas de comercio.
+2. Rutas publicas de agenda, especialmente creacion de citas.
+3. Redirecciones y analytics de clicks.
+4. Verificador de usuarios.
+
+No bloquear el avance actual por este punto, pero no dejarlo para despues de produccion.
+
 ## 9. Orden recomendado de implementacion
 
 1. Compactar onboarding actual.
