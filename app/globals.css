@@ -11112,6 +11112,15 @@ html[data-theme="dark"] .admin-sidebar-note {
   color: rgba(15, 23, 42, 0.82);
   box-shadow: 0 8px 16px rgba(15, 23, 42, 0.14);
   cursor: pointer;
+  overflow: hidden;
+  padding: 0;
+  line-height: 1;
+}
+
+.commerce-board-image-remove svg {
+  width: 0.82rem;
+  height: 0.82rem;
+  display: block;
 }
 
 .commerce-board-image-remove:hover {
@@ -11436,8 +11445,8 @@ html[data-theme="dark"] .admin-sidebar-note {
 .commerce-icon-option {
   width: 100%;
   height: auto;
-  min-height: 5.35rem;
-  padding: 0.48rem 0.38rem;
+  min-height: 4.9rem;
+  padding: 0.42rem 0.34rem;
   position: relative;
   display: grid;
   place-items: center;
@@ -11449,6 +11458,7 @@ html[data-theme="dark"] .admin-sidebar-note {
   font-weight: 850;
   line-height: 1.05;
   text-align: center;
+  overflow: hidden;
 }
 
 .commerce-icon-option.is-active {
@@ -11470,37 +11480,18 @@ html[data-theme="dark"] .admin-sidebar-note {
   pointer-events: none;
 }
 
-.commerce-icon-selected-label {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.18rem;
-  min-height: 1.05rem;
-  padding: 0.08rem 0.34rem;
-  border-radius: 999px;
-  background: var(--commerce-primary, #6d28d9);
-  color: var(--commerce-button-text, #fff);
-  font-size: 0.58rem;
-  font-weight: 900;
-  line-height: 1;
-}
-
-.commerce-icon-selected-label svg {
-  width: 0.72rem;
-  height: 0.72rem;
-  flex: 0 0 auto;
-}
-
 .commerce-color-picker {
   display: none;
 }
 
 .commerce-category-asset {
   position: relative;
-  width: 2.55rem;
-  height: 2.55rem;
+  width: 2.45rem;
+  height: 2.45rem;
   display: inline-grid;
   place-items: center;
   isolation: isolate;
+  max-width: 100%;
 }
 
 .commerce-category-asset-glow {
@@ -11523,8 +11514,8 @@ html[data-theme="dark"] .admin-sidebar-note {
 }
 
 .commerce-category-asset-image {
-  width: 2.28rem;
-  height: 2.28rem;
+  width: 2.16rem;
+  height: 2.16rem;
   display: block;
   object-fit: contain;
   filter: drop-shadow(0 8px 9px rgba(15, 23, 42, 0.18));
@@ -11532,19 +11523,19 @@ html[data-theme="dark"] .admin-sidebar-note {
 }
 
 .commerce-category-asset-svg {
-  width: 2.28rem;
-  height: 2.28rem;
+  width: 2.16rem;
+  height: 2.16rem;
   display: block;
-  overflow: visible;
+  overflow: hidden;
   filter: drop-shadow(0 8px 9px rgba(15, 23, 42, 0.18));
 }
 
 .commerce-category-asset-badge {
   position: absolute;
-  right: -0.12rem;
-  bottom: -0.08rem;
-  min-width: 1.05rem;
-  height: 1.05rem;
+  right: -0.02rem;
+  bottom: -0.02rem;
+  min-width: 0.98rem;
+  height: 0.98rem;
   display: inline-grid;
   place-items: center;
   border: 2px solid #fff;

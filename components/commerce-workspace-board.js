@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
-  Check,
   ChevronLeft,
   ChevronRight,
   ChevronUp,
@@ -160,8 +159,7 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
   const [newCategoryName, setNewCategoryName] = useState("");
   const [newCategoryIcon, setNewCategoryIcon] = useState("");
   const [newCategoryColor, setNewCategoryColor] = useState(COMMERCE_CATEGORY_COLORS[0]);
-  const [iconPickerQuery, setIconPickerQuery] = useState("");
-  const [showAllCategoryAssets, setShowAllCategoryAssets] = useState(false);
+  const [iconPickerState, setIconPickerState] = useState({});
   const [subcategoryDrafts, setSubcategoryDrafts] = useState({});
   const [selectedCategoryId, setSelectedCategoryId] = useState("");
   const [selectedSubcategoryIds, setSelectedSubcategoryIds] = useState({});
@@ -596,13 +594,34 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
     callback();
   }
 
-  function resetAssetPicker() {
-    setIconPickerQuery("");
-    setShowAllCategoryAssets(false);
+  function getIconPickerState(pickerId = "default") {
+    return iconPickerState[pickerId] || { query: "", showAll: false };
+  }
+
+  function updateIconPickerState(pickerId = "default", patch = {}) {
+    setIconPickerState((current) => ({
+      ...current,
+      [pickerId]: {
+        ...(current[pickerId] || { query: "", showAll: false }),
+        ...patch,
+      },
+    }));
+  }
+
+  function resetAssetPicker(pickerId = "") {
+    if (!pickerId) {
+      setIconPickerState({});
+      return;
+    }
+    setIconPickerState((current) => {
+      const next = { ...current };
+      delete next[pickerId];
+      return next;
+    });
   }
 
   function startEditCategory(category) {
-    resetAssetPicker();
+    resetAssetPicker(`edit-category-${category.id}`);
     setEditingSubcategoryId("");
     setEditingCategoryId(category.id);
     setEditingCategoryName(category.name);
@@ -612,7 +631,7 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
 
   function stopEditCategory() {
     setEditingCategoryId("");
-    resetAssetPicker();
+    resetAssetPicker(editingCategoryId ? `edit-category-${editingCategoryId}` : "");
   }
 
   function stopEditSubcategory() {
@@ -620,11 +639,11 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
     setEditingSubcategoryName("");
   }
 
-  function resolveAssetGroups(name = "", { includeAll = false } = {}) {
+  function resolveAssetGroups(name = "", { includeAll = false, pickerQuery = "" } = {}) {
     const suggestedIcon = resolveCommerceCategoryIcon(name, profile?.businessCategory).iconKey;
     const query = includeAll
-      ? iconPickerQuery
-      : iconPickerQuery.trim() || String(name || "").trim();
+      ? pickerQuery
+      : pickerQuery.trim() || String(name || "").trim();
     return getCommerceCategoryIconGroups(profile?.businessCategory, query, suggestedIcon, {
       ...commerceAssetContext,
       includeAll,
@@ -643,12 +662,15 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
     return [{ title: "Recomendados", options: options.slice(0, 6) }];
   }
 
-  function renderIconPicker({ name, value, onIconChange }) {
-    const searchText = iconPickerQuery.trim() || String(name || "").trim();
-    const allGroups = resolveAssetGroups(name, { includeAll: showAllCategoryAssets });
-    const groups = !searchText && !showAllCategoryAssets
+  function renderIconPicker({ pickerId = "default", name, value, onIconChange }) {
+    const pickerState = getIconPickerState(pickerId);
+    const pickerQuery = pickerState.query || "";
+    const showAll = Boolean(pickerState.showAll);
+    const searchText = pickerQuery.trim() || String(name || "").trim();
+    const allGroups = resolveAssetGroups(name, { includeAll: showAll, pickerQuery });
+    const groups = !searchText && !showAll
       ? []
-      : showAllCategoryAssets
+      : showAll
         ? allGroups
         : limitAssetRecommendations(allGroups);
     const selectedIconRaw = value || resolveCommerceCategoryIcon(name, profile?.businessCategory).iconKey || "tag";
@@ -665,15 +687,14 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
       <div className="commerce-icon-picker" aria-label="Selector visual de asset de categoria">
         <input
           className="input commerce-icon-search"
-          value={iconPickerQuery}
+          value={pickerQuery}
           onChange={(event) => {
-            setIconPickerQuery(event.target.value);
-            setShowAllCategoryAssets(false);
+            updateIconPickerState(pickerId, { query: event.target.value, showAll: false });
           }}
           placeholder="Buscar asset: sandalias, aretes, pizza..."
           type="search"
         />
-        {!searchText && !showAllCategoryAssets ? (
+        {!searchText && !showAll ? (
           <small className="commerce-board-note">Escribe el nombre de la categoria para ver recomendaciones.</small>
         ) : null}
         <div className="commerce-icon-picker-groups">
@@ -702,11 +723,6 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
                     >
                       <CommerceCategoryAsset iconKey={option.iconKey} vertical={profile?.businessCategory} label={option.label} />
                       <span>{option.label}</span>
-                      {optionSelected ? (
-                        <small className="commerce-icon-selected-label">
-                          <Check size={12} /> Seleccionado
-                        </small>
-                      ) : null}
                     </button>
                   );
                 })}
@@ -714,8 +730,8 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
             </section>
           ))}
         </div>
-        <button className="btn btn-secondary commerce-icon-picker-more" type="button" onClick={() => setShowAllCategoryAssets((current) => !current)}>
-          {showAllCategoryAssets ? "Ver solo recomendados" : "Ver mas opciones"}
+        <button className="btn btn-secondary commerce-icon-picker-more" type="button" onClick={() => updateIconPickerState(pickerId, { showAll: !showAll })}>
+          {showAll ? "Ver solo recomendados" : "Ver mas opciones"}
         </button>
       </div>
     );
@@ -733,7 +749,7 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
       setNewCategoryName("");
       setNewCategoryIcon("");
       setNewCategoryColor(COMMERCE_CATEGORY_COLORS[0]);
-      resetAssetPicker();
+      resetAssetPicker("create-category");
     }
   }
 
@@ -909,6 +925,7 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
         <div className="commerce-board-create">
           <input className="input" value={newCategoryName} onChange={(event) => setNewCategoryName(event.target.value)} placeholder="Nombre de la categoría" disabled={!canEdit} />
           {renderIconPicker({
+            pickerId: "create-category",
             name: newCategoryName,
             value: newCategoryIcon,
             onIconChange: setNewCategoryIcon,
@@ -929,6 +946,7 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
                     <div className="commerce-board-inline-edit">
                       <input className="input" value={editingCategoryName} onChange={(event) => setEditingCategoryName(event.target.value)} placeholder="Nombre de la categoría" disabled={!canEdit} />
                       {renderIconPicker({
+                        pickerId: `edit-category-${category.id}`,
                         name: editingCategoryName,
                         value: editingCategoryIcon,
                         onIconChange: setEditingCategoryIcon,
