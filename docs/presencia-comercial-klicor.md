@@ -8,6 +8,19 @@
 
 Cada negocio puede tener solo un modo activo a la vez.
 
+## Relacion con workspaces operativos
+
+Klicor principal no debe convertirse en un dashboard gigante para todas las operaciones. Tienda, menu y catalogo son presencia comercial publica y administracion comercial basica; cuando una operacion requiera caja, inventario avanzado, comandas, proveedores, ventas diarias o agenda compleja, debe evolucionar hacia un workspace especializado.
+
+Workspaces relacionados:
+
+- `Klicor POS Restaurante` para restaurantes, cafes, bares, mesas, comandas, cocina, caja y domicilios.
+- `Klicor POS Retail` para ropa, zapatos, accesorios, joyerias, variantes, inventario, ventas y caja.
+- `Klicor POS Supermercado` para supermercados, minimercados, codigo de barras, proveedores, compras, inventario rapido y caja.
+- `Klicor Agenda` para servicios por cita.
+
+La vista publica sigue usando `/{username}/mimenu`, `/{username}/mitienda` o `/{username}/micatalogo`. El workspace operativo administra el trabajo diario y alimenta esos datos cuando corresponda.
+
 ## Arquitectura de datos
 
 La configuración comercial ligera se guarda en el usuario:
@@ -44,6 +57,9 @@ Esto evita inflar el documento principal del usuario y permite consultas pequeñ
 - imagen obligatoria para cada producto
 - si una categoría usa subcategorías, el producto debe vivir en una subcategoría
 - no se pueden crear subcategorías en una categoría que ya tiene productos directos
+- las categorías principales usan assets semánticos de categoría
+- las subcategorías no usan icono, asset ni color propio; solo ordenan por texto
+- el selector de asset de categoría muestra recomendados primero y solo abre el catálogo completo cuando el usuario lo pide
 - productos ocultos se muestran desaturados y con badge `Oculto` en el panel
 - orden manual con mover arriba / abajo para categorías, subcategorías y productos
 
@@ -82,6 +98,23 @@ Esto evita inflar el documento principal del usuario y permite consultas pequeñ
 - almacenamiento:
   - `commerce-products/{uid}/{productId}/main.webp`
   - `commerce-products/{uid}/{productId}/thumb.webp`
+
+## Assets de categoría
+
+- las categorías no usan fotos como flujo principal
+- cada categoría principal debe resolver a un asset semántico tipo miniatura de producto
+- el asset debe verse como objeto/producto reconocible, no como icono lineal plano
+- la base comercial canonica de Klicor vive en `lib/commerce-category-target-catalog.js`: 241 categorias objetivo por linea, con nombre y aliases
+- los assets IA activos por categoria viven en `public/commerce-assets/categories-ai-1254-review`, exportados como PNG transparentes de 1024x1024; `lib/commerce-category-local-assets.js` enlaza cada categoria canonica con su archivo local
+- el panel administrativo y la vista publica cargan esos assets IA locales como representacion principal de categorias
+- esta base temporal no reemplaza la meta de crear un catalogo propio definitivo; sirve para validar demanda, ordenar categorias y evitar gasto inicial
+- el dashboard administrativo y la vista pública deben mostrar el mismo asset para evitar confusión
+- el objetivo de cobertura es un catálogo curado de 1200 assets semánticos
+- la cobertura de 1200 assets debe lograrse por bloques reales; no cuentan variaciones nominales que reutilizan el mismo visual
+- el primer bloque en trabajo es calzado, con categorías globales; color, talla, marca y material van como filtros/subcategorías/productos
+- el catálogo extendido no debe cargarse completo en la vista pública; la vista pública solo resuelve el asset elegido por la categoría
+- el usuario no debe ver 1200 opciones de entrada; debe ver 3 a 6 recomendadas según el nombre escrito y abrir `Ver más opciones` solo si lo necesita
+- las subcategorías no guardan ni muestran asset; su función es organizar productos dentro de una categoría
 
 ## Vista pública
 

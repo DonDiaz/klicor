@@ -1,0 +1,1408 @@
+{
+  "generatedAt": "2026-05-08T14:17:25.547Z",
+  "inputDir": "E:\\Documents\\jhonnathan\\software\\klicor\\public\\commerce-assets\\sin fondo 1254-1254",
+  "outputDir": "E:\\Documents\\jhonnathan\\software\\klicor\\public\\commerce-assets\\categories-ai-1254-review",
+  "outputSize": 1024,
+  "inputSheets": 20,
+  "count": 229,
+  "manualOverrideCount": 5,
+  "skipped": [],
+  "manualOverrides": [
+    {
+      "file": "061-apparel_baby.png",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/manual-overrides/061-apparel_baby.png"
+    },
+    {
+      "file": "110-hardware_adhesives.png",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/manual-overrides/110-hardware_adhesives.png"
+    },
+    {
+      "file": "146-pets_beds.png",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/manual-overrides/146-pets_beds.png"
+    },
+    {
+      "file": "154-baby_diapers.png",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/manual-overrides/154-baby_diapers.png"
+    },
+    {
+      "file": "208-health_orthopedic.png",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/manual-overrides/208-health_orthopedic.png"
+    }
+  ],
+  "categories": [
+    {
+      "sheet": 1,
+      "key": "food_starters",
+      "label": "Entradas",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-001/01-food_starters.png"
+    },
+    {
+      "sheet": 1,
+      "key": "food_main_dishes",
+      "label": "Platos fuertes",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-001/02-food_main_dishes.png"
+    },
+    {
+      "sheet": 1,
+      "key": "food_breakfast",
+      "label": "Desayunos",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-001/03-food_breakfast.png"
+    },
+    {
+      "sheet": 1,
+      "key": "food_lunch",
+      "label": "Almuerzos",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-001/04-food_lunch.png"
+    },
+    {
+      "sheet": 1,
+      "key": "food_dinner",
+      "label": "Cenas",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-001/05-food_dinner.png"
+    },
+    {
+      "sheet": 1,
+      "key": "food_combos",
+      "label": "Combos",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-001/06-food_combos.png"
+    },
+    {
+      "sheet": 1,
+      "key": "food_burgers",
+      "label": "Hamburguesas",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-001/07-food_burgers.png"
+    },
+    {
+      "sheet": 1,
+      "key": "food_hotdogs",
+      "label": "Perros calientes",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-001/08-food_hotdogs.png"
+    },
+    {
+      "sheet": 1,
+      "key": "food_pizza",
+      "label": "Pizza",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-001/09-food_pizza.png"
+    },
+    {
+      "sheet": 1,
+      "key": "food_chicken",
+      "label": "Pollo",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-001/10-food_chicken.png"
+    },
+    {
+      "sheet": 1,
+      "key": "food_grill",
+      "label": "Carnes y parrilla",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-001/11-food_grill.png"
+    },
+    {
+      "sheet": 1,
+      "key": "food_fish",
+      "label": "Pescados",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-001/12-food_fish.png"
+    },
+    {
+      "sheet": 2,
+      "key": "food_seafood",
+      "label": "Mariscos",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-002/01-food_seafood.png"
+    },
+    {
+      "sheet": 2,
+      "key": "food_soups",
+      "label": "Sopas",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-002/02-food_soups.png"
+    },
+    {
+      "sheet": 2,
+      "key": "food_salads",
+      "label": "Ensaladas",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-002/03-food_salads.png"
+    },
+    {
+      "sheet": 2,
+      "key": "food_mexican",
+      "label": "Mexicana",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-002/04-food_mexican.png"
+    },
+    {
+      "sheet": 2,
+      "key": "food_pasta",
+      "label": "Pastas",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-002/05-food_pasta.png"
+    },
+    {
+      "sheet": 2,
+      "key": "food_rice",
+      "label": "Arroces",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-002/06-food_rice.png"
+    },
+    {
+      "sheet": 2,
+      "key": "food_arepas",
+      "label": "Arepas y empanadas",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-002/07-food_arepas.png"
+    },
+    {
+      "sheet": 2,
+      "key": "food_desserts",
+      "label": "Postres",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-002/08-food_desserts.png"
+    },
+    {
+      "sheet": 2,
+      "key": "food_bakery",
+      "label": "Panaderia",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-002/09-food_bakery.png"
+    },
+    {
+      "sheet": 2,
+      "key": "food_drinks",
+      "label": "Bebidas",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-002/10-food_drinks.png"
+    },
+    {
+      "sheet": 2,
+      "key": "food_coffee",
+      "label": "Cafe",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-002/11-food_coffee.png"
+    },
+    {
+      "sheet": 2,
+      "key": "food_juices",
+      "label": "Jugos",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-002/12-food_juices.png"
+    },
+    {
+      "sheet": 3,
+      "key": "food_ice_cream",
+      "label": "Helados",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-003/01-food_ice_cream.png"
+    },
+    {
+      "sheet": 3,
+      "key": "grocery_fruits",
+      "label": "Frutas",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-003/02-grocery_fruits.png"
+    },
+    {
+      "sheet": 3,
+      "key": "grocery_vegetables",
+      "label": "Verduras",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-003/03-grocery_vegetables.png"
+    },
+    {
+      "sheet": 3,
+      "key": "grocery_dairy",
+      "label": "Lacteos",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-003/04-grocery_dairy.png"
+    },
+    {
+      "sheet": 3,
+      "key": "grocery_meat",
+      "label": "Carnes",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-003/05-grocery_meat.png"
+    },
+    {
+      "sheet": 3,
+      "key": "grocery_chicken",
+      "label": "Pollo",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-003/06-grocery_chicken.png"
+    },
+    {
+      "sheet": 3,
+      "key": "grocery_fish",
+      "label": "Pescados",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-003/07-grocery_fish.png"
+    },
+    {
+      "sheet": 3,
+      "key": "grocery_eggs",
+      "label": "Huevos",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-003/08-grocery_eggs.png"
+    },
+    {
+      "sheet": 3,
+      "key": "grocery_bakery",
+      "label": "Panaderia",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-003/09-grocery_bakery.png"
+    },
+    {
+      "sheet": 3,
+      "key": "grocery_grains",
+      "label": "Granos",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-003/10-grocery_grains.png"
+    },
+    {
+      "sheet": 3,
+      "key": "grocery_pasta_rice",
+      "label": "Arroz y pasta",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-003/11-grocery_pasta_rice.png"
+    },
+    {
+      "sheet": 3,
+      "key": "grocery_canned",
+      "label": "Enlatados",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-003/12-grocery_canned.png"
+    },
+    {
+      "sheet": 4,
+      "key": "grocery_snacks",
+      "label": "Snacks",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-004/01-grocery_snacks.png"
+    },
+    {
+      "sheet": 4,
+      "key": "grocery_candy",
+      "label": "Dulces",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-004/02-grocery_candy.png"
+    },
+    {
+      "sheet": 4,
+      "key": "grocery_drinks",
+      "label": "Bebidas",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-004/03-grocery_drinks.png"
+    },
+    {
+      "sheet": 4,
+      "key": "grocery_cleaning",
+      "label": "Aseo hogar",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-004/04-grocery_cleaning.png"
+    },
+    {
+      "sheet": 4,
+      "key": "grocery_personal_care",
+      "label": "Cuidado personal",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-004/05-grocery_personal_care.png"
+    },
+    {
+      "sheet": 4,
+      "key": "grocery_baby",
+      "label": "Bebe",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-004/06-grocery_baby.png"
+    },
+    {
+      "sheet": 4,
+      "key": "grocery_pets",
+      "label": "Mascotas",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-004/07-grocery_pets.png"
+    },
+    {
+      "sheet": 4,
+      "key": "grocery_frozen",
+      "label": "Congelados",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-004/08-grocery_frozen.png"
+    },
+    {
+      "sheet": 4,
+      "key": "grocery_charcuterie",
+      "label": "Charcuteria",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-004/09-grocery_charcuterie.png"
+    },
+    {
+      "sheet": 4,
+      "key": "apparel_tshirts",
+      "label": "Camisetas",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-004/10-apparel_tshirts.png"
+    },
+    {
+      "sheet": 4,
+      "key": "apparel_shirts",
+      "label": "Camisas",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-004/11-apparel_shirts.png"
+    },
+    {
+      "sheet": 4,
+      "key": "apparel_blouses",
+      "label": "Blusas",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-004/12-apparel_blouses.png"
+    },
+    {
+      "sheet": 5,
+      "key": "apparel_pants",
+      "label": "Pantalones",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-005/01-apparel_pants.png"
+    },
+    {
+      "sheet": 5,
+      "key": "apparel_jeans",
+      "label": "Jeans",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-005/02-apparel_jeans.png"
+    },
+    {
+      "sheet": 5,
+      "key": "apparel_dresses",
+      "label": "Vestidos",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-005/03-apparel_dresses.png"
+    },
+    {
+      "sheet": 5,
+      "key": "apparel_skirts",
+      "label": "Faldas",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-005/04-apparel_skirts.png"
+    },
+    {
+      "sheet": 5,
+      "key": "apparel_jackets",
+      "label": "Chaquetas",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-005/05-apparel_jackets.png"
+    },
+    {
+      "sheet": 5,
+      "key": "apparel_coats",
+      "label": "Abrigos",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-005/06-apparel_coats.png"
+    },
+    {
+      "sheet": 5,
+      "key": "apparel_sportswear",
+      "label": "Ropa deportiva",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-005/07-apparel_sportswear.png"
+    },
+    {
+      "sheet": 5,
+      "key": "apparel_underwear",
+      "label": "Ropa interior",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-005/08-apparel_underwear.png"
+    },
+    {
+      "sheet": 5,
+      "key": "apparel_pajamas",
+      "label": "Pijamas",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-005/09-apparel_pajamas.png"
+    },
+    {
+      "sheet": 5,
+      "key": "apparel_swimwear",
+      "label": "Trajes de bano",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-005/10-apparel_swimwear.png"
+    },
+    {
+      "sheet": 5,
+      "key": "apparel_uniforms",
+      "label": "Uniformes",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-005/11-apparel_uniforms.png"
+    },
+    {
+      "sheet": 5,
+      "key": "apparel_kids",
+      "label": "Ropa infantil",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-005/12-apparel_kids.png"
+    },
+    {
+      "sheet": 6,
+      "key": "shoes_sneakers",
+      "label": "Tenis",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-006/01-shoes_sneakers.png"
+    },
+    {
+      "sheet": 6,
+      "key": "shoes_sport",
+      "label": "Deportivos",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-006/02-shoes_sport.png"
+    },
+    {
+      "sheet": 6,
+      "key": "shoes_casual",
+      "label": "Casuales",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-006/03-shoes_casual.png"
+    },
+    {
+      "sheet": 6,
+      "key": "shoes_formal",
+      "label": "Formales",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-006/04-shoes_formal.png"
+    },
+    {
+      "sheet": 6,
+      "key": "shoes_loafers",
+      "label": "Mocasines",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-006/05-shoes_loafers.png"
+    },
+    {
+      "sheet": 6,
+      "key": "shoes_flats",
+      "label": "Baletas",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-006/06-shoes_flats.png"
+    },
+    {
+      "sheet": 6,
+      "key": "shoes_heels",
+      "label": "Tacones",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-006/07-shoes_heels.png"
+    },
+    {
+      "sheet": 6,
+      "key": "shoes_platforms",
+      "label": "Plataformas",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-006/08-shoes_platforms.png"
+    },
+    {
+      "sheet": 6,
+      "key": "shoes_women_sandals",
+      "label": "Sandalias mujer",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-006/09-shoes_women_sandals.png"
+    },
+    {
+      "sheet": 6,
+      "key": "shoes_men_sandals",
+      "label": "Sandalias hombre",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-006/10-shoes_men_sandals.png"
+    },
+    {
+      "sheet": 6,
+      "key": "shoes_beach_sandals",
+      "label": "Sandalias playa",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-006/11-shoes_beach_sandals.png"
+    },
+    {
+      "sheet": 6,
+      "key": "shoes_flip_flops",
+      "label": "Chanclas",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-006/12-shoes_flip_flops.png"
+    },
+    {
+      "sheet": 7,
+      "key": "shoes_slippers",
+      "label": "Pantuflas",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-007/01-shoes_slippers.png"
+    },
+    {
+      "sheet": 7,
+      "key": "shoes_men_boots",
+      "label": "Botas hombre",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-007/02-shoes_men_boots.png"
+    },
+    {
+      "sheet": 7,
+      "key": "shoes_women_boots",
+      "label": "Botas mujer",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-007/03-shoes_women_boots.png"
+    },
+    {
+      "sheet": 7,
+      "key": "shoes_ankle_boots",
+      "label": "Botines",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-007/04-shoes_ankle_boots.png"
+    },
+    {
+      "sheet": 7,
+      "key": "shoes_school",
+      "label": "Escolares",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-007/05-shoes_school.png"
+    },
+    {
+      "sheet": 7,
+      "key": "shoes_baby",
+      "label": "Zapatos bebe",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-007/06-shoes_baby.png"
+    },
+    {
+      "sheet": 7,
+      "key": "shoes_insoles",
+      "label": "Plantillas",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-007/07-shoes_insoles.png"
+    },
+    {
+      "sheet": 7,
+      "key": "shoes_accessories",
+      "label": "Accesorios de calzado",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-007/08-shoes_accessories.png"
+    },
+    {
+      "sheet": 7,
+      "key": "accessories_bags",
+      "label": "Bolsos",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-007/09-accessories_bags.png"
+    },
+    {
+      "sheet": 7,
+      "key": "accessories_wallets",
+      "label": "Billeteras",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-007/10-accessories_wallets.png"
+    },
+    {
+      "sheet": 7,
+      "key": "accessories_caps",
+      "label": "Gorras",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-007/11-accessories_caps.png"
+    },
+    {
+      "sheet": 7,
+      "key": "accessories_glasses",
+      "label": "Gafas",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-007/12-accessories_glasses.png"
+    },
+    {
+      "sheet": 8,
+      "key": "accessories_watches",
+      "label": "Relojes",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-008/01-accessories_watches.png"
+    },
+    {
+      "sheet": 8,
+      "key": "accessories_belts",
+      "label": "Cinturones",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-008/02-accessories_belts.png"
+    },
+    {
+      "sheet": 8,
+      "key": "jewelry_bracelets",
+      "label": "Pulseras",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-008/03-jewelry_bracelets.png"
+    },
+    {
+      "sheet": 8,
+      "key": "jewelry_rings",
+      "label": "Anillos",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-008/04-jewelry_rings.png"
+    },
+    {
+      "sheet": 8,
+      "key": "jewelry_charms",
+      "label": "Dijes",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-008/05-jewelry_charms.png"
+    },
+    {
+      "sheet": 8,
+      "key": "jewelry_anklets",
+      "label": "Tobilleras",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-008/06-jewelry_anklets.png"
+    },
+    {
+      "sheet": 8,
+      "key": "jewelry_sets",
+      "label": "Sets",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-008/07-jewelry_sets.png"
+    },
+    {
+      "sheet": 8,
+      "key": "accessories_hair",
+      "label": "Accesorios cabello",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-008/08-accessories_hair.png"
+    },
+    {
+      "sheet": 8,
+      "key": "jewelry_fashion",
+      "label": "Bisuteria",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-008/09-jewelry_fashion.png"
+    },
+    {
+      "sheet": 8,
+      "key": "jewelry_fine",
+      "label": "Joyeria fina",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-008/10-jewelry_fine.png"
+    },
+    {
+      "sheet": 8,
+      "key": "beauty_makeup",
+      "label": "Maquillaje",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-008/11-beauty_makeup.png"
+    },
+    {
+      "sheet": 8,
+      "key": "beauty_lipsticks",
+      "label": "Labiales",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-008/12-beauty_lipsticks.png"
+    },
+    {
+      "sheet": 9,
+      "key": "beauty_foundation",
+      "label": "Bases y correctores",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-009/01-beauty_foundation.png"
+    },
+    {
+      "sheet": 9,
+      "key": "beauty_eyeshadow",
+      "label": "Sombras",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-009/02-beauty_eyeshadow.png"
+    },
+    {
+      "sheet": 9,
+      "key": "beauty_brushes",
+      "label": "Brochas",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-009/03-beauty_brushes.png"
+    },
+    {
+      "sheet": 9,
+      "key": "beauty_nails",
+      "label": "Unas y esmaltes",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-009/04-beauty_nails.png"
+    },
+    {
+      "sheet": 9,
+      "key": "beauty_skincare",
+      "label": "Skincare",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-009/05-beauty_skincare.png"
+    },
+    {
+      "sheet": 9,
+      "key": "beauty_creams",
+      "label": "Cremas",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-009/06-beauty_creams.png"
+    },
+    {
+      "sheet": 9,
+      "key": "beauty_toners",
+      "label": "Tonicos",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-009/07-beauty_toners.png"
+    },
+    {
+      "sheet": 9,
+      "key": "beauty_masks",
+      "label": "Mascarillas",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-009/08-beauty_masks.png"
+    },
+    {
+      "sheet": 9,
+      "key": "beauty_bodycare",
+      "label": "Cuidado corporal",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-009/09-beauty_bodycare.png"
+    },
+    {
+      "sheet": 9,
+      "key": "beauty_haircare",
+      "label": "Cabello",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-009/10-beauty_haircare.png"
+    },
+    {
+      "sheet": 9,
+      "key": "beauty_hair_tools",
+      "label": "Herramientas cabello",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-009/11-beauty_hair_tools.png"
+    },
+    {
+      "sheet": 9,
+      "key": "beauty_eyebrows",
+      "label": "Cejas",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-009/12-beauty_eyebrows.png"
+    },
+    {
+      "sheet": 10,
+      "key": "beauty_lashes",
+      "label": "Pestanas",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-010/01-beauty_lashes.png"
+    },
+    {
+      "sheet": 10,
+      "key": "beauty_waxing",
+      "label": "Depilacion",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-010/02-beauty_waxing.png"
+    },
+    {
+      "sheet": 10,
+      "key": "health_medicines",
+      "label": "Medicamentos",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-010/03-health_medicines.png"
+    },
+    {
+      "sheet": 10,
+      "key": "health_vitamins",
+      "label": "Vitaminas",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-010/04-health_vitamins.png"
+    },
+    {
+      "sheet": 10,
+      "key": "health_supplements",
+      "label": "Suplementos",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-010/05-health_supplements.png"
+    },
+    {
+      "sheet": 10,
+      "key": "health_first_aid",
+      "label": "Primeros auxilios",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-010/06-health_first_aid.png"
+    },
+    {
+      "sheet": 10,
+      "key": "health_personal_care",
+      "label": "Cuidado personal",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-010/07-health_personal_care.png"
+    },
+    {
+      "sheet": 10,
+      "key": "health_oral",
+      "label": "Higiene oral",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-010/08-health_oral.png"
+    },
+    {
+      "sheet": 10,
+      "key": "health_baby",
+      "label": "Bebe y panales",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-010/09-health_baby.png"
+    },
+    {
+      "sheet": 10,
+      "key": "health_dermo",
+      "label": "Dermocosmetica",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-010/10-health_dermo.png"
+    },
+    {
+      "sheet": 10,
+      "key": "health_feminine",
+      "label": "Cuidado femenino",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-010/11-health_feminine.png"
+    },
+    {
+      "sheet": 10,
+      "key": "health_devices",
+      "label": "Dispositivos medicos",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-010/12-health_devices.png"
+    },
+    {
+      "sheet": 11,
+      "key": "health_glasses",
+      "label": "Lentes y gafas",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-011/01-health_glasses.png"
+    },
+    {
+      "sheet": 11,
+      "key": "health_natural",
+      "label": "Naturista",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-011/02-health_natural.png"
+    },
+    {
+      "sheet": 11,
+      "key": "health_sunscreen",
+      "label": "Proteccion solar",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-011/03-health_sunscreen.png"
+    },
+    {
+      "sheet": 11,
+      "key": "health_muscle",
+      "label": "Cuidado muscular",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-011/04-health_muscle.png"
+    },
+    {
+      "sheet": 11,
+      "key": "hardware_manual_tools",
+      "label": "Herramientas manuales",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-011/05-hardware_manual_tools.png"
+    },
+    {
+      "sheet": 11,
+      "key": "hardware_power_tools",
+      "label": "Herramientas electricas",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-011/06-hardware_power_tools.png"
+    },
+    {
+      "sheet": 11,
+      "key": "hardware_fasteners",
+      "label": "Tornillos y fijaciones",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-011/07-hardware_fasteners.png"
+    },
+    {
+      "sheet": 11,
+      "key": "hardware_electricity",
+      "label": "Electricidad",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-011/08-hardware_electricity.png"
+    },
+    {
+      "sheet": 11,
+      "key": "hardware_lighting",
+      "label": "Iluminacion",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-011/09-hardware_lighting.png"
+    },
+    {
+      "sheet": 11,
+      "key": "hardware_plumbing",
+      "label": "Plomeria",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-011/10-hardware_plumbing.png"
+    },
+    {
+      "sheet": 11,
+      "key": "hardware_paint",
+      "label": "Pintura",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-011/11-hardware_paint.png"
+    },
+    {
+      "sheet": 11,
+      "key": "hardware_construction",
+      "label": "Construccion",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-011/12-hardware_construction.png"
+    },
+    {
+      "sheet": 12,
+      "key": "hardware_security",
+      "label": "Seguridad y cerraduras",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-012/01-hardware_security.png"
+    },
+    {
+      "sheet": 12,
+      "key": "hardware_garden",
+      "label": "Jardineria",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-012/02-hardware_garden.png"
+    },
+    {
+      "sheet": 12,
+      "key": "hardware_wood",
+      "label": "Madera",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-012/03-hardware_wood.png"
+    },
+    {
+      "sheet": 12,
+      "key": "home_cleaning",
+      "label": "Limpieza hogar",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-012/04-home_cleaning.png"
+    },
+    {
+      "sheet": 12,
+      "key": "home_kitchen",
+      "label": "Cocina",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-012/05-home_kitchen.png"
+    },
+    {
+      "sheet": 12,
+      "key": "home_furniture",
+      "label": "Muebles",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-012/06-home_furniture.png"
+    },
+    {
+      "sheet": 12,
+      "key": "home_decor",
+      "label": "Decoracion",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-012/07-home_decor.png"
+    },
+    {
+      "sheet": 12,
+      "key": "home_organization",
+      "label": "Organizacion",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-012/08-home_organization.png"
+    },
+    {
+      "sheet": 12,
+      "key": "home_textiles",
+      "label": "Textiles hogar",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-012/09-home_textiles.png"
+    },
+    {
+      "sheet": 12,
+      "key": "tech_phones",
+      "label": "Celulares",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-012/10-tech_phones.png"
+    },
+    {
+      "sheet": 12,
+      "key": "tech_phone_accessories",
+      "label": "Accesorios celular",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-012/11-tech_phone_accessories.png"
+    },
+    {
+      "sheet": 12,
+      "key": "tech_computers",
+      "label": "Computadores",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-012/12-tech_computers.png"
+    },
+    {
+      "sheet": 13,
+      "key": "tech_tablets",
+      "label": "Tablets",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-013/01-tech_tablets.png"
+    },
+    {
+      "sheet": 13,
+      "key": "tech_audio",
+      "label": "Audio",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-013/02-tech_audio.png"
+    },
+    {
+      "sheet": 13,
+      "key": "tech_gaming",
+      "label": "Gaming",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-013/03-tech_gaming.png"
+    },
+    {
+      "sheet": 13,
+      "key": "tech_cameras",
+      "label": "Camaras",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-013/04-tech_cameras.png"
+    },
+    {
+      "sheet": 13,
+      "key": "tech_printing",
+      "label": "Impresion",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-013/05-tech_printing.png"
+    },
+    {
+      "sheet": 13,
+      "key": "tech_networks",
+      "label": "Redes e internet",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-013/06-tech_networks.png"
+    },
+    {
+      "sheet": 13,
+      "key": "tech_cables",
+      "label": "Cables y cargadores",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-013/07-tech_cables.png"
+    },
+    {
+      "sheet": 13,
+      "key": "tech_smartwatches",
+      "label": "Smartwatches",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-013/08-tech_smartwatches.png"
+    },
+    {
+      "sheet": 13,
+      "key": "tech_components",
+      "label": "Componentes",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-013/09-tech_components.png"
+    },
+    {
+      "sheet": 13,
+      "key": "tech_appliances",
+      "label": "Electrodomesticos pequenos",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-013/10-tech_appliances.png"
+    },
+    {
+      "sheet": 13,
+      "key": "stationery_notebooks",
+      "label": "Cuadernos",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-013/11-stationery_notebooks.png"
+    },
+    {
+      "sheet": 13,
+      "key": "stationery_books",
+      "label": "Libros",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-013/12-stationery_books.png"
+    },
+    {
+      "sheet": 14,
+      "key": "stationery_pencils",
+      "label": "Lapices y colores",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-014/01-stationery_pencils.png"
+    },
+    {
+      "sheet": 14,
+      "key": "stationery_markers",
+      "label": "Marcadores",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-014/02-stationery_markers.png"
+    },
+    {
+      "sheet": 14,
+      "key": "stationery_paper",
+      "label": "Papel",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-014/03-stationery_paper.png"
+    },
+    {
+      "sheet": 14,
+      "key": "stationery_folders",
+      "label": "Carpetas y archivo",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-014/04-stationery_folders.png"
+    },
+    {
+      "sheet": 14,
+      "key": "stationery_office",
+      "label": "Oficina",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-014/05-stationery_office.png"
+    },
+    {
+      "sheet": 14,
+      "key": "stationery_printing",
+      "label": "Impresion y copias",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-014/06-stationery_printing.png"
+    },
+    {
+      "sheet": 14,
+      "key": "stationery_art",
+      "label": "Arte y manualidades",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-014/07-stationery_art.png"
+    },
+    {
+      "sheet": 14,
+      "key": "stationery_school",
+      "label": "Escolar",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-014/08-stationery_school.png"
+    },
+    {
+      "sheet": 14,
+      "key": "stationery_agendas",
+      "label": "Agendas",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-014/09-stationery_agendas.png"
+    },
+    {
+      "sheet": 14,
+      "key": "stationery_packaging",
+      "label": "Empaques",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-014/10-stationery_packaging.png"
+    },
+    {
+      "sheet": 14,
+      "key": "pets_dog_food",
+      "label": "Alimento perro",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-014/11-pets_dog_food.png"
+    },
+    {
+      "sheet": 14,
+      "key": "pets_cat_food",
+      "label": "Alimento gato",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-014/12-pets_cat_food.png"
+    },
+    {
+      "sheet": 15,
+      "key": "pets_snacks",
+      "label": "Snacks mascotas",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-015/01-pets_snacks.png"
+    },
+    {
+      "sheet": 15,
+      "key": "pets_toys",
+      "label": "Juguetes mascotas",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-015/02-pets_toys.png"
+    },
+    {
+      "sheet": 15,
+      "key": "pets_collars",
+      "label": "Collares y correas",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-015/03-pets_collars.png"
+    },
+    {
+      "sheet": 15,
+      "key": "pets_hygiene",
+      "label": "Higiene mascotas",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-015/04-pets_hygiene.png"
+    },
+    {
+      "sheet": 15,
+      "key": "pets_health",
+      "label": "Salud mascota",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-015/05-pets_health.png"
+    },
+    {
+      "sheet": 15,
+      "key": "pets_cat_litter",
+      "label": "Arena gato",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-015/06-pets_cat_litter.png"
+    },
+    {
+      "sheet": 15,
+      "key": "pets_aquarium_birds",
+      "label": "Acuarios y aves",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-015/07-pets_aquarium_birds.png"
+    },
+    {
+      "sheet": 15,
+      "key": "baby_clothes",
+      "label": "Ropa bebe",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-015/08-baby_clothes.png"
+    },
+    {
+      "sheet": 15,
+      "key": "baby_shoes",
+      "label": "Calzado bebe",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-015/09-baby_shoes.png"
+    },
+    {
+      "sheet": 15,
+      "key": "baby_feeding",
+      "label": "Alimentacion bebe",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-015/10-baby_feeding.png"
+    },
+    {
+      "sheet": 15,
+      "key": "baby_toys",
+      "label": "Juguetes bebe",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-015/11-baby_toys.png"
+    },
+    {
+      "sheet": 15,
+      "key": "kids_toys",
+      "label": "Juguetes ninos",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-015/12-kids_toys.png"
+    },
+    {
+      "sheet": 16,
+      "key": "kids_didactic",
+      "label": "Juegos didacticos",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-016/01-kids_didactic.png"
+    },
+    {
+      "sheet": 16,
+      "key": "kids_school",
+      "label": "Escolares ninos",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-016/02-kids_school.png"
+    },
+    {
+      "sheet": 16,
+      "key": "kids_party",
+      "label": "Cumpleanos y fiesta",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-016/03-kids_party.png"
+    },
+    {
+      "sheet": 16,
+      "key": "vehicles_car_parts",
+      "label": "Repuestos carro",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-016/04-vehicles_car_parts.png"
+    },
+    {
+      "sheet": 16,
+      "key": "vehicles_motorcycle_parts",
+      "label": "Repuestos moto",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-016/05-vehicles_motorcycle_parts.png"
+    },
+    {
+      "sheet": 16,
+      "key": "vehicles_oils",
+      "label": "Aceites y lubricantes",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-016/06-vehicles_oils.png"
+    },
+    {
+      "sheet": 16,
+      "key": "vehicles_tires",
+      "label": "Llantas",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-016/07-vehicles_tires.png"
+    },
+    {
+      "sheet": 16,
+      "key": "vehicles_batteries",
+      "label": "Baterias",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-016/08-vehicles_batteries.png"
+    },
+    {
+      "sheet": 16,
+      "key": "vehicles_car_accessories",
+      "label": "Accesorios carro",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-016/09-vehicles_car_accessories.png"
+    },
+    {
+      "sheet": 16,
+      "key": "vehicles_motorcycle_accessories",
+      "label": "Accesorios moto",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-016/10-vehicles_motorcycle_accessories.png"
+    },
+    {
+      "sheet": 16,
+      "key": "vehicles_helmets",
+      "label": "Cascos",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-016/11-vehicles_helmets.png"
+    },
+    {
+      "sheet": 16,
+      "key": "vehicles_cleaning",
+      "label": "Limpieza vehiculo",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-016/12-vehicles_cleaning.png"
+    },
+    {
+      "sheet": 17,
+      "key": "vehicles_bikes",
+      "label": "Bicicletas y repuestos",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-017/01-vehicles_bikes.png"
+    },
+    {
+      "sheet": 17,
+      "key": "sports_clothing",
+      "label": "Ropa deportiva",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-017/02-sports_clothing.png"
+    },
+    {
+      "sheet": 17,
+      "key": "sports_gym",
+      "label": "Gimnasio",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-017/03-sports_gym.png"
+    },
+    {
+      "sheet": 17,
+      "key": "sports_cycling",
+      "label": "Ciclismo",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-017/04-sports_cycling.png"
+    },
+    {
+      "sheet": 17,
+      "key": "sports_soccer",
+      "label": "Futbol",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-017/05-sports_soccer.png"
+    },
+    {
+      "sheet": 17,
+      "key": "sports_balls",
+      "label": "Balones",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-017/06-sports_balls.png"
+    },
+    {
+      "sheet": 17,
+      "key": "sports_swimming",
+      "label": "Natacion",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-017/07-sports_swimming.png"
+    },
+    {
+      "sheet": 17,
+      "key": "sports_camping",
+      "label": "Camping",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-017/08-sports_camping.png"
+    },
+    {
+      "sheet": 17,
+      "key": "sports_hiking",
+      "label": "Senderismo",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-017/09-sports_hiking.png"
+    },
+    {
+      "sheet": 17,
+      "key": "sports_supplements",
+      "label": "Suplementos deportivos",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-017/10-sports_supplements.png"
+    },
+    {
+      "sheet": 17,
+      "key": "sports_training",
+      "label": "Accesorios entrenamiento",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-017/11-sports_training.png"
+    },
+    {
+      "sheet": 17,
+      "key": "tourism_hotels",
+      "label": "Hoteles",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-017/12-tourism_hotels.png"
+    },
+    {
+      "sheet": 18,
+      "key": "tourism_hostels",
+      "label": "Hostales",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-018/01-tourism_hostels.png"
+    },
+    {
+      "sheet": 18,
+      "key": "tourism_glamping",
+      "label": "Glamping",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-018/02-tourism_glamping.png"
+    },
+    {
+      "sheet": 18,
+      "key": "tourism_camping",
+      "label": "Camping",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-018/03-tourism_camping.png"
+    },
+    {
+      "sheet": 18,
+      "key": "tourism_tours",
+      "label": "Tours",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-018/04-tourism_tours.png"
+    },
+    {
+      "sheet": 18,
+      "key": "tourism_routes",
+      "label": "Rutas",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-018/05-tourism_routes.png"
+    },
+    {
+      "sheet": 18,
+      "key": "tourism_adventure",
+      "label": "Aventura",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-018/06-tourism_adventure.png"
+    },
+    {
+      "sheet": 18,
+      "key": "tourism_nature",
+      "label": "Naturaleza",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-018/07-tourism_nature.png"
+    },
+    {
+      "sheet": 18,
+      "key": "tourism_culture",
+      "label": "Cultura",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-018/08-tourism_culture.png"
+    },
+    {
+      "sheet": 18,
+      "key": "tourism_viewpoints",
+      "label": "Miradores",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-018/09-tourism_viewpoints.png"
+    },
+    {
+      "sheet": 18,
+      "key": "tourism_transport",
+      "label": "Transporte turistico",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-018/10-tourism_transport.png"
+    },
+    {
+      "sheet": 18,
+      "key": "tourism_gastronomy",
+      "label": "Gastronomia local",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-018/11-tourism_gastronomy.png"
+    },
+    {
+      "sheet": 18,
+      "key": "services_barber",
+      "label": "Barberia",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-018/12-services_barber.png"
+    },
+    {
+      "sheet": 19,
+      "key": "services_spa",
+      "label": "Spa y masajes",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-019/01-services_spa.png"
+    },
+    {
+      "sheet": 19,
+      "key": "services_health",
+      "label": "Salud y consultorio",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-019/02-services_health.png"
+    },
+    {
+      "sheet": 19,
+      "key": "services_dental",
+      "label": "Odontologia",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-019/03-services_dental.png"
+    },
+    {
+      "sheet": 19,
+      "key": "services_psychology",
+      "label": "Psicologia",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-019/04-services_psychology.png"
+    },
+    {
+      "sheet": 19,
+      "key": "services_education",
+      "label": "Educacion y clases",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-019/05-services_education.png"
+    },
+    {
+      "sheet": 19,
+      "key": "services_repair",
+      "label": "Reparacion tecnica",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-019/06-services_repair.png"
+    },
+    {
+      "sheet": 19,
+      "key": "services_cleaning",
+      "label": "Limpieza",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-019/07-services_cleaning.png"
+    },
+    {
+      "sheet": 19,
+      "key": "services_transport",
+      "label": "Transporte",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-019/08-services_transport.png"
+    },
+    {
+      "sheet": 19,
+      "key": "services_photo_video",
+      "label": "Foto y video",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-019/09-services_photo_video.png"
+    },
+    {
+      "sheet": 19,
+      "key": "services_events",
+      "label": "Eventos",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-019/10-services_events.png"
+    },
+    {
+      "sheet": 19,
+      "key": "services_design_marketing",
+      "label": "Diseno y publicidad",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-019/11-services_design_marketing.png"
+    },
+    {
+      "sheet": 19,
+      "key": "services_legal",
+      "label": "Legal",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-019/12-services_legal.png"
+    },
+    {
+      "sheet": 20,
+      "key": "services_accounting",
+      "label": "Contable",
+      "assetUrl": "/commerce-assets/categories-ai-1254-review/sheet-020/01-services_accounting.png"
+    }
+  ]
+}

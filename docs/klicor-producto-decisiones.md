@@ -11,11 +11,14 @@ Klicor debe permitir que un negocio tenga:
 - Link in bio publico con identidad, botones, redes, metodos de pago y contacto.
 - QR y enlace publico facil de compartir.
 - Tienda, menu o catalogo segun lo que vende.
-- Agenda para negocios de servicios o citas.
+- Agenda como workspace operativo para negocios de servicios o citas.
 - Perfil comercial para aparecer en Dorika cuando aplique.
-- Panel administrativo para configurar el negocio con el menor esfuerzo posible.
+- Panel administrativo principal para configurar el negocio con el menor esfuerzo posible.
+- Workspaces operativos especializados para modulos grandes como Agenda y POS.
 
 La promesa principal no es "hacer una pagina bonita", sino ayudar al negocio a vender, recibir pedidos, mostrar su oferta, ser encontrado y convertir conversaciones.
+
+Klicor no debe crecer como un dashboard unico con demasiadas pestañas. El dashboard principal funciona como centro de acceso, configuracion, resumen y presencia. Los modulos operativos grandes deben abrir su propio workspace especializado cuando la complejidad lo justifique.
 
 ## 2. Problema que resuelve
 
@@ -300,18 +303,39 @@ Razon:
 - Una tienda/menu/catalogo es una experiencia de venta.
 - El producto debe ser protagonista.
 
-### 5.2 Categorias deben usar iconos, no fotos
+### 5.2 Categorias deben usar assets semanticos, no fotos
 
-Estado: aprobado, pendiente de implementar.
+Estado: aprobado, en implementacion progresiva.
 
 Regla:
 
-- Categorias = iconos/assets visuales semanticos + nombre.
+- Categorias principales = assets semanticos de categoria + nombre.
+- Subcategorias = texto de organizacion, sin asset, sin icono y sin color propio.
 - El color visible de categorias lo decide el tema del comercio, no el usuario manualmente.
 - Productos = fotos.
 - Banners/portadas = imagenes emocionales.
 
 No se deben pedir fotos para categorias como flujo principal.
+
+El asset semantico de categoria no es un icono lineal de interfaz, no es una foto y no debe verse como un simbolo plano tecnico. Debe parecer una miniatura visual de producto o familia de productos: aretes para `Aretes`, collar para `Collares`, sandalias para `Sandalias`, plato servido para `Platos fuertes`, vaso/botella para `Bebidas`, etc.
+
+El dashboard administrativo debe mostrar el mismo asset de categoria que vera el cliente en la vista publica. Los iconos lineales quedan solo para acciones del sistema, navegacion y botones administrativos.
+
+Decision actual de bajo costo:
+
+- La base comercial canonica vive en `lib/commerce-category-target-catalog.js` con 241 categorias objetivo por linea, nombre y aliases.
+- Los assets IA activos por categoria viven en `public/commerce-assets/categories-ai-1254-review`, exportados como PNG transparentes de 1024x1024 desde sheets revisados sin fondo.
+- `lib/commerce-category-local-assets.js` amarra cada categoria canonica con su archivo local. La busqueda por nombre y aliases sigue viviendo en `lib/commerce-category-target-catalog.js`.
+- El selector administrativo y la vista publica deben usar esos assets IA locales como representacion principal de categorias.
+- Microsoft Fluent Emoji 3D queda como material local/fallback y referencia, no como catalogo visual principal para categorias comerciales.
+- Esta decision reduce costo, dependencia externa y pixelacion. No se debe documentar como catalogo propio final: cuando existan suficientes negocios y categorias reales, se podra crear una base visual propia por bloques y reemplazar gradualmente estos assets.
+
+Meta de cobertura:
+
+- El catalogo objetivo de Klicor es de aproximadamente 1200 assets semanticos de categoria.
+- La meta de cobertura funcional es acercarse al 100% de categorias comunes por tipo de negocio y dejar un margen de error cercano al 10% para nombres muy particulares.
+- El catalogo debe crecer por vertical y por tipo de negocio: comida/menu, moda/calzado, joyeria/accesorios, belleza, farmacia/salud, tecnologia, hogar, ferreteria, papeleria, mascotas, bebe, deportes, vehiculos, turismo y servicios.
+- No se deben cargar ni mostrar 1200 assets al usuario de una vez. El sistema debe recomendar de 3 a 6 opciones segun lo que escriba y ofrecer `Ver mas opciones` solo si el negocio quiere explorar.
 
 Razon:
 
@@ -319,22 +343,32 @@ Razon:
 - Son dificiles de mantener consistentes.
 - Cargan visualmente la experiencia.
 - Aumentan friccion para el usuario.
+- Las subcategorias con icono duplican ruido visual y confunden jerarquia: la categoria guia visualmente, la subcategoria ordena por texto.
 
-Se debe crear un selector visual de iconos, no una lista de texto.
+Se debe crear un selector visual de assets semanticos, no una lista de texto ni una pared completa de opciones.
+
+Comportamiento esperado del selector:
+
+- Cuando el usuario escribe el nombre de la categoria, Klicor sugiere 3 a 6 assets recomendados.
+- Si el usuario busca manualmente, los resultados tambien deben ser recomendados y limitados.
+- Si no le gusta ninguna recomendacion, puede abrir `Ver mas opciones`.
+- El catalogo completo debe estar filtrado por vertical, tipo de negocio y contexto; no debe mostrarse completo desde el inicio.
+- Subcategorias no muestran selector visual.
 
 Primera aproximacion:
 
-- Usar un catalogo curado de iconos/assets por vertical.
+- Usar un catalogo curado de assets semanticos por vertical.
 - Cubrir sinonimos y negocios comunes de comida, retail, servicios, salud/belleza y turismo.
 - Resolver palabras ambiguas usando la vertical del negocio cuando exista.
-- Mantener compatibilidad con una libreria gratuita.
 - Preferir catalogo controlado antes que un buscador infinito.
+- Los iconos lineales como Lucide quedan permitidos para UI administrativa, pero no como representacion principal de categorias publicas.
 
-Posibles librerias:
+Implementacion por bloques:
 
-- Lucide: ya esta en uso, buena para iconos generales.
-- Tabler o Phosphor: considerar si se necesita mas variedad.
-- Iconify: opcion potente, pero controlar peso y performance.
+- La meta de 1200 assets debe construirse por bloques reales, no con variaciones nominales del mismo icono.
+- Cada bloque debe tener assets visuales distinguibles y medibles antes de marcarlo como cubierto.
+- El primer bloque en trabajo es `Calzado`: categorias globales de zapato, uso y forma. Color, talla, marca y material son filtros/subcategorias/productos; no assets principales.
+- La vista publica solo resuelve visualmente el asset elegido; el selector administrativo carga el bloque contextual necesario para buscar y elegir.
 
 ### 5.3 Moda y calzado no deben tematizarse por estereotipo
 
@@ -556,6 +590,41 @@ Reglas:
 - Priorizar colores con saturacion e intencion de marca.
 - Mantener fallback si el logo no permite extraer una paleta confiable.
 
+### 5.12 Klicor debe operar con workspaces especializados
+
+Estado: aprobado como direccion de arquitectura de producto.
+
+Klicor principal debe ser el centro comun del negocio:
+
+- Inicio.
+- Resumen.
+- Perfil y link in bio.
+- Enlaces.
+- Clientes.
+- Pagos.
+- Suscripcion.
+- Configuracion general.
+- Acceso a modulos activos.
+
+Los modulos que crecen en operacion diaria no deben quedar comprimidos como una pestaña mas dentro del dashboard principal. Deben abrir un workspace operativo propio con navegacion interna y herramientas ajustadas al tipo de negocio.
+
+Workspaces previstos:
+
+- `Klicor Agenda`: barberias, salones, consultorios, spas, clases, tecnicos y servicios por cita.
+- `Klicor POS Restaurante`: restaurantes, comidas rapidas, cafes, bares, mesas, comandas, caja, cocina y domicilios.
+- `Klicor POS Retail`: ropa, zapatos, accesorios, joyerias y tiendas con variantes, inventario, ventas, caja y catalogo.
+- `Klicor POS Supermercado`: supermercados, minimercados y tiendas de barrio con codigo de barras, proveedores, compras, inventario rapido y caja.
+- `Klicor Servicios`: ordenes de trabajo, cotizaciones, clientes y pagos para negocios que no son agenda pura.
+- `Klicor Turismo/Reservas`: rutas, experiencias, cupos, fechas especiales, guias y disponibilidad.
+
+Reglas:
+
+- El dashboard principal no debe absorber toda la operacion.
+- Cada workspace mantiene identidad Klicor, pero su navegacion y herramientas internas responden al trabajo real del negocio.
+- El link in bio y Dorika siguen siendo experiencias publicas separadas.
+- Dorika consume datos publicos generados por Klicor y por los workspaces, pero no reemplaza la operacion.
+- Antes de hacer crecer un modulo complejo dentro de una sola pantalla, evaluar si debe convertirse en workspace.
+
 ## 6. Mejoras propuestas por area
 
 ### Onboarding rapido
@@ -616,8 +685,10 @@ Pendiente:
 
 - Crear `commerceTheme`.
 - Crear temas MVP.
-- Crear catalogo de iconos por vertical.
-- Cambiar categorias para usar icono/color en vez de foto.
+- Crear catalogo de 1200 assets semanticos de categoria por vertical y tipo de negocio.
+- Cambiar categorias para usar asset semantico en vez de foto.
+- Quitar assets/iconos de subcategorias; deben quedar como texto de organizacion.
+- Cambiar selector de categorias para mostrar recomendados y abrir el catalogo completo solo bajo accion del usuario.
 - Definir si el modo usa carrito o consulta WhatsApp.
 - Crear layout separado para `micatalogo` tipo feed visual.
 - Generar mensaje automatico de WhatsApp con el nombre del producto consultado en `micatalogo`.
@@ -648,7 +719,7 @@ Prioridad: media-alta cuando el foco sea servicios/citas.
 
 Objetivo:
 
-- Mantenerla como modulo para servicios/citas.
+- Convertirla progresivamente en `Klicor Agenda`, un workspace operativo propio para servicios/citas.
 - Se debe beneficiar de la categoria del negocio, pero no mezclarse con tienda.
 - Dar control al negocio sobre solicitudes, confirmaciones y cambios de agenda.
 - Convertir Agenda en una herramienta operativa para negocios con uno o varios profesionales.
@@ -665,7 +736,7 @@ Pendiente funcional:
 - Permitir rechazo o cambio/reprogramacion de una solicitud.
 - Mejorar operacion diaria con disponibilidad por profesional y horario.
 - Permitir agendamiento manual completo desde el negocio.
-- Mantener navegacion interna contextual de Agenda sin reemplazar la navegacion global lateral de Klicor.
+- Crear navegacion interna contextual de `Klicor Agenda` como workspace especializado, accesible desde el dashboard principal.
 - Configurar notificaciones al negocio y al cliente.
 - Configurar recordatorios antes de la cita.
 - Configurar reactivacion de clientes por dias sin volver, apagada por defecto.
@@ -739,7 +810,7 @@ Intencion:
 
 - Producto grande.
 - Emocional.
-- Categorias con iconos.
+- Categorias con assets semanticos tipo miniatura de producto.
 - Carrito visible.
 - Oscuro calido o claro calido segun variante.
 
@@ -748,7 +819,7 @@ Intencion:
 Intencion:
 
 - Home comercial compacto.
-- Categorias con iconos.
+- Categorias con assets semanticos tipo miniatura de producto.
 - Producto visible.
 - Secciones como ofertas, destacados, mas vendidos.
 - Bottom cart claro.
@@ -778,6 +849,9 @@ Estas decisiones evitan perder tiempo y tokens en direcciones que no son MVP.
 
 - No crear una cantidad grande de temas antes de validar 6 a 10 buenos.
 - No usar fotos para categorias como flujo principal.
+- No usar iconos lineales como representacion principal de categorias publicas.
+- No poner assets, iconos ni colores propios en subcategorias.
+- No mostrar todo el catalogo de assets abierto desde el inicio del selector.
 - No duplicar en Dorika informacion que Klicor ya conoce.
 - No mezclar tema del link in bio con tema de tienda/menu/catalogo.
 - No rehacer backend completo de commerce sin necesidad.

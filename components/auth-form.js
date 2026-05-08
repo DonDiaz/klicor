@@ -4,10 +4,12 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
+  getRedirectResult,
   isSignInWithEmailLink,
   sendSignInLinkToEmail,
   signInWithEmailLink,
   signInWithPopup,
+  signInWithRedirect,
 } from "firebase/auth";
 import {
   ArrowRight,
@@ -124,6 +126,25 @@ export function AuthForm({
     const auth = getClientAuth();
     if (!auth || typeof window === "undefined") return undefined;
 
+    let cancelled = false;
+    getRedirectResult(auth)
+      .then(async (credential) => {
+        if (!credential?.user || cancelled) return;
+        setLoading(true);
+        setLoadingAction("google");
+        setFeedback("Estamos completando tu acceso...", "neutral");
+        await bootstrapSession(credential.user, { welcome: true });
+      })
+      .catch((error) => {
+        if (!cancelled) setFeedback(getAuthErrorMessage(error), "danger");
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setLoading(false);
+          setLoadingAction("");
+        }
+      });
+
     const href = window.location.href;
     if (!isSignInWithEmailLink(auth, href)) return undefined;
 
@@ -133,11 +154,15 @@ export function AuthForm({
     if (savedEmail) {
       setForm((current) => ({ ...current, email: savedEmail }));
       void completeEmailLink(auth, savedEmail, href);
-      return undefined;
+      return () => {
+        cancelled = true;
+      };
     }
 
     setFeedback("Escribe el correo con el que pediste el enlace para completar tu acceso.", "neutral");
-    return undefined;
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   async function handleEmailLink() {
@@ -194,6 +219,16 @@ export function AuthForm({
       const credential = await signInWithPopup(auth, provider);
       await bootstrapSession(credential.user, { welcome: true });
     } catch (error) {
+      if (["auth/popup-blocked", "auth/popup-closed-by-user", "auth/cancelled-popup-request"].includes(error?.code)) {
+        try {
+          setFeedback("Abriremos Google en esta misma pestaña para completar el acceso.", "neutral");
+          await signInWithRedirect(auth, provider);
+          return;
+        } catch (redirectError) {
+          setFeedback(getAuthErrorMessage(redirectError), "danger");
+          return;
+        }
+      }
       setFeedback(getAuthErrorMessage(error), "danger");
     } finally {
       setLoading(false);

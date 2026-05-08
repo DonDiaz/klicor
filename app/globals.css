@@ -10678,6 +10678,20 @@ html[data-theme="dark"] .admin-sidebar-note {
   flex: 0 0 auto;
 }
 
+.commerce-board-dot .commerce-category-asset {
+  width: 2rem;
+  height: 2rem;
+}
+
+.commerce-board-dot .commerce-category-asset-symbol {
+  font-size: 1.42rem;
+}
+
+.commerce-board-dot .commerce-category-asset-image {
+  width: 1.82rem;
+  height: 1.82rem;
+}
+
 .commerce-board-dot.has-image {
   overflow: hidden;
   padding: 0;
@@ -11303,6 +11317,12 @@ html[data-theme="dark"] .admin-sidebar-note {
   letter-spacing: 0.01em;
 }
 
+.commerce-icon-picker-more {
+  justify-self: start;
+  min-height: 2.15rem;
+  padding-inline: 0.75rem;
+}
+
 .commerce-icon-option {
   width: 100%;
   height: auto;
@@ -11357,6 +11377,23 @@ html[data-theme="dark"] .admin-sidebar-note {
   line-height: 1;
   filter: drop-shadow(0 7px 8px rgba(15, 23, 42, 0.16));
   transform: translateY(-1px);
+}
+
+.commerce-category-asset-image {
+  width: 2.28rem;
+  height: 2.28rem;
+  display: block;
+  object-fit: contain;
+  filter: drop-shadow(0 8px 9px rgba(15, 23, 42, 0.18));
+  transform: translateY(-1px);
+}
+
+.commerce-category-asset-svg {
+  width: 2.28rem;
+  height: 2.28rem;
+  display: block;
+  overflow: visible;
+  filter: drop-shadow(0 8px 9px rgba(15, 23, 42, 0.18));
 }
 
 .commerce-category-asset-badge {
@@ -11610,15 +11647,6 @@ html[data-theme="dark"] .admin-sidebar-note {
   border-radius: 0;
   background: transparent;
   color: currentColor;
-}
-
-.commerce-page:not(.is-preview) .commerce-category-asset-glow,
-.commerce-page:not(.is-preview) .commerce-category-asset-badge {
-  display: none;
-}
-
-.commerce-page:not(.is-preview) .commerce-category-asset-symbol {
-  filter: none;
 }
 
 .commerce-page:not(.is-preview) .commerce-category-name {

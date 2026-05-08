@@ -21,10 +21,10 @@ import {
   X,
 } from "lucide-react";
 import { CommerceCategoryAsset } from "@/components/commerce-category-asset";
-import { CommerceCategoryIcon } from "@/components/commerce-category-icon";
 import { apiFetch } from "@/lib/client-api";
 import { COMMERCE_CATEGORY_COLORS, getCommerceCategoryIconGroups, resolveCommerceCategoryIcon } from "@/lib/commerce-category-icons";
 import { COMMERCE_MODE_OPTIONS, requiresCommercePrice, resolveCommerceModeMeta } from "@/lib/commerce-config";
+import { resolveCommerceExperience } from "@/lib/commerce-experience";
 
 function countLabel(value, singular, plural) {
   const count = Number(value || 0) || 0;
@@ -159,9 +159,8 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
   const [newCategoryIcon, setNewCategoryIcon] = useState("");
   const [newCategoryColor, setNewCategoryColor] = useState(COMMERCE_CATEGORY_COLORS[0]);
   const [iconPickerQuery, setIconPickerQuery] = useState("");
+  const [showAllCategoryAssets, setShowAllCategoryAssets] = useState(false);
   const [subcategoryDrafts, setSubcategoryDrafts] = useState({});
-  const [subcategoryIconDrafts, setSubcategoryIconDrafts] = useState({});
-  const [subcategoryColorDrafts, setSubcategoryColorDrafts] = useState({});
   const [selectedCategoryId, setSelectedCategoryId] = useState("");
   const [selectedSubcategoryIds, setSelectedSubcategoryIds] = useState({});
   const [editingCategoryId, setEditingCategoryId] = useState("");
@@ -170,8 +169,6 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
   const [editingCategoryColor, setEditingCategoryColor] = useState(COMMERCE_CATEGORY_COLORS[0]);
   const [editingSubcategoryId, setEditingSubcategoryId] = useState("");
   const [editingSubcategoryName, setEditingSubcategoryName] = useState("");
-  const [editingSubcategoryIcon, setEditingSubcategoryIcon] = useState("");
-  const [editingSubcategoryColor, setEditingSubcategoryColor] = useState(COMMERCE_CATEGORY_COLORS[0]);
   const [productEditor, setProductEditor] = useState(null);
   const [productEditorError, setProductEditorError] = useState("");
   const [visibilityPendingProducts, setVisibilityPendingProducts] = useState({});
@@ -186,6 +183,16 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
   const availableCommerceModes = useMemo(() => getCommerceModeOptionsForCategory(profile?.businessCategory), [profile?.businessCategory]);
   const modeMeta = resolveCommerceModeMeta(configForm.activeMode);
   const savedActiveMode = state?.config?.activeMode || "";
+  const commerceExperience = useMemo(() => resolveCommerceExperience({ activeMode: configForm.activeMode }, profile), [configForm.activeMode, profile]);
+  const commerceAssetContext = useMemo(() => ({
+    businessCategory: profile?.businessCategory,
+    businessType: profile?.businessType || profile?.dorikaProfile?.businessType,
+    activeMode: configForm.activeMode || savedActiveMode,
+    module: commerceExperience.module,
+    subcategory: commerceExperience.subcategory,
+    variant: commerceExperience.variant,
+    theme: commerceExperience.theme,
+  }), [commerceExperience, configForm.activeMode, profile?.businessCategory, profile?.businessType, profile?.dorikaProfile?.businessType, savedActiveMode]);
   const selectedCategory = categories.find((category) => category.id === selectedCategoryId) || null;
   const selectedSubcategories = subcats(selectedCategory);
   const selectedSubcategoryId = selectedCategory
@@ -587,24 +594,72 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
     callback();
   }
 
-  function resolveIconOptions(name = "") {
+  function resetAssetPicker() {
+    setIconPickerQuery("");
+    setShowAllCategoryAssets(false);
+  }
+
+  function startEditCategory(category) {
+    resetAssetPicker();
+    setEditingCategoryId(category.id);
+    setEditingCategoryName(category.name);
+    setEditingCategoryIcon(category.iconKey || "");
+    setEditingCategoryColor(category.color || COMMERCE_CATEGORY_COLORS[0]);
+  }
+
+  function stopEditCategory() {
+    setEditingCategoryId("");
+    resetAssetPicker();
+  }
+
+  function resolveAssetGroups(name = "", { includeAll = false } = {}) {
     const suggestedIcon = resolveCommerceCategoryIcon(name, profile?.businessCategory).iconKey;
-    return getCommerceCategoryIconGroups(profile?.businessCategory, iconPickerQuery, suggestedIcon);
+    const query = includeAll
+      ? iconPickerQuery
+      : iconPickerQuery.trim() || String(name || "").trim();
+    return getCommerceCategoryIconGroups(profile?.businessCategory, query, suggestedIcon, {
+      ...commerceAssetContext,
+      includeAll,
+    });
+  }
+
+  function limitAssetRecommendations(groups = []) {
+    const options = [];
+    groups.forEach((group) => {
+      (group.options || []).forEach((option) => {
+        if (!options.some((item) => item.iconKey === option.iconKey)) {
+          options.push(option);
+        }
+      });
+    });
+    return [{ title: "Recomendados", options: options.slice(0, 6) }];
   }
 
   function renderIconPicker({ name, value, onIconChange }) {
-    const groups = resolveIconOptions(name);
+    const searchText = iconPickerQuery.trim() || String(name || "").trim();
+    const allGroups = resolveAssetGroups(name, { includeAll: showAllCategoryAssets });
+    const groups = !searchText && !showAllCategoryAssets
+      ? []
+      : showAllCategoryAssets
+        ? allGroups
+        : limitAssetRecommendations(allGroups);
     const selectedIcon = value || resolveCommerceCategoryIcon(name, profile?.businessCategory).iconKey || "tag";
 
     return (
-      <div className="commerce-icon-picker" aria-label="Selector visual de icono">
+      <div className="commerce-icon-picker" aria-label="Selector visual de asset de categoria">
         <input
           className="input commerce-icon-search"
           value={iconPickerQuery}
-          onChange={(event) => setIconPickerQuery(event.target.value)}
-          placeholder="Buscar icono: cejas, ferreteria, pizza..."
+          onChange={(event) => {
+            setIconPickerQuery(event.target.value);
+            setShowAllCategoryAssets(false);
+          }}
+          placeholder="Buscar asset: sandalias, aretes, pizza..."
           type="search"
         />
+        {!searchText && !showAllCategoryAssets ? (
+          <small className="commerce-board-note">Escribe el nombre de la categoria para ver recomendaciones.</small>
+        ) : null}
         <div className="commerce-icon-picker-groups">
           {groups.map((group) => (
             <section key={group.title} className="commerce-icon-picker-group" aria-label={group.title}>
@@ -626,6 +681,9 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
             </section>
           ))}
         </div>
+        <button className="btn btn-secondary commerce-icon-picker-more" type="button" onClick={() => setShowAllCategoryAssets((current) => !current)}>
+          {showAllCategoryAssets ? "Ver solo recomendados" : "Ver mas opciones"}
+        </button>
       </div>
     );
   }
@@ -642,6 +700,7 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
       setNewCategoryName("");
       setNewCategoryIcon("");
       setNewCategoryColor(COMMERCE_CATEGORY_COLORS[0]);
+      resetAssetPicker();
     }
   }
 
@@ -651,13 +710,9 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
     const result = await runAction("create_subcategory", {
       categoryId,
       name,
-      iconKey: subcategoryIconDrafts[categoryId] || resolveCommerceCategoryIcon(name, profile?.businessCategory).iconKey,
-      color: subcategoryColorDrafts[categoryId] || COMMERCE_CATEGORY_COLORS[0],
     });
     if (result) {
       setSubcategoryDrafts((current) => ({ ...current, [categoryId]: "" }));
-      setSubcategoryIconDrafts((current) => ({ ...current, [categoryId]: "" }));
-      setSubcategoryColorDrafts((current) => ({ ...current, [categoryId]: COMMERCE_CATEGORY_COLORS[0] }));
       setMobileView("section");
       setSectionMode("products");
       openProductEditor(
@@ -856,17 +911,17 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
                           iconKey: editingCategoryIcon || category.iconKey,
                           color: editingCategoryColor || category.color,
                         });
-                        if (result) setEditingCategoryId("");
+                        if (result) stopEditCategory();
                       }} disabled={!canEdit || !editingCategoryName.trim() || loading}>
                         Guardar
                       </button>
-                      <button className="btn btn-secondary" type="button" onClick={() => setEditingCategoryId("")}>Cancelar</button>
+                      <button className="btn btn-secondary" type="button" onClick={stopEditCategory}>Cancelar</button>
                     </div>
                   ) : (
                     <>
                       <button className="commerce-board-row-main" type="button" onClick={() => selectCategory(category)} aria-pressed={selected}>
                         <span className="commerce-board-dot" style={category.color ? { "--commerce-board-dot-color": category.color } : undefined}>
-                          <CommerceCategoryIcon iconKey={category.iconKey} size={17} />
+                          <CommerceCategoryAsset iconKey={category.iconKey} vertical={profile?.businessCategory} label={category.name} />
                         </span>
                         <span>
                           <strong>{category.name}</strong>
@@ -877,7 +932,7 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
                       <div className="commerce-board-row-actions">
                         <button type="button" onClick={() => runAction("move_category", { categoryId: category.id, direction: "up" })} disabled={!canEdit || loading} title="Mover arriba"><ChevronUp size={15} /></button>
                         <button type="button" onClick={() => runAction("move_category", { categoryId: category.id, direction: "down" })} disabled={!canEdit || loading} title="Mover abajo"><ChevronDown size={15} /></button>
-                        <button type="button" onClick={() => { setEditingCategoryId(category.id); setEditingCategoryName(category.name); setEditingCategoryIcon(category.iconKey || ""); setEditingCategoryColor(category.color || COMMERCE_CATEGORY_COLORS[0]); }} disabled={!canEdit || loading} title="Editar categoría"><Pencil size={15} /></button>
+                        <button type="button" onClick={() => startEditCategory(category)} disabled={!canEdit || loading} title="Editar categoría"><Pencil size={15} /></button>
                         <button type="button" onClick={() => confirmAction("¿Eliminar esta categoría? Solo se puede eliminar si está vacía.", () => runAction("delete_category", { categoryId: category.id }))} disabled={!canEdit || loading} title="Eliminar categoría"><Trash2 size={15} /></button>
                       </div>
                     </>
@@ -931,11 +986,6 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
             placeholder="Nombre de la subcategoría"
             disabled={!canEdit || selectedHasDirectProducts}
           />
-          {renderIconPicker({
-            name: subcategoryDrafts[selectedCategory.id] || "",
-            value: subcategoryIconDrafts[selectedCategory.id] || "",
-            onIconChange: (iconKey) => setSubcategoryIconDrafts((current) => ({ ...current, [selectedCategory.id]: iconKey })),
-          })}
           <button className="btn btn-primary commerce-board-subcategory-action" type="button" onClick={() => createSubcategory(selectedCategory.id)} disabled={!canEdit || selectedHasDirectProducts || !String(subcategoryDrafts[selectedCategory.id] || "").trim() || loading}>
             <Plus size={16} /> Crear subcategoría
           </button>
@@ -955,18 +1005,11 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
                   {editing ? (
                     <div className="commerce-board-inline-edit">
                       <input className="input" value={editingSubcategoryName} onChange={(event) => setEditingSubcategoryName(event.target.value)} placeholder="Nombre de la subcategoría" disabled={!canEdit} />
-                      {renderIconPicker({
-                        name: editingSubcategoryName,
-                        value: editingSubcategoryIcon,
-                        onIconChange: setEditingSubcategoryIcon,
-                      })}
                       <button className="btn btn-primary" type="button" onClick={async () => {
                         const result = await runAction("update_subcategory", {
                           id: subcategory.id,
                           categoryId: selectedCategory.id,
                           name: editingSubcategoryName,
-                          iconKey: editingSubcategoryIcon || subcategory.iconKey,
-                          color: editingSubcategoryColor || subcategory.color,
                         });
                         if (result) setEditingSubcategoryId("");
                       }} disabled={!canEdit || !editingSubcategoryName.trim() || loading}>
@@ -977,9 +1020,6 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
                   ) : (
                     <>
                       <button className="commerce-board-row-main" type="button" onClick={() => openSubcategory(selectedCategory, subcategory)}>
-                        <span className="commerce-board-dot is-subcategory" style={subcategory.color ? { "--commerce-board-dot-color": subcategory.color } : undefined}>
-                          <CommerceCategoryIcon iconKey={subcategory.iconKey} size={17} />
-                        </span>
                         <span>
                           <strong>{subcategory.name}</strong>
                           <small>{countLabel(subcategory.productCount, "producto", "productos")}</small>
@@ -989,7 +1029,7 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
                       <div className="commerce-board-row-actions">
                         <button type="button" onClick={() => runAction("move_subcategory", { subcategoryId: subcategory.id, direction: "up" })} disabled={!canEdit || loading} title="Mover arriba"><ChevronUp size={15} /></button>
                         <button type="button" onClick={() => runAction("move_subcategory", { subcategoryId: subcategory.id, direction: "down" })} disabled={!canEdit || loading} title="Mover abajo"><ChevronDown size={15} /></button>
-                        <button type="button" onClick={() => { setEditingSubcategoryId(subcategory.id); setEditingSubcategoryName(subcategory.name); setEditingSubcategoryIcon(subcategory.iconKey || ""); setEditingSubcategoryColor(subcategory.color || COMMERCE_CATEGORY_COLORS[0]); }} disabled={!canEdit || loading} title="Editar subcategoría"><Pencil size={15} /></button>
+                        <button type="button" onClick={() => { setEditingSubcategoryId(subcategory.id); setEditingSubcategoryName(subcategory.name); }} disabled={!canEdit || loading} title="Editar subcategoría"><Pencil size={15} /></button>
                         <button type="button" onClick={() => confirmAction("¿Eliminar esta subcategoría? Solo se puede eliminar si está vacía.", () => runAction("delete_subcategory", { subcategoryId: subcategory.id }))} disabled={!canEdit || loading} title="Eliminar subcategoría"><Trash2 size={15} /></button>
                       </div>
                     </>

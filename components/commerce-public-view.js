@@ -384,8 +384,6 @@ function normalizePublicSubcategories(value = []) {
         ...subcategory,
         id: String(subcategory.id || `subcategory-${index}`),
         name: String(subcategory.name || "Subcategoría"),
-        iconKey: String(subcategory.iconKey || "tag"),
-        color: String(subcategory.color || ""),
         productCount: Number(subcategory.productCount || 0) || 0,
         visibleProductCount: Number(subcategory.visibleProductCount ?? subcategory.productCount ?? 0) || 0,
       }))
