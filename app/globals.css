@@ -10949,10 +10949,28 @@ html[data-theme="dark"] .admin-sidebar-note {
 }
 
 .commerce-board-editor-card {
+  width: min(100%, 42rem);
   border-radius: 8px;
   background: #ffffff;
   border: 1px solid rgba(15, 23, 42, 0.12);
   box-shadow: 0 28px 80px rgba(15, 23, 42, 0.26);
+}
+
+.commerce-board-editor-card .commerce-modal-head {
+  margin: -0.15rem -0.15rem 0.85rem;
+  padding: 0 2.85rem 0.85rem 0;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.commerce-board-editor-card .commerce-modal-head strong {
+  font-size: 1.28rem;
+  line-height: 1.1;
+}
+
+.commerce-board-editor-card .commerce-modal-head span {
+  color: #475569;
+  font-size: 0.86rem;
+  font-weight: 750;
 }
 
 .commerce-board-editor-card .commerce-board-editor-form,
@@ -10967,9 +10985,33 @@ html[data-theme="dark"] .admin-sidebar-note {
   gap: 0.75rem;
 }
 
+.commerce-board-editor-card .input,
+.commerce-board-editor-card .textarea {
+  border-color: rgba(100, 116, 139, 0.28);
+  box-shadow: inset 0 1px 0 rgba(15, 23, 42, 0.03);
+}
+
+.commerce-board-editor-card .input:focus,
+.commerce-board-editor-card .textarea:focus {
+  border-color: rgba(109, 40, 217, 0.42);
+  box-shadow: 0 0 0 3px rgba(109, 40, 217, 0.12);
+}
+
 .commerce-board-editor-card .upload-card {
   grid-template-columns: 1fr;
   align-items: start;
+  min-height: 5.75rem;
+  border-style: dashed;
+  border-color: rgba(109, 40, 217, 0.24);
+  background:
+    linear-gradient(180deg, rgba(109, 40, 217, 0.045), rgba(255, 255, 255, 0) 58%),
+    #ffffff;
+}
+
+.commerce-board-editor-card .upload-card span {
+  color: #1e293b;
+  font-size: 0.95rem;
+  font-weight: 850;
 }
 
 .commerce-board-editor-card .upload-card small {
@@ -10982,12 +11024,30 @@ html[data-theme="dark"] .admin-sidebar-note {
   margin: 0;
 }
 
+.commerce-board-editor-card .switch-row {
+  min-height: 2.75rem;
+  padding: 0.62rem 0.72rem;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 8px;
+  background: #f8fafc;
+}
+
+.commerce-board-editor-card .commerce-modal-actions {
+  position: sticky;
+  bottom: -1.2rem;
+  margin: 0.25rem -1.2rem -1.2rem;
+  padding: 0.85rem 1.2rem 1.2rem;
+  border-top: 1px solid rgba(15, 23, 42, 0.08);
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(8px);
+}
+
 .commerce-board-image-strip {
   display: flex;
   align-items: flex-start;
   gap: 0.55rem;
   overflow-x: auto;
-  padding-bottom: 0.1rem;
+  padding: 0.1rem 0.1rem 0.2rem;
 }
 
 .commerce-board-image-group {
@@ -11020,8 +11080,8 @@ html[data-theme="dark"] .admin-sidebar-note {
 }
 
 .commerce-board-image-chip {
-  width: 3.25rem;
-  height: 3.25rem;
+  width: 4.15rem;
+  height: 4.15rem;
   flex: 0 0 auto;
   overflow: hidden;
   border-radius: 8px;
@@ -11376,8 +11436,9 @@ html[data-theme="dark"] .admin-sidebar-note {
 .commerce-icon-option {
   width: 100%;
   height: auto;
-  min-height: 4.95rem;
+  min-height: 5.35rem;
   padding: 0.48rem 0.38rem;
+  position: relative;
   display: grid;
   place-items: center;
   gap: 0.28rem;
@@ -11392,9 +11453,41 @@ html[data-theme="dark"] .admin-sidebar-note {
 
 .commerce-icon-option.is-active {
   border-color: var(--commerce-primary, #6d28d9);
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--commerce-primary, #6d28d9) 13%, white), white 78%);
+  color: var(--commerce-primary-strong, #5b21b6);
+  box-shadow:
+    inset 0 0 0 2px color-mix(in srgb, var(--commerce-primary, #6d28d9) 38%, transparent),
+    0 12px 24px var(--commerce-primary-shadow, rgba(109, 40, 217, 0.2));
+}
+
+.commerce-icon-option.is-active::before {
+  content: "";
+  position: absolute;
+  inset: 0.22rem;
+  border: 1px solid color-mix(in srgb, var(--commerce-primary, #6d28d9) 22%, transparent);
+  border-radius: 7px;
+  pointer-events: none;
+}
+
+.commerce-icon-selected-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.18rem;
+  min-height: 1.05rem;
+  padding: 0.08rem 0.34rem;
+  border-radius: 999px;
   background: var(--commerce-primary, #6d28d9);
   color: var(--commerce-button-text, #fff);
-  box-shadow: 0 12px 24px var(--commerce-primary-shadow, rgba(109, 40, 217, 0.24));
+  font-size: 0.58rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.commerce-icon-selected-label svg {
+  width: 0.72rem;
+  height: 0.72rem;
+  flex: 0 0 auto;
 }
 
 .commerce-color-picker {

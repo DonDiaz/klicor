@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
+  Check,
   ChevronLeft,
   ChevronRight,
   ChevronUp,
@@ -678,9 +679,15 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
                     type="button"
                     onClick={() => onIconChange(option.iconKey)}
                     title={option.label}
+                    aria-pressed={selectedIcon === option.iconKey}
                   >
                     <CommerceCategoryAsset iconKey={option.iconKey} vertical={profile?.businessCategory} label={option.label} />
                     <span>{option.label}</span>
+                    {selectedIcon === option.iconKey ? (
+                      <small className="commerce-icon-selected-label">
+                        <Check size={12} /> Seleccionado
+                      </small>
+                    ) : null}
                   </button>
                 ))}
               </div>
