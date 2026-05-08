@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import { CommerceCategoryAsset } from "@/components/commerce-category-asset";
 import { apiFetch } from "@/lib/client-api";
+import { resolveCommerceCategoryAsset } from "@/lib/commerce-category-assets";
 import { COMMERCE_CATEGORY_COLORS, getCommerceCategoryIconGroups, normalizeCommerceCategoryIconKey, normalizeCommerceCategoryIconText, resolveCommerceCategoryIcon } from "@/lib/commerce-category-icons";
 import { COMMERCE_MODE_OPTIONS, requiresCommercePrice, resolveCommerceModeMeta } from "@/lib/commerce-config";
 import { resolveCommerceExperience } from "@/lib/commerce-experience";
@@ -655,6 +656,8 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
     const selectedIconAlias = resolveCommerceCategoryIcon(selectedIconRaw, profile?.businessCategory).iconKey;
     const selectedIcon = selectedIconKey !== "tag" || selectedIconRaw === "tag" ? selectedIconKey : selectedIconAlias;
     const selectedIconText = normalizeCommerceCategoryIconText(selectedIconRaw);
+    const selectedAsset = resolveCommerceCategoryAsset(selectedIconRaw, profile?.businessCategory);
+    const selectedAssetLabel = normalizeCommerceCategoryIconText(selectedAsset.label);
 
     return (
       <div className="commerce-icon-picker" aria-label="Selector visual de asset de categoria">
@@ -677,9 +680,13 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
               <strong>{group.title}</strong>
               <div className="commerce-icon-picker-grid">
                 {group.options.map((option) => {
+                  const optionAsset = resolveCommerceCategoryAsset(option.iconKey, profile?.businessCategory);
+                  const optionAssetLabel = normalizeCommerceCategoryIconText(optionAsset.label);
                   const optionSelected = selectedIcon === option.iconKey
                     || selectedIconAlias === option.iconKey
-                    || (selectedIconText && selectedIconText === normalizeCommerceCategoryIconText(option.label));
+                    || selectedAsset.key === optionAsset.key
+                    || (selectedIconText && selectedIconText === normalizeCommerceCategoryIconText(option.label))
+                    || (selectedAssetLabel && selectedAssetLabel === optionAssetLabel);
                   return (
                     <button
                       key={option.iconKey}
