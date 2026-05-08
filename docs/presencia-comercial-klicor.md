@@ -105,7 +105,8 @@ Esto evita inflar el documento principal del usuario y permite consultas pequeñ
 - cada categoría principal debe resolver a un asset semántico tipo miniatura de producto
 - el asset debe verse como objeto/producto reconocible, no como icono lineal plano
 - la base comercial canonica de Klicor vive en `lib/commerce-category-target-catalog.js`: 241 categorias objetivo por linea, con nombre y aliases
-- los assets IA activos por categoria viven en `public/commerce-assets/categories-ai-1254-review`, exportados como PNG transparentes de 1024x1024; `lib/commerce-category-local-assets.js` enlaza cada categoria canonica con su archivo local
+- los assets fuente/revision por categoria viven en `public/commerce-assets/categories-ai-1254-review`, exportados como PNG transparentes de 1024x1024
+- los assets activos de runtime viven en `public/commerce-assets/categories-ai-runtime`, exportados como WebP transparentes de 192x192; `lib/commerce-category-local-assets.js` enlaza cada categoria canonica con su WebP runtime
 - el panel administrativo y la vista publica cargan esos assets IA locales como representacion principal de categorias
 - esta base temporal no reemplaza la meta de crear un catalogo propio definitivo; sirve para validar demanda, ordenar categorias y evitar gasto inicial
 - el dashboard administrativo y la vista pública deben mostrar el mismo asset para evitar confusión

@@ -1,0 +1,1215 @@
+{
+  "generatedAt": "2026-05-08T15:47:55.590Z",
+  "sourceDir": "/commerce-assets/categories-ai-1254-review",
+  "outputDir": "/commerce-assets/categories-ai-runtime",
+  "outputSize": 192,
+  "webpQuality": 84,
+  "count": 241,
+  "assets": [
+    {
+      "key": "target_food_starters",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-001/01-food_starters.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/food_starters.webp"
+    },
+    {
+      "key": "target_food_main_dishes",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-001/02-food_main_dishes.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/food_main_dishes.webp"
+    },
+    {
+      "key": "target_food_breakfast",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-001/03-food_breakfast.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/food_breakfast.webp"
+    },
+    {
+      "key": "target_food_lunch",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-001/04-food_lunch.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/food_lunch.webp"
+    },
+    {
+      "key": "target_food_dinner",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-001/05-food_dinner.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/food_dinner.webp"
+    },
+    {
+      "key": "target_food_combos",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-001/06-food_combos.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/food_combos.webp"
+    },
+    {
+      "key": "target_food_burgers",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-001/07-food_burgers.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/food_burgers.webp"
+    },
+    {
+      "key": "target_food_hotdogs",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-001/08-food_hotdogs.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/food_hotdogs.webp"
+    },
+    {
+      "key": "target_food_pizza",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-001/09-food_pizza.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/food_pizza.webp"
+    },
+    {
+      "key": "target_food_chicken",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-001/10-food_chicken.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/food_chicken.webp"
+    },
+    {
+      "key": "target_food_grill",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-001/11-food_grill.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/food_grill.webp"
+    },
+    {
+      "key": "target_food_fish",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-001/12-food_fish.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/food_fish.webp"
+    },
+    {
+      "key": "target_food_seafood",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-002/01-food_seafood.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/food_seafood.webp"
+    },
+    {
+      "key": "target_food_soups",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-002/02-food_soups.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/food_soups.webp"
+    },
+    {
+      "key": "target_food_salads",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-002/03-food_salads.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/food_salads.webp"
+    },
+    {
+      "key": "target_food_mexican",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-002/04-food_mexican.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/food_mexican.webp"
+    },
+    {
+      "key": "target_food_pasta",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-002/05-food_pasta.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/food_pasta.webp"
+    },
+    {
+      "key": "target_food_rice",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-002/06-food_rice.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/food_rice.webp"
+    },
+    {
+      "key": "target_food_arepas",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-002/07-food_arepas.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/food_arepas.webp"
+    },
+    {
+      "key": "target_food_desserts",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-002/08-food_desserts.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/food_desserts.webp"
+    },
+    {
+      "key": "target_food_bakery",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-002/09-food_bakery.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/food_bakery.webp"
+    },
+    {
+      "key": "target_food_drinks",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-002/10-food_drinks.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/food_drinks.webp"
+    },
+    {
+      "key": "target_food_coffee",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-002/11-food_coffee.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/food_coffee.webp"
+    },
+    {
+      "key": "target_food_juices",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-002/12-food_juices.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/food_juices.webp"
+    },
+    {
+      "key": "target_food_ice_cream",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-003/01-food_ice_cream.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/food_ice_cream.webp"
+    },
+    {
+      "key": "target_grocery_fruits",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-003/02-grocery_fruits.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/grocery_fruits.webp"
+    },
+    {
+      "key": "target_grocery_vegetables",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-003/03-grocery_vegetables.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/grocery_vegetables.webp"
+    },
+    {
+      "key": "target_grocery_dairy",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-003/04-grocery_dairy.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/grocery_dairy.webp"
+    },
+    {
+      "key": "target_grocery_meat",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-003/05-grocery_meat.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/grocery_meat.webp"
+    },
+    {
+      "key": "target_grocery_chicken",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-003/06-grocery_chicken.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/grocery_chicken.webp"
+    },
+    {
+      "key": "target_grocery_fish",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-003/07-grocery_fish.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/grocery_fish.webp"
+    },
+    {
+      "key": "target_grocery_eggs",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-003/08-grocery_eggs.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/grocery_eggs.webp"
+    },
+    {
+      "key": "target_grocery_bakery",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-003/09-grocery_bakery.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/grocery_bakery.webp"
+    },
+    {
+      "key": "target_grocery_grains",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-003/10-grocery_grains.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/grocery_grains.webp"
+    },
+    {
+      "key": "target_grocery_pasta_rice",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-003/11-grocery_pasta_rice.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/grocery_pasta_rice.webp"
+    },
+    {
+      "key": "target_grocery_canned",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-003/12-grocery_canned.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/grocery_canned.webp"
+    },
+    {
+      "key": "target_grocery_snacks",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-004/01-grocery_snacks.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/grocery_snacks.webp"
+    },
+    {
+      "key": "target_grocery_candy",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-004/02-grocery_candy.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/grocery_candy.webp"
+    },
+    {
+      "key": "target_grocery_drinks",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-004/03-grocery_drinks.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/grocery_drinks.webp"
+    },
+    {
+      "key": "target_grocery_cleaning",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-004/04-grocery_cleaning.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/grocery_cleaning.webp"
+    },
+    {
+      "key": "target_grocery_personal_care",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-004/05-grocery_personal_care.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/grocery_personal_care.webp"
+    },
+    {
+      "key": "target_grocery_baby",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-004/06-grocery_baby.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/grocery_baby.webp"
+    },
+    {
+      "key": "target_grocery_pets",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-004/07-grocery_pets.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/grocery_pets.webp"
+    },
+    {
+      "key": "target_grocery_frozen",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-004/08-grocery_frozen.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/grocery_frozen.webp"
+    },
+    {
+      "key": "target_grocery_charcuterie",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-004/09-grocery_charcuterie.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/grocery_charcuterie.webp"
+    },
+    {
+      "key": "target_apparel_tshirts",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-004/10-apparel_tshirts.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/apparel_tshirts.webp"
+    },
+    {
+      "key": "target_apparel_shirts",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-004/11-apparel_shirts.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/apparel_shirts.webp"
+    },
+    {
+      "key": "target_apparel_blouses",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-004/12-apparel_blouses.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/apparel_blouses.webp"
+    },
+    {
+      "key": "target_apparel_pants",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-005/01-apparel_pants.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/apparel_pants.webp"
+    },
+    {
+      "key": "target_apparel_jeans",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-005/02-apparel_jeans.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/apparel_jeans.webp"
+    },
+    {
+      "key": "target_apparel_dresses",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-005/03-apparel_dresses.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/apparel_dresses.webp"
+    },
+    {
+      "key": "target_apparel_skirts",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-005/04-apparel_skirts.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/apparel_skirts.webp"
+    },
+    {
+      "key": "target_apparel_jackets",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-005/05-apparel_jackets.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/apparel_jackets.webp"
+    },
+    {
+      "key": "target_apparel_coats",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-005/06-apparel_coats.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/apparel_coats.webp"
+    },
+    {
+      "key": "target_apparel_sportswear",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-005/07-apparel_sportswear.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/apparel_sportswear.webp"
+    },
+    {
+      "key": "target_apparel_underwear",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-005/08-apparel_underwear.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/apparel_underwear.webp"
+    },
+    {
+      "key": "target_apparel_pajamas",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-005/09-apparel_pajamas.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/apparel_pajamas.webp"
+    },
+    {
+      "key": "target_apparel_swimwear",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-005/10-apparel_swimwear.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/apparel_swimwear.webp"
+    },
+    {
+      "key": "target_apparel_uniforms",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-005/11-apparel_uniforms.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/apparel_uniforms.webp"
+    },
+    {
+      "key": "target_apparel_kids",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-005/12-apparel_kids.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/apparel_kids.webp"
+    },
+    {
+      "key": "target_apparel_baby",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/manual-overrides/061-apparel_baby.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/apparel_baby.webp"
+    },
+    {
+      "key": "target_shoes_sneakers",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-006/01-shoes_sneakers.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/shoes_sneakers.webp"
+    },
+    {
+      "key": "target_shoes_sport",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-006/02-shoes_sport.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/shoes_sport.webp"
+    },
+    {
+      "key": "target_shoes_casual",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-006/03-shoes_casual.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/shoes_casual.webp"
+    },
+    {
+      "key": "target_shoes_formal",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-006/04-shoes_formal.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/shoes_formal.webp"
+    },
+    {
+      "key": "target_shoes_loafers",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-006/05-shoes_loafers.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/shoes_loafers.webp"
+    },
+    {
+      "key": "target_shoes_flats",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-006/06-shoes_flats.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/shoes_flats.webp"
+    },
+    {
+      "key": "target_shoes_heels",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-006/07-shoes_heels.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/shoes_heels.webp"
+    },
+    {
+      "key": "target_shoes_platforms",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-006/08-shoes_platforms.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/shoes_platforms.webp"
+    },
+    {
+      "key": "target_shoes_women_sandals",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-006/09-shoes_women_sandals.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/shoes_women_sandals.webp"
+    },
+    {
+      "key": "target_shoes_men_sandals",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-006/10-shoes_men_sandals.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/shoes_men_sandals.webp"
+    },
+    {
+      "key": "target_shoes_beach_sandals",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-006/11-shoes_beach_sandals.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/shoes_beach_sandals.webp"
+    },
+    {
+      "key": "target_shoes_flip_flops",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-006/12-shoes_flip_flops.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/shoes_flip_flops.webp"
+    },
+    {
+      "key": "target_shoes_slippers",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-007/01-shoes_slippers.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/shoes_slippers.webp"
+    },
+    {
+      "key": "target_shoes_men_boots",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-007/02-shoes_men_boots.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/shoes_men_boots.webp"
+    },
+    {
+      "key": "target_shoes_women_boots",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-007/03-shoes_women_boots.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/shoes_women_boots.webp"
+    },
+    {
+      "key": "target_shoes_ankle_boots",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-007/04-shoes_ankle_boots.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/shoes_ankle_boots.webp"
+    },
+    {
+      "key": "target_shoes_safety",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/pilot-fallback/078-shoes_safety.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/shoes_safety.webp"
+    },
+    {
+      "key": "target_shoes_school",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-007/05-shoes_school.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/shoes_school.webp"
+    },
+    {
+      "key": "target_shoes_baby",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-007/06-shoes_baby.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/shoes_baby.webp"
+    },
+    {
+      "key": "target_shoes_insoles",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-007/07-shoes_insoles.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/shoes_insoles.webp"
+    },
+    {
+      "key": "target_shoes_accessories",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-007/08-shoes_accessories.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/shoes_accessories.webp"
+    },
+    {
+      "key": "target_accessories_bags",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-007/09-accessories_bags.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/accessories_bags.webp"
+    },
+    {
+      "key": "target_accessories_wallets",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-007/10-accessories_wallets.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/accessories_wallets.webp"
+    },
+    {
+      "key": "target_accessories_caps",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-007/11-accessories_caps.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/accessories_caps.webp"
+    },
+    {
+      "key": "target_accessories_glasses",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-007/12-accessories_glasses.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/accessories_glasses.webp"
+    },
+    {
+      "key": "target_accessories_watches",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-008/01-accessories_watches.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/accessories_watches.webp"
+    },
+    {
+      "key": "target_accessories_belts",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-008/02-accessories_belts.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/accessories_belts.webp"
+    },
+    {
+      "key": "target_jewelry_earrings",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/pilot-fallback/090-jewelry_earrings.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/jewelry_earrings.webp"
+    },
+    {
+      "key": "target_jewelry_necklaces",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/pilot-fallback/091-jewelry_necklaces.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/jewelry_necklaces.webp"
+    },
+    {
+      "key": "target_jewelry_bracelets",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-008/03-jewelry_bracelets.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/jewelry_bracelets.webp"
+    },
+    {
+      "key": "target_jewelry_rings",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-008/04-jewelry_rings.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/jewelry_rings.webp"
+    },
+    {
+      "key": "target_jewelry_charms",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-008/05-jewelry_charms.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/jewelry_charms.webp"
+    },
+    {
+      "key": "target_jewelry_anklets",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-008/06-jewelry_anklets.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/jewelry_anklets.webp"
+    },
+    {
+      "key": "target_jewelry_sets",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-008/07-jewelry_sets.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/jewelry_sets.webp"
+    },
+    {
+      "key": "target_accessories_hair",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-008/08-accessories_hair.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/accessories_hair.webp"
+    },
+    {
+      "key": "target_jewelry_fashion",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-008/09-jewelry_fashion.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/jewelry_fashion.webp"
+    },
+    {
+      "key": "target_jewelry_fine",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-008/10-jewelry_fine.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/jewelry_fine.webp"
+    },
+    {
+      "key": "target_beauty_makeup",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-008/11-beauty_makeup.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/beauty_makeup.webp"
+    },
+    {
+      "key": "target_beauty_lipsticks",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-008/12-beauty_lipsticks.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/beauty_lipsticks.webp"
+    },
+    {
+      "key": "target_beauty_foundation",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-009/01-beauty_foundation.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/beauty_foundation.webp"
+    },
+    {
+      "key": "target_beauty_eyeshadow",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-009/02-beauty_eyeshadow.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/beauty_eyeshadow.webp"
+    },
+    {
+      "key": "target_beauty_brushes",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-009/03-beauty_brushes.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/beauty_brushes.webp"
+    },
+    {
+      "key": "target_beauty_nails",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-009/04-beauty_nails.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/beauty_nails.webp"
+    },
+    {
+      "key": "target_beauty_skincare",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-009/05-beauty_skincare.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/beauty_skincare.webp"
+    },
+    {
+      "key": "target_beauty_creams",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-009/06-beauty_creams.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/beauty_creams.webp"
+    },
+    {
+      "key": "target_beauty_toners",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-009/07-beauty_toners.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/beauty_toners.webp"
+    },
+    {
+      "key": "target_beauty_masks",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-009/08-beauty_masks.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/beauty_masks.webp"
+    },
+    {
+      "key": "target_beauty_perfumes",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/pilot-fallback/191-beauty_perfumes.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/beauty_perfumes.webp"
+    },
+    {
+      "key": "target_beauty_bodycare",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-009/09-beauty_bodycare.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/beauty_bodycare.webp"
+    },
+    {
+      "key": "target_beauty_haircare",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-009/10-beauty_haircare.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/beauty_haircare.webp"
+    },
+    {
+      "key": "target_beauty_hair_tools",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-009/11-beauty_hair_tools.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/beauty_hair_tools.webp"
+    },
+    {
+      "key": "target_beauty_eyebrows",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-009/12-beauty_eyebrows.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/beauty_eyebrows.webp"
+    },
+    {
+      "key": "target_beauty_lashes",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-010/01-beauty_lashes.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/beauty_lashes.webp"
+    },
+    {
+      "key": "target_beauty_waxing",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-010/02-beauty_waxing.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/beauty_waxing.webp"
+    },
+    {
+      "key": "target_health_medicines",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-010/03-health_medicines.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/health_medicines.webp"
+    },
+    {
+      "key": "target_health_vitamins",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-010/04-health_vitamins.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/health_vitamins.webp"
+    },
+    {
+      "key": "target_health_supplements",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-010/05-health_supplements.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/health_supplements.webp"
+    },
+    {
+      "key": "target_health_first_aid",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-010/06-health_first_aid.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/health_first_aid.webp"
+    },
+    {
+      "key": "target_health_personal_care",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-010/07-health_personal_care.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/health_personal_care.webp"
+    },
+    {
+      "key": "target_health_oral",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-010/08-health_oral.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/health_oral.webp"
+    },
+    {
+      "key": "target_health_baby",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-010/09-health_baby.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/health_baby.webp"
+    },
+    {
+      "key": "target_health_dermo",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-010/10-health_dermo.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/health_dermo.webp"
+    },
+    {
+      "key": "target_health_feminine",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-010/11-health_feminine.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/health_feminine.webp"
+    },
+    {
+      "key": "target_health_devices",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-010/12-health_devices.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/health_devices.webp"
+    },
+    {
+      "key": "target_health_orthopedic",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/manual-overrides/208-health_orthopedic.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/health_orthopedic.webp"
+    },
+    {
+      "key": "target_health_glasses",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-011/01-health_glasses.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/health_glasses.webp"
+    },
+    {
+      "key": "target_health_natural",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-011/02-health_natural.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/health_natural.webp"
+    },
+    {
+      "key": "target_health_sunscreen",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-011/03-health_sunscreen.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/health_sunscreen.webp"
+    },
+    {
+      "key": "target_health_muscle",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-011/04-health_muscle.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/health_muscle.webp"
+    },
+    {
+      "key": "target_hardware_manual_tools",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-011/05-hardware_manual_tools.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/hardware_manual_tools.webp"
+    },
+    {
+      "key": "target_hardware_power_tools",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-011/06-hardware_power_tools.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/hardware_power_tools.webp"
+    },
+    {
+      "key": "target_hardware_fasteners",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-011/07-hardware_fasteners.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/hardware_fasteners.webp"
+    },
+    {
+      "key": "target_hardware_electricity",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-011/08-hardware_electricity.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/hardware_electricity.webp"
+    },
+    {
+      "key": "target_hardware_lighting",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-011/09-hardware_lighting.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/hardware_lighting.webp"
+    },
+    {
+      "key": "target_hardware_plumbing",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-011/10-hardware_plumbing.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/hardware_plumbing.webp"
+    },
+    {
+      "key": "target_hardware_paint",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-011/11-hardware_paint.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/hardware_paint.webp"
+    },
+    {
+      "key": "target_hardware_construction",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-011/12-hardware_construction.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/hardware_construction.webp"
+    },
+    {
+      "key": "target_hardware_security",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-012/01-hardware_security.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/hardware_security.webp"
+    },
+    {
+      "key": "target_hardware_garden",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-012/02-hardware_garden.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/hardware_garden.webp"
+    },
+    {
+      "key": "target_hardware_wood",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-012/03-hardware_wood.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/hardware_wood.webp"
+    },
+    {
+      "key": "target_hardware_adhesives",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/manual-overrides/110-hardware_adhesives.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/hardware_adhesives.webp"
+    },
+    {
+      "key": "target_home_cleaning",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-012/04-home_cleaning.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/home_cleaning.webp"
+    },
+    {
+      "key": "target_home_kitchen",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-012/05-home_kitchen.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/home_kitchen.webp"
+    },
+    {
+      "key": "target_home_furniture",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-012/06-home_furniture.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/home_furniture.webp"
+    },
+    {
+      "key": "target_home_decor",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-012/07-home_decor.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/home_decor.webp"
+    },
+    {
+      "key": "target_home_organization",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-012/08-home_organization.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/home_organization.webp"
+    },
+    {
+      "key": "target_home_textiles",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-012/09-home_textiles.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/home_textiles.webp"
+    },
+    {
+      "key": "target_tech_phones",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-012/10-tech_phones.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/tech_phones.webp"
+    },
+    {
+      "key": "target_tech_phone_accessories",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-012/11-tech_phone_accessories.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/tech_phone_accessories.webp"
+    },
+    {
+      "key": "target_tech_computers",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-012/12-tech_computers.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/tech_computers.webp"
+    },
+    {
+      "key": "target_tech_tablets",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-013/01-tech_tablets.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/tech_tablets.webp"
+    },
+    {
+      "key": "target_tech_audio",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-013/02-tech_audio.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/tech_audio.webp"
+    },
+    {
+      "key": "target_tech_gaming",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-013/03-tech_gaming.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/tech_gaming.webp"
+    },
+    {
+      "key": "target_tech_cameras",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-013/04-tech_cameras.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/tech_cameras.webp"
+    },
+    {
+      "key": "target_tech_printing",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-013/05-tech_printing.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/tech_printing.webp"
+    },
+    {
+      "key": "target_tech_networks",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-013/06-tech_networks.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/tech_networks.webp"
+    },
+    {
+      "key": "target_tech_cables",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-013/07-tech_cables.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/tech_cables.webp"
+    },
+    {
+      "key": "target_tech_smartwatches",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-013/08-tech_smartwatches.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/tech_smartwatches.webp"
+    },
+    {
+      "key": "target_tech_components",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-013/09-tech_components.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/tech_components.webp"
+    },
+    {
+      "key": "target_tech_appliances",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-013/10-tech_appliances.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/tech_appliances.webp"
+    },
+    {
+      "key": "target_stationery_notebooks",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-013/11-stationery_notebooks.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/stationery_notebooks.webp"
+    },
+    {
+      "key": "target_stationery_books",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-013/12-stationery_books.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/stationery_books.webp"
+    },
+    {
+      "key": "target_stationery_pencils",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-014/01-stationery_pencils.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/stationery_pencils.webp"
+    },
+    {
+      "key": "target_stationery_markers",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-014/02-stationery_markers.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/stationery_markers.webp"
+    },
+    {
+      "key": "target_stationery_paper",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-014/03-stationery_paper.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/stationery_paper.webp"
+    },
+    {
+      "key": "target_stationery_folders",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-014/04-stationery_folders.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/stationery_folders.webp"
+    },
+    {
+      "key": "target_stationery_office",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-014/05-stationery_office.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/stationery_office.webp"
+    },
+    {
+      "key": "target_stationery_printing",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-014/06-stationery_printing.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/stationery_printing.webp"
+    },
+    {
+      "key": "target_stationery_art",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-014/07-stationery_art.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/stationery_art.webp"
+    },
+    {
+      "key": "target_stationery_school",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-014/08-stationery_school.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/stationery_school.webp"
+    },
+    {
+      "key": "target_stationery_agendas",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-014/09-stationery_agendas.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/stationery_agendas.webp"
+    },
+    {
+      "key": "target_stationery_packaging",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-014/10-stationery_packaging.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/stationery_packaging.webp"
+    },
+    {
+      "key": "target_pets_dog_food",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-014/11-pets_dog_food.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/pets_dog_food.webp"
+    },
+    {
+      "key": "target_pets_cat_food",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-014/12-pets_cat_food.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/pets_cat_food.webp"
+    },
+    {
+      "key": "target_pets_snacks",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-015/01-pets_snacks.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/pets_snacks.webp"
+    },
+    {
+      "key": "target_pets_toys",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-015/02-pets_toys.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/pets_toys.webp"
+    },
+    {
+      "key": "target_pets_beds",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/manual-overrides/146-pets_beds.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/pets_beds.webp"
+    },
+    {
+      "key": "target_pets_collars",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-015/03-pets_collars.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/pets_collars.webp"
+    },
+    {
+      "key": "target_pets_hygiene",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-015/04-pets_hygiene.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/pets_hygiene.webp"
+    },
+    {
+      "key": "target_pets_health",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-015/05-pets_health.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/pets_health.webp"
+    },
+    {
+      "key": "target_pets_cat_litter",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-015/06-pets_cat_litter.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/pets_cat_litter.webp"
+    },
+    {
+      "key": "target_pets_aquarium_birds",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-015/07-pets_aquarium_birds.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/pets_aquarium_birds.webp"
+    },
+    {
+      "key": "target_baby_clothes",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-015/08-baby_clothes.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/baby_clothes.webp"
+    },
+    {
+      "key": "target_baby_shoes",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-015/09-baby_shoes.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/baby_shoes.webp"
+    },
+    {
+      "key": "target_baby_diapers",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/manual-overrides/154-baby_diapers.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/baby_diapers.webp"
+    },
+    {
+      "key": "target_baby_feeding",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-015/10-baby_feeding.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/baby_feeding.webp"
+    },
+    {
+      "key": "target_baby_strollers",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/pilot-fallback/156-baby_strollers.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/baby_strollers.webp"
+    },
+    {
+      "key": "target_baby_toys",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-015/11-baby_toys.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/baby_toys.webp"
+    },
+    {
+      "key": "target_kids_toys",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-015/12-kids_toys.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/kids_toys.webp"
+    },
+    {
+      "key": "target_kids_didactic",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-016/01-kids_didactic.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/kids_didactic.webp"
+    },
+    {
+      "key": "target_kids_school",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-016/02-kids_school.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/kids_school.webp"
+    },
+    {
+      "key": "target_kids_party",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-016/03-kids_party.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/kids_party.webp"
+    },
+    {
+      "key": "target_vehicles_car_parts",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-016/04-vehicles_car_parts.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/vehicles_car_parts.webp"
+    },
+    {
+      "key": "target_vehicles_motorcycle_parts",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-016/05-vehicles_motorcycle_parts.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/vehicles_motorcycle_parts.webp"
+    },
+    {
+      "key": "target_vehicles_oils",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-016/06-vehicles_oils.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/vehicles_oils.webp"
+    },
+    {
+      "key": "target_vehicles_tires",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-016/07-vehicles_tires.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/vehicles_tires.webp"
+    },
+    {
+      "key": "target_vehicles_batteries",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-016/08-vehicles_batteries.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/vehicles_batteries.webp"
+    },
+    {
+      "key": "target_vehicles_car_accessories",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-016/09-vehicles_car_accessories.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/vehicles_car_accessories.webp"
+    },
+    {
+      "key": "target_vehicles_motorcycle_accessories",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-016/10-vehicles_motorcycle_accessories.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/vehicles_motorcycle_accessories.webp"
+    },
+    {
+      "key": "target_vehicles_helmets",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-016/11-vehicles_helmets.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/vehicles_helmets.webp"
+    },
+    {
+      "key": "target_vehicles_cleaning",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-016/12-vehicles_cleaning.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/vehicles_cleaning.webp"
+    },
+    {
+      "key": "target_vehicles_bikes",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-017/01-vehicles_bikes.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/vehicles_bikes.webp"
+    },
+    {
+      "key": "target_sports_clothing",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-017/02-sports_clothing.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/sports_clothing.webp"
+    },
+    {
+      "key": "target_sports_shoes",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/pilot-fallback/173-sports_shoes.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/sports_shoes.webp"
+    },
+    {
+      "key": "target_sports_gym",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-017/03-sports_gym.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/sports_gym.webp"
+    },
+    {
+      "key": "target_sports_cycling",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-017/04-sports_cycling.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/sports_cycling.webp"
+    },
+    {
+      "key": "target_sports_soccer",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-017/05-sports_soccer.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/sports_soccer.webp"
+    },
+    {
+      "key": "target_sports_balls",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-017/06-sports_balls.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/sports_balls.webp"
+    },
+    {
+      "key": "target_sports_swimming",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-017/07-sports_swimming.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/sports_swimming.webp"
+    },
+    {
+      "key": "target_sports_camping",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-017/08-sports_camping.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/sports_camping.webp"
+    },
+    {
+      "key": "target_sports_hiking",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-017/09-sports_hiking.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/sports_hiking.webp"
+    },
+    {
+      "key": "target_sports_supplements",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-017/10-sports_supplements.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/sports_supplements.webp"
+    },
+    {
+      "key": "target_sports_training",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-017/11-sports_training.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/sports_training.webp"
+    },
+    {
+      "key": "target_tourism_hotels",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-017/12-tourism_hotels.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/tourism_hotels.webp"
+    },
+    {
+      "key": "target_tourism_hostels",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-018/01-tourism_hostels.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/tourism_hostels.webp"
+    },
+    {
+      "key": "target_tourism_glamping",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-018/02-tourism_glamping.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/tourism_glamping.webp"
+    },
+    {
+      "key": "target_tourism_camping",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-018/03-tourism_camping.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/tourism_camping.webp"
+    },
+    {
+      "key": "target_tourism_tours",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-018/04-tourism_tours.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/tourism_tours.webp"
+    },
+    {
+      "key": "target_tourism_routes",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-018/05-tourism_routes.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/tourism_routes.webp"
+    },
+    {
+      "key": "target_tourism_adventure",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-018/06-tourism_adventure.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/tourism_adventure.webp"
+    },
+    {
+      "key": "target_tourism_nature",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-018/07-tourism_nature.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/tourism_nature.webp"
+    },
+    {
+      "key": "target_tourism_culture",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-018/08-tourism_culture.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/tourism_culture.webp"
+    },
+    {
+      "key": "target_tourism_viewpoints",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-018/09-tourism_viewpoints.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/tourism_viewpoints.webp"
+    },
+    {
+      "key": "target_tourism_transport",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-018/10-tourism_transport.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/tourism_transport.webp"
+    },
+    {
+      "key": "target_tourism_gastronomy",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-018/11-tourism_gastronomy.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/tourism_gastronomy.webp"
+    },
+    {
+      "key": "target_services_barber",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-018/12-services_barber.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/services_barber.webp"
+    },
+    {
+      "key": "target_services_salon",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/pilot-fallback/214-services_salon.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/services_salon.webp"
+    },
+    {
+      "key": "target_services_spa",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-019/01-services_spa.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/services_spa.webp"
+    },
+    {
+      "key": "target_services_health",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-019/02-services_health.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/services_health.webp"
+    },
+    {
+      "key": "target_services_dental",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-019/03-services_dental.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/services_dental.webp"
+    },
+    {
+      "key": "target_services_psychology",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-019/04-services_psychology.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/services_psychology.webp"
+    },
+    {
+      "key": "target_services_education",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-019/05-services_education.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/services_education.webp"
+    },
+    {
+      "key": "target_services_repair",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-019/06-services_repair.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/services_repair.webp"
+    },
+    {
+      "key": "target_services_cleaning",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-019/07-services_cleaning.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/services_cleaning.webp"
+    },
+    {
+      "key": "target_services_transport",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-019/08-services_transport.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/services_transport.webp"
+    },
+    {
+      "key": "target_services_photo_video",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-019/09-services_photo_video.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/services_photo_video.webp"
+    },
+    {
+      "key": "target_services_events",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-019/10-services_events.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/services_events.webp"
+    },
+    {
+      "key": "target_services_design_marketing",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-019/11-services_design_marketing.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/services_design_marketing.webp"
+    },
+    {
+      "key": "target_services_legal",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-019/12-services_legal.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/services_legal.webp"
+    },
+    {
+      "key": "target_services_accounting",
+      "sourceUrl": "/commerce-assets/categories-ai-1254-review/sheet-020/01-services_accounting.png",
+      "assetUrl": "/commerce-assets/categories-ai-runtime/services_accounting.webp"
+    }
+  ]
+}

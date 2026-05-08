@@ -324,8 +324,9 @@ El dashboard administrativo debe mostrar el mismo asset de categoria que vera el
 Decision actual de bajo costo:
 
 - La base comercial canonica vive en `lib/commerce-category-target-catalog.js` con 241 categorias objetivo por linea, nombre y aliases.
-- Los assets IA activos por categoria viven en `public/commerce-assets/categories-ai-1254-review`, exportados como PNG transparentes de 1024x1024 desde sheets revisados sin fondo.
-- `lib/commerce-category-local-assets.js` amarra cada categoria canonica con su archivo local. La busqueda por nombre y aliases sigue viviendo en `lib/commerce-category-target-catalog.js`.
+- Los assets fuente/revision por categoria viven en `public/commerce-assets/categories-ai-1254-review`, exportados como PNG transparentes de 1024x1024 desde sheets revisados sin fondo.
+- Los assets activos de runtime viven en `public/commerce-assets/categories-ai-runtime`, exportados como WebP transparentes de 192x192. Esta es la carpeta que debe cargar Klicor en admin y vista publica.
+- `lib/commerce-category-local-assets.js` amarra cada categoria canonica con su WebP runtime. La busqueda por nombre y aliases sigue viviendo en `lib/commerce-category-target-catalog.js`.
 - El selector administrativo y la vista publica deben usar esos assets IA locales como representacion principal de categorias.
 - Microsoft Fluent Emoji 3D queda como material local/fallback y referencia, no como catalogo visual principal para categorias comerciales.
 - Esta decision reduce costo, dependencia externa y pixelacion. No se debe documentar como catalogo propio final: cuando existan suficientes negocios y categorias reales, se podra crear una base visual propia por bloques y reemplazar gradualmente estos assets.
