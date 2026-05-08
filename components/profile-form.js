@@ -1281,6 +1281,7 @@ export function ProfileForm({
                 type="button"
                 onClick={() => handleWorkspaceSelect(tab.id)}
                 aria-current={isActive ? "page" : undefined}
+                aria-label={tab.isRecommended ? `${tab.label} ${tab.recommendationLabel}` : tab.label}
                 title={tab.isRecommended ? moduleRecommendation.hint : tab.label}
               >
                 <span className="editor-sidebar-item-icon">
@@ -1495,7 +1496,7 @@ export function ProfileForm({
                   </select>
                 </div>
                 <div>
-                  <label className="label">Que hace o vende</label>
+                  <label className="label">Qué hace o vende</label>
                   <select
                     className="select"
                     value={form.businessType}
@@ -2411,7 +2412,7 @@ export function ProfileForm({
                         disabled={!canEdit}
                       />
                     </div>
-                    <button className="btn btn-secondary link-remove" type="button" onClick={() => removePaymentMethod(method.id)} disabled={!canEdit}>
+                    <button className="btn btn-secondary link-remove" type="button" onClick={() => removePaymentMethod(method.id)} disabled={!canEdit} aria-label={`Eliminar método de pago ${index + 1}`}>
                       <Trash2 size={16} />
                     </button>
 
@@ -2455,6 +2456,7 @@ export function ProfileForm({
                               type="button"
                               onClick={() => removePaymentMethodQr(method.id)}
                               disabled={!canEdit}
+                              aria-label={`Quitar QR del método de pago ${index + 1}`}
                             >
                               <Trash2 size={14} /> Quitar
                             </button>
@@ -2501,7 +2503,7 @@ export function ProfileForm({
                     </label>
                     <input className="input" value={item.value} placeholder={meta.placeholder} onChange={(e) => updateLink(item.id, "value", e.target.value)} disabled={!canEdit} />
                   </div>
-                  <button className="btn btn-secondary link-remove" type="button" onClick={() => removeLink(item.id)} disabled={!canEdit}>
+                  <button className="btn btn-secondary link-remove" type="button" onClick={() => removeLink(item.id)} disabled={!canEdit} aria-label={`Eliminar enlace ${item.label || meta.label || ""}`.trim()}>
                     <Trash2 size={16} />
                   </button>
                   {item.type === "whatsapp" ? (

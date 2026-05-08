@@ -132,13 +132,13 @@ function ProductRow({ product, sectionLabel, disabled, visibilityPending = false
         </div>
       </div>
       <div className="commerce-board-product-actions">
-        <button type="button" onClick={() => onEdit(product)} disabled={disabled} title="Editar producto">
+        <button type="button" onClick={() => onEdit(product)} disabled={disabled} title="Editar producto" aria-label={`Editar producto ${product.name || ""}`.trim()}>
           <Pencil size={15} />
         </button>
-        <button type="button" onClick={() => onToggleVisibility(product, !visible)} disabled={disabled} title={visible ? "Ocultar producto" : "Mostrar producto"}>
+        <button type="button" onClick={() => onToggleVisibility(product, !visible)} disabled={disabled} title={visible ? "Ocultar producto" : "Mostrar producto"} aria-label={`${visible ? "Ocultar" : "Mostrar"} producto ${product.name || ""}`.trim()}>
           {visibilityPending ? <LoaderCircle size={15} className="spin" /> : visible ? <EyeOff size={15} /> : <Eye size={15} />}
         </button>
-        <button type="button" onClick={() => onDelete(product.id)} disabled={disabled} title="Eliminar producto">
+        <button type="button" onClick={() => onDelete(product.id)} disabled={disabled} title="Eliminar producto" aria-label={`Eliminar producto ${product.name || ""}`.trim()}>
           <Trash2 size={15} />
         </button>
       </div>
@@ -601,6 +601,7 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
 
   function startEditCategory(category) {
     resetAssetPicker();
+    setEditingSubcategoryId("");
     setEditingCategoryId(category.id);
     setEditingCategoryName(category.name);
     setEditingCategoryIcon(category.iconKey || "");
@@ -610,6 +611,11 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
   function stopEditCategory() {
     setEditingCategoryId("");
     resetAssetPicker();
+  }
+
+  function stopEditSubcategory() {
+    setEditingSubcategoryId("");
+    setEditingSubcategoryName("");
   }
 
   function resolveAssetGroups(name = "", { includeAll = false } = {}) {
@@ -715,10 +721,6 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
       setSubcategoryDrafts((current) => ({ ...current, [categoryId]: "" }));
       setMobileView("section");
       setSectionMode("products");
-      openProductEditor(
-        categories.find((category) => category.id === categoryId) || selectedCategory || { id: categoryId, name: "Categoría seleccionada" },
-        { id: result.subcategoryId, name },
-      );
     }
   }
 
@@ -853,7 +855,7 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
             <input className="input" value={configForm.orderWhatsapp} onChange={(event) => setConfigForm((current) => ({ ...current, orderWhatsapp: event.target.value }))} placeholder="573001234567" disabled={!canEdit} />
           </label>
           <button className="btn btn-secondary" type="button" onClick={() => runAction("save_config", configForm)} disabled={!canEdit || loading}>
-            <Store size={15} /> Guardar
+            <Store size={15} /> {loading ? "Guardando..." : "Guardar"}
           </button>
           <button className="btn btn-secondary" type="button" onClick={copyCommerceUrl} disabled={!commercePublicUrl}>
             <Copy size={15} /> Copiar
@@ -904,18 +906,20 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
                         value: editingCategoryIcon,
                         onIconChange: setEditingCategoryIcon,
                       })}
-                      <button className="btn btn-primary" type="button" onClick={async () => {
-                        const result = await runAction("update_category", {
-                          id: category.id,
-                          name: editingCategoryName,
-                          iconKey: editingCategoryIcon || category.iconKey,
-                          color: editingCategoryColor || category.color,
-                        });
-                        if (result) stopEditCategory();
-                      }} disabled={!canEdit || !editingCategoryName.trim() || loading}>
-                        Guardar
-                      </button>
-                      <button className="btn btn-secondary" type="button" onClick={stopEditCategory}>Cancelar</button>
+                      <div className="commerce-board-inline-actions">
+                        <button className="btn btn-primary" type="button" onClick={async () => {
+                          const result = await runAction("update_category", {
+                            id: category.id,
+                            name: editingCategoryName,
+                            iconKey: editingCategoryIcon || category.iconKey,
+                            color: editingCategoryColor || category.color,
+                          });
+                          if (result) stopEditCategory();
+                        }} disabled={!canEdit || !editingCategoryName.trim() || loading}>
+                          {loading ? "Guardando..." : "Guardar"}
+                        </button>
+                        <button className="btn btn-secondary" type="button" onClick={stopEditCategory} disabled={loading}>Cancelar</button>
+                      </div>
                     </div>
                   ) : (
                     <>
@@ -930,10 +934,10 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
                         <ChevronRight size={16} />
                       </button>
                       <div className="commerce-board-row-actions">
-                        <button type="button" onClick={() => runAction("move_category", { categoryId: category.id, direction: "up" })} disabled={!canEdit || loading} title="Mover arriba"><ChevronUp size={15} /></button>
-                        <button type="button" onClick={() => runAction("move_category", { categoryId: category.id, direction: "down" })} disabled={!canEdit || loading} title="Mover abajo"><ChevronDown size={15} /></button>
-                        <button type="button" onClick={() => startEditCategory(category)} disabled={!canEdit || loading} title="Editar categoría"><Pencil size={15} /></button>
-                        <button type="button" onClick={() => confirmAction("¿Eliminar esta categoría? Solo se puede eliminar si está vacía.", () => runAction("delete_category", { categoryId: category.id }))} disabled={!canEdit || loading} title="Eliminar categoría"><Trash2 size={15} /></button>
+                        <button type="button" onClick={() => runAction("move_category", { categoryId: category.id, direction: "up" })} disabled={!canEdit || loading} title="Mover arriba" aria-label={`Mover arriba categoría ${category.name || ""}`.trim()}><ChevronUp size={15} /></button>
+                        <button type="button" onClick={() => runAction("move_category", { categoryId: category.id, direction: "down" })} disabled={!canEdit || loading} title="Mover abajo" aria-label={`Mover abajo categoría ${category.name || ""}`.trim()}><ChevronDown size={15} /></button>
+                        <button type="button" onClick={() => startEditCategory(category)} disabled={!canEdit || loading} title="Editar categoría" aria-label={`Editar categoria ${category.name || ""}`.trim()}><Pencil size={15} /></button>
+                        <button type="button" onClick={() => confirmAction("¿Eliminar esta categoría? Solo se puede eliminar si está vacía.", () => runAction("delete_category", { categoryId: category.id }))} disabled={!canEdit || loading} title="Eliminar categoría" aria-label={`Eliminar categoria ${category.name || ""}`.trim()}><Trash2 size={15} /></button>
                       </div>
                     </>
                   )}
@@ -1011,11 +1015,14 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
                           categoryId: selectedCategory.id,
                           name: editingSubcategoryName,
                         });
-                        if (result) setEditingSubcategoryId("");
+                        if (result) {
+                          setSubcategoryDrafts((current) => ({ ...current, [selectedCategory.id]: "" }));
+                          stopEditSubcategory();
+                        }
                       }} disabled={!canEdit || !editingSubcategoryName.trim() || loading}>
-                        Guardar
+                        {loading ? "Guardando..." : "Guardar"}
                       </button>
-                      <button className="btn btn-secondary" type="button" onClick={() => setEditingSubcategoryId("")}>Cancelar</button>
+                      <button className="btn btn-secondary" type="button" onClick={stopEditSubcategory} disabled={loading}>Cancelar</button>
                     </div>
                   ) : (
                     <>
@@ -1027,10 +1034,10 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
                         <ChevronRight size={16} />
                       </button>
                       <div className="commerce-board-row-actions">
-                        <button type="button" onClick={() => runAction("move_subcategory", { subcategoryId: subcategory.id, direction: "up" })} disabled={!canEdit || loading} title="Mover arriba"><ChevronUp size={15} /></button>
-                        <button type="button" onClick={() => runAction("move_subcategory", { subcategoryId: subcategory.id, direction: "down" })} disabled={!canEdit || loading} title="Mover abajo"><ChevronDown size={15} /></button>
-                        <button type="button" onClick={() => { setEditingSubcategoryId(subcategory.id); setEditingSubcategoryName(subcategory.name); }} disabled={!canEdit || loading} title="Editar subcategoría"><Pencil size={15} /></button>
-                        <button type="button" onClick={() => confirmAction("¿Eliminar esta subcategoría? Solo se puede eliminar si está vacía.", () => runAction("delete_subcategory", { subcategoryId: subcategory.id }))} disabled={!canEdit || loading} title="Eliminar subcategoría"><Trash2 size={15} /></button>
+                        <button type="button" onClick={() => runAction("move_subcategory", { subcategoryId: subcategory.id, direction: "up" })} disabled={!canEdit || loading} title="Mover arriba" aria-label={`Mover arriba subcategoria ${subcategory.name || ""}`.trim()}><ChevronUp size={15} /></button>
+                        <button type="button" onClick={() => runAction("move_subcategory", { subcategoryId: subcategory.id, direction: "down" })} disabled={!canEdit || loading} title="Mover abajo" aria-label={`Mover abajo subcategoria ${subcategory.name || ""}`.trim()}><ChevronDown size={15} /></button>
+                        <button type="button" onClick={() => { setEditingCategoryId(""); setEditingSubcategoryId(subcategory.id); setEditingSubcategoryName(subcategory.name); }} disabled={!canEdit || loading} title="Editar subcategoría" aria-label={`Editar subcategoria ${subcategory.name || ""}`.trim()}><Pencil size={15} /></button>
+                        <button type="button" onClick={() => confirmAction("¿Eliminar esta subcategoría? Solo se puede eliminar si está vacía.", () => runAction("delete_subcategory", { subcategoryId: subcategory.id }))} disabled={!canEdit || loading} title="Eliminar subcategoría" aria-label={`Eliminar subcategoria ${subcategory.name || ""}`.trim()}><Trash2 size={15} /></button>
                       </div>
                     </>
                   )}
@@ -1163,11 +1170,20 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
     const totalImages = existingImages.length + pendingImages.length;
     const priceIsRequired = requiresCommercePrice(productEditor.mode || configForm.activeMode);
     const remainingImages = Math.max(0, COMMERCE_PRODUCT_MAX_IMAGES - totalImages);
+    const productName = String(productEditor.name || "").trim();
+    const productPrice = String(productEditor.price ?? "").trim();
+    const productPriceNumber = Number(productEditor.price);
+    const productEditorIsValid = Boolean(productName)
+      && productName.length >= 2
+      && (!priceIsRequired || (productPrice && Number.isFinite(productPriceNumber) && productPriceNumber > 0))
+      && (!productPrice || (Number.isFinite(productPriceNumber) && productPriceNumber >= 0))
+      && totalImages > 0
+      && totalImages <= COMMERCE_PRODUCT_MAX_IMAGES;
 
     return (
       <div className="commerce-modal-backdrop" role="dialog" aria-modal="true" aria-label="Editor de producto">
         <div className="commerce-modal-card commerce-board-editor-card">
-          <button className="commerce-modal-close" type="button" onClick={closeProductEditor}>
+          <button className="commerce-modal-close" type="button" onClick={closeProductEditor} aria-label="Cerrar editor de producto" title="Cerrar">
             <X size={16} />
           </button>
           <div className="commerce-modal-head">
@@ -1216,7 +1232,7 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
                       <span className="commerce-board-image-chip">
                         {image.imageThumbUrl || image.imageUrl ? <img src={image.imageThumbUrl || image.imageUrl} alt={`${productEditor.name || "Producto"} ${index + 1}`} /> : null}
                       </span>
-                      <button className="commerce-board-image-remove" type="button" onClick={() => removeExistingProductImage(image.id)}>
+                      <button className="commerce-board-image-remove" type="button" onClick={() => removeExistingProductImage(image.id)} aria-label={`Quitar foto actual ${index + 1}`} title="Quitar foto">
                         <X size={14} />
                       </button>
                     </div>
@@ -1233,7 +1249,7 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
                       <span className="commerce-board-image-chip">
                         {image.previewUrl ? <img src={image.previewUrl} alt={`${image.name || productEditor.name || "Nueva foto"} ${index + 1}`} /> : null}
                       </span>
-                      <button className="commerce-board-image-remove" type="button" onClick={() => removePendingProductImage(image.id)}>
+                      <button className="commerce-board-image-remove" type="button" onClick={() => removePendingProductImage(image.id)} aria-label={`Quitar foto nueva ${index + 1}`} title="Quitar foto">
                         <X size={14} />
                       </button>
                     </div>
@@ -1283,8 +1299,8 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
               const { pendingImages: nextPendingImages, images, ...payload } = productEditor;
               const result = await runAction("save_product", payload, (nextPendingImages || []).map((entry) => entry.file));
               if (result) closeProductEditor();
-            }} disabled={!canEdit || loading}>
-              <Save size={16} /> Guardar producto
+            }} disabled={!canEdit || loading || !productEditorIsValid}>
+              <Save size={16} /> {loading ? "Guardando..." : "Guardar producto"}
             </button>
           </div>
         </div>

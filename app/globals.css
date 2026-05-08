@@ -312,6 +312,19 @@ img { max-width: 100%; display: block; }
 
 .btn:hover { transform: translateY(-1px); }
 
+.btn:disabled,
+.btn[aria-disabled="true"] {
+  cursor: not-allowed;
+  opacity: 0.54;
+  box-shadow: none;
+  transform: none;
+}
+
+.btn:disabled:hover,
+.btn[aria-disabled="true"]:hover {
+  transform: none;
+}
+
 .btn-primary {
   background: var(--primary);
   color: white;
@@ -319,6 +332,12 @@ img { max-width: 100%; display: block; }
 }
 
 .btn-primary:hover { background: var(--primary-hover); }
+
+.btn-primary:disabled {
+  background: #e2e8f0;
+  color: #64748b;
+  border-color: #cbd5e1;
+}
 
 .btn-secondary {
   background: var(--surface);
@@ -10582,6 +10601,29 @@ html[data-theme="dark"] .admin-sidebar-note {
   grid-column: 1 / -1;
 }
 
+.commerce-board-inline-edit {
+  min-width: 0;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: stretch;
+}
+
+.commerce-board-inline-edit .input,
+.commerce-board-inline-edit .commerce-icon-picker,
+.commerce-board-inline-actions {
+  min-width: 0;
+  width: 100%;
+}
+
+.commerce-board-inline-edit .commerce-icon-picker {
+  grid-column: 1 / -1;
+}
+
+.commerce-board-inline-actions {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.55rem;
+}
+
 .commerce-board-create-action {
   width: 100%;
   min-height: 42px;
@@ -10732,6 +10774,12 @@ html[data-theme="dark"] .admin-sidebar-note {
   border-radius: 8px;
   background: #ffffff;
   color: #334155;
+}
+
+.commerce-board-row-actions button:disabled,
+.commerce-board-product-actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.48;
 }
 
 .commerce-board-empty {
@@ -11056,8 +11104,7 @@ html[data-theme="dark"] .admin-sidebar-note {
     display: inline-flex;
   }
 
-  .commerce-board-create,
-  .commerce-board-inline-edit {
+  .commerce-board-create {
     grid-template-columns: minmax(0, 1fr);
     align-items: center;
   }
@@ -11066,8 +11113,9 @@ html[data-theme="dark"] .admin-sidebar-note {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .commerce-board-inline-edit {
-    grid-template-columns: minmax(0, 1fr) auto auto;
+  .commerce-board-inline-actions {
+    grid-template-columns: auto auto;
+    justify-content: start;
   }
 
   .commerce-board-product-row {
