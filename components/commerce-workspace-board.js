@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import { CommerceCategoryAsset } from "@/components/commerce-category-asset";
 import { apiFetch } from "@/lib/client-api";
+import { resolveCommerceCategoryAsset } from "@/lib/commerce-category-assets";
 import { COMMERCE_CATEGORY_COLORS, getCommerceCategoryIconGroups, resolveCommerceCategoryIcon } from "@/lib/commerce-category-icons";
 import { COMMERCE_MODE_OPTIONS, requiresCommercePrice, resolveCommerceModeMeta } from "@/lib/commerce-config";
 import { resolveCommerceExperience } from "@/lib/commerce-experience";
@@ -650,7 +651,8 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
       : showAllCategoryAssets
         ? allGroups
         : limitAssetRecommendations(allGroups);
-    const selectedIcon = value || resolveCommerceCategoryIcon(name, profile?.businessCategory).iconKey || "tag";
+    const selectedIconRaw = value || resolveCommerceCategoryIcon(name, profile?.businessCategory).iconKey || "tag";
+    const selectedIcon = resolveCommerceCategoryAsset(selectedIconRaw, profile?.businessCategory).key || selectedIconRaw;
 
     return (
       <div className="commerce-icon-picker" aria-label="Selector visual de asset de categoria">
