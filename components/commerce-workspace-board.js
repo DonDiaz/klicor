@@ -23,8 +23,7 @@ import {
 } from "lucide-react";
 import { CommerceCategoryAsset } from "@/components/commerce-category-asset";
 import { apiFetch } from "@/lib/client-api";
-import { resolveCommerceCategoryAsset } from "@/lib/commerce-category-assets";
-import { COMMERCE_CATEGORY_COLORS, getCommerceCategoryIconGroups, resolveCommerceCategoryIcon } from "@/lib/commerce-category-icons";
+import { COMMERCE_CATEGORY_COLORS, getCommerceCategoryIconGroups, normalizeCommerceCategoryIconKey, normalizeCommerceCategoryIconText, resolveCommerceCategoryIcon } from "@/lib/commerce-category-icons";
 import { COMMERCE_MODE_OPTIONS, requiresCommercePrice, resolveCommerceModeMeta } from "@/lib/commerce-config";
 import { resolveCommerceExperience } from "@/lib/commerce-experience";
 
@@ -652,7 +651,10 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
         ? allGroups
         : limitAssetRecommendations(allGroups);
     const selectedIconRaw = value || resolveCommerceCategoryIcon(name, profile?.businessCategory).iconKey || "tag";
-    const selectedIcon = resolveCommerceCategoryAsset(selectedIconRaw, profile?.businessCategory).key || selectedIconRaw;
+    const selectedIconKey = normalizeCommerceCategoryIconKey(selectedIconRaw);
+    const selectedIconAlias = resolveCommerceCategoryIcon(selectedIconRaw, profile?.businessCategory).iconKey;
+    const selectedIcon = selectedIconKey !== "tag" || selectedIconRaw === "tag" ? selectedIconKey : selectedIconAlias;
+    const selectedIconText = normalizeCommerceCategoryIconText(selectedIconRaw);
 
     return (
       <div className="commerce-icon-picker" aria-label="Selector visual de asset de categoria">
@@ -674,24 +676,29 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
             <section key={group.title} className="commerce-icon-picker-group" aria-label={group.title}>
               <strong>{group.title}</strong>
               <div className="commerce-icon-picker-grid">
-                {group.options.map((option) => (
-                  <button
-                    key={option.iconKey}
-                    className={`commerce-icon-option ${selectedIcon === option.iconKey ? "is-active" : ""}`.trim()}
-                    type="button"
-                    onClick={() => onIconChange(option.iconKey)}
-                    title={option.label}
-                    aria-pressed={selectedIcon === option.iconKey}
-                  >
-                    <CommerceCategoryAsset iconKey={option.iconKey} vertical={profile?.businessCategory} label={option.label} />
-                    <span>{option.label}</span>
-                    {selectedIcon === option.iconKey ? (
-                      <small className="commerce-icon-selected-label">
-                        <Check size={12} /> Seleccionado
-                      </small>
-                    ) : null}
-                  </button>
-                ))}
+                {group.options.map((option) => {
+                  const optionSelected = selectedIcon === option.iconKey
+                    || selectedIconAlias === option.iconKey
+                    || (selectedIconText && selectedIconText === normalizeCommerceCategoryIconText(option.label));
+                  return (
+                    <button
+                      key={option.iconKey}
+                      className={`commerce-icon-option ${optionSelected ? "is-active" : ""}`.trim()}
+                      type="button"
+                      onClick={() => onIconChange(option.iconKey)}
+                      title={option.label}
+                      aria-pressed={optionSelected}
+                    >
+                      <CommerceCategoryAsset iconKey={option.iconKey} vertical={profile?.businessCategory} label={option.label} />
+                      <span>{option.label}</span>
+                      {optionSelected ? (
+                        <small className="commerce-icon-selected-label">
+                          <Check size={12} /> Seleccionado
+                        </small>
+                      ) : null}
+                    </button>
+                  );
+                })}
               </div>
             </section>
           ))}
