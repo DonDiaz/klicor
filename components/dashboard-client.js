@@ -119,7 +119,7 @@ export function DashboardClient() {
     }
   }, [checkoutConfig, sdkReady, data?.user?.status]);
 
-  async function handleCheckout() {
+  async function handleCheckout(options = {}) {
     setPaying(true);
     setError("");
     setShouldLoadCheckoutSdk(true);
@@ -127,6 +127,7 @@ export function DashboardClient() {
       const response = await apiFetch("/api/billing/create-preference", {
         method: "POST",
         token,
+        body: options,
       });
       setCheckoutConfig(response);
     } catch (nextError) {

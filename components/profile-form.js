@@ -71,6 +71,7 @@ import { calculateDorikaProfileProgress, DORIKA_LOCATION_PRIVACY_OPTIONS, normal
 import { isDorikaEligibleBusiness } from "@/lib/dorika-eligibility";
 import { getLinkTypeCount, LINK_CATALOG, LINK_CATALOG_MAP } from "@/lib/link-catalog";
 import { normalizePaymentMethods } from "@/lib/payment-methods";
+import { canUseModule, resolvePrimaryModuleForBusinessCategory, resolveUserModuleAccess, shouldRestrictToPrimaryModuleOnProfileChange } from "@/lib/plans";
 import { mergeSystemProfileLinks } from "@/lib/system-profile-links";
 import { generateThemeFromLogoFile, mergeGeneratedTheme } from "@/lib/logo-theme";
 import { FONT_FAMILY_STYLE_MAP } from "@/app/fonts";
@@ -363,6 +364,37 @@ const PRIORITY_OPTIONS = [
   { value: 3, label: "Prioridad 3" },
 ];
 
+const CHECKOUT_PLAN_OPTIONS = [
+  { value: "basic", label: "Básico" },
+  { value: "commercial", label: "Comercial" },
+  { value: "plus", label: "Plus" },
+];
+
+const CHECKOUT_MODULE_OPTIONS = [
+  { value: "commerce", label: "Comercio" },
+  { value: "booking", label: "Agenda" },
+];
+
+function getPlanPriceFromSettings(plan, settings = {}) {
+  if (plan === "basic") return Number(settings?.basicAnnualPrice || 59900);
+  if (plan === "plus") return Number(settings?.plusAnnualPrice || 169900);
+  return Number(settings?.commercialAnnualPrice ?? settings?.annualPrice ?? 109900);
+}
+
+function getDefaultCheckoutModule(profile = {}) {
+  if (profile?.commercialModule === "booking") return "booking";
+  if (profile?.commercialModule === "commerce") return "commerce";
+  return resolveUserModuleAccess(profile).commerce ? "commerce" : "booking";
+}
+
+function getModuleLabel(module = "") {
+  return module === "booking" ? "Agenda" : "Comercio";
+}
+
+function getOppositeModule(module = "") {
+  return module === "commerce" ? "booking" : "commerce";
+}
+
 function canConfigureActionPriority(type) {
   return type !== "payment_key" && !isSocialLinkType(type);
 }
@@ -444,6 +476,9 @@ export function ProfileForm({
   const [loading, setLoading] = useState(false);
   const [selectedType, setSelectedType] = useState("");
   const [selectedLinkValue, setSelectedLinkValue] = useState("");
+  const [checkoutPlan, setCheckoutPlan] = useState(() => profile?.plan === "plus" ? "plus" : "commercial");
+  const [checkoutModule, setCheckoutModule] = useState(() => getDefaultCheckoutModule(profile));
+  const [moduleBusy, setModuleBusy] = useState("");
   const [activeWorkspace, setActiveWorkspace] = useState(() => getPrimaryWorkspaceForBusinessCategory(profile?.businessCategory));
   const navCollapsed = true;
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
@@ -476,6 +511,9 @@ export function ProfileForm({
     setDorikaMapOpen(false);
     setSelectedType("");
     setSelectedLinkValue("");
+    setCheckoutPlan(profile?.plan === "plus" ? "plus" : "commercial");
+    setCheckoutModule(getDefaultCheckoutModule(profile));
+    setModuleBusy("");
     setAlertMessage("");
   }, [profile]);
 
@@ -550,6 +588,7 @@ export function ProfileForm({
     () => getBusinessCategoryModuleRecommendation(form.businessCategory),
     [form.businessCategory],
   );
+  const moduleAccess = useMemo(() => resolveUserModuleAccess({ ...profile, businessCategory: form.businessCategory }), [form.businessCategory, profile]);
   const dorikaEligible = useMemo(
     () => isDorikaEligibleBusiness({ ...profile, city: billingProfile.city, billingProfile }),
     [billingProfile, profile],
@@ -558,10 +597,14 @@ export function ProfileForm({
   const dashboardNavItems = useMemo(() => {
     const recommendedIds = getRecommendedWorkspaceIdsForBusinessCategory(form.businessCategory);
     const visibleIds = new Set(getVisibleWorkspaceIdsForBusinessCategory(form.businessCategory));
+    if (moduleAccess.commerce) visibleIds.add("commerce");
+    if (moduleAccess.booking) visibleIds.add("booking");
     const priorityMap = new Map(recommendedIds.map((id, index) => [id, index]));
 
     return [...DASHBOARD_NAV_ITEMS]
       .filter((item) => visibleIds.has(item.id))
+      .filter((item) => item.id !== "commerce" || canUseModule({ ...profile, moduleAccess, businessCategory: form.businessCategory }, "commerce"))
+      .filter((item) => item.id !== "booking" || canUseModule({ ...profile, moduleAccess, businessCategory: form.businessCategory }, "booking"))
       .filter((item) => item.id !== "dorika" || dorikaEligible)
       .sort((left, right) => {
         const leftPriority = priorityMap.has(left.id) ? priorityMap.get(left.id) : 999;
@@ -579,14 +622,14 @@ export function ProfileForm({
           recommendationLabel: isRecommended && recommendationRank === 0 ? moduleRecommendation.moduleLabel : "Sugerido",
         };
       });
-  }, [dorikaEligible, form.businessCategory, moduleRecommendation]);
+  }, [dorikaEligible, form.businessCategory, moduleAccess, moduleRecommendation, profile]);
 
   useEffect(() => {
     const workspaceIsVisible = dashboardNavItems.some((item) => item.id === activeWorkspace);
     if (!workspaceIsVisible) {
-      setActiveWorkspace(getPrimaryWorkspaceForBusinessCategory(form.businessCategory));
+      setActiveWorkspace(dashboardNavItems[0]?.id || "blocks");
     }
-  }, [activeWorkspace, dashboardNavItems, form.businessCategory]);
+  }, [activeWorkspace, dashboardNavItems]);
 
   useEffect(() => {
     const workspaceSectionMap = {
@@ -882,6 +925,17 @@ export function ProfileForm({
     if (nextAppearanceWarnings.length) {
       setAlertMessage(nextAppearanceWarnings[0].message);
       return;
+    }
+
+    const nextCategory = form.businessCategory;
+    const profileCategoryChanged = nextCategory !== normalizeBusinessCategory(profile?.businessCategory);
+    if (profileCategoryChanged && shouldRestrictToPrimaryModuleOnProfileChange(profile)) {
+      const nextPrimaryModule = resolvePrimaryModuleForBusinessCategory(nextCategory);
+      const previousModule = getOppositeModule(nextPrimaryModule);
+      const previousModuleWasActive = moduleAccess[previousModule];
+      if (previousModuleWasActive && !window.confirm(`Al cambiar el perfil, Klicor cambiará tu módulo principal a ${getModuleLabel(nextPrimaryModule)}. Lo que hiciste en ${getModuleLabel(previousModule)} no se pierde, pero su enlace público dejará de funcionar. Para mantener ambos módulos activos necesitas el plan Plus. ¿Quieres continuar?`)) {
+        return;
+      }
     }
 
     setLoading(true);
@@ -1194,11 +1248,19 @@ export function ProfileForm({
   const subscriptionTone = getSubscriptionTone(profile?.status);
   const subscriptionLabel = getSubscriptionLabel(profile?.status);
   const subscriptionMessage = getSubscriptionMessage(profile?.status);
+  const currentPlan = profile?.plan || "trial";
+  const enabledModules = [
+    moduleAccess.commerce ? "Comercio" : "",
+    moduleAccess.booking ? "Agenda" : "",
+  ].filter(Boolean);
+  const missingModules = ["commerce", "booking"].filter((module) => !moduleAccess[module]);
+  const canEnableExtraModule = ["trial", "plus", "pro", "agency", "courtesy"].includes(currentPlan) && ["trial", "active"].includes(profile?.status);
+  const checkoutPlanPrice = getPlanPriceFromSettings(checkoutPlan, subscriptionSettings);
   const annualPriceLabel = Intl.NumberFormat("es-CO", {
     style: "currency",
     currency: "COP",
     maximumFractionDigits: 0,
-  }).format(subscriptionSettings?.annualPrice || 0);
+  }).format(checkoutPlanPrice);
   const subscriptionActionLabel = paying
     ? "Abriendo pago..."
     : profile?.status === "active"
@@ -1216,6 +1278,25 @@ export function ProfileForm({
   function handleWorkspaceSelect(workspaceId) {
     setActiveWorkspace(workspaceId);
     setMobileNavOpen(false);
+  }
+
+  async function enableModule(module) {
+    setModuleBusy(module);
+    setMessage("");
+    setAlertMessage("");
+    try {
+      const data = await apiFetch("/api/modules", {
+        method: "POST",
+        token,
+        body: { module },
+      });
+      onSaved(data.user);
+      setMessage(`${getModuleLabel(module)} quedó habilitado en tu cuenta.`);
+    } catch (error) {
+      setAlertMessage(error.message);
+    } finally {
+      setModuleBusy("");
+    }
   }
 
   return (
@@ -2036,8 +2117,64 @@ export function ProfileForm({
                 <p className="muted" style={{ marginTop: ".5rem" }}>{subscriptionMessage}</p>
               </div>
 
+              <div className="kpi">
+                <strong>Módulos activos</strong>
+                <p className="muted" style={{ marginTop: ".5rem" }}>{enabledModules.length ? enabledModules.join(" + ") : "Solo link in bio"}</p>
+                {missingModules.length ? (
+                  <div className="actions" style={{ marginTop: ".85rem" }}>
+                    {missingModules.map((module) => (
+                      canEnableExtraModule ? (
+                        <button
+                          key={module}
+                          className="btn btn-secondary"
+                          type="button"
+                          onClick={() => enableModule(module)}
+                          disabled={Boolean(moduleBusy)}
+                        >
+                          {moduleBusy === module ? "Habilitando..." : `Habilitar ${getModuleLabel(module)}`}
+                        </button>
+                      ) : currentPlan === "commercial" ? (
+                        <button
+                          key={module}
+                          className="btn btn-secondary"
+                          type="button"
+                          onClick={() => setCheckoutPlan("plus")}
+                          disabled={paying}
+                        >
+                          Actualiza a Plus para usar {getModuleLabel(module)}
+                        </button>
+                      ) : null
+                    ))}
+                  </div>
+                ) : null}
+                {currentPlan === "commercial" && missingModules.length ? (
+                  <p className="muted" style={{ marginTop: ".75rem" }}>El plan Comercial permite un solo módulo. Para usar Comercio y Agenda juntos, cambia a Plus.</p>
+                ) : null}
+              </div>
+
+              <div className="form-grid">
+                <div>
+                  <label className="label">Plan a pagar</label>
+                  <select className="select" value={checkoutPlan} onChange={(event) => setCheckoutPlan(event.target.value)} disabled={paying}>
+                    {CHECKOUT_PLAN_OPTIONS.map((option) => (
+                      <option key={option.value} value={option.value}>{option.label}</option>
+                    ))}
+                  </select>
+                </div>
+                {checkoutPlan === "commercial" ? (
+                  <div>
+                    <label className="label">Módulo Comercial</label>
+                    <select className="select" value={checkoutModule} onChange={(event) => setCheckoutModule(event.target.value)} disabled={paying}>
+                      {CHECKOUT_MODULE_OPTIONS.map((option) => (
+                        <option key={option.value} value={option.value}>{option.label}</option>
+                      ))}
+                    </select>
+                  </div>
+                ) : null}
+              </div>
+
               <div className="actions">
-                <button className="btn btn-primary" type="button" onClick={onCheckout} disabled={paying || !userEmailVerified}>
+                <button className="btn btn-primary" type="button" onClick={() => onCheckout({ plan: checkoutPlan, module: checkoutPlan === "commercial" ? checkoutModule : "" })} disabled={paying || !userEmailVerified}>
                   <CreditCard size={16} /> {subscriptionActionLabel}
                 </button>
               </div>

@@ -43,6 +43,7 @@ export function AdminUserDrawer({ token, detail, settings, onClose, onUpdated, o
 
     setAccessForm({
       plan: user.plan || "trial",
+      module: user.commercialModule || (user.moduleAccess?.commerce ? "commerce" : "booking"),
       accountStatus: user.accountStatus || "trial",
       startsAt: user.startsAtIso || "",
       expiresAt: user.expiresAtIso || "",
@@ -53,6 +54,7 @@ export function AdminUserDrawer({ token, detail, settings, onClose, onUpdated, o
     setPaymentForm({
       amount: user.amountPaid || getPlanAnnualPrice(paymentPlan, defaults.settings) || defaults.annualPrice || 0,
       plan: paymentPlan,
+      module: user.commercialModule || (user.moduleAccess?.commerce ? "commerce" : "booking"),
       durationDays: user.plan === "institutional" ? defaults.convenioDefaultDays : 365,
       method: "manual",
       notes: "",
@@ -265,6 +267,15 @@ export function AdminUserDrawer({ token, detail, settings, onClose, onUpdated, o
                 ))}
               </select>
             </div>
+            {accessForm.plan === "commercial" ? (
+              <div>
+                <label className="label">Módulo comercial</label>
+                <select className="select" value={accessForm.module} onChange={(event) => setAccessForm((current) => ({ ...current, module: event.target.value }))}>
+                  <option value="commerce">Comercio</option>
+                  <option value="booking">Agenda</option>
+                </select>
+              </div>
+            ) : null}
             <div>
               <label className="label">Inicio del servicio</label>
               <input className="input" type="date" value={accessForm.startsAt} onChange={(event) => setAccessForm((current) => ({ ...current, startsAt: event.target.value }))} />
@@ -351,6 +362,15 @@ export function AdminUserDrawer({ token, detail, settings, onClose, onUpdated, o
                 ))}
               </select>
             </div>
+            {paymentForm.plan === "commercial" ? (
+              <div>
+                <label className="label">Módulo comercial</label>
+                <select className="select" value={paymentForm.module} onChange={(event) => setPaymentForm((current) => ({ ...current, module: event.target.value }))}>
+                  <option value="commerce">Comercio</option>
+                  <option value="booking">Agenda</option>
+                </select>
+              </div>
+            ) : null}
             <div>
               <label className="label">Duración (días)</label>
               <input className="input" type="number" min={1} value={paymentForm.durationDays} onChange={(event) => setPaymentForm((current) => ({ ...current, durationDays: Number(event.target.value) }))} />

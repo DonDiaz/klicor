@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { verifyRequest } from "@/lib/auth";
 import { formatApiError } from "@/lib/api-errors";
 import { createServerTiming } from "@/lib/server-timing";
+import { assertModuleAccess } from "@/lib/plans";
 import {
   createCommerceCategory,
   createCommerceSubcategory,
@@ -26,17 +27,11 @@ function parsePayload(formData) {
   return JSON.parse(raw);
 }
 
-function assertCommerceAccess(user) {
-  if (!["trial", "active"].includes(user.status)) {
-    throw new Error("Tu cuenta no tiene permisos para editar el módulo comercial.");
-  }
-}
-
 export async function GET(request) {
   const timing = createServerTiming();
   try {
     const { user } = await timing.measure("auth", () => verifyRequest(request), "verify");
-    assertCommerceAccess(user);
+    assertModuleAccess(user, "commerce");
 
     const { searchParams } = new URL(request.url);
     const view = String(searchParams.get("view") || "structure").trim().toLowerCase();
@@ -70,7 +65,7 @@ export async function POST(request) {
   const timing = createServerTiming();
   try {
     const { user } = await timing.measure("auth", () => verifyRequest(request), "verify");
-    assertCommerceAccess(user);
+    assertModuleAccess(user, "commerce");
 
     const formData = await timing.measure("formdata", () => request.formData(), "parse");
     const action = String(formData.get("action") || "").trim();

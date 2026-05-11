@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { verifyRequest } from "@/lib/auth";
 import { formatApiError } from "@/lib/api-errors";
 import { createServerTiming } from "@/lib/server-timing";
+import { assertModuleAccess } from "@/lib/plans";
 import {
   createBookingAppointment,
   deleteBookingStaff,
@@ -22,18 +23,12 @@ function parsePayload(formData) {
   return JSON.parse(raw);
 }
 
-function assertBookingAccess(user) {
-  if (!["trial", "active"].includes(user.status)) {
-    throw new Error("Tu cuenta no tiene permisos para editar agenda.");
-  }
-}
-
 export async function GET(request) {
   const timing = createServerTiming();
 
   try {
     const { user } = await timing.measure("auth", () => verifyRequest(request), "verify");
-    assertBookingAccess(user);
+    assertModuleAccess(user, "booking");
 
     const { searchParams } = new URL(request.url);
     const view = String(searchParams.get("view") || "state").trim().toLowerCase();
@@ -78,7 +73,7 @@ export async function POST(request) {
 
   try {
     const { user } = await timing.measure("auth", () => verifyRequest(request), "verify");
-    assertBookingAccess(user);
+    assertModuleAccess(user, "booking");
 
     const formData = await timing.measure("formdata", () => request.formData(), "parse");
     const action = String(formData.get("action") || "").trim();

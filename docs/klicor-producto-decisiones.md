@@ -158,7 +158,8 @@ Decision de producto:
 - Agenda debe servir a negocios que venden servicios por tiempo: barberias, salones de belleza, consultorios, salud/bienestar, asesorias, tecnicos, clases o sesiones.
 - Los estados funcionales base son `pending`, `confirmed`, `completed`, `cancelled_by_customer`, `cancelled_by_business` y `no_show`.
 - El cliente publico debe identificarse preferiblemente con login de Google mediante Firebase Auth. Asi Klicor obtiene nombre, email, foto y verificacion del proveedor sin pedir que escriba el correo.
-- El primer uso de Agenda puede pedir login; en usos posteriores debe reutilizar la sesion persistida del navegador/dispositivo para no repetir registro si el cliente sigue autenticado.
+- El primer uso de Agenda puede pedir login; la persistencia de sesion debe revisarse antes de produccion porque una sesion permanente en equipos compartidos es riesgo de seguridad.
+- Tarea pendiente preproduccion: cambiar autenticacion de dueños/clientes a sesion no permanente por defecto o a una opcion explicita de "recordarme", validando que no rompa Google, Microsoft ni enlace magico.
 - El telefono/WhatsApp se sigue pidiendo o confirmando porque es necesario para contacto operativo y recordatorios, pero el email para notificaciones debe salir de la cuenta autenticada cuando exista.
 - El correo de notificacion al negocio debe usar por defecto el mismo correo con el que el negocio se logea en Klicor (`user.email`). No se debe pedir otro correo obligatorio para empezar.
 - El correo al cliente y al negocio debe respetar el estado real: solicitud recibida, cita confirmada, cita reprogramada, cita cancelada/rechazada, o cambio operativo.
@@ -626,6 +627,103 @@ Reglas:
 - Dorika consume datos publicos generados por Klicor y por los workspaces, pero no reemplaza la operacion.
 - Antes de hacer crecer un modulo complejo dentro de una sola pantalla, evaluar si debe convertirse en workspace.
 
+### 5.13 Planes, modulos y suscripcion
+
+Estado: aprobado como regla de producto antes de salida a produccion.
+
+El plan no debe confundirse con el modulo activo. En Klicor deben separarse tres conceptos:
+
+- `plan`: capacidad maxima, precio y ciclo de cobro.
+- `businessCategory` / `businessType`: modulo recomendado al registrarse.
+- `enabledModules`: modulos realmente habilitados para esa cuenta.
+
+Regla general:
+
+```txt
+Puede usar un modulo si:
+1. la cuenta esta en trial o activa
+2. el modulo esta habilitado para esa cuenta
+3. el plan permite esa capacidad
+```
+
+#### Trial
+
+- Dura 30 dias por defecto.
+- Al registrarse, se habilita automaticamente el modulo principal segun el tipo de negocio.
+- Durante el trial, el cliente puede activar el otro modulo para probarlo.
+- En trial puede probar Commerce y Agenda durante el mes.
+- Commerce en trial permite hasta 50 productos.
+- Agenda esta disponible en trial.
+- Si el cliente paga durante el trial, no pierde los dias gratis restantes.
+- El ano pagado empieza despues de terminar el trial.
+
+#### Basico
+
+- Es solo link in bio.
+- Incluye perfil publico, link personalizado, QR, botones/enlaces, metodos de pago, horarios y personalizacion basica.
+- No incluye Commerce.
+- No incluye Agenda.
+- No incluye tienda, menu, catalogo, reservas, automatizaciones ni analiticas avanzadas.
+- Una cuenta que paga Basico no debe conservar Commerce ni Agenda por haberlos probado en trial.
+
+#### Comercial
+
+- Es para un modulo operativo principal.
+- Puede ser Commerce o Agenda, segun lo que el cliente pago/configuro.
+- Si el modulo activo es Commerce, permite hasta 50 productos.
+- Si el modulo activo es Agenda, permite agenda funcional segun el tipo de negocio.
+- No incluye Commerce y Agenda al mismo tiempo.
+- Si el cliente quiere Commerce + Agenda, debe pasar a Plus.
+
+#### Plus
+
+- Permite combinar modulos.
+- Puede tener Commerce + Agenda al mismo tiempo.
+- Commerce permite hasta 300 productos.
+- Agenda puede activarse si el cliente la desea.
+- Aplica para negocios mixtos, por ejemplo barberia o salon que agenda citas y tambien vende productos.
+
+#### Pro, institucional, agencia y cortesia
+
+- Deben permanecer como planes ocultos o administrativos.
+- Sirven para casos especiales, convenios, agencias, pruebas internas o mayor capacidad.
+- Se manejan desde administracion, no como planes publicos principales.
+
+#### Upgrade Comercial a Plus
+
+- No se cobra un monto pequeno proporcional por los dias restantes.
+- Se cobra un ano nuevo de Plus desde la fecha del upgrade.
+- Se descuenta el valor no usado del plan Comercial.
+- La nueva fecha de vencimiento pasa a ser un ano desde el upgrade.
+
+Formula:
+
+```txt
+credito = precioComercial * diasRestantes / 365
+valorUpgrade = precioPlus - credito
+nuevoVencimiento = fechaUpgrade + 1 ano
+```
+
+El pago de upgrade debe guardarse con metadatos claros:
+
+```txt
+paymentType: "upgrade"
+fromPlan: "commercial"
+toPlan: "plus"
+creditAmount
+amountCharged
+previousExpiresAt
+newExpiresAt
+```
+
+#### Temas de commerce segun negocio
+
+- Commerce debe ajustar o recomendar tema segun tipo de negocio.
+- Barberia puede tomar o adaptar el tema de moda masculina (`fashion_male` / ropa de hombre).
+- Salon de belleza puede tomar o adaptar el tema de moda femenina (`fashion_female` / ropa de mujer).
+- Deben reutilizarse los temas existentes antes de crear un sistema nuevo.
+- El usuario debe poder cambiar el tema sugerido.
+
 ## 6. Mejoras propuestas por area
 
 ### Onboarding rapido
@@ -726,7 +824,7 @@ Objetivo:
 - Convertir Agenda en una herramienta operativa para negocios con uno o varios profesionales.
 - Mantener el dashboard de Agenda dentro del sistema visual de Klicor.
 - Permitir que la experiencia publica de Agenda adapte tono por vertical sin duplicar el link in bio.
-- Permitir una ruta basica con servicios, profesionales, horarios, link publico, solicitudes/citas, estados y confirmacion manual o automatica.
+- Permitir una ruta inicial de Agenda con servicios, profesionales, horarios, link publico, solicitudes/citas, estados y confirmacion manual o automatica.
 - Permitir una ruta pro con operacion diaria avanzada, citas manuales, reprogramacion, disponibilidad por profesional/horario, notificaciones, recordatorios, reactivacion e historial basico del cliente.
 
 Pendiente funcional:

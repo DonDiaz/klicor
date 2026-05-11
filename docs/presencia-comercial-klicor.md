@@ -152,15 +152,17 @@ Observaciones: xxx
 
 ## Límites por plan
 
-La base ya está preparada para varios planes:
+La regla canonica de planes para Commerce vive en `docs/klicor-producto-decisiones.md` y `docs/contrato-codex.md`:
 
-- `trial`
-- `annual`
-- `agency`
-- `institutional`
-- `courtesy`
+- `trial`: puede probar Commerce durante el mes, hasta 50 productos.
+- `basic`: no incluye Commerce.
+- `commercial`: puede tener Commerce como modulo operativo principal, hasta 50 productos.
+- `plus`: puede combinar Commerce + Agenda, hasta 300 productos.
+- `pro`, `agency`, `institutional` y `courtesy`: planes ocultos o administrativos.
 
-Hoy se aplican límites de categorías, subcategorías y productos desde `lib/commerce-config.js`.
+Cualquier cambio en Commerce debe respetar la regla de `enabledModules`: el plan define capacidad, pero el modulo tambien debe estar habilitado para esa cuenta.
+
+Hoy se aplican limites de categorias, subcategorias y productos desde `lib/commerce-config.js` / `lib/plans.js`.
 
 ## Fases siguientes recomendadas
 
@@ -168,4 +170,4 @@ Hoy se aplican límites de categorías, subcategorías y productos desde `lib/co
 2. agregar paginación visual más rica en la vista pública
 3. sumar variantes visuales específicas para tienda, menú y catálogo
 4. agregar analytics comerciales por categoría y producto
-5. conectar planes comerciales más finos según el plan de Klicor
+5. aplicar `enabledModules` y cerrar permisos reales por plan antes de produccion

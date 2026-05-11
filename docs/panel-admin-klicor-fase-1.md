@@ -155,7 +155,15 @@ Flujo:
 1. se registra por sí mismo
 2. entra en trial
 3. al vencer pasa a pendiente de pago
-4. si paga, queda activo con plan anual
+4. si paga, queda activo con el plan comprado
+
+Regla vigente:
+
+- Si paga durante el trial, no pierde los dias gratis restantes; el ano pagado empieza despues de terminar el trial.
+- `basic` es solo link in bio.
+- `commercial` activa un modulo operativo principal: Commerce o Agenda.
+- `plus` permite combinar Commerce + Agenda.
+- El upgrade de `commercial` a `plus` cobra un ano nuevo de Plus desde la fecha del upgrade y descuenta el valor no usado de Comercial.
 
 ## Usuario de agencia
 
@@ -202,7 +210,7 @@ Ruta visual:
 
 Desde ahí puedes editar:
 
-- precio anual
+- precio anual por plan
 - trial en días
 - alerta de renovación
 - precio para agencias

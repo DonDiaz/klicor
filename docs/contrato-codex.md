@@ -263,7 +263,8 @@ Reglas obligatorias:
 - El dashboard administrativo de Agenda debe mantener el sistema visual de Klicor y no heredar el tema publico del negocio.
 - La navegacion global de Klicor debe mantenerse lateral; la navegacion interna de Agenda debe tratarse como navegacion contextual del modulo.
 - La identidad del cliente en Agenda publica debe resolverse preferiblemente con login de Google usando Firebase Auth, no pidiendo correo escrito manualmente como fuente principal.
-- Si el cliente ya inicio sesion en el mismo navegador/dispositivo, Agenda debe reutilizar esa sesion para no pedir registro otra vez.
+- La persistencia de sesion en Agenda y dashboard debe ser una decision explicita de seguridad, no un comportamiento permanente automatico.
+- Tarea pendiente preproduccion: usar sesion no permanente por defecto o agregar "recordarme" desmarcado por defecto, validando Google, Microsoft y enlace magico.
 - El correo del cliente para notificaciones debe venir de la cuenta autenticada y verificada por el proveedor; no debe confiarse en un email libre escrito en el formulario publico.
 - El telefono/WhatsApp del cliente puede seguir siendo requerido para contacto operativo y recordatorios, pero debe guardarse asociado al cliente autenticado cuando exista sesion.
 - Las citas deben poder guardar referencia de cliente autenticado: `customerUid`, `customerEmail`, `customerEmailVerified`, `customerPhotoURL`, `customerAuthProvider` y telefono normalizado, sin romper citas antiguas que solo tengan nombre y telefono.
@@ -285,6 +286,48 @@ Prohibido:
 - Enviar mensajes de WhatsApp libres como recordatorio automatico fuera de las reglas oficiales de plantillas y ventanas de conversacion.
 - Mezclar Agenda con Reservas de turismo, planes, cupos o experiencias.
 - Hacer que el dashboard administrativo de Agenda cambie de estilo por barberia, salon, consultorio u otra vertical.
+
+## 11.1 Planes, Modulos y Suscripcion
+
+Reglas obligatorias:
+
+- El plan define capacidad maxima, precio y ciclo de cobro; no debe usarse como unico indicador de modulo activo.
+- La cuenta debe poder guardar que modulos tiene habilitados realmente mediante una regla equivalente a `enabledModules`.
+- El tipo de negocio define el modulo recomendado al registrarse.
+- Para usar un modulo deben cumplirse tres condiciones: cuenta en trial o activa, modulo habilitado para esa cuenta y plan con capacidad suficiente.
+- `trial` dura 30 dias por defecto, habilita el modulo principal segun el registro y permite activar el otro modulo durante el mes de prueba.
+- `trial` permite probar Commerce y Agenda.
+- `trial` permite Commerce hasta 50 productos.
+- Si el cliente paga durante el trial, los dias gratis restantes no se pierden; el ano pagado empieza despues de terminar el trial.
+- `basic` es solo link in bio: perfil publico, link personalizado, QR, botones/enlaces, metodos de pago, horarios y personalizacion basica.
+- `basic` no incluye Commerce, Agenda, tienda, menu, catalogo, reservas, automatizaciones ni analiticas avanzadas.
+- Una cuenta que pasa de trial a `basic` no debe conservar Commerce ni Agenda por haberlos probado durante el trial.
+- `commercial` es para un modulo operativo principal: Commerce o Agenda segun lo que el cliente pago/configuro.
+- `commercial` con Commerce permite hasta 50 productos.
+- `commercial` no debe tener Commerce y Agenda al mismo tiempo.
+- Si un cliente `commercial` quiere Commerce + Agenda, debe pasar a `plus`.
+- `plus` permite combinar Commerce + Agenda.
+- `plus` permite Commerce hasta 300 productos.
+- `plus` puede activar Agenda si el cliente la desea.
+- `pro`, `institutional`, `agency` y `courtesy` son planes ocultos o administrativos para casos especiales.
+- En upgrade de `commercial` a `plus`, se cobra un ano nuevo de Plus desde la fecha del upgrade y se descuenta el valor no usado de Comercial.
+- En upgrade de `commercial` a `plus`, la nueva fecha de vencimiento debe ser un ano desde la fecha del upgrade.
+- El pago de upgrade debe guardar metadatos como `paymentType`, `fromPlan`, `toPlan`, `creditAmount`, `amountCharged`, `previousExpiresAt` y `newExpiresAt`.
+
+Formula aprobada para upgrade:
+
+```txt
+credito = precioComercial * diasRestantes / 365
+valorUpgrade = precioPlus - credito
+nuevoVencimiento = fechaUpgrade + 1 ano
+```
+
+Prohibido:
+
+- Dejar Commerce o Agenda activos en `basic`.
+- Activar Commerce y Agenda al mismo tiempo en `commercial`.
+- Cobrar un upgrade proporcional pequeno que mantenga el vencimiento anterior cuando la regla aprobada es reiniciar Plus por un ano con credito de Comercial no usado.
+- Duplicar reglas de planes en otros documentos sin apuntar a esta decision.
 
 ## 12. Diseno y UX
 
