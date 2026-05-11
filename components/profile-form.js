@@ -588,7 +588,11 @@ export function ProfileForm({
     () => getBusinessCategoryModuleRecommendation(form.businessCategory),
     [form.businessCategory],
   );
-  const moduleAccess = useMemo(() => resolveUserModuleAccess({ ...profile, businessCategory: form.businessCategory }), [form.businessCategory, profile]);
+  const savedModuleAccess = useMemo(() => resolveUserModuleAccess(profile), [profile]);
+  const moduleAccess = useMemo(() => {
+    if (profile?.moduleAccess) return savedModuleAccess;
+    return resolveUserModuleAccess({ ...profile, businessCategory: form.businessCategory });
+  }, [form.businessCategory, profile, savedModuleAccess]);
   const dorikaEligible = useMemo(
     () => isDorikaEligibleBusiness({ ...profile, city: billingProfile.city, billingProfile }),
     [billingProfile, profile],
@@ -932,7 +936,7 @@ export function ProfileForm({
     if (profileCategoryChanged && shouldRestrictToPrimaryModuleOnProfileChange(profile)) {
       const nextPrimaryModule = resolvePrimaryModuleForBusinessCategory(nextCategory);
       const previousModule = getOppositeModule(nextPrimaryModule);
-      const previousModuleWasActive = moduleAccess[previousModule];
+      const previousModuleWasActive = savedModuleAccess[previousModule];
       if (previousModuleWasActive && !window.confirm(`Al cambiar el perfil, Klicor cambiará tu módulo principal a ${getModuleLabel(nextPrimaryModule)}. Lo que hiciste en ${getModuleLabel(previousModule)} no se pierde, pero su enlace público dejará de funcionar. Para mantener ambos módulos activos necesitas el plan Plus. ¿Quieres continuar?`)) {
         return;
       }
