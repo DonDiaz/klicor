@@ -8,6 +8,7 @@ import { ShieldAlert } from "lucide-react";
 import { apiFetch, getFreshAuthToken } from "@/lib/client-api";
 import { getClientAuth } from "@/lib/firebase-client";
 import { AdminPanel } from "@/components/admin-panel";
+import { AuthForm } from "@/components/auth-form";
 import { useAuth } from "@/components/providers/auth-provider";
 
 export function AdminPageClient() {
@@ -51,10 +52,15 @@ export function AdminPageClient() {
   if (!user) {
     return (
       <main className="admin-page-shell admin-shell" style={{ padding: "2rem 0 3rem" }}>
-        <div className="panel stack">
-          <p>Necesitas iniciar sesión para ver el panel administrativo.</p>
-          <Link className="btn btn-primary" href="/">Ir al inicio</Link>
-        </div>
+        <AuthForm
+          allowRegister={false}
+          title="Acceso administrativo"
+          description="Inicia sesión con el correo administrador autorizado para entrar al panel de Klicor."
+          googleLabel="Entrar con Google"
+          microsoftLabel="Entrar con Microsoft"
+          submitLabel="Entrar con correo"
+          onSuccess={() => window.location.assign("/admin")}
+        />
       </main>
     );
   }

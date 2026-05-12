@@ -4,9 +4,11 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
+  browserSessionPersistence,
   getRedirectResult,
   isSignInWithEmailLink,
   sendSignInLinkToEmail,
+  setPersistence,
   signInWithEmailLink,
   signInWithPopup,
   signInWithRedirect,
@@ -125,6 +127,7 @@ export function AuthForm({
   useEffect(() => {
     const auth = getClientAuth();
     if (!auth || typeof window === "undefined") return undefined;
+    void setPersistence(auth, browserSessionPersistence).catch(() => null);
 
     let cancelled = false;
     getRedirectResult(auth)
@@ -168,6 +171,7 @@ export function AuthForm({
   async function handleEmailLink() {
     const auth = getClientAuth();
     if (!auth) return;
+    await setPersistence(auth, browserSessionPersistence);
 
     const email = form.email.trim().toLowerCase();
     if (!email) {
@@ -205,6 +209,7 @@ export function AuthForm({
   async function handleProviderSignIn(providerName) {
     const auth = getClientAuth();
     if (!auth) return;
+    await setPersistence(auth, browserSessionPersistence);
 
     if (!ensureTermsAccepted()) {
       return;

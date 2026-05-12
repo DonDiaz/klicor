@@ -1,0 +1,6 @@
+{
+  "projects": {
+    "default": "klicor-6fc3e",
+    "staging": "bioimpulso"
+  }
+}

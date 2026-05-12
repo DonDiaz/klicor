@@ -1,6 +1,13 @@
 node_modules
 node_modules_corrupt_*/
 .next
+dist
+build
+coverage
+.turbo
+out
+.firebase
+*.tsbuildinfo
 .env.local
 .env
 firebase-debug.log

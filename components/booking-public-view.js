@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { addMonths, startOfMonth, subMonths } from "date-fns";
 import { CheckCircle2, ChevronLeft, ChevronRight, CloudSun, LoaderCircle, MessageCircle, Moon, Sun } from "lucide-react";
-import { browserLocalPersistence, onAuthStateChanged, setPersistence, signInWithPopup, signInWithRedirect } from "firebase/auth";
+import { browserSessionPersistence, onAuthStateChanged, setPersistence, signInWithPopup, signInWithRedirect } from "firebase/auth";
 import { apiFetch } from "@/lib/client-api";
 import {
   canMoveBookingMonth,
@@ -412,7 +412,7 @@ export function BookingPublicView({ bootstrap }) {
     setAuthSubmitting(true);
     setError("");
     try {
-      await setPersistence(auth, browserLocalPersistence);
+      await setPersistence(auth, browserSessionPersistence);
       const provider = getGoogleProvider();
       try {
         await signInWithPopup(auth, provider);

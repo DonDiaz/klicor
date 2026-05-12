@@ -37,10 +37,7 @@ export const metadata = {
 };
 
 export const viewport = {
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#F8FAFC" },
-    { media: "(prefers-color-scheme: dark)", color: "#08111F" },
-  ],
+  themeColor: "#F8FAFC",
 };
 
 export default function RootLayout({ children }) {
@@ -51,24 +48,19 @@ export default function RootLayout({ children }) {
           {`
             (() => {
               const root = document.documentElement;
-              const media = window.matchMedia("(prefers-color-scheme: dark)");
               const storageKey = "klicor-theme-preference";
               const applyTheme = () => {
+                if (window.location.pathname.startsWith("/admin")) {
+                  root.dataset.theme = "light";
+                  return;
+                }
                 const savedTheme = window.localStorage.getItem(storageKey);
                 root.dataset.theme = savedTheme === "dark" || savedTheme === "light"
                   ? savedTheme
-                  : media.matches
-                    ? "dark"
-                    : "light";
+                  : "light";
               };
 
               applyTheme();
-
-              if (typeof media.addEventListener === "function") {
-                media.addEventListener("change", applyTheme);
-              } else if (typeof media.addListener === "function") {
-                media.addListener(applyTheme);
-              }
             })();
           `}
         </Script>

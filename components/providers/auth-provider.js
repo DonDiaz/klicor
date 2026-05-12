@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useState } from "react";
 import { onIdTokenChanged, signOut } from "firebase/auth";
-import { getClientAuth } from "@/lib/firebase-client";
+import { configureSessionAuthPersistence, getClientAuth } from "@/lib/firebase-client";
 
 const AuthContext = createContext({ user: null, loading: true });
 
@@ -16,9 +16,22 @@ export function AuthProvider({ children }) {
       return;
     }
 
-    return onIdTokenChanged(auth, async (user) => {
-      setState({ user, loading: false });
-    });
+    let unsubscribe = () => {};
+    let cancelled = false;
+
+    configureSessionAuthPersistence(auth)
+      .catch(() => null)
+      .finally(() => {
+        if (cancelled) return;
+        unsubscribe = onIdTokenChanged(auth, async (user) => {
+          setState({ user, loading: false });
+        });
+      });
+
+    return () => {
+      cancelled = true;
+      unsubscribe();
+    };
   }, []);
 
   useEffect(() => {
