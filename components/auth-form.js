@@ -330,11 +330,11 @@ export function AuthForm({
             />
             <span>
               Al continuar aceptas los{" "}
-              <Link className="terms-link" href="/terminos" target="_blank" rel="noreferrer">
+              <Link className="terms-link" href="/terminos-y-condiciones" target="_blank" rel="noreferrer">
                 Términos y condiciones
               </Link>{" "}
               y la{" "}
-              <Link className="terms-link" href="/privacidad" target="_blank" rel="noreferrer">
+              <Link className="terms-link" href="/politica-de-privacidad" target="_blank" rel="noreferrer">
                 Política de privacidad
               </Link>.
             </span>

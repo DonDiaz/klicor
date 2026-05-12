@@ -336,8 +336,10 @@ export default function HomePage() {
             <p>Klicor, tu punto de venta digital en un solo link.</p>
           </div>
           <div className="landing-footer-links">
-            <Link href="/terminos">Términos y condiciones</Link>
-            <Link href="/privacidad">Política de privacidad</Link>
+            <Link href="/terminos-y-condiciones">Términos y condiciones</Link>
+            <Link href="/politica-de-privacidad">Política de privacidad</Link>
+            <Link href="/politica-de-pagos">Política de pagos</Link>
+            <Link href="/uso-permitido">Uso permitido</Link>
           </div>
         </div>
       </footer>

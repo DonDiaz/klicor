@@ -337,8 +337,8 @@ export function HomeComparePrevious() {
             <p>Klicor, una página operativa para compartir tu negocio desde un solo enlace.</p>
           </div>
           <div className="landing-footer-links">
-            <Link href="/terminos">Términos y condiciones</Link>
-            <Link href="/privacidad">Política de privacidad</Link>
+            <Link href="/terminos-y-condiciones">Términos y condiciones</Link>
+            <Link href="/politica-de-privacidad">Política de privacidad</Link>
           </div>
         </div>
       </footer>
