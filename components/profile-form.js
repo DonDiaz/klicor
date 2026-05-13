@@ -2979,7 +2979,7 @@ export function ProfileForm({
               </div>
             </section>
           ) : null}
-        {activeWorkspace !== "commerce" ? (
+        {!["commerce", "booking", "reservations"].includes(activeWorkspace) ? (
           <>
             <div className="actions editor-form-footer">
               <button className="btn btn-primary" type="submit" disabled={loading || !canEdit || appearanceWarnings.length > 0}>
