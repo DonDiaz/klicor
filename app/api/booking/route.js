@@ -7,6 +7,7 @@ import {
   createBookingAppointment,
   deleteBookingStaff,
   getBookingAdminState,
+  getBookingStaffActiveAppointments,
   getBookingAvailability,
   saveBookingConfig,
   saveBookingService,
@@ -53,6 +54,20 @@ export async function GET(request) {
       );
 
       const payload = { availability };
+      return NextResponse.json(payload, { headers: timing.headers(payload, NO_STORE_HEADERS) });
+    }
+
+    if (view === "staff-blockers") {
+      const appointments = await timing.measure(
+        "staff-blockers",
+        () => getBookingStaffActiveAppointments(
+          user.uid,
+          String(searchParams.get("staffId") || "").trim(),
+          user,
+        ),
+        "booking-staff-blockers",
+      );
+      const payload = { appointments };
       return NextResponse.json(payload, { headers: timing.headers(payload, NO_STORE_HEADERS) });
     }
 

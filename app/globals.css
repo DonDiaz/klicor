@@ -9039,6 +9039,45 @@ html[data-theme="dark"] .admin-sidebar-note {
   gap: 0.75rem;
 }
 
+.booking-blocker-list {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.booking-blocker-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.7rem;
+  align-items: center;
+  padding: 0.75rem;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 8px;
+  background: rgba(248, 250, 252, 0.92);
+}
+
+.booking-blocker-card > div:first-child {
+  display: grid;
+  gap: 0.16rem;
+  min-width: 0;
+}
+
+.booking-blocker-card span,
+.booking-blocker-card small {
+  color: var(--booking-muted, #475569);
+}
+
+.booking-blocker-actions {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.35rem;
+}
+
+.booking-blocker-actions .booking-status-action {
+  min-height: 2.1rem;
+  padding: 0.35rem 0.55rem;
+}
+
 .booking-agenda-board {
   width: 100%;
   overflow-x: auto;

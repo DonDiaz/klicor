@@ -32,6 +32,7 @@ import {
   BookingScheduleRow,
   BookingServiceCard,
   BookingStaffCard,
+  BookingStatusBadge,
   BookingStepper,
   BookingTimeChip,
 } from "@/components/booking-ui";
@@ -160,6 +161,7 @@ export function BookingWorkspace({ token, active = false, canEdit = true }) {
   const [availabilityDates, setAvailabilityDates] = useState([]);
   const [slots, setSlots] = useState([]);
   const [loadingAvailability, setLoadingAvailability] = useState(false);
+  const [staffDeleteReview, setStaffDeleteReview] = useState(null);
 
   const services = useMemo(() => (Array.isArray(state?.services) ? state.services : []), [state?.services]);
   const staff = useMemo(() => (Array.isArray(state?.staff) ? state.staff : []), [state?.staff]);
@@ -264,6 +266,47 @@ export function BookingWorkspace({ token, active = false, canEdit = true }) {
     } finally {
       setLoading(false);
     }
+  }
+
+  async function loadStaffBlockers(member) {
+    const params = new URLSearchParams({
+      view: "staff-blockers",
+      staffId: member.id,
+    });
+    const response = await apiFetch(`/api/booking?${params.toString()}`, { token, cache: "no-store" });
+    return Array.isArray(response.appointments) ? response.appointments : [];
+  }
+
+  async function handleDeleteStaff(member) {
+    setLoading(true);
+    setMessage("");
+    setError("");
+    try {
+      const blockers = await loadStaffBlockers(member);
+      if (blockers.length) {
+        setStaffDeleteReview({ member, appointments: blockers });
+        return;
+      }
+      if (window.confirm(`Eliminar a ${member.name}? Esta accion no se puede deshacer.`)) {
+        await runAction("delete_staff", { staffId: member.id });
+      }
+    } catch (nextError) {
+      setError(nextError.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function refreshStaffDeleteReview(review = staffDeleteReview) {
+    if (!review?.member) return;
+    const appointments = await loadStaffBlockers(review.member);
+    if (!appointments.length) {
+      setStaffDeleteReview(null);
+      setMessage("Ya puedes eliminar el profesional.");
+      await loadState(filters, { silent: true });
+      return;
+    }
+    setStaffDeleteReview({ ...review, appointments });
   }
 
   async function loadAvailability(nextAppointment) {
@@ -569,11 +612,7 @@ export function BookingWorkspace({ token, active = false, canEdit = true }) {
                 <button className="btn btn-secondary" type="button" onClick={() => runAction("toggle_staff", { staffId: member.id, isActive: !member.isActive })}>
                   {member.isActive ? "Desactivar" : "Activar"}
                 </button>
-                <button className="btn btn-danger" type="button" onClick={() => {
-                  if (window.confirm(`¿Eliminar a ${member.name}? Esta acción no se puede deshacer.`)) {
-                    runAction("delete_staff", { staffId: member.id });
-                  }
-                }}>
+                <button className="btn btn-danger" type="button" onClick={() => handleDeleteStaff(member)}>
                   Eliminar
                 </button>
               </div>
@@ -872,6 +911,70 @@ export function BookingWorkspace({ token, active = false, canEdit = true }) {
     }
   }
 
+  function renderStaffDeleteReview() {
+    if (!staffDeleteReview) return null;
+    const { member, appointments: blockers = [] } = staffDeleteReview;
+
+    return (
+      <div className="commerce-modal-backdrop" role="dialog" aria-modal="true">
+        <div className="commerce-modal-card booking-admin-modal booking-admin-modal-wide">
+          <button className="commerce-modal-close" type="button" onClick={() => setStaffDeleteReview(null)}>
+            <X size={16} />
+          </button>
+          <div className="commerce-modal-head">
+            <strong>No se puede eliminar a {member.name}</strong>
+            <span>Primero resuelve estas solicitudes o citas activas.</span>
+          </div>
+
+          <div className="booking-blocker-list">
+            {blockers.map((appointment) => (
+              <article key={appointment.id} className="booking-blocker-card">
+                <div>
+                  <strong>{appointment.customerName}</strong>
+                  <span>{appointment.serviceNameSnapshot}</span>
+                  <small>{appointment.dateTimeLabel} - {appointment.durationLabel}</small>
+                </div>
+                <BookingStatusBadge statusMeta={appointment.statusMeta} />
+                <div className="booking-blocker-actions">
+                  <button className="booking-status-action" type="button" onClick={() => {
+                    setStaffDeleteReview(null);
+                    openAppointmentEditor(appointment);
+                  }}>
+                    Reprogramar
+                  </button>
+                  <button className="booking-status-action is-confirm" type="button" onClick={async () => {
+                    await runAction("update_appointment_status", { id: appointment.id, status: "completed" }, null, { refresh: false });
+                    await refreshStaffDeleteReview();
+                  }}>
+                    Asistio
+                  </button>
+                  <button className="booking-status-action is-cancel" type="button" onClick={async () => {
+                    await runAction("update_appointment_status", { id: appointment.id, status: "no_show" }, null, { refresh: false });
+                    await refreshStaffDeleteReview();
+                  }}>
+                    No asistio
+                  </button>
+                  <button className="booking-status-action is-cancel" type="button" onClick={async () => {
+                    if (!window.confirm("Cancelar esta cita para poder eliminar el profesional?")) return;
+                    await runAction("update_appointment_status", { id: appointment.id, status: "cancelled_by_business" }, null, { refresh: false });
+                    await refreshStaffDeleteReview();
+                  }}>
+                    Cancelar
+                  </button>
+                </div>
+              </article>
+            ))}
+          </div>
+
+          <div className="commerce-modal-actions">
+            <button className="btn btn-secondary" type="button" onClick={() => setStaffDeleteReview(null)}>Cerrar</button>
+            <button className="btn btn-secondary" type="button" onClick={() => refreshStaffDeleteReview()}>Actualizar</button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   function handleModalServiceSelect(serviceId, nextForm) {
     const selected = services.find((item) => item.id === serviceId) || null;
     const formWithService = { ...nextForm, serviceId };
@@ -1072,6 +1175,7 @@ export function BookingWorkspace({ token, active = false, canEdit = true }) {
 
       {renderServiceEditor()}
       {renderStaffEditor()}
+      {renderStaffDeleteReview()}
       {renderAppointmentModal()}
     </section>
   );
