@@ -634,8 +634,11 @@ export function BookingWorkspace({ token, active = false, canEdit = true }) {
             <span>Recordatorio antes de la cita</span>
           </label>
           <label>
-            <span>Minutos antes del recordatorio</span>
-            <input className="input" type="number" min="15" max="1440" value={configForm.reminderMinutesBefore} onChange={(event) => setConfigForm((current) => ({ ...current, reminderMinutesBefore: event.target.value }))} />
+            <span>Recordar antes de la cita</span>
+            <select className="select" value={configForm.reminderMinutesBefore} onChange={(event) => setConfigForm((current) => ({ ...current, reminderMinutesBefore: event.target.value }))}>
+              <option value="30">30 minutos antes</option>
+              <option value="60">1 hora antes</option>
+            </select>
           </label>
           <label className="switch-row">
             <input type="checkbox" checked={configForm.reactivationEnabled === true} onChange={(event) => setConfigForm((current) => ({ ...current, reactivationEnabled: event.target.checked }))} />

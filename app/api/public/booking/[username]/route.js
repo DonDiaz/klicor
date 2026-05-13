@@ -77,7 +77,13 @@ export async function GET(request, { params }) {
 
     const availability = await timing.measure(
       "availability",
-      () => getBookingAvailability(owner.uid, { serviceId, staffId, date }, owner),
+      () => getBookingAvailability(owner.uid, {
+        serviceId,
+        staffId,
+        date,
+        scanDays: date ? undefined : 30,
+        availableDatesLimit: date ? undefined : 21,
+      }, owner),
       date ? "booking-slots" : "booking-dates",
     );
     const payload = { data: availability };

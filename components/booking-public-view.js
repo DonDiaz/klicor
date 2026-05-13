@@ -44,15 +44,15 @@ const TIME_PERIODS = [
 const BOOKING_RESULT_COPY = {
   confirmed: {
     summaryTitle: "Resumen de la cita",
-    submitLabel: "Confirmar cita",
-    submittingLabel: "Confirmando cita...",
+    submitLabel: "Agendar cita",
+    submittingLabel: "Agendando cita...",
     successTitle: "Cita confirmada",
     successMessage: "Tu cita quedó agendada. Si necesitas ajustar algo, puedes seguir la conversación por WhatsApp.",
     whatsappLabel: "Hablar por WhatsApp",
   },
   pending: {
     summaryTitle: "Resumen de la solicitud",
-    submitLabel: "Enviar solicitud",
+    submitLabel: "Solicitar cita",
     submittingLabel: "Enviando solicitud...",
     successTitle: "Solicitud enviada",
     successMessage: "El negocio revisará tu solicitud y te confirmará pronto por WhatsApp.",
@@ -441,8 +441,11 @@ export function BookingPublicView({ bootstrap }) {
     setSubmitting(true);
     setError("");
     try {
+      const auth = getClientAuth();
+      const token = await auth?.currentUser?.getIdToken();
       const response = await apiFetch(`/api/public/booking/${business.usernameLower || business.username}`, {
         method: "POST",
+        token,
         body: selection,
       });
       setSuccess(response.result);
