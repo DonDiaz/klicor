@@ -105,14 +105,14 @@ Klicor <hola@tu-dominio.com>
 - Si configuras `WEBSHRINKER_ACCESS_KEY` y `WEBSHRINKER_SECRET_KEY`, tambien bloquea categorias de riesgo como adulto, pornografia, hackeo o pirateria.
 - Los tipos revisados en esta v1 son solo los enlaces web (`website`, redes, mapas, tienda, etc.).
 
-## Desarrollo local
+## Operacion de entornos
 
-```bash
-npm install
-npm run build
-npm run dev
-node scripts/bootstrap-firestore.mjs
-```
+- El workspace local se usa para leer, editar, revisar diferencias, hacer validaciones estaticas ligeras, commit y push.
+- No se levantan servidores ni entornos locales por defecto: no `npm run dev`, no `next dev`, no emuladores Firebase y no validacion en `localhost`.
+- `bioimpulso` es el entorno oficial de pruebas.
+- `klicor` es el entorno de produccion.
+- Los cambios se verifican primero en `bioimpulso`; despues de aprobacion se promueven a `klicor` produccion.
+- La regla completa esta en `docs/operacion-entornos-klicor.md`.
 
 ## Notas operativas
 

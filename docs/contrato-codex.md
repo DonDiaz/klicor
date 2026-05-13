@@ -6,7 +6,22 @@ Antes de modificar codigo relacionado con onboarding, link in bio, commerce, age
 
 1. `docs/contrato-codex.md`
 2. `docs/klicor-producto-decisiones.md`
-3. Los archivos de codigo directamente afectados
+3. `docs/operacion-entornos-klicor.md`
+4. Los archivos de codigo directamente afectados
+
+## 0. Regla Operativa de Entornos
+
+Klicor puede editarse desde un workspace local, pero el workspace local no es el entorno de ejecucion ni de validacion del producto.
+
+- El workspace local se usa para leer codigo, editar archivos, revisar diferencias, hacer validaciones estaticas ligeras, preparar commits y hacer push.
+- No se deben levantar servidores ni entornos locales por defecto: no `npm run dev`, no `next dev`, no emuladores Firebase y no validacion en `localhost`.
+- `bioimpulso` es el entorno oficial de pruebas y reemplaza el uso local para validar cambios reales.
+- `klicor` es el entorno de produccion.
+- Todo cambio debe probarse primero en `bioimpulso` y solo despues promoverse a `klicor` produccion.
+- Si el usuario no aclara entorno, Codex debe preguntar si el cambio va en `bioimpulso` pruebas o en `klicor` produccion.
+- Antes de hacer commit/push, Codex debe confirmar a que repo/proyecto apunta el workspace activo.
+
+La regla completa vive en `docs/operacion-entornos-klicor.md`.
 
 ## 1. Precedencia
 
@@ -374,8 +389,9 @@ Reglas:
 
 Antes de entregar cambios de codigo:
 
-- Ejecutar `npm run build` si el cambio afecta Next, UI importante, schemas o imports.
-- Si el cambio es visual, verificar en navegador local cuando sea posible.
+- No levantar servidores locales ni validar en `localhost` salvo instruccion explicita del usuario.
+- Ejecutar validaciones estaticas ligeras cuando apliquen y no saturen el PC.
+- Si el cambio afecta UI o flujo real, verificar en `bioimpulso` pruebas.
 - Revisar `git diff` antes de responder.
 - No incluir logs temporales en commit.
 
