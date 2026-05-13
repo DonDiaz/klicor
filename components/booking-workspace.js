@@ -1,6 +1,7 @@
 "use client";
 
-import { Fragment, useEffect, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState } from "react";
+import { collection, onSnapshot, query, where } from "firebase/firestore";
 import {
   CalendarClock,
   CalendarDays,
@@ -14,6 +15,7 @@ import {
   X,
 } from "lucide-react";
 import { apiFetch } from "@/lib/client-api";
+import { getClientDb } from "@/lib/firebase-client";
 import {
   BOOKING_DEFAULT_BUSINESS_SCHEDULE,
   formatBookingDateLabel,
@@ -141,6 +143,7 @@ function buildAgendaGrid({ dateString, config, staff = [], appointments = [], se
 }
 
 export function BookingWorkspace({ token, active = false, canEdit = true }) {
+  const realtimeReadyRef = useRef(false);
   const [state, setState] = useState(null);
   const [loading, setLoading] = useState(false);
   const [activeSection, setActiveSection] = useState("agenda");
@@ -178,6 +181,36 @@ export function BookingWorkspace({ token, active = false, canEdit = true }) {
     const timeout = window.setTimeout(() => setMessage(""), 2800);
     return () => window.clearTimeout(timeout);
   }, [message]);
+
+  useEffect(() => {
+    if (!active || activeSection !== "agenda" || !state?.ownerUid || !filters.date) return undefined;
+    const db = getClientDb();
+    if (!db) return undefined;
+
+    realtimeReadyRef.current = false;
+    const constraints = [where("appointmentDate", "==", filters.date)];
+    if (filters.staffId) constraints.push(where("staffId", "==", filters.staffId));
+
+    const appointmentsQuery = query(
+      collection(db, "users", state.ownerUid, "bookingAppointments"),
+      ...constraints,
+    );
+
+    return onSnapshot(
+      appointmentsQuery,
+      (snapshot) => {
+        if (!realtimeReadyRef.current) {
+          realtimeReadyRef.current = true;
+          return;
+        }
+        if (!snapshot.docChanges().length) return;
+        loadState(filters, { silent: true });
+      },
+      (snapshotError) => {
+        console.warn("[booking-realtime]", snapshotError?.message || snapshotError);
+      },
+    );
+  }, [active, activeSection, filters.date, filters.staffId, state?.ownerUid]); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function loadState(nextFilters = filters, options = {}) {
     const silent = options.silent === true;

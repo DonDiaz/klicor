@@ -8551,6 +8551,7 @@ html[data-theme="dark"] .admin-sidebar-note {
 
 .booking-submit-button,
 .booking-whatsapp-cta,
+.booking-secondary-cta,
 .booking-whatsapp-button {
   display: inline-flex;
   align-items: center;
@@ -8561,12 +8562,28 @@ html[data-theme="dark"] .admin-sidebar-note {
   text-decoration: none;
 }
 
+.booking-success-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.7rem;
+}
+
 .booking-whatsapp-cta,
 .booking-whatsapp-button {
   border: 0;
   background: #16a34a;
   color: #fff;
   padding: 0.8rem 1rem;
+}
+
+.booking-secondary-cta {
+  border: 1px solid var(--booking-border, rgba(15, 23, 42, 0.12));
+  background: var(--booking-card, rgba(255, 255, 255, 0.88));
+  color: var(--booking-text, #0f172a);
+  padding: 0.8rem 1rem;
+  font-weight: 700;
+  cursor: pointer;
 }
 
 .booking-public-page .booking-wizard-card {

@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { addMonths, startOfMonth, subMonths } from "date-fns";
-import { CheckCircle2, ChevronLeft, ChevronRight, CloudSun, LoaderCircle, MessageCircle, Moon, Sun } from "lucide-react";
+import { CalendarDays, CheckCircle2, ChevronLeft, ChevronRight, CloudSun, Home, LoaderCircle, MessageCircle, Moon, Sun } from "lucide-react";
 import { browserSessionPersistence, onAuthStateChanged, setPersistence, signInWithPopup, signInWithRedirect } from "firebase/auth";
 import { apiFetch } from "@/lib/client-api";
 import {
@@ -213,6 +213,8 @@ export function BookingPublicView({ bootstrap }) {
   const bookingMode = config.autoConfirmBooking === true ? "confirmed" : "pending";
   const bookingCopy = BOOKING_RESULT_COPY[bookingMode];
   const publicTheme = useMemo(() => resolvePublicTheme(business, appearance), [appearance, business]);
+  const username = business.usernameLower || business.username || "";
+  const profileUrl = username ? `/${username}` : "/";
 
   const selectedService = useMemo(
     () => services.find((item) => item.id === selection.serviceId) || null,
@@ -411,6 +413,22 @@ export function BookingPublicView({ bootstrap }) {
       startTime,
     }));
     setStepIndex(3);
+  }
+
+  function resetBookingFlow() {
+    setSuccess(null);
+    setStepIndex(0);
+    setAvailabilityDates([]);
+    setSlots([]);
+    setActiveTimePeriod(TIME_PERIODS[0].id);
+    setSelection((current) => ({
+      ...current,
+      serviceId: "",
+      staffId: "any",
+      appointmentDate: "",
+      startTime: "",
+      customerNote: "",
+    }));
   }
 
   async function handleGoogleSignIn() {
@@ -748,9 +766,17 @@ export function BookingPublicView({ bootstrap }) {
                   <b>{success.summary?.timeLabel}</b>
                 </div>
               </div>
-              <a className="booking-whatsapp-cta" href={success.appointment?.whatsappUrl || buildWhatsappLink(config.whatsappNumber)} target="_blank" rel="noreferrer">
-                <MessageCircle size={18} /> {resultCopy.whatsappLabel}
-              </a>
+              <div className="booking-success-actions">
+                <a className="booking-whatsapp-cta" href={success.appointment?.whatsappUrl || buildWhatsappLink(config.whatsappNumber)} target="_blank" rel="noreferrer">
+                  <MessageCircle size={18} /> {resultCopy.whatsappLabel}
+                </a>
+                <button className="booking-secondary-cta" type="button" onClick={resetBookingFlow}>
+                  <CalendarDays size={18} /> Agenda
+                </button>
+                <a className="booking-secondary-cta" href={profileUrl}>
+                  <Home size={18} /> Inicio
+                </a>
+              </div>
             </div>
           )}
         </section>
