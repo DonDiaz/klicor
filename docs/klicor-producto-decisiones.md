@@ -827,29 +827,44 @@ Objetivo:
 - Permitir una ruta inicial de Agenda con servicios, profesionales, horarios, link publico, solicitudes/citas, estados y confirmacion manual o automatica.
 - Permitir una ruta pro con operacion diaria avanzada, citas manuales, reprogramacion, disponibilidad por profesional/horario, notificaciones, recordatorios, reactivacion e historial basico del cliente.
 
+Estado MVP implementado en pruebas:
+
+- La reserva publica respeta la configuracion del negocio: `pending` si hay confirmacion manual y `confirmed` si hay confirmacion automatica.
+- El texto publico cambia entre "Solicitar cita" y "Agendar cita" segun esa configuracion.
+- El cliente publico debe iniciar sesion con Google para enviar la cita y la cita guarda identidad autenticada cuando existe.
+- La disponibilidad publica consulta el servicio y profesional seleccionados, aplica hora de Colombia y exige al menos 30 minutos de anticipacion.
+- El negocio recibe correo operativo cuando entra una solicitud o cita nueva, si `notifyBusinessOnRequest` esta activo.
+- El cliente recibe correo de cita confirmada solo cuando la cita queda en `confirmed`; en confirmacion manual no recibe confirmacion definitiva hasta que el negocio acepte.
+- Reprogramaciones y cancelaciones generan correo transaccional al cliente cuando hay correo autenticado.
+- La falla de correo no bloquea la creacion de la cita; se registra en `emailDelivery`.
+- El panel de Agenda actualiza citas por escucha en tiempo real para la fecha/profesional visibles, sin recargar toda la pagina.
+- La pantalla final publica ofrece WhatsApp, volver a Agenda e Inicio.
+
 Pendiente funcional:
 
-- Tratar la reserva publica como solicitud cuando la confirmacion manual este activa.
-- Usar lenguaje de cita confirmada cuando la confirmacion automatica este activa.
-- Enviar confirmacion definitiva solo despues de aceptar la cita.
-- Permitir rechazo o cambio/reprogramacion de una solicitud.
-- Mejorar operacion diaria con disponibilidad por profesional y horario.
-- Permitir agendamiento manual completo desde el negocio.
+- Pulir UX de rechazo/cancelacion para que "rechazar solicitud" sea una accion explicita y no dependa solo del selector de estado.
+- Mejorar operacion diaria avanzada con vistas por profesional, filtros y reprogramacion mas ergonomica.
+- Completar agendamiento manual desde el negocio con menos pasos y mejor preseleccion desde la grilla.
 - Crear navegacion interna contextual de `Klicor Agenda` como workspace especializado, accesible desde el dashboard principal.
-- Configurar notificaciones al negocio y al cliente.
-- Configurar recordatorios antes de la cita.
+- Automatizar recordatorios por correo antes de la cita con un scheduler apto para ejecucion frecuente.
 - Configurar reactivacion de clientes por dias sin volver, apagada por defecto.
 - Preparar historial basico de cliente cuando se pueda identificar por telefono.
-- Agregar identidad de cliente publico con Firebase Auth/Google para Agenda, separada de la cuenta del negocio.
-- Guardar en cada cita, cuando exista sesion, `customerUid`, `customerEmail`, `customerEmailVerified`, `customerPhotoURL`, `customerAuthProvider` y telefono normalizado.
 - Crear una coleccion o subcoleccion de clientes por negocio para recordar nombre, email autenticado, telefono, ultima cita y preferencias/consentimiento de mensajes.
-- Enviar correo al negocio cuando entre una solicitud o cita nueva, usando por defecto `user.email` del dueño de Klicor.
-- Enviar correo al cliente cuando la cita quede confirmada, y tambien cuando haya reprogramacion, cancelacion/rechazo o cambio relevante.
-- Si el negocio activa confirmacion automatica, enviar correo de cita confirmada al cliente inmediatamente despues de crear la cita.
-- Si el negocio usa confirmacion manual, no enviar confirmacion definitiva al cliente hasta que el estado cambie a `confirmed`; opcionalmente permitir acuse de recibo de solicitud como configuracion separada.
-- Separar el envio de mensajes de la escritura de la cita para que una falla de correo o WhatsApp no duplique ni bloquee la agenda; registrar estado de envio o evento pendiente para reintento.
-- Definir plantillas de correo transaccional de Agenda dentro de `lib/mailer.js` o una capa equivalente, reutilizando Resend.
+- Permitir mas adelante una lista opcional de destinatarios para avisos al negocio; por ahora se usa `user.email`.
+- Opcionalmente permitir acuse de recibo de solicitud como configuracion separada, sin confundirlo con confirmacion definitiva.
 - Definir plantillas oficiales de WhatsApp para recordatorio de cita antes de activar ese canal en produccion.
+
+Decision tecnica sobre recordatorios:
+
+- El endpoint `/api/booking/reminders/cron` ya existe y usa `CRON_SECRET`, pero no debe activarse como Vercel Cron frecuente mientras el equipo este en plan Hobby.
+- Segun la documentacion oficial vigente de Vercel Cron Jobs, en Hobby los cron solo pueden correr una vez al dia y con precision horaria aproximada; eso no sirve para recordatorios de 30 o 60 minutos antes de una cita.
+- Para cerrar recordatorios antes de produccion hay que escoger una de estas rutas: subir Vercel a Pro y programar el endpoint cada pocos minutos, usar Firebase Cloud Scheduler/Cloud Functions, o usar un scheduler externo confiable que llame el endpoint con `Authorization: Bearer CRON_SECRET`.
+- Mientras esa decision no este tomada, no agregar un cron frecuente a `vercel.json` porque rompe o degrada el despliegue en Hobby.
+
+Pendiente separado de Agenda:
+
+- Validar Mercado Pago en entorno de pruebas con credenciales sandbox/test, sin copiar credenciales productivas a `klicor-pruebas`.
+- Probar que cada plan cobre el valor correcto y que los limites de plan se apliquen tanto en UI como en backend.
 
 No definido todavia:
 
