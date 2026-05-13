@@ -8,6 +8,7 @@ Antes de modificar codigo relacionado con onboarding, link in bio, commerce, age
 2. `docs/klicor-producto-decisiones.md`
 3. `docs/operacion-entornos-klicor.md`
 4. Los archivos de codigo directamente afectados
+5. La documentacion oficial vigente de las tecnologias involucradas cuando el cambio toque APIs externas, framework, seguridad, autenticacion, datos, reglas, storage, cache, imagenes, webhooks, pagos, correo, despliegue o infraestructura
 
 ## 0. Regla Operativa de Entornos
 
@@ -46,6 +47,8 @@ Si una instruccion del usuario contradice este contrato, Codex debe mencionar el
 - No agregar dependencias nuevas sin justificar por que las actuales no sirven.
 - No crear soluciones temporales si el usuario pidio una solucion de arquitectura.
 - No hacer commit ni push salvo orden explicita del usuario.
+- No codificar mirando solo el archivo o sintoma visible. Antes de tocar codigo, entender el flujo completo afectado y sus impactos en frontend, backend, datos, permisos, cache, rutas publicas, planes, entornos y experiencia real.
+- No basar decisiones tecnicas sensibles solo en memoria o documentacion interna. Cuando el cambio dependa de Next.js, React, Firebase, Firestore, Storage, Firebase Rules, Firebase Admin, Vercel, Mercado Pago, Resend, Zod, `next/image`, cache, headers, webhooks o dependencias externas, contrastar con documentacion oficial o fuente primaria vigente.
 - Si hay duda relevante que pueda romper producto, preguntar antes de implementar.
 
 ## 3. Proceso Obligatorio Antes de Implementar
@@ -54,11 +57,13 @@ Para cambios medianos o grandes:
 
 1. Leer este contrato.
 2. Leer el documento de producto.
-3. Buscar en codigo los archivos afectados.
-4. Identificar donde nace el dato, donde se guarda y donde se renderiza.
-5. Hacer cambios minimos y coherentes con el sistema actual.
-6. Ejecutar build o verificacion equivalente.
-7. Reportar archivos modificados y resultado de verificacion.
+3. Leer documentacion oficial vigente si el cambio depende de una tecnologia, API, servicio externo, seguridad, datos, despliegue o comportamiento de framework.
+4. Buscar en codigo los archivos afectados.
+5. Identificar donde nace el dato, donde se valida, donde se guarda, donde se lee, donde se cachea y donde se renderiza.
+6. Identificar impactos laterales: rutas publicas/admin, permisos, reglas de plan/modulo, Storage, Firestore, billing, analytics, demos, pruebas y produccion.
+7. Hacer cambios minimos y coherentes con el sistema actual.
+8. Ejecutar build o verificacion equivalente.
+9. Reportar archivos modificados y resultado de verificacion.
 
 ## 4. Link In Bio
 
@@ -403,5 +408,6 @@ Codex debe detenerse y preguntar si:
 - Hay riesgo de perder datos existentes.
 - Hay contradiccion entre el usuario y este contrato.
 - El cambio requiere decidir una experiencia de producto no definida.
+- El cambio parece puntual, pero su impacto real cruza datos, permisos, billing, planes, rutas publicas, integraciones externas o produccion y no hay suficiente claridad.
 
 Codex no debe detenerse por detalles menores si puede resolverlos leyendo el codigo y siguiendo este contrato.
