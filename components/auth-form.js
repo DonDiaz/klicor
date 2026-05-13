@@ -23,8 +23,16 @@ import {
 } from "lucide-react";
 import { getClientAuth, getGoogleProvider } from "@/lib/firebase-client";
 import { apiFetch } from "@/lib/client-api";
+import {
+  LEGAL_ACCEPTABLE_USE_VERSION,
+  LEGAL_PAYMENTS_VERSION,
+  LEGAL_PRIVACY_VERSION,
+  LEGAL_TERMS_VERSION,
+} from "@/lib/legal-consent";
 
 const EMAIL_LINK_STORAGE_KEY = "klicor-email-link";
+const EMAIL_LINK_LEGAL_STORAGE_KEY = "klicor-email-link-legal";
+const REDIRECT_LEGAL_STORAGE_KEY = "klicor-redirect-legal";
 
 function getAuthErrorMessage(error) {
   const code = error?.code || "";
@@ -68,15 +76,38 @@ export function AuthForm({
   const [loadingAction, setLoadingAction] = useState("");
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [pendingEmailLink, setPendingEmailLink] = useState(false);
+  const [legalGateUser, setLegalGateUser] = useState(null);
+  const [legalGateSource, setLegalGateSource] = useState("auth");
 
-  const shouldRequireTerms = allowRegister;
+  const shouldRequireTerms = allowRegister || Boolean(legalGateUser);
 
-  async function bootstrapSession(user, { welcome = false } = {}) {
+  function buildLegalAcceptance(source = "auth") {
+    return {
+      accepted: acceptedTerms,
+      source,
+      termsVersion: LEGAL_TERMS_VERSION,
+      privacyVersion: LEGAL_PRIVACY_VERSION,
+      paymentsVersion: LEGAL_PAYMENTS_VERSION,
+      acceptableUseVersion: LEGAL_ACCEPTABLE_USE_VERSION,
+      acceptedAtClient: new Date().toISOString(),
+    };
+  }
+
+  function readStoredLegalAcceptance(storageKey) {
+    if (typeof window === "undefined") return null;
+    try {
+      return JSON.parse(window.localStorage.getItem(storageKey) || window.sessionStorage.getItem(storageKey) || "null");
+    } catch {
+      return null;
+    }
+  }
+
+  async function bootstrapSession(user, { welcome = false, legalAcceptance = null } = {}) {
     const token = await user.getIdToken();
     await apiFetch("/api/auth/bootstrap", {
       method: "POST",
       token,
-      body: { welcome },
+      body: { welcome, legalAcceptance },
     });
     await user.getIdToken(true);
 
@@ -93,21 +124,61 @@ export function AuthForm({
     setMessageTone(tone);
   }
 
+  function isLegalAcceptanceError(error) {
+    const text = String(error?.message || "").toLowerCase();
+    return text.includes("terminos") || text.includes("tÃ©rminos") || text.includes("crear tu cuenta") || text.includes("vigentes");
+  }
+
+  function requestLegalAcceptance(user, source = "auth") {
+    setLegalGateUser(user || null);
+    setLegalGateSource(source);
+    setAcceptedTerms(false);
+    setFeedback("Para continuar debes aceptar los terminos y condiciones vigentes.", "danger");
+  }
+
   function ensureTermsAccepted() {
     if (!shouldRequireTerms || acceptedTerms) return true;
       setFeedback("Debes aceptar los términos y condiciones para continuar.", "danger");
     return false;
   }
 
+  async function finishLegalAcceptance() {
+    if (!legalGateUser || !ensureTermsAccepted()) return;
+
+    setLoading(true);
+    setLoadingAction("legal");
+    setFeedback("Estamos guardando tu aceptacion...", "neutral");
+    try {
+      await bootstrapSession(legalGateUser, {
+        welcome: true,
+        legalAcceptance: buildLegalAcceptance(legalGateSource),
+      });
+    } catch (error) {
+      setFeedback(getAuthErrorMessage(error), "danger");
+    } finally {
+      setLoading(false);
+      setLoadingAction("");
+    }
+  }
+
   async function completeEmailLink(auth, email, href) {
+    const storedLegalAcceptance = readStoredLegalAcceptance(EMAIL_LINK_LEGAL_STORAGE_KEY);
     setLoading(true);
     setLoadingAction("email");
     setFeedback("Estamos completando tu acceso...", "neutral");
     try {
       const credential = await signInWithEmailLink(auth, email, href);
       window.localStorage.removeItem(EMAIL_LINK_STORAGE_KEY);
-      await bootstrapSession(credential.user, { welcome: true });
+      window.localStorage.removeItem(EMAIL_LINK_LEGAL_STORAGE_KEY);
+      await bootstrapSession(credential.user, {
+        welcome: true,
+        legalAcceptance: storedLegalAcceptance,
+      });
     } catch (error) {
+      if (isLegalAcceptanceError(error) && auth.currentUser) {
+        requestLegalAcceptance(auth.currentUser, "email-link-complete");
+        return;
+      }
       setFeedback(getAuthErrorMessage(error), "danger");
     } finally {
       setLoading(false);
@@ -127,10 +198,21 @@ export function AuthForm({
         setLoading(true);
         setLoadingAction("google");
         setFeedback("Estamos completando tu acceso...", "neutral");
-        await bootstrapSession(credential.user, { welcome: true });
+        const storedLegalAcceptance = readStoredLegalAcceptance(REDIRECT_LEGAL_STORAGE_KEY);
+        window.sessionStorage.removeItem(REDIRECT_LEGAL_STORAGE_KEY);
+        await bootstrapSession(credential.user, {
+          welcome: true,
+          legalAcceptance: storedLegalAcceptance,
+        });
       })
       .catch((error) => {
-        if (!cancelled) setFeedback(getAuthErrorMessage(error), "danger");
+        if (!cancelled) {
+          if (isLegalAcceptanceError(error) && auth.currentUser) {
+            requestLegalAcceptance(auth.currentUser, "google-redirect");
+            return;
+          }
+          setFeedback(getAuthErrorMessage(error), "danger");
+        }
       })
       .finally(() => {
         if (!cancelled) {
@@ -175,7 +257,7 @@ export function AuthForm({
       return;
     }
 
-    if (!ensureTermsAccepted()) {
+    if (allowRegister && !ensureTermsAccepted()) {
       return;
     }
 
@@ -188,6 +270,11 @@ export function AuthForm({
         handleCodeInApp: true,
       });
       window.localStorage.setItem(EMAIL_LINK_STORAGE_KEY, email);
+      if (allowRegister) {
+        window.localStorage.setItem(EMAIL_LINK_LEGAL_STORAGE_KEY, JSON.stringify(buildLegalAcceptance("email-link-request")));
+      } else {
+        window.localStorage.removeItem(EMAIL_LINK_LEGAL_STORAGE_KEY);
+      }
       setFeedback(`Te enviamos un enlace de acceso a ${email}. Abrelo desde tu correo para entrar.`, "success");
     } catch (error) {
       setFeedback(getAuthErrorMessage(error), "danger");
@@ -202,7 +289,7 @@ export function AuthForm({
     if (!auth) return;
     await setPersistence(auth, browserSessionPersistence);
 
-    if (!ensureTermsAccepted()) {
+    if (allowRegister && !ensureTermsAccepted()) {
       return;
     }
 
@@ -213,11 +300,23 @@ export function AuthForm({
     setFeedback("", "neutral");
     try {
       const credential = await signInWithPopup(auth, provider);
-      await bootstrapSession(credential.user, { welcome: true });
+      await bootstrapSession(credential.user, {
+        welcome: true,
+        legalAcceptance: allowRegister ? buildLegalAcceptance("google-register") : null,
+      });
     } catch (error) {
+      if (isLegalAcceptanceError(error) && auth.currentUser) {
+        requestLegalAcceptance(auth.currentUser, allowRegister ? "google-register" : "google-login-legal-update");
+        return;
+      }
       if (["auth/popup-blocked", "auth/popup-closed-by-user", "auth/cancelled-popup-request"].includes(error?.code)) {
         try {
           setFeedback("Abriremos Google en esta misma pestaña para completar el acceso.", "neutral");
+          if (allowRegister) {
+            window.sessionStorage.setItem(REDIRECT_LEGAL_STORAGE_KEY, JSON.stringify(buildLegalAcceptance("google-redirect")));
+          } else {
+            window.sessionStorage.removeItem(REDIRECT_LEGAL_STORAGE_KEY);
+          }
           await signInWithRedirect(auth, provider);
           return;
         } catch (redirectError) {
@@ -307,7 +406,8 @@ export function AuthForm({
         </div>
 
         {shouldRequireTerms ? (
-          <label className="terms-check auth-inline-terms">
+          <>
+            <label className="terms-check auth-inline-terms">
             <input
               type="checkbox"
               checked={acceptedTerms}
@@ -321,9 +421,29 @@ export function AuthForm({
               y la{" "}
               <Link className="terms-link" href="/politica-de-privacidad" target="_blank" rel="noreferrer">
                 Política de privacidad
+              </Link>
+              , la{" "}
+              <Link className="terms-link" href="/politica-de-pagos" target="_blank" rel="noreferrer">
+                Politica de pagos
+              </Link>{" "}
+              y el{" "}
+              <Link className="terms-link" href="/uso-permitido" target="_blank" rel="noreferrer">
+                Uso permitido
               </Link>.
             </span>
-          </label>
+            </label>
+            {legalGateUser ? (
+              <button
+                className="btn btn-primary auth-email-button"
+                type="button"
+                onClick={finishLegalAcceptance}
+                disabled={loading}
+              >
+                {loading && loadingAction === "legal" ? "Guardando..." : "Aceptar y continuar"}
+                {(!loading || loadingAction !== "legal") ? <ArrowRight size={16} /> : null}
+              </button>
+            ) : null}
+          </>
         ) : (
           <p className="auth-inline-note">Usa Google o tu correo para entrar sin fricción.</p>
         )}

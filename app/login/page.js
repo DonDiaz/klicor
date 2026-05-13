@@ -57,6 +57,7 @@ export default function LoginPage() {
 
         <AuthForm
           compact
+          allowRegister={false}
           title="Confirma tu correo"
           description="Si abriste el enlace en otro navegador o dispositivo, escribe tu correo para completar la entrada."
           submitLabel="Completar acceso con correo"
