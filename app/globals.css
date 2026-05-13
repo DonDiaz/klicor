@@ -9152,10 +9152,10 @@ html[data-theme="dark"] .admin-sidebar-note {
 }
 
 .booking-appointment-card.is-compact .booking-appointment-actions {
-  display: flex;
-  justify-content: flex-end;
+  display: grid;
+  grid-template-columns: repeat(2, max-content);
+  justify-content: end;
   gap: 0.3rem;
-  flex-wrap: wrap;
 }
 
 .booking-appointment-card.is-compact .booking-status-action {
@@ -9163,6 +9163,7 @@ html[data-theme="dark"] .admin-sidebar-note {
   padding: 0.28rem 0.5rem;
   font-size: 0.72rem;
   white-space: nowrap;
+  width: max-content;
 }
 
 .booking-appointment-main {
@@ -9370,6 +9371,10 @@ html[data-theme="dark"] .admin-sidebar-note {
   .booking-appointment-card.is-compact .booking-appointment-controls,
   .booking-appointment-card.is-compact .booking-appointment-actions {
     justify-content: flex-start;
+  }
+
+  .booking-appointment-card.is-compact .booking-appointment-actions {
+    grid-template-columns: repeat(2, max-content);
   }
 }
 
