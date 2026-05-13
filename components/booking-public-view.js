@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { addMonths, startOfMonth, subMonths } from "date-fns";
 import { CalendarDays, CheckCircle2, ChevronLeft, ChevronRight, CloudSun, Home, LoaderCircle, MessageCircle, Moon, Sun } from "lucide-react";
 import { browserSessionPersistence, onAuthStateChanged, setPersistence, signInWithPopup, signInWithRedirect } from "firebase/auth";
@@ -20,6 +20,8 @@ import {
   BookingStepper,
   BookingTimeChip,
 } from "@/components/booking-ui";
+
+const AUTH_TOKEN_WAIT_MS = 3000;
 
 const PUBLIC_STEPS = [
   { id: "service", label: "Servicio" },
@@ -179,7 +181,28 @@ function getFirstAvailablePeriod(groups = {}) {
   return TIME_PERIODS.find((period) => groups[period.id]?.length)?.id || TIME_PERIODS[0].id;
 }
 
+function waitForAuthUser(auth) {
+  if (!auth) return Promise.resolve(null);
+  if (auth.currentUser) return Promise.resolve(auth.currentUser);
+
+  return new Promise((resolve) => {
+    let settled = false;
+    let unsubscribe = () => {};
+    let timeout = 0;
+    const finish = (user) => {
+      if (settled) return;
+      settled = true;
+      unsubscribe();
+      window.clearTimeout(timeout);
+      resolve(user || null);
+    };
+    unsubscribe = onAuthStateChanged(auth, finish);
+    timeout = window.setTimeout(() => finish(auth.currentUser), AUTH_TOKEN_WAIT_MS);
+  });
+}
+
 export function BookingPublicView({ bootstrap }) {
+  const availabilityRequestRef = useRef(0);
   const business = bootstrap?.business || {};
   const appearance = bootstrap?.appearance || {};
   const config = bootstrap?.config || {};
@@ -292,6 +315,8 @@ export function BookingPublicView({ bootstrap }) {
   }, []);
 
   async function loadDates(nextServiceId, nextStaffId = "any") {
+    const requestId = availabilityRequestRef.current + 1;
+    availabilityRequestRef.current = requestId;
     setLoadingDates(true);
     setError("");
     try {
@@ -300,8 +325,10 @@ export function BookingPublicView({ bootstrap }) {
         staffId: nextStaffId || "any",
         scanDays: "7",
         availableDatesLimit: "7",
+        _: String(Date.now()),
       });
-      const response = await apiFetch(`/api/public/booking/${business.usernameLower || business.username}?${params.toString()}`);
+      const response = await apiFetch(`/api/public/booking/${business.usernameLower || business.username}?${params.toString()}`, { cache: "no-store" });
+      if (requestId !== availabilityRequestRef.current) return [];
       const nextDates = Array.isArray(response.data?.availableDates) ? response.data.availableDates : [];
       const nextSlots = Array.isArray(response.data?.slots) ? response.data.slots : [];
       const nextGroups = groupSlotsByPeriod(nextSlots);
@@ -317,16 +344,21 @@ export function BookingPublicView({ bootstrap }) {
       }
       return nextDates;
     } catch (nextError) {
+      if (requestId !== availabilityRequestRef.current) return [];
       setError(nextError.message);
       setAvailabilityDates([]);
       return [];
     } finally {
-      setLoadingDates(false);
+      if (requestId === availabilityRequestRef.current) {
+        setLoadingDates(false);
+      }
     }
   }
 
   async function loadSlots(nextDate, nextServiceId = selection.serviceId, nextStaffId = selection.staffId || "any") {
     if (!nextServiceId) return;
+    const requestId = availabilityRequestRef.current + 1;
+    availabilityRequestRef.current = requestId;
     setLoadingSlots(true);
     setError("");
     try {
@@ -334,19 +366,24 @@ export function BookingPublicView({ bootstrap }) {
         serviceId: nextServiceId,
         staffId: nextStaffId || "any",
         date: nextDate,
+        _: String(Date.now()),
       });
-      const response = await apiFetch(`/api/public/booking/${business.usernameLower || business.username}?${params.toString()}`);
+      const response = await apiFetch(`/api/public/booking/${business.usernameLower || business.username}?${params.toString()}`, { cache: "no-store" });
+      if (requestId !== availabilityRequestRef.current) return [];
       const nextSlots = Array.isArray(response.data?.slots) ? response.data.slots : [];
       const nextGroups = groupSlotsByPeriod(nextSlots);
       setSlots(nextSlots);
       setActiveTimePeriod(getFirstAvailablePeriod(nextGroups));
       return nextSlots;
     } catch (nextError) {
+      if (requestId !== availabilityRequestRef.current) return [];
       setError(nextError.message);
       setSlots([]);
       return [];
     } finally {
-      setLoadingSlots(false);
+      if (requestId === availabilityRequestRef.current) {
+        setLoadingSlots(false);
+      }
     }
   }
 
@@ -471,11 +508,17 @@ export function BookingPublicView({ bootstrap }) {
     setError("");
     try {
       const auth = getClientAuth();
-      const token = await auth?.currentUser?.getIdToken();
+      const user = await waitForAuthUser(auth);
+      if (!user) {
+        setError("Tu sesiÃ³n de Google no estÃ¡ lista. Vuelve a iniciar sesiÃ³n e intenta de nuevo.");
+        return;
+      }
+      const token = await user.getIdToken(true);
       const response = await apiFetch(`/api/public/booking/${business.usernameLower || business.username}`, {
         method: "POST",
         token,
         body: selection,
+        cache: "no-store",
       });
       setSuccess(response.result);
     } catch (nextError) {

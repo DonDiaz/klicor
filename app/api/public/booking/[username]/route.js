@@ -7,6 +7,13 @@ import { getPublicBookingBootstrapByUsername } from "@/lib/public-booking";
 import { checkRateLimit, rateLimitHeaders, rateLimitResponse } from "@/lib/rate-limit";
 import { createServerTiming } from "@/lib/server-timing";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
+const NO_STORE_HEADERS = {
+  "Cache-Control": "no-store, no-cache, must-revalidate",
+};
+
 async function readCustomerAuth(request) {
   const authHeader = request.headers.get("authorization") || "";
   const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : "";
@@ -90,7 +97,10 @@ export async function GET(request, { params }) {
     );
     const payload = { data: availability };
     return NextResponse.json(payload, {
-      headers: timing.headers(payload, rateLimitHeaders(rate)),
+      headers: timing.headers(payload, {
+        ...rateLimitHeaders(rate),
+        ...NO_STORE_HEADERS,
+      }),
     });
   } catch (error) {
     const payload = { error: formatApiError(error, "No pudimos cargar la agenda pública.") };
@@ -131,7 +141,10 @@ export async function POST(request, { params }) {
 
     const payload = { ok: true, result };
     return NextResponse.json(payload, {
-      headers: timing.headers(payload, rateLimitHeaders(rate)),
+      headers: timing.headers(payload, {
+        ...rateLimitHeaders(rate),
+        ...NO_STORE_HEADERS,
+      }),
     });
   } catch (error) {
     const payload = { error: formatApiError(error, "No pudimos agendar la cita.") };
