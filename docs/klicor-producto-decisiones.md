@@ -837,6 +837,8 @@ Estado MVP implementado en pruebas:
 - El cliente recibe correo de cita confirmada solo cuando la cita queda en `confirmed`; en confirmacion manual no recibe confirmacion definitiva hasta que el negocio acepte.
 - Reprogramaciones y cancelaciones generan correo transaccional al cliente cuando hay correo autenticado.
 - La falla de correo no bloquea la creacion de la cita; se registra en `emailDelivery`.
+- El endpoint de recordatorios por correo existe en `/api/booking/reminders/cron` y puede ejecutarse con `CRON_SECRET`.
+- El workflow `.github/workflows/booking-reminders.yml` queda preparado para llamar el endpoint cada 15 minutos con secretos de GitHub.
 - El panel de Agenda actualiza citas por escucha en tiempo real para la fecha/profesional visibles, sin recargar toda la pagina.
 - La pantalla final publica ofrece WhatsApp, volver a Agenda e Inicio.
 
@@ -846,7 +848,7 @@ Pendiente funcional:
 - Mejorar operacion diaria avanzada con vistas por profesional, filtros y reprogramacion mas ergonomica.
 - Completar agendamiento manual desde el negocio con menos pasos y mejor preseleccion desde la grilla.
 - Crear navegacion interna contextual de `Klicor Agenda` como workspace especializado, accesible desde el dashboard principal.
-- Automatizar recordatorios por correo antes de la cita con un scheduler apto para ejecucion frecuente.
+- Configurar `CRON_SECRET` en Vercel y `BOOKING_REMINDER_URL` / `BOOKING_REMINDER_SECRET` en GitHub para activar recordatorios automaticos en pruebas y luego en produccion.
 - Configurar reactivacion de clientes por dias sin volver, apagada por defecto.
 - Preparar historial basico de cliente cuando se pueda identificar por telefono.
 - Crear una coleccion o subcoleccion de clientes por negocio para recordar nombre, email autenticado, telefono, ultima cita y preferencias/consentimiento de mensajes.
@@ -858,7 +860,8 @@ Decision tecnica sobre recordatorios:
 
 - El endpoint `/api/booking/reminders/cron` ya existe y usa `CRON_SECRET`, pero no debe activarse como Vercel Cron frecuente mientras el equipo este en plan Hobby.
 - Segun la documentacion oficial vigente de Vercel Cron Jobs, en Hobby los cron solo pueden correr una vez al dia y con precision horaria aproximada; eso no sirve para recordatorios de 30 o 60 minutos antes de una cita.
-- Para cerrar recordatorios antes de produccion hay que escoger una de estas rutas: subir Vercel a Pro y programar el endpoint cada pocos minutos, usar Firebase Cloud Scheduler/Cloud Functions, o usar un scheduler externo confiable que llame el endpoint con `Authorization: Bearer CRON_SECRET`.
+- La ruta MVP elegida para pruebas es un scheduler externo mediante GitHub Actions cada 15 minutos, llamando el endpoint con `Authorization: Bearer CRON_SECRET`.
+- Para produccion se puede mantener GitHub Actions, subir Vercel a Pro y usar Vercel Cron frecuente, usar Firebase Cloud Scheduler/Cloud Functions, o usar otro scheduler externo confiable.
 - Mientras esa decision no este tomada, no agregar un cron frecuente a `vercel.json` porque rompe o degrada el despliegue en Hobby.
 
 Pendiente separado de Agenda:

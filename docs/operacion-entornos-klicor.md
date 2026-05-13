@@ -40,6 +40,29 @@ Mapa operativo definido:
 
 Cada proyecto Vercel debe tener sus propias variables de entorno. No mezclar credenciales de Firebase, Storage, Mercado Pago, Resend, `NEXT_PUBLIC_APP_URL`, `ADMIN_EMAIL` ni secretos de cron entre produccion y pruebas.
 
+### Recordatorios de Agenda
+
+Los recordatorios de Agenda usan el endpoint protegido:
+
+```txt
+/api/booking/reminders/cron
+```
+
+Ese endpoint requiere:
+
+```txt
+Authorization: Bearer CRON_SECRET
+```
+
+Para pruebas en `klicor-pruebas`, Vercel debe tener `CRON_SECRET` en `Production` y GitHub debe tener estos secretos del repositorio:
+
+- `BOOKING_REMINDER_URL`: `https://klicor-pruebas.vercel.app/api/booking/reminders/cron`
+- `BOOKING_REMINDER_SECRET`: el mismo valor de `CRON_SECRET` configurado en Vercel para `klicor-pruebas`.
+
+El workflow `.github/workflows/booking-reminders.yml` llama el endpoint cada 15 minutos y tambien permite ejecucion manual. Los scheduled workflows de GitHub corren desde la rama default del repositorio; si se necesita probar antes de promover a `main`, usar `workflow_dispatch` o un scheduler externo apuntando a la URL de pruebas.
+
+No usar Vercel Cron frecuente en plan Hobby para recordatorios de 30 o 60 minutos. En Hobby Vercel limita los cron a una ejecucion diaria y no garantiza precision suficiente para este caso.
+
 ## Flujo obligatorio de cambios
 
 1. Editar en el workspace local correspondiente.
