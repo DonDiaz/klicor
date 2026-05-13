@@ -181,6 +181,20 @@ function getFirstAvailablePeriod(groups = {}) {
   return TIME_PERIODS.find((period) => groups[period.id]?.length)?.id || TIME_PERIODS[0].id;
 }
 
+function buildInitialSelection(current = {}) {
+  return {
+    serviceId: "",
+    staffId: "any",
+    appointmentDate: "",
+    startTime: "",
+    customerName: current.customerName || "",
+    customerPhone: current.customerPhone || "",
+    customerNote: "",
+    customerUid: current.customerUid || "",
+    customerEmail: current.customerEmail || "",
+  };
+}
+
 function waitForAuthUser(auth) {
   if (!auth) return Promise.resolve(null);
   if (auth.currentUser) return Promise.resolve(auth.currentUser);
@@ -210,17 +224,7 @@ export function BookingPublicView({ bootstrap }) {
   const staff = Array.isArray(bootstrap?.staff) ? bootstrap.staff : [];
   const currency = bootstrap?.config?.currency || "COP";
   const [stepIndex, setStepIndex] = useState(0);
-  const [selection, setSelection] = useState({
-    serviceId: "",
-    staffId: "any",
-    appointmentDate: "",
-    startTime: "",
-    customerName: "",
-    customerPhone: "",
-    customerNote: "",
-    customerUid: "",
-    customerEmail: "",
-  });
+  const [selection, setSelection] = useState(() => buildInitialSelection());
   const [availabilityDates, setAvailabilityDates] = useState([]);
   const [slots, setSlots] = useState([]);
   const [loadingDates, setLoadingDates] = useState(false);
@@ -453,19 +457,17 @@ export function BookingPublicView({ bootstrap }) {
   }
 
   function resetBookingFlow() {
+    availabilityRequestRef.current += 1;
     setSuccess(null);
+    setError("");
+    setLoadingDates(false);
+    setLoadingSlots(false);
     setStepIndex(0);
     setAvailabilityDates([]);
     setSlots([]);
     setActiveTimePeriod(TIME_PERIODS[0].id);
-    setSelection((current) => ({
-      ...current,
-      serviceId: "",
-      staffId: "any",
-      appointmentDate: "",
-      startTime: "",
-      customerNote: "",
-    }));
+    setCalendarMonth(startOfMonth(new Date()));
+    setSelection((current) => buildInitialSelection(current));
   }
 
   async function handleGoogleSignIn() {

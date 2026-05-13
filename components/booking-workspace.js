@@ -351,7 +351,14 @@ export function BookingWorkspace({ token, active = false, canEdit = true }) {
   }
 
   async function handleSaveConfig() {
-    await runAction("save_config", configForm);
+    const savedConfig = await runAction("save_config", configForm);
+    if (savedConfig) {
+      setConfigForm(normalizeBookingConfig(savedConfig));
+      setState((current) => current ? {
+        ...current,
+        config: normalizeBookingConfig(savedConfig),
+      } : current);
+    }
   }
 
   function renderHeader() {
