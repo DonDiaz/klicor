@@ -1,0 +1,17 @@
+.git
+.next
+coverage
+dev-server*.log
+firebase-debug.log
+node_modules
+
+# Source/review image batches. Production only serves categories-ai-runtime.
+public/commerce-assets/ai-full-2026-05-07
+public/commerce-assets/ai-pilot-2026-05-07
+public/commerce-assets/categories
+public/commerce-assets/categories-ai
+public/commerce-assets/categories-ai-1254-review
+public/commerce-assets/categories-ai-removebg-review
+public/commerce-assets/fluent-emoji
+public/commerce-assets/sin fondo
+public/commerce-assets/sin fondo 1254-1254

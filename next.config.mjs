@@ -29,8 +29,23 @@ const storageImagePatterns = firebaseStorageBucket
       },
     ];
 
+const localCommerceAssetExcludes = [
+  "./public/commerce-assets/ai-full-2026-05-07/**/*",
+  "./public/commerce-assets/ai-pilot-2026-05-07/**/*",
+  "./public/commerce-assets/categories/**/*",
+  "./public/commerce-assets/categories-ai/**/*",
+  "./public/commerce-assets/categories-ai-1254-review/**/*",
+  "./public/commerce-assets/categories-ai-removebg-review/**/*",
+  "./public/commerce-assets/fluent-emoji/**/*",
+  "./public/commerce-assets/sin fondo/**/*",
+  "./public/commerce-assets/sin fondo 1254-1254/**/*",
+];
+
 const nextConfig = {
   outputFileTracingRoot: __dirname,
+  outputFileTracingExcludes: {
+    "*": localCommerceAssetExcludes,
+  },
   serverExternalPackages: ["@loskir/styled-qr-code-node", "skia-canvas"],
   images: {
     deviceSizes: [360, 414, 640, 750, 828, 1080, 1200, 1440, 1920],
