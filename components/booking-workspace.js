@@ -223,7 +223,7 @@ export function BookingWorkspace({ token, active = false, canEdit = true }) {
         date: nextFilters.date,
       });
       if (nextFilters.staffId) params.set("staffId", nextFilters.staffId);
-      const response = await apiFetch(`/api/booking?${params.toString()}`, { token });
+      const response = await apiFetch(`/api/booking?${params.toString()}`, { token, cache: "no-store" });
       setState(response.state);
       setConfigForm(response.state?.config || normalizeBookingConfig());
       setFilters(response.state?.filters || nextFilters);
@@ -236,7 +236,7 @@ export function BookingWorkspace({ token, active = false, canEdit = true }) {
     }
   }
 
-  async function runAction(action, payload = {}, file = null) {
+  async function runAction(action, payload = {}, file = null, options = {}) {
     setLoading(true);
     setMessage("");
     setError("");
@@ -251,9 +251,12 @@ export function BookingWorkspace({ token, active = false, canEdit = true }) {
         token,
         body,
         isFormData: true,
+        cache: "no-store",
       });
       setMessage("Cambios guardados.");
-      loadState(filters, { silent: true });
+      if (options.refresh !== false) {
+        await loadState(filters, { silent: true });
+      }
       return response.result;
     } catch (nextError) {
       setError(nextError.message);
@@ -279,7 +282,7 @@ export function BookingWorkspace({ token, active = false, canEdit = true }) {
       if (nextAppointment.id) {
         params.set("excludeAppointmentId", nextAppointment.id);
       }
-      const response = await apiFetch(`/api/booking?${params.toString()}`, { token });
+      const response = await apiFetch(`/api/booking?${params.toString()}`, { token, cache: "no-store" });
       setAvailabilityDates(Array.isArray(response.availability?.availableDates) ? response.availability.availableDates : []);
       setSlots(Array.isArray(response.availability?.slots) ? response.availability.slots : []);
     } catch (nextError) {
@@ -351,7 +354,7 @@ export function BookingWorkspace({ token, active = false, canEdit = true }) {
   }
 
   async function handleSaveConfig() {
-    const savedConfig = await runAction("save_config", configForm);
+    const savedConfig = await runAction("save_config", configForm, null, { refresh: false });
     if (savedConfig) {
       setConfigForm(normalizeBookingConfig(savedConfig));
       setState((current) => current ? {

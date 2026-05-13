@@ -17,6 +17,13 @@ import {
   updateBookingAppointmentStatus,
 } from "@/lib/booking-firestore";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
+const NO_STORE_HEADERS = {
+  "Cache-Control": "no-store, no-cache, must-revalidate",
+};
+
 function parsePayload(formData) {
   const raw = formData.get("payload");
   if (typeof raw !== "string" || !raw.trim()) return {};
@@ -46,7 +53,7 @@ export async function GET(request) {
       );
 
       const payload = { availability };
-      return NextResponse.json(payload, { headers: timing.headers(payload) });
+      return NextResponse.json(payload, { headers: timing.headers(payload, NO_STORE_HEADERS) });
     }
 
     const state = await timing.measure(
@@ -58,12 +65,12 @@ export async function GET(request) {
       "booking-state",
     );
     const payload = { state };
-    return NextResponse.json(payload, { headers: timing.headers(payload) });
+    return NextResponse.json(payload, { headers: timing.headers(payload, NO_STORE_HEADERS) });
   } catch (error) {
     const payload = { error: formatApiError(error, "No pudimos cargar la agenda.") };
     return NextResponse.json(payload, {
       status: 400,
-      headers: timing.headers(payload),
+      headers: timing.headers(payload, NO_STORE_HEADERS),
     });
   }
 }
@@ -120,13 +127,13 @@ export async function POST(request) {
 
     const payloadResponse = { ok: true, result };
     return NextResponse.json(payloadResponse, {
-      headers: timing.headers(payloadResponse),
+      headers: timing.headers(payloadResponse, NO_STORE_HEADERS),
     });
   } catch (error) {
     const payloadResponse = { error: formatApiError(error, "No pudimos guardar los cambios de agenda.") };
     return NextResponse.json(payloadResponse, {
       status: 400,
-      headers: timing.headers(payloadResponse),
+      headers: timing.headers(payloadResponse, NO_STORE_HEADERS),
     });
   }
 }
