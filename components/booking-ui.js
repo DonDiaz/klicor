@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Image from "next/image";
-import { Check, CheckCircle2, ChevronRight, Clock3, MessageCircle, UserRound, XCircle } from "lucide-react";
+import { CalendarClock, Check, CheckCircle2, ChevronRight, Clock3, MessageCircle, UserRound, XCircle } from "lucide-react";
 import { BOOKING_DAY_OPTIONS, formatTimeLabel } from "@/lib/booking-config";
 
 function money(value, currency = "COP") {
@@ -103,6 +103,16 @@ export function BookingStatusBadge({ statusMeta }) {
   );
 }
 
+function rejectAppointment(appointment, onStatusChange) {
+  const customerName = appointment.customerName || "este cliente";
+  const confirmed = window.confirm(
+    `Vas a rechazar la solicitud de ${customerName}. Esta accion no reserva el horario. Continuar?`
+  );
+
+  if (!confirmed) return;
+  onStatusChange?.(appointment.id, "cancelled_by_business");
+}
+
 export function BookingAppointmentCard({ appointment, compact = false, onWhatsapp, onReschedule, onStatusChange }) {
   if (compact) {
     return (
@@ -115,13 +125,22 @@ export function BookingAppointmentCard({ appointment, compact = false, onWhatsap
         <BookingStatusBadge statusMeta={appointment.statusMeta} />
         <div className="booking-appointment-actions">
           {appointment.status === "pending" ? (
-            <button className="booking-status-action is-confirm" type="button" onClick={() => onStatusChange?.(appointment.id, "confirmed")}>
-              Aceptar
+            <>
+              <button className="booking-status-action is-confirm" type="button" onClick={() => onStatusChange?.(appointment.id, "confirmed")}>
+                <CheckCircle2 size={14} /> Aceptar
+              </button>
+              <button className="booking-status-action" type="button" onClick={() => onReschedule?.(appointment)}>
+                <CalendarClock size={14} /> Reprogramar
+              </button>
+              <button className="booking-status-action is-cancel" type="button" onClick={() => rejectAppointment(appointment, onStatusChange)}>
+                <XCircle size={14} /> Rechazar
+              </button>
+            </>
+          ) : (
+            <button className="booking-status-action" type="button" onClick={() => onReschedule?.(appointment)}>
+              <CalendarClock size={14} /> Reprogramar
             </button>
-          ) : null}
-          <button className="booking-status-action" type="button" onClick={() => onReschedule?.(appointment)}>
-            Reprogramar
-          </button>
+          )}
         </div>
       </article>
     );
@@ -150,26 +169,29 @@ export function BookingAppointmentCard({ appointment, compact = false, onWhatsap
             <button className="booking-status-action is-confirm" type="button" onClick={() => onStatusChange?.(appointment.id, "confirmed")}>
               <CheckCircle2 size={16} /> Aceptar
             </button>
-            <button className="booking-status-action is-cancel" type="button" onClick={() => onStatusChange?.(appointment.id, "cancelled_by_business")}>
+            <button className="booking-status-action is-cancel" type="button" onClick={() => rejectAppointment(appointment, onStatusChange)}>
               <XCircle size={16} /> Rechazar
             </button>
           </>
         ) : null}
         <button className="booking-status-action" type="button" onClick={() => onReschedule?.(appointment)}>
-          Reprogramar
+          <CalendarClock size={16} /> Reprogramar
         </button>
-        <select
-          className="select"
-          value={appointment.status}
-          onChange={(event) => onStatusChange?.(appointment.id, event.target.value)}
-        >
-          <option value="pending">Solicitud pendiente</option>
-          <option value="confirmed">Confirmada</option>
-          <option value="completed">Completada</option>
-          <option value="cancelled_by_customer">Cancelada por cliente</option>
-          <option value="cancelled_by_business">Cancelada por negocio</option>
-          <option value="no_show">No asistió</option>
-        </select>
+        <label className="booking-status-select">
+          <span>Cambiar estado</span>
+          <select
+            className="select"
+            value={appointment.status}
+            onChange={(event) => onStatusChange?.(appointment.id, event.target.value)}
+          >
+            <option value="pending">Solicitud pendiente</option>
+            <option value="confirmed">Confirmada</option>
+            <option value="completed">Completada</option>
+            <option value="cancelled_by_customer">Cancelada por cliente</option>
+            <option value="cancelled_by_business">Cancelada por negocio</option>
+            <option value="no_show">No asistió</option>
+          </select>
+        </label>
         <button className="booking-whatsapp-button" type="button" onClick={() => onWhatsapp?.(appointment)}>
           <MessageCircle size={16} /> WhatsApp
         </button>

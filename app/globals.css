@@ -9227,6 +9227,21 @@ html[data-theme="dark"] .admin-sidebar-note {
   color: #b91c1c;
 }
 
+.booking-status-select {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.booking-status-select span {
+  color: var(--booking-muted, #475569);
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.booking-status-select .select {
+  width: 100%;
+}
+
 .booking-schedule-table {
   display: grid;
   gap: 0.55rem;
