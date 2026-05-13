@@ -293,7 +293,13 @@ export function BookingPublicView({ bootstrap }) {
     setLoadingDates(true);
     setError("");
     try {
-      const response = await apiFetch(`/api/public/booking/${business.usernameLower || business.username}?serviceId=${encodeURIComponent(nextServiceId)}&staffId=${encodeURIComponent(nextStaffId || "any")}`);
+      const params = new URLSearchParams({
+        serviceId: nextServiceId,
+        staffId: nextStaffId || "any",
+        scanDays: "7",
+        availableDatesLimit: "7",
+      });
+      const response = await apiFetch(`/api/public/booking/${business.usernameLower || business.username}?${params.toString()}`);
       const nextDates = Array.isArray(response.data?.availableDates) ? response.data.availableDates : [];
       const nextSlots = Array.isArray(response.data?.slots) ? response.data.slots : [];
       const nextGroups = groupSlotsByPeriod(nextSlots);
@@ -322,7 +328,12 @@ export function BookingPublicView({ bootstrap }) {
     setLoadingSlots(true);
     setError("");
     try {
-      const response = await apiFetch(`/api/public/booking/${business.usernameLower || business.username}?serviceId=${encodeURIComponent(nextServiceId)}&staffId=${encodeURIComponent(nextStaffId || "any")}&date=${encodeURIComponent(nextDate)}`);
+      const params = new URLSearchParams({
+        serviceId: nextServiceId,
+        staffId: nextStaffId || "any",
+        date: nextDate,
+      });
+      const response = await apiFetch(`/api/public/booking/${business.usernameLower || business.username}?${params.toString()}`);
       const nextSlots = Array.isArray(response.data?.slots) ? response.data.slots : [];
       const nextGroups = groupSlotsByPeriod(nextSlots);
       setSlots(nextSlots);

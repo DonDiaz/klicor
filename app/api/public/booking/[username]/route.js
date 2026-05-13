@@ -53,6 +53,8 @@ export async function GET(request, { params }) {
     const serviceId = String(searchParams.get("serviceId") || "").trim();
     const date = String(searchParams.get("date") || "").trim();
     const staffId = String(searchParams.get("staffId") || "").trim();
+    const scanDays = Math.max(Math.min(Number(searchParams.get("scanDays") || 7), 30), 1);
+    const availableDatesLimit = Math.max(Math.min(Number(searchParams.get("availableDatesLimit") || 7), 21), 1);
 
     if (!serviceId) {
       const data = await timing.measure(
@@ -81,8 +83,8 @@ export async function GET(request, { params }) {
         serviceId,
         staffId,
         date,
-        scanDays: date ? undefined : 30,
-        availableDatesLimit: date ? undefined : 21,
+        scanDays: date ? undefined : scanDays,
+        availableDatesLimit: date ? undefined : availableDatesLimit,
       }, owner),
       date ? "booking-slots" : "booking-dates",
     );
