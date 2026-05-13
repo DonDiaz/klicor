@@ -122,25 +122,39 @@ export function BookingAppointmentCard({ appointment, compact = false, onWhatsap
           <span>{appointment.serviceNameSnapshot}</span>
           <small>{formatTimeLabel(appointment.startTime)} - {formatTimeLabel(appointment.endTime)}</small>
         </div>
-        <BookingStatusBadge statusMeta={appointment.statusMeta} />
-        <div className="booking-appointment-actions">
-          {appointment.status === "pending" ? (
-            <>
-              <button className="booking-status-action is-confirm" type="button" onClick={() => onStatusChange?.(appointment.id, "confirmed")}>
-                <CheckCircle2 size={14} /> Aceptar
-              </button>
-              <button className="booking-status-action" type="button" onClick={() => onReschedule?.(appointment)}>
-                <CalendarClock size={14} /> Reprogramar
-              </button>
-              <button className="booking-status-action is-cancel" type="button" onClick={() => rejectAppointment(appointment, onStatusChange)}>
-                <XCircle size={14} /> Rechazar
-              </button>
-            </>
-          ) : (
-            <button className="booking-status-action" type="button" onClick={() => onReschedule?.(appointment)}>
-              <CalendarClock size={14} /> Reprogramar
-            </button>
-          )}
+        <div className="booking-appointment-controls">
+          <BookingStatusBadge statusMeta={appointment.statusMeta} />
+          <div className="booking-appointment-actions">
+            {appointment.status === "pending" ? (
+              <>
+                <button className="booking-status-action is-confirm" type="button" onClick={() => onStatusChange?.(appointment.id, "confirmed")}>
+                  <CheckCircle2 size={14} /> Aceptar
+                </button>
+                <button className="booking-status-action" type="button" onClick={() => onReschedule?.(appointment)}>
+                  <CalendarClock size={14} /> Reprogramar
+                </button>
+                <button className="booking-status-action is-cancel" type="button" onClick={() => rejectAppointment(appointment, onStatusChange)}>
+                  <XCircle size={14} /> Rechazar
+                </button>
+              </>
+            ) : (
+              <>
+                <button className="booking-status-action" type="button" onClick={() => onReschedule?.(appointment)}>
+                  <CalendarClock size={14} /> Reprogramar
+                </button>
+                {appointment.status === "confirmed" ? (
+                  <>
+                    <button className="booking-status-action is-confirm" type="button" onClick={() => onStatusChange?.(appointment.id, "completed")}>
+                      <CheckCircle2 size={14} /> Asistió
+                    </button>
+                    <button className="booking-status-action is-cancel" type="button" onClick={() => onStatusChange?.(appointment.id, "no_show")}>
+                      <XCircle size={14} /> No asistió
+                    </button>
+                  </>
+                ) : null}
+              </>
+            )}
+          </div>
         </div>
       </article>
     );

@@ -9118,6 +9118,8 @@ html[data-theme="dark"] .admin-sidebar-note {
   gap: 0.35rem;
   background: rgba(240, 253, 244, 0.92);
   border-color: rgba(22, 163, 74, 0.18);
+  grid-template-columns: minmax(11rem, 1fr) auto;
+  align-items: center;
 }
 
 .booking-appointment-card.is-compact .booking-appointment-copy {
@@ -9141,16 +9143,26 @@ html[data-theme="dark"] .admin-sidebar-note {
   font-weight: 700;
 }
 
+.booking-appointment-card.is-compact .booking-appointment-controls {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.45rem;
+  min-width: 0;
+}
+
 .booking-appointment-card.is-compact .booking-appointment-actions {
   display: flex;
-  gap: 0.4rem;
+  justify-content: flex-end;
+  gap: 0.3rem;
   flex-wrap: wrap;
 }
 
 .booking-appointment-card.is-compact .booking-status-action {
-  min-height: 2rem;
-  padding: 0.35rem 0.55rem;
+  min-height: 1.85rem;
+  padding: 0.28rem 0.5rem;
   font-size: 0.72rem;
+  white-space: nowrap;
 }
 
 .booking-appointment-main {
@@ -9179,6 +9191,7 @@ html[data-theme="dark"] .admin-sidebar-note {
 .booking-appointment-card.is-compact .booking-status-badge {
   min-height: 1.65rem;
   padding: 0.15rem 0.55rem;
+  white-space: nowrap;
 }
 
 .booking-status-badge.is-pending {
@@ -9347,6 +9360,17 @@ html[data-theme="dark"] .admin-sidebar-note {
 
 .booking-admin-content {
   min-width: 0;
+}
+
+@media (max-width: 720px) {
+  .booking-appointment-card.is-compact {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .booking-appointment-card.is-compact .booking-appointment-controls,
+  .booking-appointment-card.is-compact .booking-appointment-actions {
+    justify-content: flex-start;
+  }
 }
 
 @media (min-width: 860px) {
