@@ -57,7 +57,6 @@ export function AdminPageClient() {
           title="Acceso administrativo"
           description="Inicia sesión con el correo administrador autorizado para entrar al panel de Klicor."
           googleLabel="Entrar con Google"
-          microsoftLabel="Entrar con Microsoft"
           submitLabel="Entrar con correo"
           onSuccess={() => window.location.assign("/admin")}
         />

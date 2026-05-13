@@ -159,7 +159,7 @@ Decision de producto:
 - Los estados funcionales base son `pending`, `confirmed`, `completed`, `cancelled_by_customer`, `cancelled_by_business` y `no_show`.
 - El cliente publico debe identificarse preferiblemente con login de Google mediante Firebase Auth. Asi Klicor obtiene nombre, email, foto y verificacion del proveedor sin pedir que escriba el correo.
 - El primer uso de Agenda puede pedir login; la persistencia de sesion debe revisarse antes de produccion porque una sesion permanente en equipos compartidos es riesgo de seguridad.
-- Tarea pendiente preproduccion: cambiar autenticacion de dueños/clientes a sesion no permanente por defecto o a una opcion explicita de "recordarme", validando que no rompa Google, Microsoft ni enlace magico.
+- Tarea pendiente preproduccion: cambiar autenticacion de dueños/clientes a sesion no permanente por defecto o a una opcion explicita de "recordarme", validando que no rompa Google ni enlace magico.
 - El telefono/WhatsApp se sigue pidiendo o confirmando porque es necesario para contacto operativo y recordatorios, pero el email para notificaciones debe salir de la cuenta autenticada cuando exista.
 - El correo de notificacion al negocio debe usar por defecto el mismo correo con el que el negocio se logea en Klicor (`user.email`). No se debe pedir otro correo obligatorio para empezar.
 - El correo al cliente y al negocio debe respetar el estado real: solicitud recibida, cita confirmada, cita reprogramada, cita cancelada/rechazada, o cambio operativo.

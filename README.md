@@ -5,7 +5,7 @@ SaaS tipo link in bio para negocios y emprendedores.
 ## Incluye
 
 - Next.js App Router listo para Vercel
-- Firebase Auth con Google, Microsoft y enlace de acceso por correo
+- Firebase Auth con Google y enlace de acceso por correo
 - Firestore para usuarios, pagos, analytics y settings
 - Firebase Storage para imagen del negocio, QR del perfil y QR oficial de llave
 - Landing publica por username con resolucion estable por `publicLinkId`
@@ -55,7 +55,7 @@ Copia `.env.example` a `.env.local` y completa:
 ## Firebase
 
 1. Crea un proyecto en Firebase.
-2. Activa Authentication con Google, Microsoft y Email link (passwordless).
+2. Activa Authentication con Google y Email link (passwordless).
 3. Agrega tus dominios productivos a `Authorized domains`.
 4. Crea Firestore en modo production.
 5. Crea Firebase Storage.

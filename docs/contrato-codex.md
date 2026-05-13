@@ -284,7 +284,7 @@ Reglas obligatorias:
 - La navegacion global de Klicor debe mantenerse lateral; la navegacion interna de Agenda debe tratarse como navegacion contextual del modulo.
 - La identidad del cliente en Agenda publica debe resolverse preferiblemente con login de Google usando Firebase Auth, no pidiendo correo escrito manualmente como fuente principal.
 - La persistencia de sesion en Agenda y dashboard debe ser una decision explicita de seguridad, no un comportamiento permanente automatico.
-- Tarea pendiente preproduccion: usar sesion no permanente por defecto o agregar "recordarme" desmarcado por defecto, validando Google, Microsoft y enlace magico.
+- Tarea pendiente preproduccion: usar sesion no permanente por defecto o agregar "recordarme" desmarcado por defecto, validando Google y enlace magico.
 - El correo del cliente para notificaciones debe venir de la cuenta autenticada y verificada por el proveedor; no debe confiarse en un email libre escrito en el formulario publico.
 - El telefono/WhatsApp del cliente puede seguir siendo requerido para contacto operativo y recordatorios, pero debe guardarse asociado al cliente autenticado cuando exista sesion.
 - Las citas deben poder guardar referencia de cliente autenticado: `customerUid`, `customerEmail`, `customerEmailVerified`, `customerPhotoURL`, `customerAuthProvider` y telefono normalizado, sin romper citas antiguas que solo tengan nombre y telefono.

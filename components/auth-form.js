@@ -21,18 +21,10 @@ import {
   MailCheck,
   ShieldCheck,
 } from "lucide-react";
-import { getClientAuth, getGoogleProvider, getMicrosoftProvider } from "@/lib/firebase-client";
+import { getClientAuth, getGoogleProvider } from "@/lib/firebase-client";
 import { apiFetch } from "@/lib/client-api";
 
 const EMAIL_LINK_STORAGE_KEY = "klicor-email-link";
-
-function MicrosoftIcon() {
-  return (
-    <svg aria-hidden="true" viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
-      <path d="M2 3.5 11 2v9H2V3.5Zm10 8h10V1l-10 1.5v9Zm-10 1h9v9.5L2 20.5v-8Zm10 0h10V23l-10-1.5v-9Z" />
-    </svg>
-  );
-}
 
 function getAuthErrorMessage(error) {
   const code = error?.code || "";
@@ -46,7 +38,7 @@ function getAuthErrorMessage(error) {
   if (code === "auth/operation-not-allowed") return "Este método de acceso no está habilitado todavía en Firebase.";
   if (code === "auth/unauthorized-domain") return "Este dominio todavía no está autorizado en Firebase para este acceso.";
   if (code === "auth/account-exists-with-different-credential") {
-    return "Ese correo ya existe con otro método. Prueba con Google, Microsoft o con el enlace al correo.";
+    return "Ese correo ya existe con otro método. Prueba con Google o con el enlace al correo.";
   }
   if (code === "auth/unauthorized-continue-uri" || code === "auth/invalid-continue-uri") {
     return "El acceso por correo no está bien configurado todavía.";
@@ -66,7 +58,6 @@ export function AuthForm({
   description,
   submitLabel,
   googleLabel = "Continuar con Google",
-  microsoftLabel = "Continuar con Microsoft",
   onSuccess,
 }) {
   const router = useRouter();
@@ -206,7 +197,7 @@ export function AuthForm({
     }
   }
 
-  async function handleProviderSignIn(providerName) {
+  async function handleGoogleSignIn() {
     const auth = getClientAuth();
     if (!auth) return;
     await setPersistence(auth, browserSessionPersistence);
@@ -215,10 +206,10 @@ export function AuthForm({
       return;
     }
 
-    const provider = providerName === "microsoft" ? getMicrosoftProvider() : getGoogleProvider();
+    const provider = getGoogleProvider();
 
     setLoading(true);
-    setLoadingAction(providerName);
+    setLoadingAction("google");
     setFeedback("", "neutral");
     try {
       const credential = await signInWithPopup(auth, provider);
@@ -244,8 +235,8 @@ export function AuthForm({
   const resolvedTitle = title || "Entra o crea tu cuenta";
   const resolvedDescription = description || (
     allowRegister
-      ? "Accede con Google, Microsoft o recibe un enlace en tu correo. Así activas tu Klicor con menos fricción y sin depender de una contraseña."
-      : "Accede con Google, Microsoft o con un enlace a tu correo para entrar sin fricción."
+      ? "Accede con Google o recibe un enlace en tu correo. Así activas tu Klicor con menos fricción y sin depender de una contraseña."
+      : "Accede con Google o con un enlace a tu correo para entrar sin fricción."
   );
   const resolvedEmailButtonLabel = submitLabel || (pendingEmailLink ? "Completar acceso con correo" : "Continuar con correo");
   const messageClassName = useMemo(() => {
@@ -269,7 +260,6 @@ export function AuthForm({
         {!compact ? (
           <div className="auth-entry-badges">
             <span><CheckCircle2 size={16} /> Google disponible</span>
-            <span><MicrosoftIcon /> Microsoft disponible</span>
             <span><MailCheck size={16} /> Correo con enlace directo</span>
           </div>
         ) : null}
@@ -280,21 +270,11 @@ export function AuthForm({
           <button
             className="btn btn-secondary auth-provider-button"
             type="button"
-            onClick={() => handleProviderSignIn("google")}
+            onClick={handleGoogleSignIn}
             disabled={loading}
           >
             <Chrome size={18} />
             {loading && loadingAction === "google" ? "Entrando con Google..." : googleLabel}
-          </button>
-
-          <button
-            className="btn btn-secondary auth-provider-button"
-            type="button"
-            onClick={() => handleProviderSignIn("microsoft")}
-            disabled={loading}
-          >
-            <MicrosoftIcon />
-            {loading && loadingAction === "microsoft" ? "Entrando con Microsoft..." : microsoftLabel}
           </button>
         </div>
 
@@ -345,7 +325,7 @@ export function AuthForm({
             </span>
           </label>
         ) : (
-          <p className="auth-inline-note">Usa Google, Microsoft o tu correo para entrar sin fricción.</p>
+          <p className="auth-inline-note">Usa Google o tu correo para entrar sin fricción.</p>
         )}
       </div>
 

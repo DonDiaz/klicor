@@ -102,7 +102,7 @@ Firebase Storage es razonable para imágenes, pero el costo puede crecer por sto
 
 ### Firebase Auth
 
-Mantenerlo inicialmente. Ya resuelve Google, Microsoft, email link, tokens y claims de admin. Mover Auth antes de mover datos complicaría la migración sin resolver el principal problema de costo.
+Mantenerlo inicialmente. Ya resuelve Google, email link, tokens y claims de admin. Mover Auth antes de mover datos complicaría la migración sin resolver el principal problema de costo.
 
 Diseño recomendado:
 

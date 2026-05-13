@@ -15,7 +15,6 @@ export function LandingLoginModal({
   title,
   description,
   googleLabel,
-  microsoftLabel,
   align = "end",
 }) {
   const router = useRouter();
@@ -97,11 +96,10 @@ export function LandingLoginModal({
           title={title || (allowRegister ? "Crea tu Klicor" : "Entra a tu panel")}
           description={description || (
             allowRegister
-              ? "Regístrate con Google, Microsoft o correo y entra directo a tu panel."
-              : "Usa Google, Microsoft o un enlace a tu correo para entrar sin fricción."
+              ? "Regístrate con Google o correo y entra directo a tu panel."
+              : "Usa Google o un enlace a tu correo para entrar sin fricción."
           )}
           googleLabel={googleLabel || (allowRegister ? "Crear con Google" : "Continuar con Google")}
-          microsoftLabel={microsoftLabel || (allowRegister ? "Crear con Microsoft" : "Continuar con Microsoft")}
           onSuccess={handleSuccess}
         />
       </div>

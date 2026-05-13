@@ -88,7 +88,7 @@ const registerModalProps = {
   allowRegister: true,
   align: "start",
   title: "Crear mi Klicor",
-  description: "Regístrate con Google, Microsoft o correo y entra directo a tu panel.",
+  description: "Regístrate con Google o correo y entra directo a tu panel.",
 };
 
 export default function HomePage() {
@@ -107,7 +107,7 @@ export default function HomePage() {
             <LandingLoginModal
               triggerLabel="Iniciar sesión"
               title="Iniciar sesión"
-              description="Entra con Google, Microsoft o un enlace a tu correo para administrar tu Klicor."
+              description="Entra con Google o un enlace a tu correo para administrar tu Klicor."
             />
             <LandingLoginModal
               triggerLabel="Crear mi Klicor"
