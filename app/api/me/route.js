@@ -4,6 +4,7 @@ import { formatDate, toDate } from "@/lib/utils";
 import { verifyRequest } from "@/lib/auth";
 import { ensureDorikaCoverDownloadUrl, getAccountView, getAdminSettings } from "@/lib/firestore";
 import { createServerTiming } from "@/lib/server-timing";
+import { getRequestAppUrl } from "@/lib/env";
 
 const SHARE_LINK_VERSION = "v1";
 
@@ -16,6 +17,7 @@ export async function GET(request) {
     const repairedUser = await timing.measure("dorika-cover", () => ensureDorikaCoverDownloadUrl(user.uid, user), "dorika-cover");
     const account = getAccountView(repairedUser);
     const updatedAtMs = toDate(account.updatedAt)?.getTime() || 0;
+    const appUrl = getRequestAppUrl(request);
 
     const payload = {
       user: {
@@ -26,8 +28,8 @@ export async function GET(request) {
         expiresAtLabel: formatDate(account.expiresAt),
       },
       settings,
-      publicUrl: buildVanityProfileUrl(account.username),
-      shareUrl: buildShareProfileUrl(account.username, `${SHARE_LINK_VERSION}-${updatedAtMs}`),
+      publicUrl: buildVanityProfileUrl(account.username, appUrl),
+      shareUrl: buildShareProfileUrl(account.username, `${SHARE_LINK_VERSION}-${updatedAtMs}`, appUrl),
       stablePublicUrl: account.stablePublicUrl || "",
     };
 

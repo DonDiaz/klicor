@@ -6,6 +6,7 @@ import { verifyRequest } from "@/lib/auth";
 import { getAccountView, updateUserProfile } from "@/lib/firestore";
 import { getAppearanceWarnings } from "@/lib/theme-system";
 import { toDate } from "@/lib/utils";
+import { getRequestAppUrl } from "@/lib/env";
 
 const SHARE_LINK_VERSION = "v1";
 
@@ -91,14 +92,15 @@ export async function POST(request) {
     });
     const account = getAccountView(nextUser);
     const updatedAtMs = toDate(account.updatedAt)?.getTime() || 0;
+    const appUrl = getRequestAppUrl(request);
 
     return NextResponse.json({
       user: {
         ...account,
         trialEndsAtLabel: account.trialEndsAt?.toISOString() || null,
         expiresAtLabel: account.expiresAt?.toISOString() || null,
-        publicUrl: buildVanityProfileUrl(account.username),
-        shareUrl: buildShareProfileUrl(account.username, `${SHARE_LINK_VERSION}-${updatedAtMs}`),
+        publicUrl: buildVanityProfileUrl(account.username, appUrl),
+        shareUrl: buildShareProfileUrl(account.username, `${SHARE_LINK_VERSION}-${updatedAtMs}`, appUrl),
         stablePublicUrl: account.stablePublicUrl || "",
       },
     });
