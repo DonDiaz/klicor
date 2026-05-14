@@ -367,7 +367,28 @@ Prohibido:
 - Usar cards enormes para selecciones simples.
 - Agregar textos explicativos largos dentro de la UI.
 
-## 12.1 Lector de Logo y Temas
+## 12.1 Mantenimiento de CSS y Cambios Visuales
+
+Reglas obligatorias:
+
+- No agregar CSS nuevo encima de CSS viejo sin revisar primero que reglas existentes afectan el componente, vista o modulo.
+- Cuando se modifique una tarjeta, boton, modal, grilla, vista publica, dashboard o preview, se deben buscar las clases relacionadas completas antes de editar.
+- Si una regla nueva contradice una regla vieja, no se debe dejar la pelea en cascada: se debe reemplazar, consolidar o eliminar la regla anterior cuando ya no aplique.
+- Todo cambio visual debe considerar donde mas se usa el componente o clase: publico, dashboard, preview, movil, desktop y estados dinamicos.
+- Cuando se reemplace comportamiento visual, el codigo viejo relacionado debe eliminarse en el mismo cambio si ya no tiene uso real.
+- Si no es seguro eliminar una regla vieja porque puede estar ligada a clases dinamicas, se debe dejar constancia en el informe y no borrar a ciegas.
+- Los bloques CSS nuevos deben tener contexto claro por modulo o superficie: base, link publico, dashboard, agenda, commerce, landing, admin o preview.
+- Antes de cerrar una modificacion visual, revisar `git diff` para detectar si se esta duplicando una solucion ya existente.
+
+Prohibido:
+
+- Parchear visualmente agregando selectores mas especificos sin revisar la causa original.
+- Dejar dos fuentes de verdad para el mismo comportamiento visual.
+- Usar `!important` para resolver conflictos de cascada salvo emergencia justificada y documentada.
+- Hacer limpiezas masivas de CSS sin pruebas visuales por modulo.
+- Borrar clases sospechosas solo porque no aparecen en busqueda textual; primero validar clases dinamicas, estados y vistas condicionales.
+
+## 12.2 Lector de Logo y Temas
 
 Reglas obligatorias:
 
