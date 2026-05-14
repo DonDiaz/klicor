@@ -2530,38 +2530,35 @@ export function ProfileForm({
                 const paymentValue = usesBrebValue ? method.brebKey : method.accountNumber;
                 return (
                   <div className="link-row payment-method-row" key={method.id}>
-                    <div>
-                      <label className="label">Entidad</label>
-                      <select
-                        className="select"
-                        value={method.entityId}
-                        onChange={(e) => updatePaymentMethod(method.id, "entityId", e.target.value)}
-                        disabled={!canEdit}
-                      >
-                        <option value="">Selecciona una entidad</option>
-                        {COLOMBIA_FINANCIAL_ENTITY_OPTIONS.map((option) => (
-                          <option key={`${method.id}-${option.value}`} value={option.value}>
-                            {option.label}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                    <div>
-                      <label className="label">Número de cuenta o llave Bre-B</label>
-                      <input
-                        className="input"
-                        value={paymentValue}
-                        placeholder={usesBrebValue ? "Ej. tu-llave@breb" : showAccountType ? "Ej. 1234567890" : "Ej. 3001234567"}
-                        onChange={(e) => updatePaymentMethodValue(method.id, e.target.value)}
-                        disabled={!canEdit}
-                      />
-                    </div>
-                    <button className="btn btn-secondary link-remove" type="button" onClick={() => removePaymentMethod(method.id)} disabled={!canEdit} aria-label={`Eliminar método de pago ${index + 1}`}>
-                      <Trash2 size={16} />
-                    </button>
-
-                    {showAccountType ? (
-                      <div className="link-row-message">
+                    <div className="payment-method-fields">
+                      <div>
+                        <label className="label">Entidad</label>
+                        <select
+                          className="select"
+                          value={method.entityId}
+                          onChange={(e) => updatePaymentMethod(method.id, "entityId", e.target.value)}
+                          disabled={!canEdit}
+                        >
+                          <option value="">Selecciona una entidad</option>
+                          {COLOMBIA_FINANCIAL_ENTITY_OPTIONS.map((option) => (
+                            <option key={`${method.id}-${option.value}`} value={option.value}>
+                              {option.label}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div>
+                        <label className="label">Número de cuenta o llave Bre-B</label>
+                        <input
+                          className="input"
+                          value={paymentValue}
+                          placeholder={usesBrebValue ? "Ej. tu-llave@breb" : showAccountType ? "Ej. 1234567890" : "Ej. 3001234567"}
+                          onChange={(e) => updatePaymentMethodValue(method.id, e.target.value)}
+                          disabled={!canEdit}
+                        />
+                      </div>
+                      {showAccountType ? (
+                        <div>
                         <label className="label">Tipo de cuenta</label>
                         <select
                           className="select"
@@ -2577,10 +2574,15 @@ export function ProfileForm({
                           ))}
                         </select>
                       </div>
-                    ) : null}
+                      ) : null}
+                    </div>
+
+                    <button className="btn btn-secondary payment-method-delete" type="button" onClick={() => removePaymentMethod(method.id)} disabled={!canEdit} aria-label={`Eliminar método de pago ${index + 1}`}>
+                      <Trash2 size={16} />
+                      <span>Eliminar método</span>
+                    </button>
 
                     <div className="link-row-message payment-method-secondary-row">
-                      {showAccountType ? <span /> : <span />}
                       {method.entityId ? (
                         <div className="payment-method-qr-group">
                           <label className={`payment-method-qr-chip ${!canEdit ? "payment-method-qr-chip-disabled" : ""}`}>
@@ -2607,10 +2609,7 @@ export function ProfileForm({
                           ) : null}
                         </div>
                       ) : null}
-                    </div>
-
-                    <div className="link-row-message">
-                      <p className="muted" style={{ marginTop: ".45rem" }}>
+                      <p className="muted payment-method-summary">
                         {method.entityId
                           ? `Método ${index + 1}: ${resolveFinancialEntityLabel(method.entityId)}.`
                           : "Selecciona una entidad para definir cómo se mostrará este método."}
