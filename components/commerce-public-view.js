@@ -18,7 +18,7 @@ import { FONT_FAMILY_STYLE_MAP } from "@/app/fonts";
 import { CommerceCategoryAsset } from "@/components/commerce-category-asset";
 import { getBusinessOpenStatus } from "@/lib/business-hours";
 import { apiFetch } from "@/lib/client-api";
-import { resolveCommerceModeMeta } from "@/lib/commerce-config";
+import { buildCommerceProductPublicUrl, resolveCommerceModeMeta } from "@/lib/commerce-config";
 import { buildWhatsappLink } from "@/lib/utils";
 import { hexToRgba, normalizeAppearance } from "@/lib/theme-system";
 
@@ -438,8 +438,10 @@ function ProductCard({
   currency,
   supportsCart,
   orderingEnabled,
+  whatsappAvailable,
   onAdd,
   onOpenDetails,
+  onWhatsapp,
 }) {
   const [imageFailed, setImageFailed] = useState(false);
   const hasDescription = Boolean(String(product.description || "").trim());
@@ -504,7 +506,22 @@ function ProductCard({
               >
                 <Plus size={16} strokeWidth={2.5} />
               </button>
-            ) : null}
+            ) : (
+              <button
+                className="commerce-product-add-button is-whatsapp"
+                type="button"
+                aria-label={orderingEnabled && whatsappAvailable ? `Consultar ${product.name} por WhatsApp` : "Cerrado ahora"}
+                title={orderingEnabled && whatsappAvailable ? "WhatsApp" : "Cerrado"}
+                onClick={(event) => {
+                  event.preventDefault();
+                  event.stopPropagation();
+                  onWhatsapp(product);
+                }}
+                disabled={preview || !orderingEnabled || !whatsappAvailable}
+              >
+                <MessageCircle size={16} strokeWidth={2.5} />
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -520,12 +537,14 @@ function ProductsGrid({
   isPending,
   orderingEnabled,
   onAdd,
+  onWhatsapp,
   onOpenDetails,
   onLoadMore,
   emptyLabel,
 }) {
   const currency = bootstrap?.config?.currency || "COP";
   const supportsCart = Boolean(bootstrap?.supportsCart);
+  const whatsappAvailable = Boolean(bootstrap?.orderWhatsapp);
   const safeProducts = normalizePublicProducts(products);
   const safePagination = normalizePagination(pagination);
   return (
@@ -539,7 +558,9 @@ function ProductsGrid({
             currency={currency}
             supportsCart={supportsCart}
             orderingEnabled={orderingEnabled}
+            whatsappAvailable={whatsappAvailable}
             onAdd={onAdd}
+            onWhatsapp={onWhatsapp}
             onOpenDetails={onOpenDetails}
           />
         ))}
@@ -1083,10 +1104,65 @@ export function CommercePublicView({ bootstrap, preview = false }) {
     setDetailImageIndex(0);
   }
 
+  function getProductImageUrl(product = {}) {
+    return product.imageUrl || product.imageCardUrl || product.imageThumbUrl || "";
+  }
+
+  function buildAbsoluteProductUrl(product = {}) {
+    const path = buildCommerceProductPublicUrl(safeBusiness.username, safeMode, product?.id);
+    if (!path) return "";
+    if (typeof window === "undefined") return path;
+    return new URL(path, window.location.origin).toString();
+  }
+
+  function buildProductWhatsappMessage(product = {}) {
+    const lines = [
+      "Hola, quiero informacion de este producto:",
+      "",
+      product.name || "Producto",
+    ];
+    if (product.price !== null && product.price !== undefined) {
+      lines.push(`Precio: ${formatCurrency(product.price, safeConfig.currency)}`);
+    }
+    const productUrl = buildAbsoluteProductUrl(product);
+    if (productUrl) lines.push(`Link: ${productUrl}`);
+    const imageUrl = getProductImageUrl(product);
+    if (imageUrl) lines.push(`Imagen: ${imageUrl}`);
+    return lines.filter(Boolean).join("\n");
+  }
+
+  function handleProductWhatsapp(product) {
+    if (preview || !safeBootstrap.orderWhatsapp || !orderingEnabled || !product) return;
+    window.open(buildWhatsappLink(safeBootstrap.orderWhatsapp, buildProductWhatsappMessage(product)), "_blank", "noopener,noreferrer");
+  }
+
   function handleDetailWhatsapp(product) {
     if (preview || !safeBootstrap.orderWhatsapp || !orderingEnabled || !product) return;
-    const message = `Hola, vi este producto en tu catalogo:\n${product.name}\n\nEsta disponible?`;
-    window.open(buildWhatsappLink(safeBootstrap.orderWhatsapp, message), "_blank", "noopener,noreferrer");
+    window.open(buildWhatsappLink(safeBootstrap.orderWhatsapp, buildProductWhatsappMessage(product)), "_blank", "noopener,noreferrer");
+  }
+
+  async function handleShareProduct(product) {
+    if (preview || typeof window === "undefined" || !product) return;
+    const shareUrl = buildAbsoluteProductUrl(product);
+    if (!shareUrl) return;
+    const shareData = {
+      title: product.name || safeBusiness.businessName,
+      text: `Mira este producto de ${safeBusiness.businessName}`,
+      url: shareUrl,
+    };
+
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+        return;
+      } catch {
+        return;
+      }
+    }
+
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(shareUrl);
+    }
   }
 
   async function handleShareStore() {
@@ -1210,6 +1286,7 @@ export function CommercePublicView({ bootstrap, preview = false }) {
                 isPending={isPending}
                 orderingEnabled={orderingEnabled}
                 onAdd={handleAddToCart}
+                onWhatsapp={handleProductWhatsapp}
                 onOpenDetails={openProductDetail}
                 onLoadMore={() => loadChunk(selection, { append: true, after: pagination.nextCursor, includeSubcategories: false })}
                 emptyLabel={safeModeMeta.emptyLabel}
@@ -1386,11 +1463,31 @@ export function CommercePublicView({ bootstrap, preview = false }) {
                     <strong>{formatCurrency(Number(detailProduct.price || 0) * getProductQuantity(detailProduct.id), safeConfig.currency)}</strong>
                   ) : null}
                 </button>
+                <button
+                  className="btn btn-secondary commerce-product-detail-share"
+                  type="button"
+                  onClick={() => handleShareProduct(detailProduct)}
+                  disabled={preview}
+                >
+                  <Share2 size={18} />
+                  Compartir producto
+                </button>
               </div>
             ) : (
-              <button className="btn btn-primary commerce-product-detail-whatsapp" type="button" onClick={() => handleDetailWhatsapp(detailProduct)} disabled={!safeBootstrap.orderWhatsapp || preview || !orderingEnabled}>
-                <MessageCircle size={18} /> {orderingEnabled ? "Pedir por WhatsApp" : "Cerrado ahora"}
-              </button>
+              <div className="commerce-product-detail-actions">
+                <button className="btn btn-primary commerce-product-detail-whatsapp" type="button" onClick={() => handleDetailWhatsapp(detailProduct)} disabled={!safeBootstrap.orderWhatsapp || preview || !orderingEnabled}>
+                  <MessageCircle size={18} /> {orderingEnabled ? "Pedir informacion" : "Cerrado ahora"}
+                </button>
+                <button
+                  className="btn btn-secondary commerce-product-detail-share"
+                  type="button"
+                  onClick={() => handleShareProduct(detailProduct)}
+                  disabled={preview}
+                >
+                  <Share2 size={18} />
+                  Compartir producto
+                </button>
+              </div>
             )}
           </div>
         </div>
