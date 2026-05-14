@@ -10646,7 +10646,7 @@ html[data-theme="dark"] .admin-sidebar-note {
 .commerce-icon-picker-group > strong {
   color: var(--text-secondary);
   font-size: 0.74rem;
-  font-weight: 900;
+  font-weight: 600;
   letter-spacing: 0.01em;
 }
 
@@ -10669,7 +10669,7 @@ html[data-theme="dark"] .admin-sidebar-note {
   color: var(--text-primary);
   background: #fff;
   font-size: 0.68rem;
-  font-weight: 850;
+  font-weight: 500;
   line-height: 1.05;
   text-align: center;
   overflow: hidden;
@@ -10685,8 +10685,12 @@ html[data-theme="dark"] .admin-sidebar-note {
   max-width: 100%;
   min-width: 0;
   overflow: hidden;
-  overflow-wrap: anywhere;
+  font-size: 0.62rem;
+  font-weight: 500;
+  line-height: 1.08;
+  overflow-wrap: normal;
   word-break: normal;
+  text-wrap: balance;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
 }
@@ -10907,6 +10911,7 @@ html[data-theme="dark"] .admin-sidebar-note {
 
 .commerce-page:not(.is-preview).commerce-layout-catalog_feed .commerce-visual-product-card .commerce-product-copy strong {
   font-size: 0.9rem;
+  font-weight: 500;
   line-height: 1.12;
   -webkit-line-clamp: 2;
 }
@@ -10923,6 +10928,7 @@ html[data-theme="dark"] .admin-sidebar-note {
 .commerce-page:not(.is-preview).commerce-layout-catalog_feed .commerce-visual-product-card .commerce-product-copy span,
 .commerce-page:not(.is-preview).commerce-layout-catalog_feed .commerce-visual-product-card .commerce-product-price-placeholder {
   font-size: 0.86rem;
+  font-weight: 500;
   line-height: 1.12;
 }
 
@@ -11033,10 +11039,11 @@ html[data-theme="dark"] .admin-sidebar-note {
   max-width: 100%;
   min-width: 0;
   font-size: 0.68rem;
-  font-weight: 760;
+  font-weight: 500;
   line-height: 1.02;
-  overflow-wrap: anywhere;
+  overflow-wrap: normal;
   word-break: normal;
+  text-wrap: balance;
 }
 
 .commerce-page:not(.is-preview).commerce-layout-store_grid .commerce-products-grid.is-cart-grid {
@@ -11072,7 +11079,7 @@ html[data-theme="dark"] .admin-sidebar-note {
 }
 
 .commerce-page:not(.is-preview).commerce-layout-store_grid .commerce-visual-product-card .commerce-product-copy strong {
-  font-weight: 760;
+  font-weight: 500;
 }
 
 .commerce-page:not(.is-preview).commerce-layout-store_grid .commerce-visual-product-card .commerce-product-footer {
@@ -11089,7 +11096,7 @@ html[data-theme="dark"] .admin-sidebar-note {
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
-  font-weight: 780;
+  font-weight: 500;
 }
 
 .commerce-page:not(.is-preview).commerce-layout-store_grid .commerce-visual-product-card .commerce-product-add-button {
