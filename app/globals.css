@@ -9938,10 +9938,6 @@ html[data-theme="dark"] .admin-sidebar-note {
   height: 2rem;
 }
 
-.commerce-board-dot .commerce-category-asset-symbol {
-  font-size: 1.42rem;
-}
-
 .commerce-board-dot .commerce-category-asset-image {
   width: 1.82rem;
   height: 1.82rem;
@@ -10732,14 +10728,6 @@ html[data-theme="dark"] .admin-sidebar-note {
   display: none;
 }
 
-.commerce-category-asset-symbol {
-  display: block;
-  font-size: 1.78rem;
-  line-height: 1;
-  filter: drop-shadow(0 7px 8px rgba(15, 23, 42, 0.16));
-  transform: translateY(-1px);
-}
-
 .commerce-category-asset-image {
   width: 2.16rem;
   height: 2.16rem;
@@ -10747,30 +10735,6 @@ html[data-theme="dark"] .admin-sidebar-note {
   object-fit: contain;
   filter: drop-shadow(0 8px 9px rgba(15, 23, 42, 0.18));
   transform: translateY(-1px);
-}
-
-.commerce-category-asset-svg {
-  width: 2.16rem;
-  height: 2.16rem;
-  display: block;
-  overflow: hidden;
-  filter: drop-shadow(0 8px 9px rgba(15, 23, 42, 0.18));
-}
-
-.commerce-category-asset-badge {
-  position: absolute;
-  right: -0.02rem;
-  bottom: -0.02rem;
-  min-width: 0.98rem;
-  height: 0.98rem;
-  display: inline-grid;
-  place-items: center;
-  border: 2px solid #fff;
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--commerce-primary, #6d28d9) 18%, white);
-  font-size: 0.72rem;
-  line-height: 1;
-  box-shadow: 0 7px 14px rgba(15, 23, 42, 0.14);
 }
 
 .commerce-category-chip .commerce-category-image {
