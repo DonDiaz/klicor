@@ -3263,20 +3263,14 @@ html[data-theme="dark"] .admin-sidebar-note {
   gap: 0.65rem;
 }
 
-.preview-shell-editor .dashboard-preview-mobile-stage .public-social-strip.is-brand-circles {
-  grid-template-columns: repeat(auto-fit, minmax(52px, max-content));
-}
-
 .preview-shell-editor .dashboard-preview-mobile-stage .public-social-link {
   min-height: 48px;
   border-radius: 14px;
 }
 
-.preview-shell-editor .dashboard-preview-mobile-stage .public-social-link.is-brand-circle {
-  width: 52px;
-  min-width: 52px;
-  min-height: 52px;
-  border-radius: 999px;
+.preview-shell-editor .dashboard-preview-mobile-stage .public-social-link.is-brand-icon {
+  min-height: 48px;
+  border-radius: 14px;
 }
 
 .preview-shell-editor .dashboard-preview-mobile-stage .payment-info-toggle-copy strong,
@@ -3402,20 +3396,14 @@ html[data-theme="dark"] .admin-sidebar-note {
   gap: 0.55rem;
 }
 
-.preview-shell-editor .public-social-strip.is-brand-circles {
-  grid-template-columns: repeat(auto-fit, minmax(46px, max-content));
-}
-
 .preview-shell-editor .public-social-link {
   min-height: 44px;
   border-radius: 12px;
 }
 
-.preview-shell-editor .public-social-link.is-brand-circle {
-  width: 46px;
-  min-width: 46px;
-  min-height: 46px;
-  border-radius: 999px;
+.preview-shell-editor .public-social-link.is-brand-icon {
+  min-height: 44px;
+  border-radius: 12px;
 }
 
 .preview-shell-editor .payment-info-toggle-copy strong,
@@ -5177,11 +5165,6 @@ html[data-theme="dark"] .admin-sidebar-note {
   gap: 0.7rem;
 }
 
-.public-social-strip.is-brand-circles {
-  grid-template-columns: repeat(auto-fit, minmax(56px, max-content));
-  justify-content: center;
-}
-
 .public-social-link {
   position: relative;
   z-index: 1;
@@ -5201,12 +5184,9 @@ html[data-theme="dark"] .admin-sidebar-note {
   background: rgba(255, 255, 255, 0.72);
 }
 
-.public-social-link.is-brand-circle {
-  width: 56px;
-  min-width: 56px;
-  min-height: 56px;
-  border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.18);
+.public-social-link.is-brand-icon {
+  min-height: 52px;
+  border-radius: 16px;
 }
 
 .public-link-priority-1 {

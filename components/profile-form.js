@@ -2880,11 +2880,11 @@ export function ProfileForm({
                   <button className="accordion-toggle" type="button" onClick={() => toggleDesignSection("design-social")} aria-expanded={openDesignSection === "design-social"}>
                     <span className="accordion-toggle-copy">
                       <strong className="section-title" style={{ fontSize: "1rem" }}>Iconos de redes</strong>
-                      <span className="section-copy">Elige si prefieres tarjetas suaves o iconos circulares por marca.</span>
+                      <span className="section-copy">Elige si prefieres tarjetas suaves o iconos de marca.</span>
                     </span>
                     <span className="accordion-toggle-meta">
                       <span className="status-badge">
-                        {SOCIAL_STYLE_OPTIONS.find((option) => option.value === appearance.socialStyle)?.label || "Tarjetas"}
+                        {SOCIAL_STYLE_OPTIONS.find((option) => option.value === appearance.socialStyle)?.label || "Tarjeta"}
                       </span>
                       {openDesignSection === "design-social" ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
                     </span>

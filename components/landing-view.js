@@ -36,14 +36,20 @@ const AVATAR_RADIUS_MAP = {
 };
 
 const SOCIAL_BRAND_STYLES = {
-  whatsapp: { background: "#25D366", color: "#FFFFFF" },
-  website: { background: "#0EA5E9", color: "#FFFFFF" },
-  facebook: { background: "#1877F2", color: "#FFFFFF" },
-  email: { background: "#60A5FA", color: "#FFFFFF" },
-  instagram: { background: "#C13584", color: "#FFFFFF" },
-  tiktok: { background: "#111827", color: "#FFFFFF" },
-  youtube: { background: "#7C3AED", color: "#FFFFFF" },
-  maps: { background: "#4F46E5", color: "#FFFFFF" },
+  whatsapp: "#25D366",
+  website: "#0EA5E9",
+  facebook: "#1877F2",
+  email: "#60A5FA",
+  instagram: "#C13584",
+  tiktok: "#111827",
+  youtube: "#FF0000",
+  linkedin: "#0A66C2",
+  telegram: "#26A5E4",
+  x: "#111827",
+  threads: "#111827",
+  spotify: "#1DB954",
+  twitch: "#9146FF",
+  maps: "#4F46E5",
 };
 
 function resolveReadableText(background, preferred, fallback) {
@@ -118,17 +124,16 @@ function buildTertiaryButtonStyle(appearance) {
 }
 
 function buildSocialStyle(appearance, type) {
-  if (appearance.socialStyle === "brand-circles") {
-    const brandStyle = SOCIAL_BRAND_STYLES[type] || {
-      background: appearance.primaryColor,
-      color: resolveReadableText(appearance.primaryColor, "#FFFFFF", appearance.buttonPrimaryTextColor),
-    };
+  if (appearance.socialStyle === "icons") {
+    const brandColor = SOCIAL_BRAND_STYLES[type] || appearance.primaryColor;
 
     return {
-      color: brandStyle.color,
-      borderColor: hexToRgba("#FFFFFF", 0.18),
-      background: brandStyle.background,
-      boxShadow: `0 12px 28px ${hexToRgba(brandStyle.background, 0.24)}`,
+      color: brandColor,
+      borderColor: hexToRgba(brandColor, 0.18),
+      background: hexToRgba(appearance.surfaceColor, appearance.cardTransparency === "solid" ? 0.94 : 0.68),
+      boxShadow: appearance.cardShadow === "none"
+        ? "none"
+        : `0 12px 28px ${hexToRgba(brandColor, 0.12)}`,
     };
   }
 
@@ -218,7 +223,7 @@ export function LandingView({ user, preview = false }) {
 
   return (
     <main
-      className={`${preview ? "public-page preview-page" : "public-page"} ${appearance.socialStyle === "brand-circles" ? "public-page-social-circles" : ""}`}
+      className={`${preview ? "public-page preview-page" : "public-page"} ${appearance.socialStyle === "icons" ? "public-page-social-icons" : ""}`}
       style={{ background: pageBackground, fontFamily }}
     >
       <section className={`public-card public-business-card${preview ? "" : " public-card-live"}`} style={shellStyle}>
@@ -332,11 +337,11 @@ export function LandingView({ user, preview = false }) {
               <div className="public-section-head">
                 <strong>Nuestros canales</strong>
               </div>
-              <div className={`public-social-strip ${appearance.socialStyle === "brand-circles" ? "is-brand-circles" : ""}`}>
+              <div className={`public-social-strip ${appearance.socialStyle === "icons" ? "is-brand-icons" : ""}`}>
                 {layout.socialLinks.map((item) => {
                   const Icon = item.icon || Globe;
                   const socialStyle = buildSocialStyle(appearance, item.type);
-                  const socialClassName = `public-social-link ${appearance.socialStyle === "brand-circles" ? "is-brand-circle" : ""}`;
+                  const socialClassName = `public-social-link ${appearance.socialStyle === "icons" ? "is-brand-icon" : ""}`;
 
                   if (preview) {
                     return (
