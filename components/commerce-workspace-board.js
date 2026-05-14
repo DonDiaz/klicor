@@ -662,7 +662,7 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
     return [{ title: "Recomendados", options: options.slice(0, 6) }];
   }
 
-  function renderIconPicker({ pickerId = "default", name, value, onIconChange }) {
+  function renderIconPicker({ pickerId = "default", name, value, onIconChange, showCurrent = false }) {
     const pickerState = getIconPickerState(pickerId);
     const pickerQuery = pickerState.query || "";
     const showAll = Boolean(pickerState.showAll);
@@ -694,19 +694,21 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
         {!searchText && !showAll ? (
           <small className="commerce-board-note">Escribe el nombre de la categoria para ver recomendaciones.</small>
         ) : null}
-        <section className="commerce-icon-current" aria-label="Asset actual">
-          <strong>Actual</strong>
-          <button
-            className="commerce-icon-option commerce-icon-current-option is-active"
-            type="button"
-            onClick={() => onIconChange(selectedIcon)}
-            title={selectedAsset.label}
-            aria-pressed="true"
-          >
-            <CommerceCategoryAsset iconKey={selectedIcon} vertical={profile?.businessCategory} label={selectedAsset.label} />
-            <span>{selectedAsset.label}</span>
-          </button>
-        </section>
+        {showCurrent ? (
+          <section className="commerce-icon-current" aria-label="Asset actual">
+            <strong>Actual</strong>
+            <button
+              className="commerce-icon-option commerce-icon-current-option is-active"
+              type="button"
+              onClick={() => onIconChange(selectedIcon)}
+              title={selectedAsset.label}
+              aria-pressed="true"
+            >
+              <CommerceCategoryAsset iconKey={selectedIcon} vertical={profile?.businessCategory} label={selectedAsset.label} />
+              <span>{selectedAsset.label}</span>
+            </button>
+          </section>
+        ) : null}
         <div className="commerce-icon-picker-groups">
           {groups.map((group) => (
             <section key={group.title} className="commerce-icon-picker-group" aria-label={group.title}>
@@ -956,6 +958,7 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
                         name: editingCategoryName,
                         value: editingCategoryIcon,
                         onIconChange: setEditingCategoryIcon,
+                        showCurrent: true,
                       })}
                       <div className="commerce-board-inline-actions">
                         <button className="btn btn-primary" type="button" onClick={async () => {
