@@ -6,7 +6,6 @@ import {
   ChevronLeft,
   ChevronRight,
   LoaderCircle,
-  MessageCircle,
   Minus,
   Plus,
   Share2,
@@ -21,6 +20,26 @@ import { apiFetch } from "@/lib/client-api";
 import { buildCommerceProductPublicUrl, resolveCommerceModeMeta } from "@/lib/commerce-config";
 import { buildWhatsappLink } from "@/lib/utils";
 import { hexToRgba, normalizeAppearance } from "@/lib/theme-system";
+
+function WhatsappIcon({ size = 18, ...props }) {
+  return (
+    <svg
+      aria-hidden="true"
+      focusable="false"
+      width={size}
+      height={size}
+      viewBox="0 0 32 32"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      {...props}
+    >
+      <path
+        fill="currentColor"
+        d="M16.04 3.2C9.02 3.2 3.32 8.9 3.32 15.92c0 2.24.58 4.42 1.69 6.35L3.2 28.8l6.68-1.75a12.67 12.67 0 0 0 6.16 1.57c7.01 0 12.72-5.7 12.72-12.71S23.05 3.2 16.04 3.2Zm0 23.28c-1.9 0-3.76-.51-5.38-1.48l-.38-.23-3.96 1.04 1.06-3.86-.25-.4a10.5 10.5 0 0 1-1.62-5.63c0-5.82 4.73-10.56 10.54-10.56 2.82 0 5.47 1.1 7.46 3.09a10.48 10.48 0 0 1 3.09 7.46c0 5.82-4.74 10.57-10.56 10.57Zm5.78-7.91c-.32-.16-1.88-.93-2.17-1.03-.29-.11-.5-.16-.72.16-.21.32-.83 1.03-1.02 1.24-.19.21-.37.24-.69.08-.32-.16-1.34-.49-2.55-1.57a9.5 9.5 0 0 1-1.76-2.19c-.18-.32-.02-.49.14-.65.14-.14.32-.37.48-.56.16-.19.21-.32.32-.53.11-.21.05-.4-.03-.56-.08-.16-.72-1.73-.99-2.37-.26-.62-.52-.54-.72-.55h-.61c-.21 0-.56.08-.85.4-.29.32-1.12 1.09-1.12 2.66 0 1.57 1.14 3.09 1.3 3.3.16.21 2.24 3.42 5.43 4.8.76.33 1.35.52 1.81.67.76.24 1.45.21 2 .13.61-.09 1.88-.77 2.15-1.51.27-.74.27-1.38.19-1.51-.08-.13-.29-.21-.61-.37Z"
+      />
+    </svg>
+  );
+}
 
 function formatCurrency(value, currency = "COP") {
   if (value === null || value === undefined || value === "") return "";
@@ -519,7 +538,7 @@ function ProductCard({
                 }}
                 disabled={preview || !orderingEnabled || !whatsappAvailable}
               >
-                <MessageCircle size={16} strokeWidth={2.5} />
+                <WhatsappIcon size={18} />
               </button>
             )}
           </div>
@@ -1476,7 +1495,7 @@ export function CommercePublicView({ bootstrap, preview = false }) {
             ) : (
               <div className="commerce-product-detail-actions">
                 <button className="btn btn-primary commerce-product-detail-whatsapp" type="button" onClick={() => handleDetailWhatsapp(detailProduct)} disabled={!safeBootstrap.orderWhatsapp || preview || !orderingEnabled}>
-                  <MessageCircle size={18} /> {orderingEnabled ? "Pedir informacion" : "Cerrado ahora"}
+                  <WhatsappIcon size={20} /> {orderingEnabled ? "Pedir informacion" : "Cerrado ahora"}
                 </button>
                 <button
                   className="btn btn-secondary commerce-product-detail-share"
@@ -1672,7 +1691,7 @@ export function CommercePublicView({ bootstrap, preview = false }) {
                 onClick={handleCheckout}
                 disabled={!canSendOrder || preview}
               >
-                <MessageCircle size={18} /> Enviar pedido por WhatsApp
+                <WhatsappIcon size={20} /> Enviar pedido por WhatsApp
               </button>
             </div>
           </div>
