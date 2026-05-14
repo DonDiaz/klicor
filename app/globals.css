@@ -5567,12 +5567,17 @@ html[data-theme="dark"] .admin-sidebar-note {
   gap: 0.6rem;
 }
 
-.editor-panel .payment-method-row,
-.payment-method-row {
+.editor-panel .link-row.payment-method-row,
+.editor-panel .link-row.payment-method-row:has(.link-row-message),
+.link-row.payment-method-row {
   position: relative;
   grid-template-columns: minmax(0, 1fr);
   align-items: start;
   padding-right: 3.8rem;
+}
+
+.editor-panel .link-row.payment-method-row .link-row-message {
+  grid-column: 1 / -1;
 }
 
 .payment-method-fields {
@@ -5641,8 +5646,9 @@ html[data-theme="dark"] .admin-sidebar-note {
 }
 
 @media (max-width: 980px) {
-  .editor-panel .payment-method-row,
-  .payment-method-row {
+  .editor-panel .link-row.payment-method-row,
+  .editor-panel .link-row.payment-method-row:has(.link-row-message),
+  .link-row.payment-method-row {
     grid-template-columns: minmax(0, 1fr);
   }
 
