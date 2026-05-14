@@ -10016,6 +10016,28 @@ html[data-theme="dark"] .admin-sidebar-note {
   align-self: end;
 }
 
+.commerce-visual-product-card.supports-cart {
+  position: relative;
+}
+
+.commerce-visual-product-card.supports-cart .commerce-product-copy {
+  padding-right: 2.75rem;
+}
+
+.commerce-visual-product-card.supports-cart .commerce-product-footer {
+  display: block;
+  padding-right: 0;
+}
+
+.commerce-visual-product-card.supports-cart .commerce-product-add-button {
+  position: absolute;
+  right: 0.72rem;
+  bottom: 0.72rem;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+}
+
 .commerce-visual-product-card.is-catalog-card .commerce-product-footer {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 1.9rem;
@@ -11710,6 +11732,7 @@ html[data-theme="dark"] .admin-sidebar-note {
 .commerce-page:not(.is-preview).commerce-layout-store_grid .commerce-visual-product-card .commerce-product-copy {
   height: auto;
   min-height: 3.9rem;
+  padding-right: 2rem;
   padding-bottom: 1.65rem;
   grid-template-rows: auto auto;
   gap: 0.16rem;
@@ -11952,6 +11975,7 @@ html[data-theme="dark"] .admin-sidebar-note {
   display: grid;
   height: 100%;
   min-height: 4.65rem;
+  padding-right: 2rem;
   padding-bottom: 0;
   grid-template-rows: auto minmax(0, 1fr) auto;
   align-content: stretch;
@@ -11965,11 +11989,8 @@ html[data-theme="dark"] .admin-sidebar-note {
   width: 100%;
   min-width: 0;
   min-height: 1.75rem;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 1.55rem;
-  align-items: center;
+  display: block;
   align-self: end;
-  gap: 0.28rem;
   margin-top: auto;
   white-space: nowrap;
 }
@@ -11983,21 +12004,23 @@ html[data-theme="dark"] .admin-sidebar-note {
 
 .commerce-page:not(.is-preview).commerce-layout-store_grid .commerce-visual-product-card .commerce-product-add-button {
   overflow: hidden;
-  position: static;
-  right: auto;
-  bottom: auto;
-  justify-self: end;
-  align-self: center;
+  position: absolute;
+  right: 0.42rem;
+  bottom: 0.42rem;
+  justify-self: auto;
+  align-self: auto;
   margin: 0;
   font-size: 0;
   line-height: 0;
 }
 
 .commerce-page:not(.is-preview).commerce-layout-store_grid .commerce-visual-product-card .commerce-product-add-button svg {
-  position: static;
+  position: absolute;
   width: 15px;
   height: 15px;
   display: block;
   flex: 0 0 auto;
-  transform: none;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
