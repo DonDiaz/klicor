@@ -5569,8 +5569,10 @@ html[data-theme="dark"] .admin-sidebar-note {
 
 .editor-panel .payment-method-row,
 .payment-method-row {
-  grid-template-columns: minmax(0, 1fr) auto;
+  position: relative;
+  grid-template-columns: minmax(0, 1fr);
   align-items: start;
+  padding-right: 3.8rem;
 }
 
 .payment-method-fields {
@@ -5585,8 +5587,14 @@ html[data-theme="dark"] .admin-sidebar-note {
 }
 
 .payment-method-delete {
+  position: absolute;
+  top: 0.68rem;
+  right: 0.68rem;
+  width: 42px;
   min-height: 42px;
-  white-space: nowrap;
+  padding: 0;
+  display: grid;
+  place-items: center;
 }
 
 .payment-method-secondary-row {
@@ -5635,16 +5643,12 @@ html[data-theme="dark"] .admin-sidebar-note {
 @media (max-width: 980px) {
   .editor-panel .payment-method-row,
   .payment-method-row {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .payment-method-fields,
   .payment-method-row:has(.payment-method-fields > :nth-child(3)) .payment-method-fields {
     grid-template-columns: 1fr;
-  }
-
-  .payment-method-delete {
-    justify-self: start;
   }
 
   .payment-method-secondary-row {

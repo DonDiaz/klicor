@@ -2579,7 +2579,6 @@ export function ProfileForm({
 
                     <button className="btn btn-secondary payment-method-delete" type="button" onClick={() => removePaymentMethod(method.id)} disabled={!canEdit} aria-label={`Eliminar método de pago ${index + 1}`}>
                       <Trash2 size={16} />
-                      <span>Eliminar método</span>
                     </button>
 
                     <div className="link-row-message payment-method-secondary-row">
@@ -2604,7 +2603,7 @@ export function ProfileForm({
                               disabled={!canEdit}
                               aria-label={`Quitar QR del método de pago ${index + 1}`}
                             >
-                              <Trash2 size={14} /> Quitar
+                              <Trash2 size={14} /> Quitar QR
                             </button>
                           ) : null}
                         </div>
