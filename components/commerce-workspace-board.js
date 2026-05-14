@@ -23,7 +23,7 @@ import {
 import { CommerceCategoryAsset } from "@/components/commerce-category-asset";
 import { apiFetch } from "@/lib/client-api";
 import { resolveCommerceCategoryAsset } from "@/lib/commerce-category-assets";
-import { COMMERCE_CATEGORY_COLORS, getCommerceCategoryIconGroups, normalizeCommerceCategoryIconKey, normalizeCommerceCategoryIconText, resolveCommerceCategoryIcon } from "@/lib/commerce-category-icons";
+import { COMMERCE_CATEGORY_COLORS, getCommerceCategoryIconGroups, normalizeCommerceCategoryIconKey, resolveCommerceCategoryIcon } from "@/lib/commerce-category-icons";
 import { COMMERCE_MODE_OPTIONS, requiresCommercePrice, resolveCommerceModeMeta } from "@/lib/commerce-config";
 import { resolveCommerceExperience } from "@/lib/commerce-experience";
 
@@ -677,11 +677,8 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
     const selectedIconKey = normalizeCommerceCategoryIconKey(selectedIconRaw);
     const selectedIconAlias = resolveCommerceCategoryIcon(selectedIconRaw, profile?.businessCategory).iconKey;
     const selectedIcon = selectedIconKey !== "tag" || selectedIconRaw === "tag" ? selectedIconKey : selectedIconAlias;
-    const selectedIconText = normalizeCommerceCategoryIconText(selectedIconRaw);
     const selectedAsset = resolveCommerceCategoryAsset(selectedIconRaw, profile?.businessCategory);
-    const selectedAssetLabel = normalizeCommerceCategoryIconText(selectedAsset.label);
     const selectedAliasAsset = resolveCommerceCategoryAsset(selectedIconAlias, profile?.businessCategory);
-    const selectedAliasAssetLabel = normalizeCommerceCategoryIconText(selectedAliasAsset.label);
 
     return (
       <div className="commerce-icon-picker" aria-label="Selector visual de asset de categoria">
@@ -697,6 +694,19 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
         {!searchText && !showAll ? (
           <small className="commerce-board-note">Escribe el nombre de la categoria para ver recomendaciones.</small>
         ) : null}
+        <section className="commerce-icon-current" aria-label="Asset actual">
+          <strong>Actual</strong>
+          <button
+            className="commerce-icon-option commerce-icon-current-option is-active"
+            type="button"
+            onClick={() => onIconChange(selectedIcon)}
+            title={selectedAsset.label}
+            aria-pressed="true"
+          >
+            <CommerceCategoryAsset iconKey={selectedIcon} vertical={profile?.businessCategory} label={selectedAsset.label} />
+            <span>{selectedAsset.label}</span>
+          </button>
+        </section>
         <div className="commerce-icon-picker-groups">
           {groups.map((group) => (
             <section key={group.title} className="commerce-icon-picker-group" aria-label={group.title}>
@@ -704,14 +714,10 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
               <div className="commerce-icon-picker-grid">
                 {group.options.map((option) => {
                   const optionAsset = resolveCommerceCategoryAsset(option.iconKey, profile?.businessCategory);
-                  const optionAssetLabel = normalizeCommerceCategoryIconText(optionAsset.label);
                   const optionSelected = selectedIcon === option.iconKey
                     || selectedIconAlias === option.iconKey
                     || selectedAsset.key === optionAsset.key
-                    || selectedAliasAsset.key === optionAsset.key
-                    || (selectedIconText && selectedIconText === normalizeCommerceCategoryIconText(option.label))
-                    || (selectedAssetLabel && selectedAssetLabel === optionAssetLabel)
-                    || (selectedAliasAssetLabel && selectedAliasAssetLabel === optionAssetLabel);
+                    || selectedAliasAsset.key === optionAsset.key;
                   return (
                     <button
                       key={option.iconKey}

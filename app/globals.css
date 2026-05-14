@@ -10635,16 +10635,23 @@ html[data-theme="dark"] .admin-sidebar-note {
   scrollbar-width: thin;
 }
 
+.commerce-icon-current,
 .commerce-icon-picker-group {
   display: grid;
   gap: 0.45rem;
 }
 
+.commerce-icon-current > strong,
 .commerce-icon-picker-group > strong {
   color: var(--text-secondary);
   font-size: 0.74rem;
   font-weight: 900;
   letter-spacing: 0.01em;
+}
+
+.commerce-icon-current-option {
+  justify-self: start;
+  width: 4.8rem;
 }
 
 .commerce-icon-picker-more {
@@ -10670,6 +10677,17 @@ html[data-theme="dark"] .admin-sidebar-note {
   line-height: 1.05;
   text-align: center;
   overflow: hidden;
+}
+
+.commerce-icon-option span {
+  display: -webkit-box;
+  max-width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  word-break: normal;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 
 .commerce-icon-option.is-active {
