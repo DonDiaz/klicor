@@ -6443,11 +6443,6 @@ html[data-theme="dark"] .admin-sidebar-note {
   scrollbar-width: none;
 }
 
-.commerce-category-rail::-webkit-scrollbar,
-.commerce-subcategory-rail::-webkit-scrollbar {
-  display: none;
-}
-
 .commerce-category-chip,
 .commerce-subcategory-chip {
   flex: 0 0 auto;
@@ -6501,13 +6496,6 @@ html[data-theme="dark"] .admin-sidebar-note {
   font-weight: 800;
 }
 
-.commerce-product-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
 .commerce-product-copy {
   padding: 0;
   display: grid;
@@ -6531,11 +6519,6 @@ html[data-theme="dark"] .admin-sidebar-note {
   border-radius: 1.5rem;
   padding: 1.25rem 1rem;
   text-align: center;
-}
-
-.commerce-empty-state p {
-  margin: 0.45rem 0 0;
-  color: var(--commerce-muted);
 }
 
 .commerce-modal-backdrop {
@@ -6586,17 +6569,6 @@ html[data-theme="dark"] .admin-sidebar-note {
   color: #64748b;
 }
 
-.commerce-cart-list {
-  display: grid;
-  gap: 0.75rem;
-}
-
-.commerce-cart-qty {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.55rem;
-}
-
 .commerce-cart-qty button {
   width: 2rem;
   height: 2rem;
@@ -6621,14 +6593,6 @@ html[data-theme="dark"] .admin-sidebar-note {
   display: inline-flex;
   align-items: center;
   gap: 0.6rem;
-}
-
-.preview-shell-editor .commerce-page {
-  padding: 0.75rem 0.7rem 1rem;
-}
-
-.preview-shell-editor .commerce-shell {
-  width: 100%;
 }
 
 .preview-shell-editor .commerce-modal-backdrop {
@@ -10236,10 +10200,6 @@ html[data-theme="dark"] .admin-sidebar-note {
     align-items: center;
   }
 
-  .commerce-board-create-with-product {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
   .commerce-board-inline-actions {
     grid-template-columns: auto auto;
     justify-content: start;
@@ -10293,20 +10253,8 @@ html[data-theme="dark"] .admin-sidebar-note {
     font-size: 0.74rem;
   }
 
-  .commerce-board-create {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
   .commerce-board-create .btn {
     width: 100%;
-  }
-
-  .commerce-board-create-with-product {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .commerce-board-create-with-product .input {
-    grid-column: auto;
   }
 
   .commerce-board-subcategory-action {
