@@ -687,9 +687,7 @@ export function ProfileForm({
 
   const previewPublicUrl = useMemo(() => {
     if (publicUrl) return publicUrl;
-    const baseUrl = typeof window !== "undefined"
-      ? window.location.origin
-      : process.env.NEXT_PUBLIC_APP_URL || "https://klicor.com";
+    const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://klicor.com").replace(/\/$/, "");
     return form.username ? `${baseUrl}/${form.username}` : baseUrl;
   }, [form.username, publicUrl]);
 

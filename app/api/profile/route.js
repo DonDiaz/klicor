@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { buildShareProfileUrl } from "@/lib/public-profile-links";
+import { buildShareProfileUrl, buildVanityProfileUrl } from "@/lib/public-profile-links";
 import { validateProfileLinksSafety } from "@/lib/link-safety";
 import { profileSchema } from "@/lib/schemas";
 import { verifyRequest } from "@/lib/auth";
@@ -97,7 +97,9 @@ export async function POST(request) {
         ...account,
         trialEndsAtLabel: account.trialEndsAt?.toISOString() || null,
         expiresAtLabel: account.expiresAt?.toISOString() || null,
+        publicUrl: buildVanityProfileUrl(account.username),
         shareUrl: buildShareProfileUrl(account.username, `${SHARE_LINK_VERSION}-${updatedAtMs}`),
+        stablePublicUrl: account.stablePublicUrl || "",
       },
     });
   } catch (error) {

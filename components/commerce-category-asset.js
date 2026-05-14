@@ -53,7 +53,6 @@ export function CommerceCategoryAsset({ iconKey, vertical = "", className = "", 
 
   return (
     <span className={`commerce-category-asset ${className}`.trim()} aria-hidden="true" title={label || asset.label}>
-      <span className="commerce-category-asset-glow" />
       {asset.assetUrl ? (
         <img className="commerce-category-asset-image" src={asset.assetUrl} alt="" loading="lazy" />
       ) : asset.visual?.family === "shoe" ? (

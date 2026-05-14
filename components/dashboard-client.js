@@ -11,6 +11,13 @@ import { apiFetch, getFreshAuthToken } from "@/lib/client-api";
 import { useAuth } from "@/components/providers/auth-provider";
 import { needsDashboardOnboarding } from "@/lib/dashboard-onboarding";
 
+function buildDashboardPublicUrl(username = "") {
+  const slug = String(username || "").trim();
+  if (!slug) return "";
+  const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://klicor.com").replace(/\/$/, "");
+  return `${baseUrl}/${slug}`;
+}
+
 const ProfileForm = dynamic(
   () => import("@/components/profile-form").then((mod) => mod.ProfileForm),
   {
@@ -262,7 +269,7 @@ export function DashboardClient() {
         ...userData,
         billingProfile: userData.billingProfile || current.user?.billingProfile || {},
       },
-      publicUrl: userData.username ? `${window.location.origin}/${userData.username}` : "",
+      publicUrl: userData.publicUrl || buildDashboardPublicUrl(userData.username),
       shareUrl: userData.shareUrl || current.shareUrl,
       stablePublicUrl: userData.stablePublicUrl || current.stablePublicUrl,
     }));
