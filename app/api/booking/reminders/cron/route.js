@@ -15,8 +15,8 @@ async function handleReminderSweep(request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401, headers: NO_STORE_HEADERS });
     }
 
-    const actions = await runBookingReminderSweep();
-    return NextResponse.json({ ok: true, actions }, { headers: NO_STORE_HEADERS });
+    const result = await runBookingReminderSweep();
+    return NextResponse.json({ ok: true, ...result }, { headers: NO_STORE_HEADERS });
   } catch (error) {
     return NextResponse.json({ error: error.message }, { status: 400, headers: NO_STORE_HEADERS });
   }
