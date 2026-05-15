@@ -9,7 +9,7 @@ import {
   resolveUserModuleAccess,
   shouldRestrictToPrimaryModuleOnProfileChange,
 } from "../lib/plans.js";
-import { calculateCommercialToPlusUpgrade } from "../lib/billing-rules.js";
+import { assertNoActivePlanDowngrade, calculateCommercialToPlusUpgrade } from "../lib/billing-rules.js";
 
 function assertAccess(actual, expected, label) {
   assert.deepEqual(actual, expected, label);
@@ -81,5 +81,37 @@ assert.equal(upgrade.remainingDays, 183, "upgrade debe contar dias restantes");
 assert.equal(upgrade.creditAmount, Math.round((109900 * 183) / 365), "upgrade debe descontar credito de comercial no usado");
 assert.equal(upgrade.amountToCharge, 169900 - upgrade.creditAmount, "upgrade debe cobrar plus menos credito");
 assert.equal(upgrade.newExpiresAt.toISOString(), "2027-05-11T00:00:00.000Z", "upgrade debe reiniciar vencimiento a un ano");
+
+assert.doesNotThrow(() => assertNoActivePlanDowngrade({
+  status: "active",
+  currentPlan: "commercial",
+  requestedPlan: "plus",
+  currentExpiresAt,
+  now,
+}), "comercial activo debe poder subir a plus");
+
+assert.throws(() => assertNoActivePlanDowngrade({
+  status: "active",
+  currentPlan: "plus",
+  requestedPlan: "commercial",
+  currentExpiresAt,
+  now,
+}), /plan activo superior/, "plus activo no debe poder bajar a comercial");
+
+assert.doesNotThrow(() => assertNoActivePlanDowngrade({
+  status: "grace_period",
+  currentPlan: "plus",
+  requestedPlan: "commercial",
+  currentExpiresAt,
+  now,
+}), "si no esta active, puede escoger otro plan");
+
+assert.doesNotThrow(() => assertNoActivePlanDowngrade({
+  status: "active",
+  currentPlan: "plus",
+  requestedPlan: "commercial",
+  currentExpiresAt: new Date("2026-01-01T00:00:00.000Z"),
+  now,
+}), "si el plan ya vencio, puede escoger otro plan");
 
 console.log("OK: reglas de planes, modulos, limites y upgrade verificadas.");

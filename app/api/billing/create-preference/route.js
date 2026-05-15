@@ -3,7 +3,7 @@ import { verifyRequest } from "@/lib/auth";
 import { PLAN_SLUG } from "@/lib/constants";
 import { createPreference } from "@/lib/mercadopago";
 import { getAdminSettings } from "@/lib/firestore";
-import { calculateCommercialToPlusUpgrade } from "@/lib/billing-rules";
+import { assertNoActivePlanDowngrade, calculateCommercialToPlusUpgrade } from "@/lib/billing-rules";
 import { BILLABLE_PLAN_VALUES, getPlanAnnualPrice, normalizeKlicorModule, normalizeKlicorPlan, resolvePrimaryModuleForBusinessCategory } from "@/lib/plans";
 import { toDate } from "@/lib/utils";
 
@@ -28,6 +28,13 @@ export async function POST(request) {
     const annualPrice = getPlanAnnualPrice(plan, settings);
     const now = new Date();
     const currentExpiry = toDate(user.expiresAt);
+    assertNoActivePlanDowngrade({
+      status: user.status,
+      currentPlan,
+      requestedPlan: plan,
+      currentExpiresAt: currentExpiry,
+      now,
+    });
     const paymentType = currentPlan === "commercial" && plan === "plus" ? "upgrade" : "subscription";
     const metadata = {
       payment_type: paymentType,

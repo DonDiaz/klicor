@@ -375,10 +375,22 @@ const CHECKOUT_MODULE_OPTIONS = [
   { value: "booking", label: "Agenda" },
 ];
 
+const CHECKOUT_PLAN_RANK = {
+  basic: 1,
+  commercial: 2,
+  plus: 3,
+};
+
 function getPlanPriceFromSettings(plan, settings = {}) {
   if (plan === "basic") return Number(settings?.basicAnnualPrice || 59900);
   if (plan === "plus") return Number(settings?.plusAnnualPrice || 169900);
   return Number(settings?.commercialAnnualPrice ?? settings?.annualPrice ?? 109900);
+}
+
+function isLowerCheckoutPlan(currentPlan = "", nextPlan = "") {
+  const currentRank = CHECKOUT_PLAN_RANK[currentPlan] || 0;
+  const nextRank = CHECKOUT_PLAN_RANK[nextPlan] || 0;
+  return Boolean(currentRank && nextRank && nextRank < currentRank);
 }
 
 function getDefaultCheckoutModule(profile = {}) {
@@ -1256,6 +1268,7 @@ export function ProfileForm({
   const subscriptionLabel = getSubscriptionLabel(profile?.status);
   const subscriptionMessage = getSubscriptionMessage(profile?.status);
   const currentPlan = profile?.plan || "trial";
+  const hasActivePaidPlan = profile?.status === "active" && Boolean(CHECKOUT_PLAN_RANK[currentPlan]);
   const enabledModules = [
     moduleAccess.commerce ? "Comercio" : "",
     moduleAccess.booking ? "Agenda" : "",
@@ -2164,9 +2177,12 @@ export function ProfileForm({
                   <label className="label">Plan a pagar</label>
                   <select className="select" value={checkoutPlan} onChange={(event) => setCheckoutPlan(event.target.value)} disabled={paying}>
                     {CHECKOUT_PLAN_OPTIONS.map((option) => (
-                      <option key={option.value} value={option.value}>{option.label}</option>
+                      <option key={option.value} value={option.value} disabled={hasActivePaidPlan && isLowerCheckoutPlan(currentPlan, option.value)}>{option.label}</option>
                     ))}
                   </select>
+                  {hasActivePaidPlan ? (
+                    <p className="muted" style={{ marginTop: ".5rem" }}>Para bajar de plan debes esperar a que venza el plan actual o solicitar ajuste manual.</p>
+                  ) : null}
                 </div>
                 {checkoutPlan === "commercial" ? (
                   <div>

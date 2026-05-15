@@ -336,6 +336,8 @@ Reglas obligatorias:
 - En upgrade de `commercial` a `plus`, se cobra un ano nuevo de Plus desde la fecha del upgrade y se descuenta el valor no usado de Comercial.
 - En upgrade de `commercial` a `plus`, la nueva fecha de vencimiento debe ser un ano desde la fecha del upgrade.
 - El pago de upgrade debe guardar metadatos como `paymentType`, `fromPlan`, `toPlan`, `creditAmount`, `amountCharged`, `previousExpiresAt` y `newExpiresAt`.
+- Si el cliente tiene un plan pago activo y vigente, no puede comprar un plan inferior desde checkout ni por webhook viejo. Para bajar de plan debe esperar vencimiento o solicitar ajuste manual.
+- Orden comercial para bloqueos de downgrade: `basic < commercial < plus < pro`.
 
 Formula aprobada para upgrade:
 
@@ -349,6 +351,7 @@ Prohibido:
 
 - Dejar Commerce o Agenda activos en `basic`.
 - Activar Commerce y Agenda al mismo tiempo en `commercial`.
+- Permitir que un pago de plan inferior pise un plan superior activo y vigente.
 - Cobrar un upgrade proporcional pequeno que mantenga el vencimiento anterior cuando la regla aprobada es reiniciar Plus por un ano con credito de Comercial no usado.
 - Duplicar reglas de planes en otros documentos sin apuntar a esta decision.
 

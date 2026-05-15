@@ -695,6 +695,8 @@ Puede usar un modulo si:
 - Se cobra un ano nuevo de Plus desde la fecha del upgrade.
 - Se descuenta el valor no usado del plan Comercial.
 - La nueva fecha de vencimiento pasa a ser un ano desde el upgrade.
+- Si existe un plan pago activo y vigente, el cliente no puede pagar un plan inferior. Ejemplo: `plus` vigente no puede pagar `commercial`; debe esperar vencimiento o pedir ajuste manual.
+- El bloqueo debe existir en el backend al crear checkout y tambien al procesar webhook, para evitar que un link de pago viejo active un downgrade accidental.
 
 Formula:
 
