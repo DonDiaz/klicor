@@ -1224,6 +1224,11 @@ async function seedBusiness(db, auth, business) {
     status: "active",
     accountStatus: "active",
     plan: "commercial",
+    commercialModule: "commerce",
+    moduleAccess: {
+      commerce: true,
+      booking: false,
+    },
     trialEndsAt: null,
     expiresAt: null,
     onboardingCompleted: true,
