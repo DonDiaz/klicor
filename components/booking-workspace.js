@@ -355,6 +355,13 @@ export function BookingWorkspace({ token, active = false, canEdit = true }) {
     setDismissedCloseReminderKey(closeReminderKey);
   }
 
+  function reopenCloseReminder() {
+    if (closeReminderKey && typeof window !== "undefined") {
+      sessionStorage.removeItem(closeReminderKey);
+    }
+    setDismissedCloseReminderKey("");
+  }
+
   async function updateAppointmentStatusFromReminder(appointmentId, status) {
     await runAction("update_appointment_status", { id: appointmentId, status });
   }
@@ -574,6 +581,18 @@ export function BookingWorkspace({ token, active = false, canEdit = true }) {
           <article className={appointmentsToClose.length ? "is-warning" : ""}><strong>{appointmentsToClose.length}</strong><span>Por cerrar</span></article>
           <article><strong>{summary.hasAvailability ? "Sí" : "No"}</strong><span>Agenda libre</span></article>
         </div>
+
+        {appointmentsToClose.length ? (
+          <div className="booking-close-reminder-inline">
+            <div>
+              <strong>{appointmentsToClose.length} {appointmentsToClose.length === 1 ? "cita requiere cierre" : "citas requieren cierre"}</strong>
+              <span>Marca si el cliente asistio, no asistio o reprograma para mantener la agenda limpia.</span>
+            </div>
+            <button className="btn btn-secondary" type="button" onClick={reopenCloseReminder}>
+              <AlertTriangle size={16} /> Ver alerta
+            </button>
+          </div>
+        ) : null}
 
         {agendaGrid.columns.length ? (
           <div className="booking-agenda-board">

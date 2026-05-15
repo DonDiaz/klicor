@@ -8520,6 +8520,31 @@ html[data-theme="dark"] .admin-sidebar-note {
   color: #92400e;
 }
 
+.booking-close-reminder-inline {
+  border: 1px solid rgba(245, 158, 11, 0.32);
+  border-radius: 8px;
+  background: #fffbeb;
+  color: #78350f;
+  padding: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.85rem;
+}
+
+.booking-close-reminder-inline div {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.booking-close-reminder-inline span {
+  color: #92400e;
+}
+
+.booking-close-reminder-inline .btn {
+  flex: 0 0 auto;
+}
+
 .booking-admin-kpis article,
 .booking-admin-section-head > div,
 .booking-admin-card-head,
@@ -8847,6 +8872,11 @@ html[data-theme="dark"] .admin-sidebar-note {
 }
 
 @media (max-width: 640px) {
+  .booking-close-reminder-inline {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
   .booking-close-reminder-item {
     grid-template-columns: 1fr;
   }
