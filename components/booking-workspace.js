@@ -145,6 +145,7 @@ function buildAgendaGrid({ dateString, config, staff = [], appointments = [], se
 
 export function BookingWorkspace({ token, active = false, canEdit = true }) {
   const realtimeReadyRef = useRef(false);
+  const pollingRefreshRef = useRef(false);
   const [state, setState] = useState(null);
   const [loading, setLoading] = useState(false);
   const [activeSection, setActiveSection] = useState("agenda");
@@ -212,6 +213,32 @@ export function BookingWorkspace({ token, active = false, canEdit = true }) {
         console.warn("[booking-realtime]", snapshotError?.message || snapshotError);
       },
     );
+  }, [active, activeSection, filters.date, filters.staffId, state?.ownerUid]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (!active || activeSection !== "agenda" || !state?.ownerUid || !filters.date) return undefined;
+
+    const refreshAgenda = async () => {
+      if (typeof document !== "undefined" && document.visibilityState === "hidden") return;
+      if (pollingRefreshRef.current) return;
+
+      pollingRefreshRef.current = true;
+      try {
+        await loadState(filters, { silent: true });
+      } finally {
+        pollingRefreshRef.current = false;
+      }
+    };
+
+    const intervalId = window.setInterval(refreshAgenda, 20000);
+    window.addEventListener("focus", refreshAgenda);
+    document.addEventListener("visibilitychange", refreshAgenda);
+
+    return () => {
+      window.clearInterval(intervalId);
+      window.removeEventListener("focus", refreshAgenda);
+      document.removeEventListener("visibilitychange", refreshAgenda);
+    };
   }, [active, activeSection, filters.date, filters.staffId, state?.ownerUid]); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function loadState(nextFilters = filters, options = {}) {
