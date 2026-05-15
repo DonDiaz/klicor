@@ -5,6 +5,7 @@ import { profileSchema } from "@/lib/schemas";
 import { verifyRequest } from "@/lib/auth";
 import { getAccountView, updateUserProfile } from "@/lib/firestore";
 import { getAppearanceWarnings } from "@/lib/theme-system";
+import { isSystemProfileLink } from "@/lib/system-profile-links";
 import { toDate } from "@/lib/utils";
 import { getRequestAppUrl } from "@/lib/env";
 
@@ -70,7 +71,9 @@ export async function POST(request) {
       return NextResponse.json({ error: warnings[0].message }, { status: 400 });
     }
 
-    await validateProfileLinksSafety(parsed.profileLinks);
+    const editableProfileLinks = parsed.profileLinks.filter((link) => !isSystemProfileLink(link));
+
+    await validateProfileLinksSafety(editableProfileLinks);
 
     const photo = formData.get("photo");
     const paymentQrImagesByMethod = {};
@@ -82,7 +85,10 @@ export async function POST(request) {
       }
     }
 
-    const nextUser = await updateUserProfile(user.uid, parsed, {
+    const nextUser = await updateUserProfile(user.uid, {
+      ...parsed,
+      profileLinks: editableProfileLinks,
+    }, {
       photo: photo?.size ? photo : null,
       dorikaCover: formData.get("dorikaCover")?.size ? formData.get("dorikaCover") : null,
       paymentQrImagesByMethod,

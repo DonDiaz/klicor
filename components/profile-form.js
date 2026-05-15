@@ -66,13 +66,14 @@ import {
   usesBrebKeyField,
 } from "@/lib/colombia-financial-entities";
 import { COLOMBIA_DEPARTMENT_OPTIONS, getCitiesForDepartment, resolveCityName, resolveDepartmentName } from "@/lib/colombia-locations";
+import { normalizeCommerceMode, resolveCommerceModeMeta, resolveDefaultCommerceModeForBusinessCategory } from "@/lib/commerce-config";
 import { resolveContactCardData } from "@/lib/contact-card";
 import { calculateDorikaProfileProgress, DORIKA_LOCATION_PRIVACY_OPTIONS, normalizeDorikaProfile } from "@/lib/dorika-profile";
 import { isDorikaEligibleBusiness } from "@/lib/dorika-eligibility";
 import { getLinkTypeCount, LINK_CATALOG, LINK_CATALOG_MAP } from "@/lib/link-catalog";
 import { normalizePaymentMethods } from "@/lib/payment-methods";
 import { canUseModule, resolvePrimaryModuleForBusinessCategory, resolveUserModuleAccess, shouldRestrictToPrimaryModuleOnProfileChange } from "@/lib/plans";
-import { mergeSystemProfileLinks } from "@/lib/system-profile-links";
+import { isSystemProfileLink, mergeSystemProfileLinks } from "@/lib/system-profile-links";
 import { generateThemeFromLogoFile, mergeGeneratedTheme } from "@/lib/logo-theme";
 import { FONT_FAMILY_STYLE_MAP } from "@/app/fonts";
 import {
@@ -948,11 +949,25 @@ export function ProfileForm({
 
     const nextCategory = form.businessCategory;
     const profileCategoryChanged = nextCategory !== normalizeBusinessCategory(profile?.businessCategory);
+    const currentCommerceMode = normalizeCommerceMode(profile?.commerce?.activeMode || profile?.commerceMode);
+    const nextCommerceMode = resolveDefaultCommerceModeForBusinessCategory(nextCategory);
+    const commerceModeWillChange = profileCategoryChanged
+      && moduleAccess.commerce
+      && currentCommerceMode
+      && nextCommerceMode
+      && currentCommerceMode !== nextCommerceMode;
     if (profileCategoryChanged && shouldRestrictToPrimaryModuleOnProfileChange(profile)) {
       const nextPrimaryModule = resolvePrimaryModuleForBusinessCategory(nextCategory);
       const previousModule = getOppositeModule(nextPrimaryModule);
       const previousModuleWasActive = savedModuleAccess[previousModule];
       if (previousModuleWasActive && !window.confirm(`Al cambiar el perfil, Klicor cambiará tu módulo principal a ${getModuleLabel(nextPrimaryModule)}. Lo que hiciste en ${getModuleLabel(previousModule)} no se pierde, pero su enlace público dejará de funcionar. Para mantener ambos módulos activos necesitas el plan Plus. ¿Quieres continuar?`)) {
+        return;
+      }
+    }
+    if (commerceModeWillChange) {
+      const currentModeLabel = resolveCommerceModeMeta(currentCommerceMode).label;
+      const nextModeLabel = resolveCommerceModeMeta(nextCommerceMode).label;
+      if (!window.confirm(`Al cambiar el perfil, Klicor cambiará la presentación de comercio de ${currentModeLabel} a ${nextModeLabel}. Tus categorías y productos no se pierden; solo cambia el tema, el enlace y la forma de mostrarlo. ¿Quieres continuar?`)) {
         return;
       }
     }
@@ -968,7 +983,7 @@ export function ProfileForm({
       body.append("businessType", form.businessType);
       body.append("businessHeadline", form.businessHeadline);
       body.append("businessSubheadline", form.businessSubheadline);
-      body.append("profileLinks", JSON.stringify(profileLinks.filter((item) => String(item.value || "").trim())));
+      body.append("profileLinks", JSON.stringify(profileLinks.filter((item) => !isSystemProfileLink(item) && String(item.value || "").trim())));
       body.append("paymentMethods", JSON.stringify(paymentMethods.map(({ qrFile, qrPreviewUrl, removeQr, ...method }) => ({
         ...method,
         qrImageUrl: removeQr ? "" : method.qrImageUrl || "",
