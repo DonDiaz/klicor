@@ -36,4 +36,6 @@ jobs:
             --output /tmp/booking-reminders-response.json \
             "$BOOKING_REMINDER_URL"
 
+          cat /tmp/booking-reminders-response.json
+          echo ""
           echo "Booking reminder sweep completed."
