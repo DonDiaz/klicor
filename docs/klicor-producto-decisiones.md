@@ -477,7 +477,7 @@ commerceExperience.category: food | store | services | health | tourism
 commerceExperience.subcategory: pizza | grocery | fashion | shoes | tech | general | etc
 commerceExperience.variant: female | male | mixed | neutral
 commerceLayout: menu_list | store_grid | catalog_feed
-commerceTheme: food_warm | food_pizzeria | grocery_fresh | fashion_female | fashion_male | fashion_mixed | tech_blue | general_market | services_clean | health_soft | tourism_earth | etc
+commerceTheme: food_fast | food_pizzeria | grocery_fresh | fashion_female | fashion_male | fashion_mixed | tech_blue | general_market | services_clean | health_soft | tourism_earth | etc
 ```
 
 Reglas por modulo:
@@ -796,7 +796,8 @@ Pendiente:
 
 Temas MVP sugeridos:
 
-- `food_pizzeria`: oscuro calido, naranja/rojo, producto protagonista.
+- `food_fast`: naranja/rojo fuerte, producto protagonista para comidas rapidas.
+- `food_pizzeria`: calido, naranja/ambar, mejor para pizzeria.
 - `food_menu_clean`: restaurante/cafe claro y limpio.
 - `grocery_fresh`: supermercado, verdes, ofertas y productos diarios.
 - `fashion`: moda/calzado base con variantes `female`, `male`, `mixed`.

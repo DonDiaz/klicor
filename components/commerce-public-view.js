@@ -114,13 +114,21 @@ function buildOrderMessage({ items, total, note, customer, payment, currency }) 
 }
 
 const COMMERCE_THEME_PALETTES = {
-  food_pizzeria: {
+  food_fast: {
     background: "#FFF6ED",
     surface: "#FFFFFF",
     primary: "#EA3B16",
     secondary: "#F97316",
     text: "#1F130D",
     muted: "#775C4D",
+  },
+  food_pizzeria: {
+    background: "#FFF7ED",
+    surface: "#FFFFFF",
+    primary: "#F97316",
+    secondary: "#B45309",
+    text: "#1C1917",
+    muted: "#78716C",
   },
   food_warm: {
     background: "#FFF7ED",
