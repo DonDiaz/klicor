@@ -839,7 +839,10 @@ Estado MVP implementado en pruebas:
 - La falla de correo no bloquea la creacion de la cita; se registra en `emailDelivery`.
 - El endpoint de recordatorios por correo existe en `/api/booking/reminders/cron` y puede ejecutarse con `CRON_SECRET`.
 - El workflow `.github/workflows/booking-reminders.yml` queda preparado para llamar el endpoint cada 15 minutos con secretos de GitHub.
+- El workflow de recordatorios ya quedo validado en produccion: el correo de recordatorio llega y el endpoint devuelve diagnostico con `actions` y `stats`.
 - El panel de Agenda actualiza citas por escucha en tiempo real para la fecha/profesional visibles, sin recargar toda la pagina.
+- El panel no debe usar polling permanente para simular tiempo real. Queda como respaldo el refresco al volver a enfocar la pestana y un boton manual `Actualizar`.
+- Las reglas de Firestore para `users/{uid}/bookingAppointments` deben estar desplegadas en `bioimpulso` y `klicor-6fc3e`; Vercel no despliega esas reglas.
 - La pantalla final publica ofrece WhatsApp, volver a Agenda e Inicio.
 
 Pendiente funcional:
@@ -848,7 +851,6 @@ Pendiente funcional:
 - Mejorar operacion diaria avanzada con vistas por profesional, filtros y reprogramacion mas ergonomica.
 - Completar agendamiento manual desde el negocio con menos pasos y mejor preseleccion desde la grilla.
 - Crear navegacion interna contextual de `Klicor Agenda` como workspace especializado, accesible desde el dashboard principal.
-- Configurar `CRON_SECRET` en Vercel y `BOOKING_REMINDER_URL` / `BOOKING_REMINDER_SECRET` en GitHub para activar recordatorios automaticos en pruebas y luego en produccion.
 - Configurar reactivacion de clientes por dias sin volver, apagada por defecto.
 - Preparar historial basico de cliente cuando se pueda identificar por telefono.
 - Crear una coleccion o subcoleccion de clientes por negocio para recordar nombre, email autenticado, telefono, ultima cita y preferencias/consentimiento de mensajes.
@@ -858,11 +860,12 @@ Pendiente funcional:
 
 Decision tecnica sobre recordatorios:
 
-- El endpoint `/api/booking/reminders/cron` ya existe y usa `CRON_SECRET`, pero no debe activarse como Vercel Cron frecuente mientras el equipo este en plan Hobby.
+- El endpoint `/api/booking/reminders/cron` usa `CRON_SECRET` y esta activado por GitHub Actions.
 - Segun la documentacion oficial vigente de Vercel Cron Jobs, en Hobby los cron solo pueden correr una vez al dia y con precision horaria aproximada; eso no sirve para recordatorios de 30 o 60 minutos antes de una cita.
-- La ruta MVP elegida para pruebas es un scheduler externo mediante GitHub Actions cada 15 minutos, llamando el endpoint con `Authorization: Bearer CRON_SECRET`.
+- La ruta MVP elegida es un scheduler externo mediante GitHub Actions cada 15 minutos, llamando el endpoint con `Authorization: Bearer CRON_SECRET`.
 - Para produccion se puede mantener GitHub Actions, subir Vercel a Pro y usar Vercel Cron frecuente, usar Firebase Cloud Scheduler/Cloud Functions, o usar otro scheduler externo confiable.
-- Mientras esa decision no este tomada, no agregar un cron frecuente a `vercel.json` porque rompe o degrada el despliegue en Hobby.
+- Mientras esa decision no cambie, no agregar un cron frecuente a `vercel.json` porque rompe o degrada el despliegue en Hobby.
+- La respuesta del endpoint debe conservar diagnostico operativo (`stats`) para confirmar si envio, omitio por ventana, omitio por estado o ya estaba enviado.
 
 Pendiente separado de Agenda:
 

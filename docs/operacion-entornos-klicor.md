@@ -59,9 +59,41 @@ Para pruebas en `klicor-pruebas`, Vercel debe tener `CRON_SECRET` en `Production
 - `BOOKING_REMINDER_URL`: `https://klicor-pruebas.vercel.app/api/booking/reminders/cron`
 - `BOOKING_REMINDER_SECRET`: el mismo valor de `CRON_SECRET` configurado en Vercel para `klicor-pruebas`.
 
+Para produccion, Vercel debe tener `CRON_SECRET` en el proyecto `klicor` y GitHub debe tener:
+
+- `BOOKING_REMINDER_URL`: `https://klicor.com/api/booking/reminders/cron`
+- `BOOKING_REMINDER_SECRET`: el mismo valor de `CRON_SECRET` configurado en Vercel para `klicor`.
+
 El workflow `.github/workflows/booking-reminders.yml` llama el endpoint cada 15 minutos y tambien permite ejecucion manual. Los scheduled workflows de GitHub corren desde la rama default del repositorio; si se necesita probar antes de promover a `main`, usar `workflow_dispatch` o un scheduler externo apuntando a la URL de pruebas.
 
+El workflow imprime la respuesta del endpoint en los logs. La respuesta incluye `actions` y `stats` para diagnosticar recordatorios:
+
+- `remindersSent`: recordatorios enviados en esa corrida.
+- `skippedAlreadySent`: citas que ya tenian recordatorio enviado.
+- `skippedAlreadySkipped`: citas ya omitidas por alguna razon.
+- `skippedOutsideWindow`: citas fuera de la ventana de envio.
+- `skippedStatus`: citas que no estaban en estado `confirmed`.
+
+Si el workflow sale en `success` pero `remindersSent` es `0`, revisar esos contadores antes de asumir error. Puede ser correcto si la cita ya tenia recordatorio o si todavia no estaba dentro de la ventana configurada.
+
 No usar Vercel Cron frecuente en plan Hobby para recordatorios de 30 o 60 minutos. En Hobby Vercel limita los cron a una ejecucion diaria y no garantiza precision suficiente para este caso.
+
+### Agenda en tiempo real y Firestore
+
+El panel de Agenda usa `onSnapshot` sobre:
+
+```txt
+users/{uid}/bookingAppointments
+```
+
+para actualizar la cita visible sin recargar la pagina. Para que funcione, las reglas de Firestore deben estar desplegadas en cada proyecto Firebase:
+
+```txt
+firebase deploy --only firestore:rules --project bioimpulso
+firebase deploy --only firestore:rules --project klicor-6fc3e
+```
+
+No resolver este flujo con polling agresivo. La implementacion actual usa escucha en tiempo real, refresco al volver a enfocar la pestana y boton manual `Actualizar`. Evitar intervalos permanentes como 20 segundos porque un comercio puede dejar el panel abierto todo el dia y eso aumenta lecturas/costo en Firestore.
 
 ## Flujo obligatorio de cambios
 

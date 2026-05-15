@@ -294,6 +294,9 @@ Reglas obligatorias:
 - Reprogramaciones, cancelaciones, rechazo/no aceptacion y cambios de estado deben generar mensajes transaccionales coherentes al cliente cuando haya email autenticado, y al negocio cuando aplique como control operativo.
 - WhatsApp debe usarse como recordatorio operativo, no como canal principal de confirmacion por defecto. Para mensajes iniciados por Klicor fuera de una conversacion activa se deben usar plantillas oficiales aprobadas de WhatsApp Business Platform, respetar consentimiento y evitar textos de reactivacion invasivos.
 - Las fuentes tecnicas base para implementar esta capa son Firebase Auth para login/identidad, Resend para correo transaccional ya presente en el proyecto, y WhatsApp Business Platform/Cloud API para recordatorios por plantilla cuando se active ese canal.
+- El dashboard de Agenda debe actualizar citas por escucha en tiempo real de Firestore, no por polling permanente. Puede existir refresco al volver al foco y boton manual `Actualizar`, pero no intervalos agresivos que lean Firestore todo el dia.
+- Si se toca tiempo real, permisos o colecciones de Agenda, desplegar tambien `firestore.rules` en el Firebase correspondiente. Vercel no despliega reglas de Firestore.
+- Los recordatorios automaticos MVP corren por GitHub Actions cada 15 minutos contra `/api/booking/reminders/cron`; antes de diagnosticar un fallo, revisar los `stats` del workflow.
 
 Prohibido:
 
