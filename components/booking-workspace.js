@@ -179,6 +179,7 @@ export function BookingWorkspace({ token, active = false, canEdit = true }) {
     return `${baseUrl}${state.publicUrl}`;
   }, [state?.publicUrl]);
   const appointmentsToClose = useMemo(() => {
+    if (Array.isArray(state?.appointmentsToClose)) return state.appointmentsToClose;
     if (!appointments.length) return [];
     const now = new Date();
     const today = new Intl.DateTimeFormat("en-CA", {
@@ -205,7 +206,7 @@ export function BookingWorkspace({ token, active = false, canEdit = true }) {
         return endMinutes < nowMinutes;
       })
       .sort((left, right) => `${left.appointmentDate} ${left.startTime}`.localeCompare(`${right.appointmentDate} ${right.startTime}`));
-  }, [appointments]);
+  }, [appointments, state?.appointmentsToClose]);
   const closeReminderKey = useMemo(() => {
     if (!state?.ownerUid || !appointmentsToClose.length) return "";
     return `booking-close-reminder:${state.ownerUid}:${appointmentsToClose.map((item) => item.id).join(",")}`;
