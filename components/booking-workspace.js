@@ -3,8 +3,10 @@
 import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { collection, onSnapshot, query, where } from "firebase/firestore";
 import {
+  AlertTriangle,
   CalendarClock,
   CalendarDays,
+  CheckCircle2,
   Copy,
   ExternalLink,
   LoaderCircle,
@@ -14,6 +16,7 @@ import {
   Settings2,
   UserRound,
   X,
+  XCircle,
 } from "lucide-react";
 import { apiFetch } from "@/lib/client-api";
 import { getClientDb } from "@/lib/firebase-client";
@@ -164,6 +167,7 @@ export function BookingWorkspace({ token, active = false, canEdit = true }) {
   const [slots, setSlots] = useState([]);
   const [loadingAvailability, setLoadingAvailability] = useState(false);
   const [staffDeleteReview, setStaffDeleteReview] = useState(null);
+  const [dismissedCloseReminderKey, setDismissedCloseReminderKey] = useState("");
 
   const services = useMemo(() => (Array.isArray(state?.services) ? state.services : []), [state?.services]);
   const staff = useMemo(() => (Array.isArray(state?.staff) ? state.staff : []), [state?.staff]);
@@ -174,6 +178,43 @@ export function BookingWorkspace({ token, active = false, canEdit = true }) {
     const baseUrl = typeof window !== "undefined" ? window.location.origin : "https://klicor.com";
     return `${baseUrl}${state.publicUrl}`;
   }, [state?.publicUrl]);
+  const appointmentsToClose = useMemo(() => {
+    if (!appointments.length) return [];
+    const now = new Date();
+    const today = new Intl.DateTimeFormat("en-CA", {
+      timeZone: "America/Bogota",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    }).format(now);
+    const [hour = "0", minute = "0"] = new Intl.DateTimeFormat("en-US", {
+      timeZone: "America/Bogota",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    }).format(now).split(":");
+    const nowMinutes = Number(hour) * 60 + Number(minute);
+
+    return appointments
+      .filter((appointment) => {
+        if (appointment.status !== "confirmed") return false;
+        if (!appointment.appointmentDate) return false;
+        if (appointment.appointmentDate < today) return true;
+        if (appointment.appointmentDate > today) return false;
+        const endMinutes = Number(appointment.endMinutes ?? timeToMinutes(appointment.endTime || appointment.startTime));
+        return endMinutes < nowMinutes;
+      })
+      .sort((left, right) => `${left.appointmentDate} ${left.startTime}`.localeCompare(`${right.appointmentDate} ${right.startTime}`));
+  }, [appointments]);
+  const closeReminderKey = useMemo(() => {
+    if (!state?.ownerUid || !appointmentsToClose.length) return "";
+    return `booking-close-reminder:${state.ownerUid}:${appointmentsToClose.map((item) => item.id).join(",")}`;
+  }, [appointmentsToClose, state?.ownerUid]);
+  const showCloseReminder = active
+    && activeSection === "agenda"
+    && appointmentsToClose.length > 0
+    && closeReminderKey
+    && dismissedCloseReminderKey !== closeReminderKey;
 
   useEffect(() => {
     if (!active) return;
@@ -185,6 +226,14 @@ export function BookingWorkspace({ token, active = false, canEdit = true }) {
     const timeout = window.setTimeout(() => setMessage(""), 2800);
     return () => window.clearTimeout(timeout);
   }, [message]);
+
+  useEffect(() => {
+    if (!closeReminderKey || typeof window === "undefined") {
+      setDismissedCloseReminderKey("");
+      return;
+    }
+    setDismissedCloseReminderKey(sessionStorage.getItem(closeReminderKey) === "dismissed" ? closeReminderKey : "");
+  }, [closeReminderKey]);
 
   useEffect(() => {
     if (!active || activeSection !== "agenda" || !state?.ownerUid || !filters.date) return undefined;
@@ -297,6 +346,16 @@ export function BookingWorkspace({ token, active = false, canEdit = true }) {
     } finally {
       agendaRefreshRef.current = false;
     }
+  }
+
+  function snoozeCloseReminder() {
+    if (!closeReminderKey || typeof window === "undefined") return;
+    sessionStorage.setItem(closeReminderKey, "dismissed");
+    setDismissedCloseReminderKey(closeReminderKey);
+  }
+
+  async function updateAppointmentStatusFromReminder(appointmentId, status) {
+    await runAction("update_appointment_status", { id: appointmentId, status });
   }
 
   async function loadStaffBlockers(member) {
@@ -511,6 +570,7 @@ export function BookingWorkspace({ token, active = false, canEdit = true }) {
           <article><strong>{summary.total}</strong><span>Citas del día</span></article>
           <article><strong>{summary.pendingCount}</strong><span>Solicitudes</span></article>
           <article><strong>{summary.confirmedCount}</strong><span>Confirmadas</span></article>
+          <article className={appointmentsToClose.length ? "is-warning" : ""}><strong>{appointmentsToClose.length}</strong><span>Por cerrar</span></article>
           <article><strong>{summary.hasAvailability ? "Sí" : "No"}</strong><span>Agenda libre</span></article>
         </div>
 
@@ -787,6 +847,58 @@ export function BookingWorkspace({ token, active = false, canEdit = true }) {
     if (activeSection === "staff") return renderStaffSection();
     if (activeSection === "hours") return renderHoursSection();
     return renderSettingsSection();
+  }
+
+  function renderCloseReminderModal() {
+    if (!showCloseReminder) return null;
+    const visibleAppointments = appointmentsToClose.slice(0, 3);
+
+    return (
+      <div className="commerce-modal-backdrop booking-close-reminder-backdrop" role="dialog" aria-modal="true" aria-label="Citas por cerrar">
+        <div className="commerce-modal-card booking-admin-modal booking-close-reminder-card">
+          <button className="commerce-modal-close" type="button" onClick={snoozeCloseReminder} aria-label="Cerrar aviso de citas por cerrar">
+            <X size={18} />
+          </button>
+          <div className="commerce-modal-head booking-close-reminder-head">
+            <span><AlertTriangle size={16} /> Citas por cerrar</span>
+            <strong>Tienes {appointmentsToClose.length} {appointmentsToClose.length === 1 ? "cita pendiente" : "citas pendientes"} de cerrar</strong>
+            <p>Marca si el cliente asistio, no asistio o reprograma para mantener tu agenda al dia.</p>
+          </div>
+
+          <div className="booking-close-reminder-list">
+            {visibleAppointments.map((appointment) => (
+              <article key={appointment.id} className="booking-close-reminder-item">
+                <div>
+                  <strong>{appointment.customerName}</strong>
+                  <span>{appointment.serviceNameSnapshot}</span>
+                  <small>{formatBookingDateLabel(appointment.appointmentDate)} - {formatTimeLabel(appointment.startTime)}</small>
+                </div>
+                <div className="booking-close-reminder-actions">
+                  <button className="booking-status-action is-confirm" type="button" onClick={() => updateAppointmentStatusFromReminder(appointment.id, "completed")}>
+                    <CheckCircle2 size={14} /> Asistio
+                  </button>
+                  <button className="booking-status-action is-cancel" type="button" onClick={() => updateAppointmentStatusFromReminder(appointment.id, "no_show")}>
+                    <XCircle size={14} /> No asistio
+                  </button>
+                  <button className="booking-status-action" type="button" onClick={() => { snoozeCloseReminder(); openAppointmentEditor(appointment); }}>
+                    <CalendarClock size={14} /> Reprogramar
+                  </button>
+                </div>
+              </article>
+            ))}
+          </div>
+
+          {appointmentsToClose.length > visibleAppointments.length ? (
+            <p className="muted">Hay {appointmentsToClose.length - visibleAppointments.length} cita(s) mas por cerrar en la agenda.</p>
+          ) : null}
+
+          <div className="commerce-modal-actions">
+            <button className="btn btn-secondary" type="button" onClick={snoozeCloseReminder}>Recordarme despues</button>
+            <button className="btn btn-primary" type="button" onClick={() => { setActiveSection("agenda"); snoozeCloseReminder(); }}>Revisar citas</button>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   function renderServiceEditor() {
@@ -1211,6 +1323,7 @@ export function BookingWorkspace({ token, active = false, canEdit = true }) {
       {renderStaffEditor()}
       {renderStaffDeleteReview()}
       {renderAppointmentModal()}
+      {renderCloseReminderModal()}
     </section>
   );
 }
