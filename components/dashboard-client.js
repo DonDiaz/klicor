@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
-import Script from "next/script";
 import { AlertTriangle, Send, ShieldAlert } from "lucide-react";
 import { sendEmailVerification, signOut } from "firebase/auth";
 import { getClientAuth } from "@/lib/firebase-client";
@@ -51,8 +50,6 @@ export function DashboardClient() {
   const [paying, setPaying] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
   const [checkoutConfig, setCheckoutConfig] = useState(null);
-  const [sdkReady, setSdkReady] = useState(false);
-  const [shouldLoadCheckoutSdk, setShouldLoadCheckoutSdk] = useState(false);
   const [recovery, setRecovery] = useState({
     backupEmail: "",
     backupEmailVerified: false,
@@ -99,46 +96,37 @@ export function DashboardClient() {
     return needsDashboardOnboarding(data.user) && !dismissOnboarding;
   }, [data?.user, dismissOnboarding]);
 
-  useEffect(() => {
-    if (!sdkReady || !checkoutConfig?.preferenceId || !checkoutConfig?.publicKey) return;
-    if (!window.MercadoPago) return;
-
-    const container = document.getElementById("mercadopago-checkout");
-    if (!container) return;
-
-    container.innerHTML = "";
-
-    try {
-      const mp = new window.MercadoPago(checkoutConfig.publicKey, { locale: "es-CO" });
-      mp.checkout({
-        preference: {
-          id: checkoutConfig.preferenceId,
-        },
-        render: {
-          container: "#mercadopago-checkout",
-          label: data?.user?.status === "active" ? "Renovar con Mercado Pago" : "Pagar con Mercado Pago",
-        },
-      });
-    } catch {
-      setError("No pudimos iniciar el proceso oficial de pago de Mercado Pago.");
-    } finally {
-      setPaying(false);
-    }
-  }, [checkoutConfig, sdkReady, data?.user?.status]);
-
   async function handleCheckout(options = {}) {
     setPaying(true);
     setError("");
-    setShouldLoadCheckoutSdk(true);
+    setCheckoutConfig(null);
+    const paymentWindow = typeof window !== "undefined" ? window.open("", "_blank") : null;
+    if (paymentWindow) {
+      paymentWindow.opener = null;
+      paymentWindow.document.title = "Mercado Pago";
+      paymentWindow.document.body.innerHTML = "<p style=\"font-family:system-ui,sans-serif;padding:24px\">Preparando pago seguro...</p>";
+    }
+
     try {
       const response = await apiFetch("/api/billing/create-preference", {
         method: "POST",
         token,
         body: options,
       });
-      setCheckoutConfig(response);
+      if (!response?.initPoint) {
+        throw new Error("Mercado Pago no entregó un enlace de pago válido.");
+      }
+
+      if (paymentWindow && !paymentWindow.closed) {
+        paymentWindow.location.href = response.initPoint;
+      }
+      setCheckoutConfig({ ...response, openedExternally: Boolean(paymentWindow && !paymentWindow.closed) });
     } catch (nextError) {
+      if (paymentWindow && !paymentWindow.closed) {
+        paymentWindow.close();
+      }
       setError(nextError.message);
+    } finally {
       setPaying(false);
     }
   }
@@ -277,10 +265,6 @@ export function DashboardClient() {
 
   return (
     <main className="shell dashboard-shell">
-      {shouldLoadCheckoutSdk ? (
-        <Script src="https://sdk.mercadopago.com/js/v2" strategy="afterInteractive" onLoad={() => setSdkReady(true)} />
-      ) : null}
-
       <div className="dashboard-body">
         {!user.emailVerified ? (
           <div className="notice notice-danger">

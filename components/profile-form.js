@@ -2225,10 +2225,13 @@ export function ProfileForm({
 
               {checkoutConfig ? (
                 <div className="stack" style={{ gap: ".85rem" }}>
-                  <p className="muted">El proceso oficial de pago de Mercado Pago ya está listo. Si el widget no responde, puedes continuar por redirección.</p>
-                  <div id="mercadopago-checkout" />
-                  <button className="btn btn-secondary" type="button" onClick={() => { window.location.href = checkoutConfig.initPoint; }}>
-                    Abrir pago por redirección
+                  <p className="muted">
+                    {checkoutConfig.openedExternally
+                      ? "Abrimos Mercado Pago en una pestaña nueva para que el pago, incluido PSE, se complete fuera del panel."
+                      : "El enlace oficial de Mercado Pago ya está listo. Si el navegador bloqueó la pestaña emergente, ábrelo manualmente."}
+                  </p>
+                  <button className="btn btn-secondary" type="button" onClick={() => { window.open(checkoutConfig.initPoint, "_blank", "noopener,noreferrer"); }}>
+                    Abrir Mercado Pago
                   </button>
                 </div>
               ) : null}
