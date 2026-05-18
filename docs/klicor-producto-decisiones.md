@@ -1043,6 +1043,30 @@ Prioridad recomendada:
 
 No bloquear el avance actual por este punto, pero no dejarlo para despues de produccion.
 
+## 8.2 Facturacion electronica manual y regla futura
+
+Estado actual MVP:
+
+- Klicor no genera factura electronica automaticamente.
+- El cliente puede guardar datos privados de facturacion en el panel.
+- Cuando esos datos se crean o cambian, Klicor debe avisar al correo administrativo para revision manual.
+- Cuando Mercado Pago confirma un pago aprobado, Klicor debe avisar al correo administrativo con el pago, el plan y los datos de facturacion disponibles.
+- Si el cliente no tiene datos completos y no solicita factura individual, el caso puede manejarse manualmente dentro del consolidado mensual a cliente indeterminado, segun criterio contable del negocio.
+
+Regla futura antes de automatizar:
+
+- Antes de abrir Mercado Pago, el cliente debe poder marcar `Necesito factura electronica a mi nombre`.
+- Si marca esa opcion, el pago no debe continuar hasta completar datos minimos de facturacion.
+- Si no marca esa opcion, Klicor debe registrar que no solicito factura individual en ese momento.
+- Si paga sin datos completos, no se debe asumir automaticamente que necesita factura individual.
+- Si solicita factura despues del pago, debe quedar como solicitud posterior/manual.
+
+Motivo:
+
+- Evitar emitir una factura individual con datos incompletos.
+- Evitar mandar al cliente al consolidado de cliente indeterminado cuando expreso que necesita factura electronica a su nombre.
+- Mantener el flujo simple mientras la facturacion siga siendo manual.
+
 ## 9. Orden recomendado de implementacion
 
 1. Compactar onboarding actual.
