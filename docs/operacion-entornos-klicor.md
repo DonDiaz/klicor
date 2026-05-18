@@ -56,11 +56,12 @@ Authorization: Bearer CRON_SECRET
 
 Para pruebas en `klicor-pruebas`, Vercel debe tener `CRON_SECRET` en `Production` y Google Cloud Scheduler debe apuntar a:
 
-- URL: `https://klicor-pruebas.vercel.app/api/booking/reminders/cron`
+- URL: `https://klicor-pruebas-donjhonnathan-4482s-projects.vercel.app/api/booking/reminders/cron`
 - Metodo: `POST`
 - Frecuencia MVP: `*/5 * * * *`
 - Zona horaria: `America/Bogota`
 - Header: `Authorization: Bearer <CRON_SECRET_DE_PRUEBAS>`
+- Header si Vercel Deployment Protection esta activo: `x-vercel-protection-bypass: <VERCEL_AUTOMATION_BYPASS_SECRET_DE_PRUEBAS>`
 
 Para produccion, Vercel debe tener `CRON_SECRET` en el proyecto `klicor` y Google Cloud Scheduler debe apuntar a:
 
@@ -99,6 +100,8 @@ gcloud scheduler jobs create http klicor-booking-reminders-pruebas `
 ```
 
 Para produccion, crear un job separado con otro secreto y URL `https://klicor.com/api/booking/reminders/cron`. No reutilizar secretos entre ambientes.
+
+Si el Scheduler devuelve `401` aunque `CRON_SECRET` coincida, revisar primero Deployment Protection de Vercel. En proyectos protegidos, la llamada puede quedar bloqueada antes de llegar a Next.js. Segun la documentacion oficial de Vercel, las automatizaciones deben incluir el header `x-vercel-protection-bypass` con un bypass secret del proyecto.
 
 ### Agenda en tiempo real y Firestore
 

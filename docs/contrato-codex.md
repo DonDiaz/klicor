@@ -296,7 +296,7 @@ Reglas obligatorias:
 - Las fuentes tecnicas base para implementar esta capa son Firebase Auth para login/identidad, Resend para correo transaccional ya presente en el proyecto, y WhatsApp Business Platform/Cloud API para recordatorios por plantilla cuando se active ese canal.
 - El dashboard de Agenda debe actualizar citas por escucha en tiempo real de Firestore, no por polling permanente. Puede existir refresco al volver al foco y boton manual `Actualizar`, pero no intervalos agresivos que lean Firestore todo el dia.
 - Si se toca tiempo real, permisos o colecciones de Agenda, desplegar tambien `firestore.rules` en el Firebase correspondiente. Vercel no despliega reglas de Firestore.
-- Los recordatorios automaticos MVP deben correr por Google Cloud Scheduler contra `/api/booking/reminders/cron`, con `Authorization: Bearer CRON_SECRET`. Antes de diagnosticar un fallo, revisar los `stats` del endpoint, los logs del scheduler y los logs de Vercel.
+- Los recordatorios automaticos MVP deben correr por Google Cloud Scheduler contra `/api/booking/reminders/cron`, con `Authorization: Bearer CRON_SECRET`. Si Vercel Deployment Protection esta activo, tambien deben enviar `x-vercel-protection-bypass`. Antes de diagnosticar un fallo, revisar los `stats` del endpoint, los logs del scheduler y los logs de Vercel.
 
 Prohibido:
 

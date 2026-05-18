@@ -867,6 +867,7 @@ Decision tecnica sobre recordatorios:
 - Segun la documentacion oficial vigente de Vercel Cron Jobs, en Hobby los cron solo pueden correr una vez al dia y con precision horaria aproximada; eso no sirve para recordatorios de 30 o 60 minutos antes de una cita.
 - La ruta MVP elegida es Google Cloud Scheduler como scheduler externo, primero en `klicor-pruebas` y despues en `klicor` produccion.
 - Cada ambiente debe tener su propio job y su propio `CRON_SECRET`; no compartir secretos entre pruebas y produccion.
+- Si el proyecto Vercel tiene Deployment Protection, el job tambien debe enviar `x-vercel-protection-bypass` con un bypass secret de automatizacion del proyecto.
 - Mientras el proyecto siga en Vercel Hobby, no agregar un cron frecuente a `vercel.json` porque rompe o degrada el despliegue.
 - La respuesta del endpoint debe conservar diagnostico operativo (`stats`) para confirmar si envio, omitio por ventana, omitio por estado o ya estaba enviado.
 
