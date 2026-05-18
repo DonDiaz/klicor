@@ -2578,6 +2578,360 @@ html[data-theme="dark"] .editor-form-footer {
   white-space: nowrap;
 }
 
+.agency-page-shell {
+  width: 100%;
+  min-height: 100vh;
+  background: #f6f8fb;
+}
+
+.agency-page-shell.is-auth {
+  display: grid;
+  place-items: start center;
+  padding: 2rem 1rem 3rem;
+}
+
+.agency-loading {
+  margin: 3rem auto;
+  width: min(640px, calc(100% - 2rem));
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  color: var(--text-secondary);
+}
+
+.agency-layout {
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr);
+  min-height: 100vh;
+}
+
+.agency-sidebar {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  padding: 1rem;
+  border-right: 1px solid var(--border);
+  background: #ffffff;
+  display: grid;
+  align-content: start;
+  gap: 1rem;
+}
+
+.agency-sidebar-brand {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr);
+  gap: 0.75rem;
+  align-items: center;
+  padding: 0.4rem;
+}
+
+.agency-sidebar-brand strong {
+  display: block;
+}
+
+.agency-sidebar-brand small,
+.agency-sidebar-note span,
+.agency-business-card span,
+.agency-business-card small,
+.agency-request-card span,
+.agency-section-heading p,
+.agency-hero p,
+.agency-access-warning span,
+.agency-metric-card span {
+  color: var(--text-secondary);
+}
+
+.agency-sidebar-mark,
+.agency-business-avatar {
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--border);
+  background: #f0f7ff;
+  color: #075985;
+}
+
+.agency-sidebar-mark {
+  width: 42px;
+  height: 42px;
+  border-radius: 8px;
+}
+
+.agency-nav {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.agency-nav-item {
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: inherit;
+  min-height: 44px;
+  padding: 0.7rem 0.85rem;
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr);
+  gap: 0.7rem;
+  align-items: center;
+  text-align: left;
+}
+
+.agency-nav-item.is-active {
+  background: #eef6ff;
+  border-color: #cfe6ff;
+  color: #075985;
+}
+
+.agency-nav-item:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.agency-sidebar-note {
+  margin-top: auto;
+  border: 1px solid #d8eadf;
+  border-radius: 8px;
+  background: #f2fbf5;
+  color: #166534;
+  padding: 0.85rem;
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr);
+  gap: 0.65rem;
+}
+
+.agency-main {
+  min-width: 0;
+  padding: 1rem;
+  display: grid;
+  gap: 1rem;
+  align-content: start;
+}
+
+.agency-hero,
+.agency-panel,
+.agency-access-warning,
+.agency-metric-card {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.agency-hero {
+  padding: 1.25rem;
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.agency-hero h1 {
+  margin: 0.65rem 0 0.35rem;
+  font-size: clamp(1.8rem, 3vw, 2.55rem);
+  letter-spacing: 0;
+}
+
+.agency-hero p {
+  max-width: 680px;
+  margin: 0;
+}
+
+.agency-hero-actions {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.agency-access-warning {
+  padding: 0.85rem 1rem;
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr);
+  gap: 0.7rem;
+  align-items: start;
+  color: #075985;
+  background: #f0f9ff;
+  border-color: #bae6fd;
+}
+
+.agency-metric-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.8rem;
+}
+
+.agency-metric-card {
+  padding: 1rem;
+  display: grid;
+  gap: 0.4rem;
+}
+
+.agency-metric-card strong {
+  font-size: 1.7rem;
+}
+
+.agency-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 0.42fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.agency-panel {
+  padding: 1rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.agency-section-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.agency-section-heading h2 {
+  margin: 0 0 0.2rem;
+  font-size: 1.05rem;
+}
+
+.agency-section-heading p {
+  margin: 0;
+}
+
+.agency-business-list,
+.agency-side-stack,
+.agency-request-form,
+.agency-request-list {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.agency-business-card {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #fbfcfe;
+  padding: 0.75rem;
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr) auto auto;
+  gap: 0.8rem;
+  align-items: center;
+}
+
+.agency-business-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  font-weight: 800;
+}
+
+.agency-business-copy {
+  min-width: 0;
+  display: grid;
+  gap: 0.15rem;
+}
+
+.agency-business-copy strong,
+.agency-business-copy span,
+.agency-business-copy small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.agency-business-updated {
+  font-size: 0.9rem;
+}
+
+.agency-business-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+.agency-request-card {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #fbfcfe;
+  padding: 0.75rem;
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr);
+  gap: 0.65rem;
+  align-items: start;
+}
+
+.agency-request-card div {
+  min-width: 0;
+  display: grid;
+  gap: 0.15rem;
+}
+
+@media (max-width: 1100px) {
+  .agency-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .agency-sidebar {
+    position: static;
+    height: auto;
+    border-right: 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .agency-nav {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .agency-sidebar-note {
+    margin-top: 0;
+  }
+
+  .agency-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 760px) {
+  .agency-main {
+    padding: 0.75rem;
+  }
+
+  .agency-hero,
+  .agency-section-heading {
+    display: grid;
+  }
+
+  .agency-hero-actions {
+    justify-content: flex-start;
+  }
+
+  .agency-metric-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .agency-nav {
+    grid-template-columns: 1fr;
+  }
+
+  .agency-business-card {
+    grid-template-columns: 48px minmax(0, 1fr);
+  }
+
+  .agency-business-card .status-badge,
+  .agency-business-updated {
+    grid-column: 2;
+    justify-self: start;
+  }
+
+  .agency-business-actions {
+    justify-content: flex-start;
+  }
+}
+
 .admin-mini-avatar,
 .admin-user-avatar {
   overflow: hidden;

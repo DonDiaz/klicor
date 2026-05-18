@@ -1067,6 +1067,247 @@ Motivo:
 - Evitar mandar al cliente al consolidado de cliente indeterminado cuando expreso que necesita factura electronica a su nombre.
 - Mantener el flujo simple mientras la facturacion siga siendo manual.
 
+## 8.3 Dashboard de agencias y solicitudes de acceso
+
+Estado: definido para implementacion posterior.
+
+Objetivo:
+
+- Permitir que una agencia de marketing administre Klicor de clientes sin pedirles correo, clave ni acceso directo a su cuenta.
+- Mantener siempre al negocio como propietario y con control final.
+- Evitar registro libre de agencias: solo pueden entrar correos habilitados por el administrador de Klicor.
+
+Definicion de "modelo":
+
+- En este contexto, modelo no es una pantalla.
+- Es la forma en que se guardan los datos y relaciones en Firestore.
+- Define colecciones, campos, estados, permisos, propiedad, trazabilidad y reglas de acceso.
+- Antes de crear pantallas o APIs de agencia, el modelo debe quedar claro para no improvisar permisos ni romper seguridad.
+
+Flujo MVP:
+
+1. El negocio se registra y crea su Klicor normalmente desde el flujo actual.
+2. La agencia entra a su dashboard de agencia.
+3. La agencia escribe el correo del negocio ya registrado.
+4. Klicor busca si existe un negocio con ese correo.
+5. Si existe, Klicor crea una solicitud de acceso y envia correo al negocio.
+6. El negocio ve la solicitud por correo y en su dashboard.
+7. El negocio acepta o rechaza.
+8. Si acepta, la agencia puede administrar solo modulos permitidos.
+9. El negocio puede desvincular la agencia cuando quiera.
+
+Acceso a dashboard de agencia:
+
+- No hay registro publico de agencias.
+- El administrador de Klicor debe habilitar primero el correo de la agencia.
+- Una cuenta solo entra a `/agencia` si su correo esta autorizado y activo.
+- Si no esta autorizada, debe ver un mensaje simple: `Este acceso es solo para agencias autorizadas por Klicor.`
+- Para MVP, una agencia corresponde a un solo correo autorizado.
+- A futuro se puede ampliar a varios usuarios por agencia si el uso real lo exige.
+
+Coleccion propuesta `agencyAccounts`:
+
+```js
+{
+  email: "agencia@dominio.com",
+  agencyName: "Nombre Agencia",
+  status: "active", // active | inactive
+  createdBy: "adminUid",
+  createdAt,
+  updatedAt
+}
+```
+
+Coleccion propuesta `agencyAccessRequests`:
+
+```js
+{
+  agencyId: "agencyAccountId",
+  agencyEmail: "agencia@dominio.com",
+  agencyName: "Nombre Agencia",
+  businessUid: "uidNegocio",
+  businessEmail: "cliente@negocio.com",
+  businessName: "Nombre negocio",
+  status: "pending", // pending | accepted | rejected | revoked | expired
+  permissions: {
+    links: true,
+    design: true,
+    commerce: true,
+    booking: true,
+    publicProfile: true,
+    paymentMethods: true,
+    analytics: true,
+    subscriptionRenewal: true,
+    dorika: false,
+    billing: false,
+    subscriptionAdmin: false,
+    security: false,
+    owner: false
+  },
+  createdAt,
+  expiresAt,
+  respondedAt,
+  revokedAt
+}
+```
+
+Campo propuesto en usuario negocio:
+
+```js
+{
+  agencyAccess: {
+    agencyId: "agencyAccountId",
+    agencyEmail: "agencia@dominio.com",
+    agencyName: "Nombre Agencia",
+    status: "active", // active | revoked
+    permissions: { ... },
+    acceptedAt,
+    revokedAt
+  }
+}
+```
+
+Permisos permitidos para agencia:
+
+- Enlaces.
+- Diseno.
+- Comercio.
+- Comercio completo: crear, editar y borrar categorias, subcategorias y productos.
+- Agenda solo configuracion: servicios, profesionales/colaboradores, disponibilidad base, recordatorios y correos.
+- Perfil publico basico.
+- Metodos de pago visibles en la pagina publica.
+- Analiticas generales de marketing cuando existan.
+- Renovacion limitada de suscripcion.
+
+Perfil publico basico incluye:
+
+- Nombre visible del negocio.
+- Logo/foto visible.
+- Descripcion publica.
+- Categoria o tipo de negocio si afecta la presentacion publica.
+- WhatsApp visible.
+- Horarios publicos cuando apliquen.
+- Username/link visible. El QR impreso no se pierde porque Klicor usa `publicLinkId` estable bajo `/u/{publicLinkId}` y redirige al username actual.
+
+Permisos prohibidos para agencia:
+
+- Seguridad.
+- Correo principal.
+- Correo o telefono de recuperacion.
+- Facturacion privada.
+- Datos para factura electronica.
+- Administracion completa de suscripcion.
+- Pagos administrativos.
+- Cambio de plan.
+- Eliminacion de cuenta.
+- Cambio de propietario.
+- Desvincular al dueno.
+- Vincular otra agencia.
+- Ver citas con datos de clientes.
+- Agendar citas.
+- Aceptar citas.
+- Rechazar citas.
+- Reprogramar citas.
+- Cancelar citas.
+- Marcar asistio/no asistio.
+- Operar la agenda diaria del negocio.
+
+Regla de Agenda para agencia:
+
+- La agencia puede configurar la Agenda, pero no operarla.
+- Puede crear y editar servicios.
+- Puede crear y editar profesionales o colaboradores.
+- Puede ajustar configuracion, recordatorios y correos.
+- No puede ver ni administrar citas reales porque contienen datos personales de clientes y decisiones operativas del negocio.
+
+Regla de suscripcion y renovacion:
+
+- La agencia puede ver estado del plan, fecha de vencimiento y estado vencido/suspendido.
+- Si el negocio esta en `trial` o `active`, la agencia puede editar los modulos permitidos.
+- Si el negocio esta vencido o suspendido, la agencia no puede editar contenido operativo.
+- En vencido o suspendido, la agencia si puede ayudar a renovar mediante un permiso limitado `subscriptionRenewal`.
+- `subscriptionRenewal` permite abrir el flujo de renovacion o pago para ese negocio.
+- `subscriptionRenewal` no permite cambiar precios, dar cortesia, alterar estados manualmente, modificar facturacion privada, cancelar cuenta ni cambiar propietario.
+- Si una agencia paga por el negocio, el pago activa el negocio, pero no le da propiedad ni derechos adicionales sobre la cuenta.
+
+Dorika:
+
+- Queda fuera del MVP de agencia.
+- Puede habilitarse despues solo para agencias autorizadas o casos especiales de Ocana.
+- No mezclar Dorika con el primer flujo de permisos de agencia.
+
+Reglas de UI:
+
+- La ruta publica del dashboard de agencia sera `/agencia`.
+- El dashboard de agencia debe mostrar negocios vinculados, solicitudes pendientes y boton `Solicitar acceso`.
+- La lista de negocios debe mostrar logo, nombre, link, estado del plan, modulos activos, ultima actualizacion y accion `Administrar`.
+- Para editar, la agencia debe reutilizar el dashboard del cliente con una barra o aviso visible: `Administrando Klicor de: {negocio}`.
+- El dashboard cargado en modo agencia debe mostrar solo los modulos permitidos.
+- Las secciones administrativas no deben mostrarse deshabilitadas; deben ocultarse para evitar confusion.
+- El negocio debe ver en su dashboard la agencia vinculada, fecha de autorizacion, permisos y boton `Desvincular agencia`.
+- La agencia vinculada puede mostrarse en Perfil del negocio.
+- No enviar correo al negocio por cada cambio de la agencia en MVP.
+- La solicitud debe explicar que la agencia podra ayudar a configurar Klicor y editar datos visibles, pero no podra ver ni modificar seguridad, facturacion privada, administracion de suscripcion, propietario ni datos de clientes de citas.
+- La solicitud debe incluir aviso legal: Klicor facilita el acceso tecnico; el dueno del negocio decide autorizar a la agencia y asume responsabilidad por ese acceso; los acuerdos comerciales entre negocio y agencia son externos a Klicor.
+
+Reglas de solicitud:
+
+- La agencia solo puede solicitar acceso usando el correo exacto del negocio.
+- No debe existir buscador publico de negocios para agencias.
+- Una solicitud vence a los 7 dias.
+- No puede haber dos solicitudes activas de la misma agencia al mismo negocio.
+- Si una solicitud vence, la agencia puede crear o reenviar otra solo despues de 24 horas.
+- Un negocio solo puede tener una agencia activa.
+- Si un negocio ya tiene agencia activa, otra agencia no puede solicitar acceso.
+- Klicor no arbitra cobros, entregas, deudas o acuerdos entre agencia y negocio.
+- La agencia no puede bloquear el Klicor ni marcarlo como en construccion.
+- La agencia publica cambios inmediatamente dentro de sus permisos.
+- El negocio puede revocar acceso en cualquier momento.
+- Al revocar, la agencia pierde acceso de inmediato.
+
+Reglas de auditoria:
+
+- Toda edicion hecha por agencia debe guardar quien la hizo.
+- Campos sugeridos:
+
+```js
+{
+  updatedBy: "agencyUid",
+  updatedByRole: "agency",
+  updatedByEmail: "agencia@dominio.com",
+  updatedForUid: "uidNegocio",
+  updatedAt
+}
+```
+
+Rutas futuras:
+
+- `/agencia`: dashboard principal de agencia.
+- `/agencia/negocios`: negocios vinculados.
+- `/agencia/solicitudes`: solicitudes enviadas.
+- `/agencia/negocios/[uid]`: entrada al dashboard del cliente en modo agencia.
+
+APIs futuras:
+
+- `GET /api/agency/me`
+- `GET /api/agency/businesses`
+- `POST /api/agency/request-access`
+- `POST /api/agency/respond-request`
+- `POST /api/agency/revoke`
+
+Orden recomendado de implementacion:
+
+1. Crear modelo de datos y helpers de permisos.
+2. Agregar en admin la habilitacion de correos de agencia.
+3. Crear guard de acceso para `/agency`.
+4. Crear pantalla base de `/agencia`.
+5. Crear solicitud de acceso por correo de negocio.
+6. Enviar correo al negocio.
+7. Mostrar solicitud en dashboard del negocio.
+8. Aceptar, rechazar y revocar.
+9. Listar negocios vinculados.
+10. Reutilizar el editor actual con permisos limitados.
+
 ## 9. Orden recomendado de implementacion
 
 1. Compactar onboarding actual.
