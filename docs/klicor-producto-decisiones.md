@@ -11,7 +11,7 @@ Klicor debe permitir que un negocio tenga:
 - Link in bio publico con identidad, botones, redes, metodos de pago y contacto.
 - QR y enlace publico facil de compartir.
 - Tienda, menu o catalogo segun lo que vende.
-- Agenda como workspace operativo para negocios de servicios o citas.
+- Agenda como workspace operativo solo para negocios de citas reales.
 - Perfil comercial para aparecer en Dorika cuando aplique.
 - Panel administrativo principal para configurar el negocio con el menor esfuerzo posible.
 - Workspaces operativos especializados para modulos grandes como Agenda y POS.
@@ -132,7 +132,7 @@ Problema actual:
 
 Existe configuracion de agenda mediante `bookingConfig` y componentes como `BookingWorkspace`.
 
-Debe mantenerse como modulo de citas/servicios.
+Debe mantenerse como modulo de citas reales, no como solucion generica para todo negocio de servicios.
 
 Estado funcional actual:
 
@@ -155,7 +155,12 @@ Decision de producto:
 - La confirmacion automatica puede existir, pero no debe ser la suposicion principal para negocios que necesitan revisar su agenda.
 - La experiencia publica de Agenda no debe duplicar el inicio del link in bio; debe enfocarse en servicios, profesional, fecha/hora, datos y resultado.
 - El dashboard de Agenda debe conservar identidad Klicor, aunque la experiencia publica de Agenda tenga tono visual por vertical.
-- Agenda debe servir a negocios que venden servicios por tiempo: barberias, salones de belleza, consultorios, salud/bienestar, asesorias, tecnicos, clases o sesiones.
+- Agenda debe servir a negocios donde el producto principal es un bloque de tiempo con cita real: barberias, salones de belleza, unas, spa, estetica, masajes, consultorios, odontologia, psicologia, fisioterapia, terapias, nutricion, centro de bienestar, yoga/pilates y casos similares de salud, belleza y bienestar.
+- Agenda no debe aparecer para comercio puro ni para servicios operativos donde el flujo real es solicitud, diagnostico, cotizacion, orden de trabajo o seguimiento. Ejemplos: restaurantes, tiendas, catalogos, licores, moda, tecnologia, repuestos, regalos, papeleria, electricidad, plomeria, lavanderia, sastreria, taller automotriz, lavadero de autos, construccion, reparacion tecnica, legal, contable, publicidad y diseno.
+- Si una categoria no permite Agenda, la opcion de crear o activar Agenda no debe mostrarse en la navegacion normal, tarjetas de modulo, configuracion ni CTA. No mostrar botones deshabilitados porque generan confusion.
+- Si un negocio ya tenia Agenda y cambia a una categoria que no la permite, Agenda debe ocultarse sin borrar datos y mostrar una advertencia puntual solo en ese cambio o si entra por una ruta vieja.
+- Un negocio con Agenda si puede activar tienda, menu o catalogo cuando su plan y categoria lo permitan. La regla es: Agenda puede convivir con comercio en negocios de citas; comercio puro no puede habilitar Agenda.
+- Cuando un negocio con Agenda active comercio, la experiencia comercial debe usar un tema comercial sugerido por su vertical de servicio, no un tema generico ni el tema administrativo de Agenda.
 - Los estados funcionales base son `pending`, `confirmed`, `completed`, `cancelled_by_customer`, `cancelled_by_business` y `no_show`.
 - El cliente publico debe identificarse preferiblemente con login de Google mediante Firebase Auth. Asi Klicor obtiene nombre, email, foto y verificacion del proveedor sin pedir que escriba el correo.
 - El primer uso de Agenda puede pedir login; la persistencia de sesion debe revisarse antes de produccion porque una sesion permanente en equipos compartidos es riesgo de seguridad.
@@ -199,7 +204,7 @@ Sirve para:
 - Mostrar redes.
 - Mostrar metodos de pago.
 - Guardar contacto.
-- Llevar a tienda, menu, catalogo o agenda.
+- Llevar a tienda, menu, catalogo o agenda cuando el tipo de negocio permita ese modulo.
 - Ser el punto de entrada publico antes de que el cliente abra Agenda.
 
 Tema visual:
@@ -259,10 +264,13 @@ Sirve para:
 
 Regla mental:
 
-- Agenda es para servicios reservables por tiempo.
+- Agenda es para citas reales reservables por tiempo.
 - Agenda no es tienda, menu ni catalogo de productos.
 - Agenda no es Reservas de turismo, planes, cupos o experiencias.
 - Reservas debe quedar como modulo separado para experiencias, actividades, fechas especiales y cupos.
+- Reservas queda como modulo futuro separado para hoteles, glamping, canchas sinteticas de futbol/microfutbol y negocios que manejan recursos, noches, cupos, fechas o espacios; no debe resolverse forzando Agenda.
+- Comercio puro no debe ver Agenda en la navegacion normal ni en llamados a la accion.
+- Negocios de Agenda pueden tener tienda, menu o catalogo si venden productos, bonos, paquetes o complementos.
 - Agenda publica empieza despues del link in bio; no necesita portada propia del negocio.
 - El tono visual publico de Agenda puede variar por vertical o marca.
 - El admin de Agenda mantiene el sistema visual de Klicor.
@@ -612,12 +620,12 @@ Los modulos que crecen en operacion diaria no deben quedar comprimidos como una 
 
 Workspaces previstos:
 
-- `Klicor Agenda`: barberias, salones, consultorios, spas, clases, tecnicos y servicios por cita.
+- `Klicor Agenda`: barberias, salones, unas, spas, estetica, masajes, consultorios, salud/bienestar, terapias, nutricion, fisioterapia, odontologia, psicologia y negocios de cita real.
 - `Klicor POS Restaurante`: restaurantes, comidas rapidas, cafes, bares, mesas, comandas, caja, cocina y domicilios.
 - `Klicor POS Retail`: ropa, zapatos, accesorios, joyerias y tiendas con variantes, inventario, ventas, caja y catalogo.
 - `Klicor POS Supermercado`: supermercados, minimercados y tiendas de barrio con codigo de barras, proveedores, compras, inventario rapido y caja.
 - `Klicor Servicios`: ordenes de trabajo, cotizaciones, clientes y pagos para negocios que no son agenda pura.
-- `Klicor Turismo/Reservas`: rutas, experiencias, cupos, fechas especiales, guias y disponibilidad.
+- `Klicor Turismo/Reservas`: hoteles, glamping, canchas sinteticas, rutas, experiencias, cupos, fechas especiales, guias, recursos y disponibilidad.
 
 Reglas:
 
@@ -644,16 +652,19 @@ Puede usar un modulo si:
 1. la cuenta esta en trial o activa
 2. el modulo esta habilitado para esa cuenta
 3. el plan permite esa capacidad
+4. la categoria/tipo de negocio permite ese modulo
 ```
+
+La categoria es una compuerta de producto, no solo una sugerencia visual. El plan puede dar capacidad, pero no debe mostrar ni activar modulos que no corresponden al trabajo real de ese negocio.
 
 #### Trial
 
 - Dura 30 dias por defecto.
 - Al registrarse, se habilita automaticamente el modulo principal segun el tipo de negocio.
-- Durante el trial, el cliente puede activar el otro modulo para probarlo.
-- En trial puede probar Commerce y Agenda durante el mes.
+- Durante el trial, el cliente puede probar modulos permitidos por su categoria.
+- En trial puede probar Commerce y Agenda solo si su categoria permite esos modulos. Un comercio puro no debe ver ni activar Agenda por estar en trial.
 - Commerce en trial permite hasta 50 productos.
-- Agenda esta disponible en trial.
+- Agenda esta disponible en trial solo para categorias de citas reales.
 - Si el cliente paga durante el trial, no pierde los dias gratis restantes.
 - El ano pagado empieza despues de terminar el trial.
 
@@ -673,14 +684,14 @@ Puede usar un modulo si:
 - Si el modulo activo es Commerce, permite hasta 50 productos.
 - Si el modulo activo es Agenda, permite agenda funcional segun el tipo de negocio.
 - No incluye Commerce y Agenda al mismo tiempo.
-- Si el cliente quiere Commerce + Agenda, debe pasar a Plus.
+- Si el cliente quiere Commerce + Agenda y su categoria permite Agenda, debe pasar a Plus.
 
 #### Plus
 
 - Permite combinar modulos.
-- Puede tener Commerce + Agenda al mismo tiempo.
+- Puede tener Commerce + Agenda al mismo tiempo solo si la categoria permite Agenda.
 - Commerce permite hasta 300 productos.
-- Agenda puede activarse si el cliente la desea.
+- Agenda puede activarse si el cliente la desea y su categoria es de citas reales.
 - Aplica para negocios mixtos, por ejemplo barberia o salon que agenda citas y tambien vende productos.
 
 #### Pro, institucional, agencia y cortesia
@@ -718,11 +729,30 @@ previousExpiresAt
 newExpiresAt
 ```
 
+#### Matriz de modulos por tipo de negocio
+
+Agenda:
+
+- Solo se muestra para negocios de cita real: barberia, salon de belleza, unas, spa, estetica, masajes, consultorios, odontologia, psicologia, fisioterapia, terapias, nutricion, centro de bienestar, yoga/pilates y equivalentes de salud, belleza y bienestar.
+- No se muestra para comercio puro: restaurantes, comida rapida, tienda, menu, catalogo, licores, moda, tecnologia, repuestos, regalos, papeleria, supermercado, tienda de barrio y negocios similares.
+- No se muestra para servicios operativos donde el flujo natural es solicitud/cotizacion/orden de trabajo: electricidad, plomeria, limpieza, lavanderia, sastreria, lavadero de autos, taller automotriz, reparacion tecnica, construccion/remodelacion, transporte, legal, contable, publicidad y diseno.
+- Si la categoria no permite Agenda, no debe existir CTA de crear Agenda, tarjeta de activacion, item de navegacion ni modulo vacio. Solo se puede mostrar una advertencia contextual si el negocio ya tenia datos de Agenda y cambio a una categoria donde Agenda se oculta.
+
+Commerce:
+
+- Commerce puede estar disponible para comercio puro y tambien para negocios de Agenda cuando vendan productos, bonos, paquetes o complementos.
+- Si un negocio de Agenda activa tienda/menu/catalogo, se le asigna un tema comercial segun su vertical de servicio. La tienda no debe heredar el estilo administrativo de Agenda.
+- Ejemplos de mapeo inicial: belleza/unas/spa/estetica usan un tema suave de belleza; salud/bienestar/terapias/nutricion usan tema calmado de bienestar; consultorios/odontologia usan tema limpio de salud; gimnasio usa tema mas energetico; mascotas usa tema de mascotas cuando aplique.
+
+Reservas:
+
+- Reservas no es Agenda. Debe quedar como modulo futuro para hoteles, glamping, canchas sinteticas, alojamientos, espacios, cupos, noches, fechas o recursos.
+- Restaurantes podrian necesitar reservas en el futuro, pero no se habilita por ahora.
+
 #### Temas de commerce segun negocio
 
 - Commerce debe ajustar o recomendar tema segun tipo de negocio.
-- Barberia puede tomar o adaptar el tema de moda masculina (`fashion_male` / ropa de hombre).
-- Salon de belleza puede tomar o adaptar el tema de moda femenina (`fashion_female` / ropa de mujer).
+- Barberia, salon, unas, spa, estetica y bienestar deben tomar un tema comercial sugerido por vertical cuando activen tienda/catalogo.
 - Deben reutilizarse los temas existentes antes de crear un sistema nuevo.
 - El usuario debe poder cambiar el tema sugerido.
 
@@ -817,12 +847,14 @@ No tocar por ahora:
 
 ### Agenda
 
-Prioridad: media-alta cuando el foco sea servicios/citas.
+Prioridad: media-alta cuando el foco sea citas reales.
 
 Objetivo:
 
-- Convertirla progresivamente en `Klicor Agenda`, un workspace operativo propio para servicios/citas.
+- Convertirla progresivamente en `Klicor Agenda`, un workspace operativo propio para citas reales.
 - Se debe beneficiar de la categoria del negocio, pero no mezclarse con tienda.
+- Debe aparecer solo para categorias de cita real; comercio puro y servicios operativos no deben ver la opcion de crear Agenda en navegacion normal.
+- Puede convivir con tienda/menu/catalogo en negocios de Agenda cuando vendan productos, bonos, paquetes o complementos.
 - Dar control al negocio sobre solicitudes, confirmaciones y cambios de agenda.
 - Convertir Agenda en una herramienta operativa para negocios con uno o varios profesionales.
 - Mantener el dashboard de Agenda dentro del sistema visual de Klicor.
@@ -893,6 +925,7 @@ No tocar por ahora:
 
 - No rehacer booking mientras se trabaja commerce/onboarding.
 - No mezclar Agenda con Reservas de turismo, planes o cupos.
+- No mostrar Agenda a comercio puro ni servicios operativos con la idea de explicar que no aplica; si no aplica, se oculta.
 - No activar automatizaciones de retorno sin decision explicita.
 - No crear una portada publica de Agenda que repita el link in bio.
 - No hacer que el dashboard de Agenda herede el tema publico del negocio.

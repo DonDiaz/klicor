@@ -17,7 +17,7 @@ Workspaces relacionados:
 - `Klicor POS Restaurante` para restaurantes, cafes, bares, mesas, comandas, cocina, caja y domicilios.
 - `Klicor POS Retail` para ropa, zapatos, accesorios, joyerias, variantes, inventario, ventas y caja.
 - `Klicor POS Supermercado` para supermercados, minimercados, codigo de barras, proveedores, compras, inventario rapido y caja.
-- `Klicor Agenda` para servicios por cita.
+- `Klicor Agenda` para categorias de cita real, especialmente salud, belleza y bienestar.
 
 La vista publica sigue usando `/{username}/mimenu`, `/{username}/mitienda` o `/{username}/micatalogo`. El workspace operativo administra el trabajo diario y alimenta esos datos cuando corresponda.
 
@@ -157,10 +157,11 @@ La regla canonica de planes para Commerce vive en `docs/klicor-producto-decision
 - `trial`: puede probar Commerce durante el mes, hasta 50 productos.
 - `basic`: no incluye Commerce.
 - `commercial`: puede tener Commerce como modulo operativo principal, hasta 50 productos.
-- `plus`: puede combinar Commerce + Agenda, hasta 300 productos.
+- `plus`: puede combinar Commerce + Agenda solo cuando la categoria permite Agenda, hasta 300 productos.
 - `pro`, `agency`, `institutional` y `courtesy`: planes ocultos o administrativos.
 
 Cualquier cambio en Commerce debe respetar la regla de `enabledModules`: el plan define capacidad, pero el modulo tambien debe estar habilitado para esa cuenta.
+Commerce puede convivir con Agenda en negocios de cita real que vendan productos, bonos, paquetes o complementos; comercio puro no debe activar Agenda.
 
 Hoy se aplican limites de categorias, subcategorias y productos desde `lib/commerce-config.js` / `lib/plans.js`.
 

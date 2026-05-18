@@ -267,9 +267,16 @@ Prohibido:
 
 Reglas obligatorias:
 
-- Agenda debe mantenerse como modulo de citas/servicios.
+- Agenda debe mantenerse como modulo de citas reales.
 - No debe mezclarse con tienda/menu/catalogo.
-- Puede usar categoria del negocio para sugerencias, pero su flujo debe seguir separado.
+- Agenda debe aparecer solo para categorias de cita real: barberia, salon, unas, spa, estetica, masajes, consultorios, odontologia, psicologia, fisioterapia, terapias, nutricion, centro de bienestar, yoga/pilates y equivalentes de salud, belleza y bienestar.
+- Comercio puro y servicios operativos no deben ver opcion de crear Agenda, item de navegacion, tarjeta de activacion ni CTA relacionado. No usar botones deshabilitados para explicar que no aplica.
+- Ejemplos que no deben ver Agenda: restaurantes, tiendas, menu, catalogo, licores, moda, tecnologia, repuestos, regalos, papeleria, electricidad, plomeria, lavanderia, sastreria, talleres, lavaderos, construccion, reparacion tecnica, legal, contable, publicidad y diseno.
+- Si un negocio con Agenda cambia a una categoria que no permite Agenda, ocultar el modulo sin borrar datos y mostrar una advertencia puntual solo durante ese cambio o al entrar por ruta vieja.
+- Puede usar categoria del negocio para sugerencias, permisos y tono publico, pero su flujo debe seguir separado.
+- Un negocio de Agenda puede activar tienda/menu/catalogo si vende productos, bonos, paquetes o complementos. En ese caso, comercio debe usar un tema comercial sugerido por la vertical del servicio, no el estilo administrativo de Agenda.
+- Comercio puro no puede habilitar Agenda. La regla no es simetrica: Agenda puede convivir con Commerce cuando la categoria lo permite; Commerce no habilita Agenda por si mismo.
+- Reservas no es Agenda. Hoteles, glamping, canchas sinteticas, alojamientos, cupos, noches, fechas o recursos pertenecen a un modulo futuro de Reservas.
 - Agenda publica debe tratar una reserva como solicitud cuando la confirmacion manual esta activa.
 - La confirmacion manual debe ser el comportamiento recomendado por defecto para evitar que el negocio reciba citas confirmadas sin revisar.
 - Una cita solicitada por el cliente debe poder quedar en estado `pending` hasta que el negocio la acepte, rechace o reprograme.
@@ -304,6 +311,8 @@ Prohibido:
 
 - Rehacer booking mientras la tarea es commerce/onboarding.
 - Convertir agenda en catalogo de productos.
+- Mostrar Agenda a categorias que no la permiten.
+- Mostrar botones deshabilitados de Agenda en comercio puro o servicios operativos.
 - Enviar confirmaciones definitivas antes de que el negocio acepte una cita cuando la confirmacion manual esta activa.
 - Activar recordatorios invasivos o campanas de retorno sin configuracion explicita del negocio.
 - Pedir al cliente que escriba un correo si ya existe una sesion autenticada que lo entrega de forma confiable.
@@ -319,9 +328,9 @@ Reglas obligatorias:
 - El plan define capacidad maxima, precio y ciclo de cobro; no debe usarse como unico indicador de modulo activo.
 - La cuenta debe poder guardar que modulos tiene habilitados realmente mediante una regla equivalente a `enabledModules`.
 - El tipo de negocio define el modulo recomendado al registrarse.
-- Para usar un modulo deben cumplirse tres condiciones: cuenta en trial o activa, modulo habilitado para esa cuenta y plan con capacidad suficiente.
-- `trial` dura 30 dias por defecto, habilita el modulo principal segun el registro y permite activar el otro modulo durante el mes de prueba.
-- `trial` permite probar Commerce y Agenda.
+- Para usar un modulo deben cumplirse cuatro condiciones: cuenta en trial o activa, modulo habilitado para esa cuenta, plan con capacidad suficiente y categoria/tipo de negocio compatible con ese modulo.
+- `trial` dura 30 dias por defecto, habilita el modulo principal segun el registro y permite probar modulos compatibles con la categoria durante el mes de prueba.
+- `trial` permite probar Commerce y Agenda solo si la categoria permite esos modulos.
 - `trial` permite Commerce hasta 50 productos.
 - Si el cliente paga durante el trial, los dias gratis restantes no se pierden; el ano pagado empieza despues de terminar el trial.
 - `basic` es solo link in bio: perfil publico, link personalizado, QR, botones/enlaces, metodos de pago, horarios y personalizacion basica.
@@ -330,10 +339,10 @@ Reglas obligatorias:
 - `commercial` es para un modulo operativo principal: Commerce o Agenda segun lo que el cliente pago/configuro.
 - `commercial` con Commerce permite hasta 50 productos.
 - `commercial` no debe tener Commerce y Agenda al mismo tiempo.
-- Si un cliente `commercial` quiere Commerce + Agenda, debe pasar a `plus`.
-- `plus` permite combinar Commerce + Agenda.
+- Si un cliente `commercial` quiere Commerce + Agenda y su categoria permite Agenda, debe pasar a `plus`.
+- `plus` permite combinar Commerce + Agenda cuando la categoria permite Agenda.
 - `plus` permite Commerce hasta 300 productos.
-- `plus` puede activar Agenda si el cliente la desea.
+- `plus` puede activar Agenda si el cliente la desea y su categoria es de cita real.
 - `pro`, `institutional`, `agency` y `courtesy` son planes ocultos o administrativos para casos especiales.
 - En upgrade de `commercial` a `plus`, se cobra un ano nuevo de Plus desde la fecha del upgrade y se descuenta el valor no usado de Comercial.
 - En upgrade de `commercial` a `plus`, la nueva fecha de vencimiento debe ser un ano desde la fecha del upgrade.
@@ -353,6 +362,7 @@ Prohibido:
 
 - Dejar Commerce o Agenda activos en `basic`.
 - Activar Commerce y Agenda al mismo tiempo en `commercial`.
+- Activar Agenda por plan si la categoria/tipo de negocio no la permite.
 - Permitir que un pago de plan inferior pise un plan superior activo y vigente.
 - Cobrar un upgrade proporcional pequeno que mantenga el vencimiento anterior cuando la regla aprobada es reiniciar Plus por un ano con credito de Comercial no usado.
 - Duplicar reglas de planes en otros documentos sin apuntar a esta decision.

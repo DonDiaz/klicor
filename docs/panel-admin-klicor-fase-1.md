@@ -162,7 +162,7 @@ Regla vigente:
 - Si paga durante el trial, no pierde los dias gratis restantes; el ano pagado empieza despues de terminar el trial.
 - `basic` es solo link in bio.
 - `commercial` activa un modulo operativo principal: Commerce o Agenda.
-- `plus` permite combinar Commerce + Agenda.
+- `plus` permite combinar Commerce + Agenda solo cuando la categoria del negocio permite Agenda.
 - El upgrade de `commercial` a `plus` cobra un ano nuevo de Plus desde la fecha del upgrade y descuenta el valor no usado de Comercial.
 - Si un cliente tiene un plan pago superior activo y vigente, no puede comprar un plan inferior desde checkout. El ajuste hacia abajo debe hacerse al vencimiento o por gestion manual.
 
