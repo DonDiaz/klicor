@@ -13,6 +13,7 @@ import {
   getBookingCalendarBounds,
 } from "@/lib/booking-config";
 import { getClientAuth, getGoogleProvider } from "@/lib/firebase-client";
+import { LEGAL_BOOKING_PRIVACY_VERSION, LEGAL_BOOKING_TERMS_VERSION } from "@/lib/legal-consent";
 import { buildWhatsappLink } from "@/lib/utils";
 import {
   BookingServiceCard,
@@ -145,7 +146,7 @@ function money(value, currency = "COP") {
   }).format(Number(value || 0));
 }
 
-function validateBookingDetails(selection) {
+function validateBookingDetails(selection, { requiresLegalConsent = false, legalAccepted = false } = {}) {
   if (!selection.customerUid) {
     return "Inicia sesion con Google para enviar la cita.";
   }
@@ -157,6 +158,10 @@ function validateBookingDetails(selection) {
   const phoneDigits = String(selection.customerPhone || "").replace(/\D/g, "");
   if (phoneDigits.length < 7) {
     return "Ingresa un teléfono válido.";
+  }
+
+  if (requiresLegalConsent && !legalAccepted) {
+    return "Acepta los terminos y la politica de privacidad para agendar.";
   }
 
   return "";
@@ -234,6 +239,9 @@ export function BookingPublicView({ bootstrap }) {
   const [authLoading, setAuthLoading] = useState(true);
   const [authSubmitting, setAuthSubmitting] = useState(false);
   const [customerAuth, setCustomerAuth] = useState(null);
+  const [legalConsentLoading, setLegalConsentLoading] = useState(false);
+  const [requiresLegalConsent, setRequiresLegalConsent] = useState(false);
+  const [legalAccepted, setLegalAccepted] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(null);
   const [calendarMonth, setCalendarMonth] = useState(() => startOfMonth(new Date()));
@@ -308,6 +316,8 @@ export function BookingPublicView({ bootstrap }) {
       } : null;
 
       setCustomerAuth(nextCustomer);
+      setRequiresLegalConsent(false);
+      setLegalAccepted(false);
       setSelection((current) => ({
         ...current,
         customerUid: nextCustomer?.uid || "",
@@ -317,6 +327,49 @@ export function BookingPublicView({ bootstrap }) {
       setAuthLoading(false);
     });
   }, []);
+
+  useEffect(() => {
+    if (!customerAuth?.uid) {
+      setLegalConsentLoading(false);
+      setRequiresLegalConsent(false);
+      setLegalAccepted(false);
+      return undefined;
+    }
+
+    let cancelled = false;
+    async function loadLegalConsent() {
+      setLegalConsentLoading(true);
+      try {
+        const auth = getClientAuth();
+        const user = await waitForAuthUser(auth);
+        if (!user) return;
+        const token = await user.getIdToken();
+        const params = new URLSearchParams({
+          view: "legal-consent",
+          _: String(Date.now()),
+        });
+        const response = await apiFetch(`/api/public/booking/${business.usernameLower || business.username}?${params.toString()}`, {
+          token,
+          cache: "no-store",
+        });
+        if (cancelled) return;
+        const hasCurrentConsent = response.data?.hasCurrentConsent === true;
+        setRequiresLegalConsent(!hasCurrentConsent);
+        setLegalAccepted(hasCurrentConsent);
+      } catch {
+        if (cancelled) return;
+        setRequiresLegalConsent(true);
+        setLegalAccepted(false);
+      } finally {
+        if (!cancelled) setLegalConsentLoading(false);
+      }
+    }
+
+    loadLegalConsent();
+    return () => {
+      cancelled = true;
+    };
+  }, [business.username, business.usernameLower, customerAuth?.uid]);
 
   async function loadDates(nextServiceId, nextStaffId = "any") {
     const requestId = availabilityRequestRef.current + 1;
@@ -500,7 +553,7 @@ export function BookingPublicView({ bootstrap }) {
 
   async function handleSubmit(event) {
     event.preventDefault();
-    const validationError = validateBookingDetails(selection);
+    const validationError = validateBookingDetails(selection, { requiresLegalConsent, legalAccepted });
     if (validationError) {
       setError(validationError);
       return;
@@ -519,9 +572,20 @@ export function BookingPublicView({ bootstrap }) {
       const response = await apiFetch(`/api/public/booking/${business.usernameLower || business.username}`, {
         method: "POST",
         token,
-        body: selection,
+        body: {
+          ...selection,
+          legalAcceptance: requiresLegalConsent ? {
+            accepted: legalAccepted,
+            source: "public_booking",
+            termsVersion: LEGAL_BOOKING_TERMS_VERSION,
+            privacyVersion: LEGAL_BOOKING_PRIVACY_VERSION,
+            acceptedAtClient: new Date().toISOString(),
+          } : undefined,
+        },
         cache: "no-store",
       });
+      setRequiresLegalConsent(false);
+      setLegalAccepted(true);
       setSuccess(response.result);
     } catch (nextError) {
       setError(nextError.message);
@@ -781,7 +845,25 @@ export function BookingPublicView({ bootstrap }) {
                     value={selection.customerNote}
                     onChange={(event) => setSelection((current) => ({ ...current, customerNote: event.target.value }))}
                   />
-                  <button className="btn btn-primary booking-submit-button" type="submit" disabled={submitting || authLoading || !customerAuth}>
+                  {customerAuth && (legalConsentLoading || requiresLegalConsent) ? (
+                    <div className="booking-legal-consent-card">
+                      {legalConsentLoading ? (
+                        <span><LoaderCircle size={16} className="spin" /> Revisando aceptacion legal...</span>
+                      ) : (
+                        <label className="booking-legal-consent-check">
+                          <input
+                            type="checkbox"
+                            checked={legalAccepted}
+                            onChange={(event) => setLegalAccepted(event.target.checked)}
+                          />
+                          <span>
+                            Acepto los <a href="/terminos-y-condiciones" target="_blank" rel="noreferrer">Terminos y condiciones</a> y autorizo el tratamiento de mis datos personales segun la <a href="/politica-de-privacidad" target="_blank" rel="noreferrer">Politica de privacidad</a> para gestionar esta cita.
+                          </span>
+                        </label>
+                      )}
+                    </div>
+                  ) : null}
+                  <button className="btn btn-primary booking-submit-button" type="submit" disabled={submitting || authLoading || legalConsentLoading || !customerAuth || (requiresLegalConsent && !legalAccepted)}>
                     {submitting ? <LoaderCircle size={18} className="spin" /> : null}
                     {submitting ? bookingCopy.submittingLabel : bookingCopy.submitLabel}
                   </button>

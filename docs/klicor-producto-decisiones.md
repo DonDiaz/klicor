@@ -835,6 +835,9 @@ Estado MVP implementado en pruebas:
 - La reserva publica respeta la configuracion del negocio: `pending` si hay confirmacion manual y `confirmed` si hay confirmacion automatica.
 - El texto publico cambia entre "Solicitar cita" y "Agendar cita" segun esa configuracion.
 - El cliente publico debe iniciar sesion con Google para enviar la cita y la cita guarda identidad autenticada cuando existe.
+- El cliente publico debe aceptar terminos y politica de privacidad antes de crear su primera cita si no tiene consentimiento vigente de Agenda.
+- La aceptacion de Agenda se guarda por `customerUid` en `publicBookingCustomers`, con version de terminos, version de privacidad, fecha servidor, origen, negocio asociado, user agent e IP hasheada. No se debe crear una cuenta Klicor de negocio solo por ser cliente final de Agenda.
+- Si el cliente ya tiene consentimiento vigente, la vista publica no vuelve a mostrar la casilla. Solo se vuelve a pedir si cambia la version legal requerida.
 - La disponibilidad publica consulta el servicio y profesional seleccionados, aplica hora de Colombia y exige al menos 30 minutos de anticipacion.
 - El negocio recibe correo operativo cuando entra una solicitud o cita nueva, si `notifyBusinessOnRequest` esta activo.
 - El cliente recibe correo de cita confirmada solo cuando la cita queda en `confirmed`; en confirmacion manual no recibe confirmacion definitiva hasta que el negocio acepte.
