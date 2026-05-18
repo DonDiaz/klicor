@@ -230,6 +230,9 @@ export function DashboardOnboarding({ token, profile, onCompleted, onSkip }) {
     setWizard((current) => ({
       ...current,
       [field]: value,
+      ...(field === "businessType"
+        ? { actionSlots: updateOnboardingActionSlots(current.businessCategory, value, current.actionSlots) }
+        : {}),
       ...(field === "businessName"
         ? {
           username: usernameEdited && current.username && current.username !== sanitizeSlug(current.businessName)
@@ -349,7 +352,11 @@ export function DashboardOnboarding({ token, profile, onCompleted, onSkip }) {
       businessSubheadline: !current.businessSubheadline || current.businessSubheadline === previousTemplate.subheadline
         ? nextTemplate.subheadline
         : current.businessSubheadline,
-      actionSlots: updateOnboardingActionSlots(nextCategory, current.actionSlots),
+      actionSlots: updateOnboardingActionSlots(
+        nextCategory,
+        nextTypeOptions.some((option) => option.value === current.businessType) ? current.businessType : "",
+        current.actionSlots,
+      ),
     }));
   }
 

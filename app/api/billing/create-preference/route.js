@@ -4,6 +4,7 @@ import { PLAN_SLUG } from "@/lib/constants";
 import { createPreference } from "@/lib/mercadopago";
 import { getAdminSettings } from "@/lib/firestore";
 import { assertNoActivePlanDowngrade, calculateCommercialToPlusUpgrade } from "@/lib/billing-rules";
+import { isBusinessModuleEligible } from "@/lib/business-categories";
 import { BILLABLE_PLAN_VALUES, getPlanAnnualPrice, normalizeKlicorModule, normalizeKlicorPlan, resolvePrimaryModuleForBusinessCategory } from "@/lib/plans";
 import { toDate } from "@/lib/utils";
 
@@ -21,8 +22,11 @@ export async function POST(request) {
     }
     const requestedModule = normalizeKlicorModule(body?.module || body?.selectedModule);
     const module = plan === "commercial"
-      ? requestedModule || normalizeKlicorModule(user.commercialModule) || resolvePrimaryModuleForBusinessCategory(user.businessCategory)
+      ? requestedModule || normalizeKlicorModule(user.commercialModule) || resolvePrimaryModuleForBusinessCategory(user.businessCategory, user.businessType || user.dorikaProfile?.businessType)
       : "";
+    if (module && !isBusinessModuleEligible(user, module)) {
+      throw new Error(`${module === "booking" ? "Agenda" : "Comercio"} no está disponible para este tipo de negocio.`);
+    }
     const settings = await getAdminSettings();
     const currentPlan = normalizeKlicorPlan(user.plan || "");
     const annualPrice = getPlanAnnualPrice(plan, settings);

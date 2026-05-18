@@ -155,7 +155,7 @@ Decision de producto:
 - La confirmacion automatica puede existir, pero no debe ser la suposicion principal para negocios que necesitan revisar su agenda.
 - La experiencia publica de Agenda no debe duplicar el inicio del link in bio; debe enfocarse en servicios, profesional, fecha/hora, datos y resultado.
 - El dashboard de Agenda debe conservar identidad Klicor, aunque la experiencia publica de Agenda tenga tono visual por vertical.
-- Agenda debe servir a negocios donde el producto principal es un bloque de tiempo con cita real: barberias, salones de belleza, unas, spa, estetica, masajes, consultorios, odontologia, psicologia, fisioterapia, terapias, nutricion, centro de bienestar, yoga/pilates y casos similares de salud, belleza y bienestar.
+- Agenda debe servir a negocios donde el producto principal es un bloque de tiempo con cita real: barberias, salones de belleza, unas, spa, estetica, masajes, consultorios, odontologia, psicologia, fisioterapia, terapias, nutricion, centro de bienestar y casos similares de salud, belleza y bienestar.
 - Agenda no debe aparecer para comercio puro ni para servicios operativos donde el flujo real es solicitud, diagnostico, cotizacion, orden de trabajo o seguimiento. Ejemplos: restaurantes, tiendas, catalogos, licores, moda, tecnologia, repuestos, regalos, papeleria, electricidad, plomeria, lavanderia, sastreria, taller automotriz, lavadero de autos, construccion, reparacion tecnica, legal, contable, publicidad y diseno.
 - Si una categoria no permite Agenda, la opcion de crear o activar Agenda no debe mostrarse en la navegacion normal, tarjetas de modulo, configuracion ni CTA. No mostrar botones deshabilitados porque generan confusion.
 - Si un negocio ya tenia Agenda y cambia a una categoria que no la permite, Agenda debe ocultarse sin borrar datos y mostrar una advertencia puntual solo en ese cambio o si entra por una ruta vieja.
@@ -733,7 +733,8 @@ newExpiresAt
 
 Agenda:
 
-- Solo se muestra para negocios de cita real: barberia, salon de belleza, unas, spa, estetica, masajes, consultorios, odontologia, psicologia, fisioterapia, terapias, nutricion, centro de bienestar, yoga/pilates y equivalentes de salud, belleza y bienestar.
+- Solo se muestra para negocios de cita real: barberia, salon de belleza, unas, spa, estetica, masajes, consultorios, odontologia, psicologia, fisioterapia, terapias, nutricion, centro de bienestar y equivalentes de salud, belleza y bienestar.
+- Yoga/pilates, gimnasio y servicios para mascotas generico salen de Agenda MVP. Yoga/pilates y gimnasio pertenecen a un futuro flujo de Clases/Membresias/Reservas; mascotas debe dividirse despues entre veterinaria/peluqueria canina, tienda, guarderia/hotel o solicitudes.
 - No se muestra para comercio puro: restaurantes, comida rapida, tienda, menu, catalogo, licores, moda, tecnologia, repuestos, regalos, papeleria, supermercado, tienda de barrio y negocios similares.
 - No se muestra para servicios operativos donde el flujo natural es solicitud/cotizacion/orden de trabajo: electricidad, plomeria, limpieza, lavanderia, sastreria, lavadero de autos, taller automotriz, reparacion tecnica, construccion/remodelacion, transporte, legal, contable, publicidad y diseno.
 - Si la categoria no permite Agenda, no debe existir CTA de crear Agenda, tarjeta de activacion, item de navegacion ni modulo vacio. Solo se puede mostrar una advertencia contextual si el negocio ya tenia datos de Agenda y cambio a una categoria donde Agenda se oculta.
@@ -742,7 +743,9 @@ Commerce:
 
 - Commerce puede estar disponible para comercio puro y tambien para negocios de Agenda cuando vendan productos, bonos, paquetes o complementos.
 - Si un negocio de Agenda activa tienda/menu/catalogo, se le asigna un tema comercial segun su vertical de servicio. La tienda no debe heredar el estilo administrativo de Agenda.
-- Ejemplos de mapeo inicial: belleza/unas/spa/estetica usan un tema suave de belleza; salud/bienestar/terapias/nutricion usan tema calmado de bienestar; consultorios/odontologia usan tema limpio de salud; gimnasio usa tema mas energetico; mascotas usa tema de mascotas cuando aplique.
+- Ejemplos de mapeo inicial: barberia usa tema premium urbano; belleza/unas/estetica usan un tema suave de belleza; spa/masajes usan tema natural; salud/bienestar/terapias/nutricion usan tema calmado de bienestar; consultorios/odontologia usan tema limpio de salud.
+- Temas definidos para comercio en negocios de Agenda: `barber_clean` para barberia; `beauty_soft` para salon, unas y estetica; `spa_natural` para spa y masajes; `wellness_calm` para psicologia, terapias, nutricion y centro de bienestar; `health_clean` para odontologia y consultorio medico.
+- Los temas no son solo cambio de color: deben transmitir confianza, lujo, limpieza, relajacion, salud, cercania o precision segun la vertical.
 
 Reservas:
 

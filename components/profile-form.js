@@ -48,6 +48,7 @@ import {
   getPrimaryWorkspaceForBusinessCategory,
   getRecommendedWorkspaceIdsForBusinessCategory,
   getVisibleWorkspaceIdsForBusinessCategory,
+  isBusinessModuleEligible,
   isSocialLinkType,
   normalizeBusinessCategory,
 } from "@/lib/business-categories";
@@ -604,8 +605,8 @@ export function ProfileForm({
   const savedModuleAccess = useMemo(() => resolveUserModuleAccess(profile), [profile]);
   const moduleAccess = useMemo(() => {
     if (profile?.moduleAccess) return savedModuleAccess;
-    return resolveUserModuleAccess({ ...profile, businessCategory: form.businessCategory });
-  }, [form.businessCategory, profile, savedModuleAccess]);
+    return resolveUserModuleAccess({ ...profile, businessCategory: form.businessCategory, businessType: form.businessType });
+  }, [form.businessCategory, form.businessType, profile, savedModuleAccess]);
   const dorikaEligible = useMemo(
     () => isDorikaEligibleBusiness({ ...profile, city: billingProfile.city, billingProfile }),
     [billingProfile, profile],
@@ -614,14 +615,14 @@ export function ProfileForm({
   const dashboardNavItems = useMemo(() => {
     const recommendedIds = getRecommendedWorkspaceIdsForBusinessCategory(form.businessCategory);
     const visibleIds = new Set(getVisibleWorkspaceIdsForBusinessCategory(form.businessCategory));
-    if (moduleAccess.commerce) visibleIds.add("commerce");
-    if (moduleAccess.booking) visibleIds.add("booking");
+    if (moduleAccess.commerce && isBusinessModuleEligible({ businessCategory: form.businessCategory, businessType: form.businessType }, "commerce")) visibleIds.add("commerce");
+    if (moduleAccess.booking && isBusinessModuleEligible({ businessCategory: form.businessCategory, businessType: form.businessType }, "booking")) visibleIds.add("booking");
     const priorityMap = new Map(recommendedIds.map((id, index) => [id, index]));
 
     return [...DASHBOARD_NAV_ITEMS]
       .filter((item) => visibleIds.has(item.id))
-      .filter((item) => item.id !== "commerce" || canUseModule({ ...profile, moduleAccess, businessCategory: form.businessCategory }, "commerce"))
-      .filter((item) => item.id !== "booking" || canUseModule({ ...profile, moduleAccess, businessCategory: form.businessCategory }, "booking"))
+      .filter((item) => item.id !== "commerce" || canUseModule({ ...profile, moduleAccess, businessCategory: form.businessCategory, businessType: form.businessType }, "commerce"))
+      .filter((item) => item.id !== "booking" || canUseModule({ ...profile, moduleAccess, businessCategory: form.businessCategory, businessType: form.businessType }, "booking"))
       .filter((item) => item.id !== "dorika" || dorikaEligible)
       .sort((left, right) => {
         const leftPriority = priorityMap.has(left.id) ? priorityMap.get(left.id) : 999;
@@ -639,7 +640,7 @@ export function ProfileForm({
           recommendationLabel: isRecommended && recommendationRank === 0 ? moduleRecommendation.moduleLabel : "Sugerido",
         };
       });
-  }, [dorikaEligible, form.businessCategory, moduleAccess, moduleRecommendation, profile]);
+  }, [dorikaEligible, form.businessCategory, form.businessType, moduleAccess, moduleRecommendation, profile]);
 
   useEffect(() => {
     const workspaceIsVisible = dashboardNavItems.some((item) => item.id === activeWorkspace);
@@ -949,6 +950,7 @@ export function ProfileForm({
 
     const nextCategory = form.businessCategory;
     const profileCategoryChanged = nextCategory !== normalizeBusinessCategory(profile?.businessCategory);
+    const profileTypeChanged = form.businessType !== (profile?.businessType || profile?.dorikaProfile?.businessType || "");
     const currentCommerceMode = normalizeCommerceMode(profile?.commerce?.activeMode || profile?.commerceMode);
     const nextCommerceMode = resolveDefaultCommerceModeForBusinessCategory(nextCategory);
     const commerceModeWillChange = profileCategoryChanged
@@ -956,11 +958,12 @@ export function ProfileForm({
       && currentCommerceMode
       && nextCommerceMode
       && currentCommerceMode !== nextCommerceMode;
-    if (profileCategoryChanged && shouldRestrictToPrimaryModuleOnProfileChange(profile)) {
-      const nextPrimaryModule = resolvePrimaryModuleForBusinessCategory(nextCategory);
-      const previousModule = getOppositeModule(nextPrimaryModule);
+    if ((profileCategoryChanged || profileTypeChanged) && shouldRestrictToPrimaryModuleOnProfileChange(profile)) {
+      const nextPrimaryModule = resolvePrimaryModuleForBusinessCategory(nextCategory, form.businessType);
+      const previousModule = nextPrimaryModule ? getOppositeModule(nextPrimaryModule) : "booking";
       const previousModuleWasActive = savedModuleAccess[previousModule];
-      if (previousModuleWasActive && !window.confirm(`Al cambiar el perfil, Klicor cambiará tu módulo principal a ${getModuleLabel(nextPrimaryModule)}. Lo que hiciste en ${getModuleLabel(previousModule)} no se pierde, pero su enlace público dejará de funcionar. Para mantener ambos módulos activos necesitas el plan Plus. ¿Quieres continuar?`)) {
+      const nextModuleLabel = nextPrimaryModule ? getModuleLabel(nextPrimaryModule) : "solo link in bio";
+      if (previousModuleWasActive && !window.confirm(`Al cambiar el perfil, Klicor cambiará tu módulo principal a ${nextModuleLabel}. Lo que hiciste en ${getModuleLabel(previousModule)} no se pierde, pero su enlace público dejará de funcionar. Para mantener ambos módulos activos necesitas el plan Plus y una categoría compatible. ¿Quieres continuar?`)) {
         return;
       }
     }
@@ -1285,10 +1288,13 @@ export function ProfileForm({
   const currentPlan = profile?.plan || "trial";
   const hasActivePaidPlan = profile?.status === "active" && Boolean(CHECKOUT_PLAN_RANK[currentPlan]);
   const enabledModules = [
-    moduleAccess.commerce ? "Comercio" : "",
-    moduleAccess.booking ? "Agenda" : "",
+    moduleAccess.commerce && isBusinessModuleEligible({ businessCategory: form.businessCategory, businessType: form.businessType }, "commerce") ? "Comercio" : "",
+    moduleAccess.booking && isBusinessModuleEligible({ businessCategory: form.businessCategory, businessType: form.businessType }, "booking") ? "Agenda" : "",
   ].filter(Boolean);
-  const missingModules = ["commerce", "booking"].filter((module) => !moduleAccess[module]);
+  const missingModules = ["commerce", "booking"].filter((module) => (
+    !moduleAccess[module]
+    && isBusinessModuleEligible({ businessCategory: form.businessCategory, businessType: form.businessType }, module)
+  ));
   const canEnableExtraModule = ["trial", "plus", "pro", "agency", "courtesy"].includes(currentPlan) && ["trial", "active"].includes(profile?.status);
   const checkoutPlanPrice = getPlanPriceFromSettings(checkoutPlan, subscriptionSettings);
   const annualPriceLabel = Intl.NumberFormat("es-CO", {

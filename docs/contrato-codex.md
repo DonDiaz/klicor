@@ -269,12 +269,14 @@ Reglas obligatorias:
 
 - Agenda debe mantenerse como modulo de citas reales.
 - No debe mezclarse con tienda/menu/catalogo.
-- Agenda debe aparecer solo para categorias de cita real: barberia, salon, unas, spa, estetica, masajes, consultorios, odontologia, psicologia, fisioterapia, terapias, nutricion, centro de bienestar, yoga/pilates y equivalentes de salud, belleza y bienestar.
+- Agenda debe aparecer solo para categorias de cita real: barberia, salon, unas, spa, estetica, masajes, consultorios, odontologia, psicologia, fisioterapia, terapias, nutricion, centro de bienestar y equivalentes de salud, belleza y bienestar.
+- Yoga/pilates, gimnasio y servicios para mascotas generico no pertenecen a Agenda MVP. Yoga/pilates y gimnasio quedan para futuro flujo de Clases/Membresias/Reservas; mascotas debe dividirse luego en veterinaria/peluqueria canina, tienda, guarderia/hotel o solicitudes.
 - Comercio puro y servicios operativos no deben ver opcion de crear Agenda, item de navegacion, tarjeta de activacion ni CTA relacionado. No usar botones deshabilitados para explicar que no aplica.
 - Ejemplos que no deben ver Agenda: restaurantes, tiendas, menu, catalogo, licores, moda, tecnologia, repuestos, regalos, papeleria, electricidad, plomeria, lavanderia, sastreria, talleres, lavaderos, construccion, reparacion tecnica, legal, contable, publicidad y diseno.
 - Si un negocio con Agenda cambia a una categoria que no permite Agenda, ocultar el modulo sin borrar datos y mostrar una advertencia puntual solo durante ese cambio o al entrar por ruta vieja.
 - Puede usar categoria del negocio para sugerencias, permisos y tono publico, pero su flujo debe seguir separado.
 - Un negocio de Agenda puede activar tienda/menu/catalogo si vende productos, bonos, paquetes o complementos. En ese caso, comercio debe usar un tema comercial sugerido por la vertical del servicio, no el estilo administrativo de Agenda.
+- Temas comerciales para negocios de Agenda: `barber_clean`, `beauty_soft`, `spa_natural`, `wellness_calm` y `health_clean`. No son solo colores: deben transmitir la confianza propia de cada vertical.
 - Comercio puro no puede habilitar Agenda. La regla no es simetrica: Agenda puede convivir con Commerce cuando la categoria lo permite; Commerce no habilita Agenda por si mismo.
 - Reservas no es Agenda. Hoteles, glamping, canchas sinteticas, alojamientos, cupos, noches, fechas o recursos pertenecen a un modulo futuro de Reservas.
 - Agenda publica debe tratar una reserva como solicitud cuando la confirmacion manual esta activa.
