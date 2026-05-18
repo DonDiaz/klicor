@@ -54,19 +54,25 @@ Ese endpoint requiere:
 Authorization: Bearer CRON_SECRET
 ```
 
-Para pruebas en `klicor-pruebas`, Vercel debe tener `CRON_SECRET` en `Production` y GitHub debe tener estos secretos del repositorio:
+Para pruebas en `klicor-pruebas`, Vercel debe tener `CRON_SECRET` en `Production` y Google Cloud Scheduler debe apuntar a:
 
-- `BOOKING_REMINDER_URL`: `https://klicor-pruebas.vercel.app/api/booking/reminders/cron`
-- `BOOKING_REMINDER_SECRET`: el mismo valor de `CRON_SECRET` configurado en Vercel para `klicor-pruebas`.
+- URL: `https://klicor-pruebas.vercel.app/api/booking/reminders/cron`
+- Metodo: `POST`
+- Frecuencia MVP: `*/5 * * * *`
+- Zona horaria: `America/Bogota`
+- Header: `Authorization: Bearer <CRON_SECRET_DE_PRUEBAS>`
 
-Para produccion, Vercel debe tener `CRON_SECRET` en el proyecto `klicor` y GitHub debe tener:
+Para produccion, Vercel debe tener `CRON_SECRET` en el proyecto `klicor` y Google Cloud Scheduler debe apuntar a:
 
-- `BOOKING_REMINDER_URL`: `https://klicor.com/api/booking/reminders/cron`
-- `BOOKING_REMINDER_SECRET`: el mismo valor de `CRON_SECRET` configurado en Vercel para `klicor`.
+- URL: `https://klicor.com/api/booking/reminders/cron`
+- Metodo: `POST`
+- Frecuencia MVP: `*/5 * * * *`
+- Zona horaria: `America/Bogota`
+- Header: `Authorization: Bearer <CRON_SECRET_DE_PRODUCCION>`
 
-El workflow `.github/workflows/booking-reminders.yml` llama el endpoint cada 15 minutos y tambien permite ejecucion manual. Los scheduled workflows de GitHub corren desde la rama default del repositorio; si se necesita probar antes de promover a `main`, usar `workflow_dispatch` o un scheduler externo apuntando a la URL de pruebas.
+Los recordatorios ya no deben depender de GitHub Actions. El workflow viejo `.github/workflows/booking-reminders.yml` fue eliminado para evitar doble ejecucion y para que pruebas y produccion puedan tener schedulers separados.
 
-El workflow imprime la respuesta del endpoint en los logs. La respuesta incluye `actions` y `stats` para diagnosticar recordatorios:
+Google Cloud Scheduler debe registrar la ejecucion del job y Vercel debe registrar la respuesta del endpoint. La respuesta incluye `actions` y `stats` para diagnosticar recordatorios:
 
 - `remindersSent`: recordatorios enviados en esa corrida.
 - `skippedAlreadySent`: citas que ya tenian recordatorio enviado.
@@ -74,9 +80,25 @@ El workflow imprime la respuesta del endpoint en los logs. La respuesta incluye 
 - `skippedOutsideWindow`: citas fuera de la ventana de envio.
 - `skippedStatus`: citas que no estaban en estado `confirmed`.
 
-Si el workflow sale en `success` pero `remindersSent` es `0`, revisar esos contadores antes de asumir error. Puede ser correcto si la cita ya tenia recordatorio o si todavia no estaba dentro de la ventana configurada.
+Si el job sale en `success` pero `remindersSent` es `0`, revisar esos contadores antes de asumir error. Puede ser correcto si la cita ya tenia recordatorio o si todavia no estaba dentro de la ventana configurada.
 
 No usar Vercel Cron frecuente en plan Hobby para recordatorios de 30 o 60 minutos. En Hobby Vercel limita los cron a una ejecucion diaria y no garantiza precision suficiente para este caso.
+
+Comando de referencia cuando exista `gcloud` autenticado:
+
+```powershell
+gcloud scheduler jobs create http klicor-booking-reminders-pruebas `
+  --location=us-central1 `
+  --schedule="*/5 * * * *" `
+  --time-zone="America/Bogota" `
+  --uri="https://klicor-pruebas.vercel.app/api/booking/reminders/cron" `
+  --http-method=POST `
+  --headers="Authorization=Bearer <CRON_SECRET_DE_PRUEBAS>" `
+  --attempt-deadline=60s `
+  --max-retry-attempts=2
+```
+
+Para produccion, crear un job separado con otro secreto y URL `https://klicor.com/api/booking/reminders/cron`. No reutilizar secretos entre ambientes.
 
 ### Agenda en tiempo real y Firestore
 

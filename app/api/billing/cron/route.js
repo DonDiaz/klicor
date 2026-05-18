@@ -7,7 +7,8 @@ import { toDate } from "@/lib/utils";
 export async function GET(request) {
   try {
     const auth = request.headers.get("authorization");
-    if (auth !== `Bearer ${process.env.CRON_SECRET}`) {
+    const cronSecret = process.env.CRON_SECRET;
+    if (!cronSecret || auth !== `Bearer ${cronSecret}`) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 

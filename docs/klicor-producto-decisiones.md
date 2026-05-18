@@ -841,8 +841,8 @@ Estado MVP implementado en pruebas:
 - Reprogramaciones y cancelaciones generan correo transaccional al cliente cuando hay correo autenticado.
 - La falla de correo no bloquea la creacion de la cita; se registra en `emailDelivery`.
 - El endpoint de recordatorios por correo existe en `/api/booking/reminders/cron` y puede ejecutarse con `CRON_SECRET`.
-- El workflow `.github/workflows/booking-reminders.yml` queda preparado para llamar el endpoint cada 15 minutos con secretos de GitHub.
-- El workflow de recordatorios ya quedo validado en produccion: el correo de recordatorio llega y el endpoint devuelve diagnostico con `actions` y `stats`.
+- GitHub Actions fue retirado como scheduler de recordatorios para evitar dependencia de la rama default y permitir jobs separados por ambiente.
+- La ruta tecnica elegida para el siguiente paso es Google Cloud Scheduler llamando el endpoint cada 5 minutos con `Authorization: Bearer CRON_SECRET`.
 - El panel de Agenda actualiza citas por escucha en tiempo real para la fecha/profesional visibles, sin recargar toda la pagina.
 - El panel no debe usar polling permanente para simular tiempo real. Queda como respaldo el refresco al volver a enfocar la pestana y un boton manual `Actualizar`.
 - Las reglas de Firestore para `users/{uid}/bookingAppointments` deben estar desplegadas en `bioimpulso` y `klicor-6fc3e`; Vercel no despliega esas reglas.
@@ -863,11 +863,11 @@ Pendiente funcional:
 
 Decision tecnica sobre recordatorios:
 
-- El endpoint `/api/booking/reminders/cron` usa `CRON_SECRET` y esta activado por GitHub Actions.
+- El endpoint `/api/booking/reminders/cron` usa `CRON_SECRET` y rechaza llamadas si el secreto no existe o no coincide.
 - Segun la documentacion oficial vigente de Vercel Cron Jobs, en Hobby los cron solo pueden correr una vez al dia y con precision horaria aproximada; eso no sirve para recordatorios de 30 o 60 minutos antes de una cita.
-- La ruta MVP elegida es un scheduler externo mediante GitHub Actions cada 15 minutos, llamando el endpoint con `Authorization: Bearer CRON_SECRET`.
-- Para produccion se puede mantener GitHub Actions, subir Vercel a Pro y usar Vercel Cron frecuente, usar Firebase Cloud Scheduler/Cloud Functions, o usar otro scheduler externo confiable.
-- Mientras esa decision no cambie, no agregar un cron frecuente a `vercel.json` porque rompe o degrada el despliegue en Hobby.
+- La ruta MVP elegida es Google Cloud Scheduler como scheduler externo, primero en `klicor-pruebas` y despues en `klicor` produccion.
+- Cada ambiente debe tener su propio job y su propio `CRON_SECRET`; no compartir secretos entre pruebas y produccion.
+- Mientras el proyecto siga en Vercel Hobby, no agregar un cron frecuente a `vercel.json` porque rompe o degrada el despliegue.
 - La respuesta del endpoint debe conservar diagnostico operativo (`stats`) para confirmar si envio, omitio por ventana, omitio por estado o ya estaba enviado.
 
 Pendiente separado de Agenda:
