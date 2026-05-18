@@ -140,6 +140,10 @@ export function AdminPanel({ token, initialData, adminUser }) {
   const [settingsMessage, setSettingsMessage] = useState("");
   const [settingsError, setSettingsError] = useState("");
   const [savingSettings, setSavingSettings] = useState(false);
+  const [agencyForm, setAgencyForm] = useState({ email: "", agencyName: "", status: "active" });
+  const [agencyMessage, setAgencyMessage] = useState("");
+  const [agencyError, setAgencyError] = useState("");
+  const [savingAgency, setSavingAgency] = useState(false);
 
   useEffect(() => {
     setPanelData(initialData);
@@ -189,6 +193,30 @@ export function AdminPanel({ token, initialData, adminUser }) {
       setSettingsError(error.message);
     } finally {
       setSavingSettings(false);
+    }
+  }
+
+  async function saveAgency(event) {
+    event.preventDefault();
+    try {
+      setSavingAgency(true);
+      setAgencyError("");
+      setAgencyMessage("");
+      const response = await apiFetch("/api/admin/agencies", {
+        method: "POST",
+        token,
+        body: agencyForm,
+      });
+      setPanelData((current) => ({
+        ...current,
+        agencies: response.agencies || [],
+      }));
+      setAgencyForm({ email: "", agencyName: "", status: "active" });
+      setAgencyMessage("Agencia guardada.");
+    } catch (error) {
+      setAgencyError(error.message);
+    } finally {
+      setSavingAgency(false);
     }
   }
 
@@ -626,6 +654,54 @@ export function AdminPanel({ token, initialData, adminUser }) {
               <div className="admin-section-heading">
                 <h3>Convenios y alianzas</h3>
                 <p className="muted">La estructura base ya quedó lista en usuarios con `origin` y `partnerId`.</p>
+              </div>
+              <form className="admin-agency-form" onSubmit={saveAgency}>
+                <div>
+                  <label className="label">Correo autorizado</label>
+                  <input
+                    className="input"
+                    type="email"
+                    value={agencyForm.email}
+                    onChange={(event) => setAgencyForm((current) => ({ ...current, email: event.target.value }))}
+                    placeholder="agencia@dominio.com"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="label">Nombre agencia</label>
+                  <input
+                    className="input"
+                    value={agencyForm.agencyName}
+                    onChange={(event) => setAgencyForm((current) => ({ ...current, agencyName: event.target.value }))}
+                    placeholder="Nombre comercial"
+                  />
+                </div>
+                <div>
+                  <label className="label">Estado</label>
+                  <select className="select" value={agencyForm.status} onChange={(event) => setAgencyForm((current) => ({ ...current, status: event.target.value }))}>
+                    <option value="active">Activa</option>
+                    <option value="inactive">Inactiva</option>
+                  </select>
+                </div>
+                <button className="btn btn-primary" type="submit" disabled={savingAgency}>
+                  {savingAgency ? "Guardando..." : "Habilitar agencia"}
+                </button>
+              </form>
+              {agencyMessage ? <p className="notice notice-success">{agencyMessage}</p> : null}
+              {agencyError ? <p className="notice notice-danger">{agencyError}</p> : null}
+              <div className="admin-agency-list">
+                {(panelData.agencies || []).length ? panelData.agencies.map((agency) => (
+                  <article className="admin-agency-item" key={agency.id}>
+                    <div>
+                      <strong>{agency.agencyName}</strong>
+                      <span>{agency.email}</span>
+                    </div>
+                    <span className={`status-badge ${agency.status === "active" ? "success" : ""}`}>{agency.status}</span>
+                    <button className="btn btn-secondary" type="button" onClick={() => setAgencyForm({ email: agency.email, agencyName: agency.agencyName, status: agency.status })}>
+                      Editar
+                    </button>
+                  </article>
+                )) : <p className="muted">Todavía no hay agencias habilitadas.</p>}
               </div>
               <div className="admin-placeholder-grid">
                 <article className="admin-placeholder-item">

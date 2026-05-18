@@ -147,7 +147,7 @@ function ProductRow({ product, sectionLabel, disabled, visibilityPending = false
   );
 }
 
-export function CommerceWorkspace({ token, profile, active = false, canEdit = true }) {
+export function CommerceWorkspace({ token, profile, active = false, canEdit = true, agencyMode = false, agencyTargetUid = "" }) {
   const [state, setState] = useState(null);
   const [loading, setLoading] = useState(false);
   const [sectionLoading, setSectionLoading] = useState(false);
@@ -257,9 +257,11 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
   }, []);
 
   const fetchStructure = useCallback(async () => {
-    const response = await apiFetch("/api/commerce?view=structure", { token });
+    const params = new URLSearchParams({ view: "structure" });
+    if (agencyMode && agencyTargetUid) params.set("targetUid", agencyTargetUid);
+    const response = await apiFetch(`/api/commerce?${params.toString()}`, { token });
     return syncState(response.state);
-  }, [syncState, token]);
+  }, [agencyMode, agencyTargetUid, syncState, token]);
 
   const fetchSection = useCallback(async ({ categoryId = "", subcategoryId = "", force = false } = {}) => {
     const normalizedCategoryId = String(categoryId || "").trim();
@@ -282,6 +284,9 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
         view: "products",
         categoryId: normalizedCategoryId,
       });
+      if (agencyMode && agencyTargetUid) {
+        params.set("targetUid", agencyTargetUid);
+      }
       if (normalizedSubcategoryId) {
         params.set("subcategoryId", normalizedSubcategoryId);
       }
@@ -308,7 +313,7 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
         setSectionLoading(false);
       }
     }
-  }, [replaceSectionCache, token]);
+  }, [agencyMode, agencyTargetUid, replaceSectionCache, token]);
 
   const patchProductInSectionCache = useCallback((productId, patch) => {
     const normalizedProductId = String(productId || "").trim();
@@ -466,6 +471,7 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
     const body = new FormData();
     body.append("action", action);
     body.append("payload", JSON.stringify(payload));
+    if (agencyMode && agencyTargetUid) body.append("targetUid", agencyTargetUid);
     if (Array.isArray(image)) {
       image.filter(Boolean).forEach((file) => body.append("images", file));
     } else if (image) {

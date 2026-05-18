@@ -453,10 +453,15 @@ export function ProfileForm({
   onSaveRecovery,
   onResendRecoveryVerification,
   onCheckout,
+  onAgencyRequest,
+  onAgencyRevoke,
   publicUrl,
   onCopyPublicUrl,
   onDownloadQr,
   onLogout,
+  agencyMode = false,
+  agencyTargetUid = "",
+  agencyPermissions = {},
 }) {
   const [form, setForm] = useState({
     businessName: profile?.businessName || "",
@@ -493,7 +498,7 @@ export function ProfileForm({
   const [checkoutPlan, setCheckoutPlan] = useState(() => profile?.plan === "plus" ? "plus" : "commercial");
   const [checkoutModule, setCheckoutModule] = useState(() => getDefaultCheckoutModule(profile));
   const [moduleBusy, setModuleBusy] = useState("");
-  const [activeWorkspace, setActiveWorkspace] = useState(() => getPrimaryWorkspaceForBusinessCategory(profile?.businessCategory));
+  const [activeWorkspace, setActiveWorkspace] = useState(() => (agencyMode && !canEdit ? "subscription" : getPrimaryWorkspaceForBusinessCategory(profile?.businessCategory)));
   const navCollapsed = true;
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [darkModeEnabled, setDarkModeEnabled] = useState(false);
@@ -619,8 +624,21 @@ export function ProfileForm({
     if (moduleAccess.booking && isBusinessModuleEligible({ businessCategory: form.businessCategory, businessType: form.businessType }, "booking")) visibleIds.add("booking");
     const priorityMap = new Map(recommendedIds.map((id, index) => [id, index]));
 
+    const agencyAllowedIds = new Set([
+      agencyPermissions.links ? "blocks" : "",
+      agencyPermissions.commerce ? "commerce" : "",
+      agencyPermissions.booking ? "booking" : "",
+      agencyPermissions.design ? "design" : "",
+      agencyPermissions.publicProfile ? "profile" : "",
+      agencyPermissions.subscriptionRenewal ? "subscription" : "",
+      agencyPermissions.dorika ? "dorika" : "",
+    ].filter(Boolean));
+
     return [...DASHBOARD_NAV_ITEMS]
       .filter((item) => visibleIds.has(item.id))
+      .filter((item) => !agencyMode || agencyAllowedIds.has(item.id))
+      .filter((item) => !agencyMode || canEdit || item.id === "subscription")
+      .filter((item) => !agencyMode || !["security", "billing", "reservations"].includes(item.id))
       .filter((item) => item.id !== "commerce" || canUseModule({ ...profile, moduleAccess, businessCategory: form.businessCategory, businessType: form.businessType }, "commerce"))
       .filter((item) => item.id !== "booking" || canUseModule({ ...profile, moduleAccess, businessCategory: form.businessCategory, businessType: form.businessType }, "booking"))
       .filter((item) => item.id !== "dorika" || dorikaEligible)
@@ -640,7 +658,12 @@ export function ProfileForm({
           recommendationLabel: isRecommended && recommendationRank === 0 ? moduleRecommendation.moduleLabel : "Sugerido",
         };
       });
-  }, [dorikaEligible, form.businessCategory, form.businessType, moduleAccess, moduleRecommendation, profile]);
+  }, [agencyMode, agencyPermissions.booking, agencyPermissions.commerce, agencyPermissions.design, agencyPermissions.dorika, agencyPermissions.links, agencyPermissions.publicProfile, agencyPermissions.subscriptionRenewal, canEdit, dorikaEligible, form.businessCategory, form.businessType, moduleAccess, moduleRecommendation, profile]);
+
+  useEffect(() => {
+    if (!agencyMode || canEdit || activeWorkspace === "subscription") return;
+    setActiveWorkspace("subscription");
+  }, [activeWorkspace, agencyMode, canEdit]);
 
   useEffect(() => {
     const workspaceIsVisible = dashboardNavItems.some((item) => item.id === activeWorkspace);
@@ -1007,6 +1030,7 @@ export function ProfileForm({
       body.append("removePaymentQrIds", JSON.stringify(paymentMethods.filter((method) => method.removeQr).map((method) => method.id)));
       if (photo) body.append("photo", photo);
       if (dorikaCover) body.append("dorikaCover", dorikaCover);
+      if (agencyMode && agencyTargetUid) body.append("targetUid", agencyTargetUid);
       paymentMethods.forEach((method) => {
         if (method.qrFile) {
           body.append(`paymentQrImage:${method.id}`, method.qrFile);
@@ -1314,7 +1338,9 @@ export function ProfileForm({
       ? "Período de prueba"
       : profile?.status === "active"
         ? "Activo"
-        : subscriptionLabel;
+      : subscriptionLabel;
+  const agencyRequests = Array.isArray(profile?.agencyRequests) ? profile.agencyRequests : [];
+  const activeAgency = profile?.agencyAccess?.status === "active" ? profile.agencyAccess : null;
 
   function handleWorkspaceSelect(workspaceId) {
     setActiveWorkspace(workspaceId);
@@ -1329,7 +1355,7 @@ export function ProfileForm({
       const data = await apiFetch("/api/modules", {
         method: "POST",
         token,
-        body: { module },
+        body: { module, ...(agencyMode && agencyTargetUid ? { targetUid: agencyTargetUid } : {}) },
       });
       onSaved(data.user);
       setMessage(`${getModuleLabel(module)} quedó habilitado en tu cuenta.`);
@@ -1365,6 +1391,37 @@ export function ProfileForm({
             </button>
           </div>
         </div>
+      ) : null}
+      {agencyRequests.length ? (
+        <section className="agency-owner-notice">
+          <div>
+            <strong>Solicitud de agencia</strong>
+            <span>{agencyRequests[0].agencyName || agencyRequests[0].agencyEmail} quiere ayudarte a configurar tu Klicor.</span>
+            <small>Klicor facilita el acceso técnico. Al aceptar, el dueño del negocio asume responsabilidad sobre el acceso concedido. La agencia no podrá ver seguridad, facturación privada ni datos de clientes de citas.</small>
+          </div>
+          <div className="agency-owner-actions">
+            <button className="btn btn-primary" type="button" onClick={() => onAgencyRequest?.(agencyRequests[0].id, "accept")}>
+              Aceptar
+            </button>
+            <button className="btn btn-secondary" type="button" onClick={() => onAgencyRequest?.(agencyRequests[0].id, "reject")}>
+              Rechazar
+            </button>
+          </div>
+        </section>
+      ) : null}
+      {activeAgency ? (
+        <section className="agency-owner-notice is-linked">
+          <div>
+            <strong>Agencia vinculada</strong>
+            <span>{activeAgency.agencyName || activeAgency.agencyEmail} puede ayudarte a configurar tu Klicor.</span>
+            <small>Puede editar enlaces, diseño, comercio, métodos de pago visibles y configuración de agenda. No puede ver seguridad, facturación privada ni citas de clientes.</small>
+          </div>
+          <div className="agency-owner-actions">
+            <button className="btn btn-secondary" type="button" onClick={() => onAgencyRevoke?.()}>
+              Desvincular agencia
+            </button>
+          </div>
+        </section>
       ) : null}
       <aside className={`editor-sidebar panel ${navCollapsed ? "is-collapsed" : ""} ${mobileNavOpen ? "is-mobile-open" : ""}`}>
         <div className="editor-sidebar-top">
@@ -2247,6 +2304,8 @@ export function ProfileForm({
               profile={{ ...profile, ...previewUser, uid: profile?.uid || profile?.id, savedUsername: profile?.username || "" }}
               active={activeWorkspace === "commerce"}
               canEdit={canEdit}
+              agencyMode={agencyMode}
+              agencyTargetUid={agencyTargetUid}
             />
           ) : null}
 
@@ -2256,6 +2315,8 @@ export function ProfileForm({
               profile={{ ...profile, ...previewUser, uid: profile?.uid || profile?.id, savedUsername: profile?.username || "" }}
               active={activeWorkspace === "booking"}
               canEdit={canEdit}
+              agencyMode={agencyMode}
+              agencyTargetUid={agencyTargetUid}
             />
           ) : null}
 

@@ -3,6 +3,7 @@ import { verifyRequest } from "@/lib/auth";
 import { PLAN_SLUG } from "@/lib/constants";
 import { createPreference } from "@/lib/mercadopago";
 import { getAdminSettings } from "@/lib/firestore";
+import { assertAgencyBusinessAccess } from "@/lib/agency";
 import { assertNoActivePlanDowngrade, calculateCommercialToPlusUpgrade } from "@/lib/billing-rules";
 import { isBusinessModuleEligible } from "@/lib/business-categories";
 import { BILLABLE_PLAN_VALUES, getPlanAnnualPrice, normalizeKlicorModule, normalizeKlicorPlan, resolvePrimaryModuleForBusinessCategory } from "@/lib/plans";
@@ -16,24 +17,27 @@ export async function POST(request) {
     }
 
     const body = await request.json().catch(() => ({}));
+    const targetUid = String(body?.targetUid || "").trim();
+    const agencyAccess = targetUid ? await assertAgencyBusinessAccess(user, targetUid, "subscriptionRenewal") : null;
+    const effectiveUser = agencyAccess?.business || user;
     const plan = normalizeKlicorPlan(body?.plan || PLAN_SLUG);
     if (!BILLABLE_PLAN_VALUES.includes(plan)) {
       throw new Error("Selecciona un plan válido para pagar.");
     }
     const requestedModule = normalizeKlicorModule(body?.module || body?.selectedModule);
-    const module = plan === "commercial"
-      ? requestedModule || normalizeKlicorModule(user.commercialModule) || resolvePrimaryModuleForBusinessCategory(user.businessCategory, user.businessType || user.dorikaProfile?.businessType)
-      : "";
-    if (module && !isBusinessModuleEligible(user, module)) {
-      throw new Error(`${module === "booking" ? "Agenda" : "Comercio"} no está disponible para este tipo de negocio.`);
+    const defaultModule = normalizeKlicorModule(effectiveUser.commercialModule)
+      || resolvePrimaryModuleForBusinessCategory(effectiveUser.businessCategory, effectiveUser.businessType || effectiveUser.dorikaProfile?.businessType);
+    const effectiveModule = plan === "commercial" ? requestedModule || defaultModule : "";
+    if (effectiveModule && !isBusinessModuleEligible(effectiveUser, effectiveModule)) {
+      throw new Error(`${effectiveModule === "booking" ? "Agenda" : "Comercio"} no está disponible para este tipo de negocio.`);
     }
     const settings = await getAdminSettings();
-    const currentPlan = normalizeKlicorPlan(user.plan || "");
+    const currentPlan = normalizeKlicorPlan(effectiveUser.plan || "");
     const annualPrice = getPlanAnnualPrice(plan, settings);
     const now = new Date();
-    const currentExpiry = toDate(user.expiresAt);
+    const currentExpiry = toDate(effectiveUser.expiresAt);
     assertNoActivePlanDowngrade({
-      status: user.status,
+      status: effectiveUser.status,
       currentPlan,
       requestedPlan: plan,
       currentExpiresAt: currentExpiry,
@@ -42,7 +46,7 @@ export async function POST(request) {
     const paymentType = currentPlan === "commercial" && plan === "plus" ? "upgrade" : "subscription";
     const metadata = {
       payment_type: paymentType,
-      module,
+      module: effectiveModule,
       from_plan: paymentType === "upgrade" ? currentPlan : "",
       to_plan: plan,
     };
@@ -69,7 +73,7 @@ export async function POST(request) {
     }
 
     const preference = await createPreference({
-      user,
+      user: effectiveUser,
       plan,
       annualPrice: amountToCharge,
       metadata,
@@ -81,7 +85,7 @@ export async function POST(request) {
       sandboxInitPoint: preference.sandbox_init_point || "",
       publicKey: process.env.MERCADOPAGO_PUBLIC_KEY || "",
       plan,
-      module,
+      module: effectiveModule,
       paymentType,
       amountToCharge,
     });

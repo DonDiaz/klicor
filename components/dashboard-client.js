@@ -131,6 +131,27 @@ export function DashboardClient() {
     }
   }
 
+  async function handleAgencyRequest(requestId, action) {
+    if (!token) return;
+    await apiFetch("/api/agency/respond-request", {
+      method: "POST",
+      token,
+      body: { requestId, action },
+    });
+    const payload = await apiFetch("/api/me", { token });
+    setData(payload);
+  }
+
+  async function handleAgencyRevoke() {
+    if (!token) return;
+    await apiFetch("/api/agency/revoke", {
+      method: "POST",
+      token,
+    });
+    const payload = await apiFetch("/api/me", { token });
+    setData(payload);
+  }
+
   async function handleSendVerification() {
     const auth = getClientAuth();
     if (!auth?.currentUser) return;
@@ -322,6 +343,8 @@ export function DashboardClient() {
             onSaveRecovery={saveRecoverySettings}
             onResendRecoveryVerification={resendRecoveryVerification}
             onCheckout={handleCheckout}
+            onAgencyRequest={handleAgencyRequest}
+            onAgencyRevoke={handleAgencyRevoke}
             publicUrl={data.publicUrl}
             onCopyPublicUrl={handleCopyPublicUrl}
             onDownloadQr={handleQrDownload}

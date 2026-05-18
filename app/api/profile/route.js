@@ -3,6 +3,7 @@ import { buildShareProfileUrl, buildVanityProfileUrl } from "@/lib/public-profil
 import { validateProfileLinksSafety } from "@/lib/link-safety";
 import { profileSchema } from "@/lib/schemas";
 import { verifyRequest } from "@/lib/auth";
+import { assertAgencyCanEditBusiness } from "@/lib/agency";
 import { getAccountView, updateUserProfile } from "@/lib/firestore";
 import { getAppearanceWarnings } from "@/lib/theme-system";
 import { isSystemProfileLink } from "@/lib/system-profile-links";
@@ -14,11 +15,15 @@ const SHARE_LINK_VERSION = "v1";
 export async function POST(request) {
   try {
     const { user } = await verifyRequest(request);
-    if (!["trial", "active"].includes(user.status)) {
-      return NextResponse.json({ error: "Tu cuenta no tiene permisos de edición" }, { status: 403 });
+    const formData = await request.formData();
+    const targetUid = String(formData.get("targetUid") || "").trim();
+    const agencyAccess = targetUid ? await assertAgencyCanEditBusiness(user, targetUid, "publicProfile") : null;
+    const effectiveUser = agencyAccess?.business || user;
+
+    if (!agencyAccess && !["trial", "active"].includes(user.status)) {
+      return NextResponse.json({ error: "Tu cuenta no tiene permisos de edicion" }, { status: 403 });
     }
 
-    const formData = await request.formData();
     const linksJson = formData.get("profileLinks");
     const appearanceJson = formData.get("appearance");
     const customThemesJson = formData.get("customThemes");
@@ -66,13 +71,23 @@ export async function POST(request) {
         : {},
     });
 
+    if (agencyAccess) {
+      parsed.billingProfile = effectiveUser.billingProfile || {};
+      if (!agencyAccess.permissions.paymentMethods) parsed.paymentMethods = effectiveUser.paymentMethods || [];
+      if (!agencyAccess.permissions.design) {
+        parsed.appearance = effectiveUser.settings || {};
+        parsed.customThemes = effectiveUser.customThemes || [];
+      }
+      if (!agencyAccess.permissions.links) parsed.profileLinks = effectiveUser.profileLinks || [];
+      if (!agencyAccess.permissions.dorika) parsed.dorikaProfile = effectiveUser.dorikaProfile || {};
+    }
+
     const warnings = getAppearanceWarnings(parsed.appearance);
     if (warnings.length) {
       return NextResponse.json({ error: warnings[0].message }, { status: 400 });
     }
 
     const editableProfileLinks = parsed.profileLinks.filter((link) => !isSystemProfileLink(link));
-
     await validateProfileLinksSafety(editableProfileLinks);
 
     const photo = formData.get("photo");
@@ -85,7 +100,7 @@ export async function POST(request) {
       }
     }
 
-    const nextUser = await updateUserProfile(user.uid, {
+    const nextUser = await updateUserProfile(effectiveUser.uid, {
       ...parsed,
       profileLinks: editableProfileLinks,
     }, {

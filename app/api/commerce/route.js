@@ -3,6 +3,7 @@ import { verifyRequest } from "@/lib/auth";
 import { formatApiError } from "@/lib/api-errors";
 import { createServerTiming } from "@/lib/server-timing";
 import { assertModuleAccess } from "@/lib/plans";
+import { assertAgencyCanEditBusiness } from "@/lib/agency";
 import {
   createCommerceCategory,
   createCommerceSubcategory,
@@ -31,23 +32,25 @@ export async function GET(request) {
   const timing = createServerTiming();
   try {
     const { user } = await timing.measure("auth", () => verifyRequest(request), "verify");
-    assertModuleAccess(user, "commerce");
-
     const { searchParams } = new URL(request.url);
+    const targetUid = String(searchParams.get("targetUid") || "").trim();
+    const agencyAccess = targetUid ? await timing.measure("agency", () => assertAgencyCanEditBusiness(user, targetUid, "commerce"), "agency") : null;
+    const effectiveUser = agencyAccess?.business || user;
+    assertModuleAccess(effectiveUser, "commerce");
     const view = String(searchParams.get("view") || "structure").trim().toLowerCase();
 
     if (view === "products") {
-      const section = await timing.measure("products", () => getCommerceAdminSectionProducts(user.uid, {
+      const section = await timing.measure("products", () => getCommerceAdminSectionProducts(effectiveUser.uid, {
         categoryId: String(searchParams.get("categoryId") || "").trim(),
         subcategoryId: String(searchParams.get("subcategoryId") || "").trim(),
-      }, user), "section");
+      }, effectiveUser), "section");
       const payload = { section };
       return NextResponse.json(payload, {
         headers: timing.headers(payload),
       });
     }
 
-    const state = await timing.measure("structure", () => getCommerceAdminStructure(user.uid, user), "commerce-admin");
+    const state = await timing.measure("structure", () => getCommerceAdminStructure(effectiveUser.uid, effectiveUser), "commerce-admin");
     const payload = { state };
     return NextResponse.json(payload, {
       headers: timing.headers(payload),
@@ -65,9 +68,11 @@ export async function POST(request) {
   const timing = createServerTiming();
   try {
     const { user } = await timing.measure("auth", () => verifyRequest(request), "verify");
-    assertModuleAccess(user, "commerce");
-
     const formData = await timing.measure("formdata", () => request.formData(), "parse");
+    const targetUid = String(formData.get("targetUid") || "").trim();
+    const agencyAccess = targetUid ? await timing.measure("agency", () => assertAgencyCanEditBusiness(user, targetUid, "commerce"), "agency") : null;
+    const effectiveUser = agencyAccess?.business || user;
+    assertModuleAccess(effectiveUser, "commerce");
     const action = String(formData.get("action") || "").trim();
     const payload = parsePayload(formData);
     const image = formData.get("image");
@@ -77,45 +82,45 @@ export async function POST(request) {
 
     switch (action) {
       case "save_config":
-        result = await timing.measure("mutation", () => saveCommerceConfig(user.uid, payload, user), action);
+        result = await timing.measure("mutation", () => saveCommerceConfig(effectiveUser.uid, payload, effectiveUser), action);
         break;
       case "create_category":
-        result = await timing.measure("mutation", () => createCommerceCategory(user.uid, payload, user), action);
+        result = await timing.measure("mutation", () => createCommerceCategory(effectiveUser.uid, payload, effectiveUser), action);
         break;
       case "update_category":
-        result = await timing.measure("mutation", () => updateCommerceCategory(user.uid, payload, user), action);
+        result = await timing.measure("mutation", () => updateCommerceCategory(effectiveUser.uid, payload, effectiveUser), action);
         break;
       case "delete_category":
-        result = await timing.measure("mutation", () => deleteCommerceCategory(user.uid, payload.categoryId, user), action);
+        result = await timing.measure("mutation", () => deleteCommerceCategory(effectiveUser.uid, payload.categoryId, effectiveUser), action);
         break;
       case "move_category":
-        result = await timing.measure("mutation", () => moveCommerceCategory(user.uid, payload.categoryId, payload.direction, user), action);
+        result = await timing.measure("mutation", () => moveCommerceCategory(effectiveUser.uid, payload.categoryId, payload.direction, effectiveUser), action);
         break;
       case "create_subcategory":
-        result = await timing.measure("mutation", () => createCommerceSubcategory(user.uid, payload, user), action);
+        result = await timing.measure("mutation", () => createCommerceSubcategory(effectiveUser.uid, payload, effectiveUser), action);
         break;
       case "update_subcategory":
-        result = await timing.measure("mutation", () => updateCommerceSubcategory(user.uid, payload, user), action);
+        result = await timing.measure("mutation", () => updateCommerceSubcategory(effectiveUser.uid, payload, effectiveUser), action);
         break;
       case "delete_subcategory":
-        result = await timing.measure("mutation", () => deleteCommerceSubcategory(user.uid, payload.subcategoryId, user), action);
+        result = await timing.measure("mutation", () => deleteCommerceSubcategory(effectiveUser.uid, payload.subcategoryId, effectiveUser), action);
         break;
       case "move_subcategory":
-        result = await timing.measure("mutation", () => moveCommerceSubcategory(user.uid, payload.subcategoryId, payload.direction, user), action);
+        result = await timing.measure("mutation", () => moveCommerceSubcategory(effectiveUser.uid, payload.subcategoryId, payload.direction, effectiveUser), action);
         break;
       case "save_product":
-        result = await timing.measure("mutation", () => saveCommerceProduct(user.uid, payload, {
+        result = await timing.measure("mutation", () => saveCommerceProduct(effectiveUser.uid, payload, {
           images: images.length ? images : (image?.size ? [image] : []),
-        }, user), action);
+        }, effectiveUser), action);
         break;
       case "delete_product":
-        result = await timing.measure("mutation", () => deleteCommerceProduct(user.uid, payload.productId, user), action);
+        result = await timing.measure("mutation", () => deleteCommerceProduct(effectiveUser.uid, payload.productId, effectiveUser), action);
         break;
       case "move_product":
-        result = await timing.measure("mutation", () => moveCommerceProduct(user.uid, payload.productId, payload.direction, user), action);
+        result = await timing.measure("mutation", () => moveCommerceProduct(effectiveUser.uid, payload.productId, payload.direction, effectiveUser), action);
         break;
       case "toggle_product_visibility":
-        result = await timing.measure("mutation", () => toggleCommerceProductVisibility(user.uid, payload.productId, payload.visible, user), action);
+        result = await timing.measure("mutation", () => toggleCommerceProductVisibility(effectiveUser.uid, payload.productId, payload.visible, effectiveUser), action);
         break;
       default:
         throw new Error("Acción comercial no soportada.");

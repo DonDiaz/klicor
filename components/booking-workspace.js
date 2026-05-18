@@ -147,7 +147,7 @@ function buildAgendaGrid({ dateString, config, staff = [], appointments = [], se
   return { rows, columns, appointmentsByStaff };
 }
 
-export function BookingWorkspace({ token, active = false, canEdit = true }) {
+export function BookingWorkspace({ token, active = false, canEdit = true, agencyMode = false, agencyTargetUid = "" }) {
   const realtimeReadyRef = useRef(false);
   const agendaRefreshRef = useRef(false);
   const [state, setState] = useState(null);
@@ -211,7 +211,11 @@ export function BookingWorkspace({ token, active = false, canEdit = true }) {
     if (!state?.ownerUid || !appointmentsToClose.length) return "";
     return `booking-close-reminder:${state.ownerUid}:${appointmentsToClose.map((item) => item.id).join(",")}`;
   }, [appointmentsToClose, state?.ownerUid]);
+  const visibleAdminSections = useMemo(() => (
+    agencyMode ? ADMIN_SECTIONS.filter((section) => section.id !== "agenda") : ADMIN_SECTIONS
+  ), [agencyMode]);
   const showCloseReminder = active
+    && !agencyMode
     && activeSection === "agenda"
     && appointmentsToClose.length > 0
     && closeReminderKey
@@ -221,6 +225,11 @@ export function BookingWorkspace({ token, active = false, canEdit = true }) {
     if (!active) return;
     loadState(filters);
   }, [active]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (!agencyMode || activeSection !== "agenda") return;
+    setActiveSection("services");
+  }, [activeSection, agencyMode]);
 
   useEffect(() => {
     if (!message) return undefined;
@@ -294,6 +303,7 @@ export function BookingWorkspace({ token, active = false, canEdit = true }) {
         date: nextFilters.date,
       });
       if (nextFilters.staffId) params.set("staffId", nextFilters.staffId);
+      if (agencyMode && agencyTargetUid) params.set("targetUid", agencyTargetUid);
       const response = await apiFetch(`/api/booking?${params.toString()}`, { token, cache: "no-store" });
       setState(response.state);
       setConfigForm(response.state?.config || normalizeBookingConfig());
@@ -315,6 +325,7 @@ export function BookingWorkspace({ token, active = false, canEdit = true }) {
       const body = new FormData();
       body.append("action", action);
       body.append("payload", JSON.stringify(payload));
+      if (agencyMode && agencyTargetUid) body.append("targetUid", agencyTargetUid);
       if (file) body.append("photo", file);
 
       const response = await apiFetch("/api/booking", {
@@ -1318,7 +1329,7 @@ export function BookingWorkspace({ token, active = false, canEdit = true }) {
       ) : (
         <div className="booking-workspace-layout">
           <nav className="booking-admin-nav" aria-label="Secciones de agenda">
-            {ADMIN_SECTIONS.map((section) => {
+            {visibleAdminSections.map((section) => {
               const Icon = section.icon;
               return (
                 <button

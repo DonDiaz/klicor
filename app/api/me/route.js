@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { buildShareProfileUrl, buildVanityProfileUrl } from "@/lib/public-profile-links";
 import { formatDate, toDate } from "@/lib/utils";
 import { verifyRequest } from "@/lib/auth";
+import { getPendingAgencyRequestsForBusiness } from "@/lib/agency";
 import { ensureDorikaCoverDownloadUrl, getAccountView, getAdminSettings } from "@/lib/firestore";
 import { createServerTiming } from "@/lib/server-timing";
 import { getRequestAppUrl } from "@/lib/env";
@@ -19,6 +20,8 @@ export async function GET(request) {
     const updatedAtMs = toDate(account.updatedAt)?.getTime() || 0;
     const appUrl = getRequestAppUrl(request);
 
+    const agencyRequests = await timing.measure("agency-requests", () => getPendingAgencyRequestsForBusiness(user.uid), "agency-requests");
+
     const payload = {
       user: {
         ...account,
@@ -26,6 +29,7 @@ export async function GET(request) {
         emailVerified: Boolean(decoded.email_verified),
         trialEndsAtLabel: formatDate(account.trialEndsAt),
         expiresAtLabel: formatDate(account.expiresAt),
+        agencyRequests,
       },
       settings,
       publicUrl: buildVanityProfileUrl(account.username, appUrl),
