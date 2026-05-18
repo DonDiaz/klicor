@@ -26,6 +26,7 @@ const sections = [
     body: [
       "Usamos los datos para crear y administrar cuentas, autenticar usuarios, operar el link público, mostrar productos o servicios, gestionar agenda, generar QR, procesar pagos, enviar comunicaciones esenciales, brindar soporte, prevenir abuso, mejorar seguridad y cumplir obligaciones legales o contractuales.",
       "También podemos usar datos técnicos y métricas agregadas para diagnosticar fallas, mejorar rendimiento, entender uso de funciones, priorizar mejoras y proteger la estabilidad de Klicor y Dorika.",
+      "La información recopilada podrá utilizarse para gestionar reservas y solicitudes, facilitar la comunicación entre usuarios y negocios, mejorar el funcionamiento de la plataforma, mantener seguridad y estabilidad del sistema, prevenir fraude o abuso y brindar soporte técnico.",
     ],
   },
   {
@@ -50,30 +51,48 @@ const sections = [
     ],
   },
   {
-    title: "7. Cookies y almacenamiento local",
+    title: "7. Compartición de información de agenda, contacto y reservas",
+    body: [
+      "La información enviada mediante formularios de agenda, contacto o reservas será compartida con el negocio correspondiente para gestionar la solicitud realizada por el usuario.",
+      "El negocio es responsable del tratamiento y uso adecuado de la información recibida.",
+      "Klicor no vende datos personales a terceros.",
+    ],
+  },
+  {
+    title: "8. Seguridad y uso indebido por terceros",
+    body: [
+      "Klicor implementa medidas razonables de seguridad técnicas y organizativas para proteger la información almacenada en la plataforma.",
+      "No obstante, ningún sistema es completamente infalible y no puede garantizarse seguridad absoluta.",
+      "Klicor no es responsable por el uso indebido que un negocio registrado haga de la información recibida mediante la plataforma fuera del entorno controlado de Klicor. Cada negocio es responsable de cumplir las normas aplicables sobre privacidad y protección de datos.",
+    ],
+  },
+  {
+    title: "9. Cookies y almacenamiento local",
     body: [
       "Klicor puede usar cookies técnicas, almacenamiento local o tecnologías similares para mantener sesiones, recordar preferencias, operar autenticación, mejorar seguridad y permitir funciones necesarias de la plataforma.",
       "Si en el futuro se incorporan cookies no esenciales de publicidad, medición avanzada o seguimiento de terceros, Klicor deberá informarlo y habilitar los mecanismos de consentimiento que correspondan.",
     ],
   },
   {
-    title: "8. Conservación, seguridad y eliminación",
+    title: "10. Conservación y eliminación",
     body: [
       "Conservamos los datos mientras la cuenta esté activa, mientras sean necesarios para prestar el servicio, atender soporte, cumplir obligaciones legales, resolver disputas, prevenir fraude o mantener registros administrativos razonables.",
+      "Klicor podrá conservar información mientras exista relación activa con la plataforma o mientras sea necesaria para operación técnica, cumplimiento legal, seguridad, prevención de fraude o soporte administrativo.",
       "El usuario puede solicitar eliminación o actualización de su cuenta escribiendo a donjhonnathan@gmail.com. Algunas copias, registros de pago, auditoría, seguridad o cumplimiento pueden conservarse cuando exista una obligación o interés legítimo aplicable.",
     ],
   },
   {
-    title: "9. Derechos del titular",
+    title: "11. Derechos del titular",
     body: [
       "Como titular puedes solicitar acceso, actualización, rectificación, prueba de autorización, información sobre el uso de tus datos, revocatoria de autorización o supresión cuando proceda legalmente.",
       "Para ejercer estos derechos, escribe a donjhonnathan@gmail.com indicando tu nombre, correo asociado a la cuenta, solicitud concreta y datos necesarios para verificar tu identidad.",
     ],
   },
   {
-    title: "10. Cambios",
+    title: "12. Cambios y contacto",
     body: [
-      "Esta política puede actualizarse para reflejar cambios legales, técnicos u operativos. La versión vigente será la publicada en esta página. Última actualización: 12 de mayo de 2026.",
+      "Esta política puede actualizarse para reflejar cambios legales, técnicos u operativos. La versión vigente será la publicada en esta página.",
+      "Para solicitudes relacionadas con privacidad o tratamiento de datos, el usuario podrá comunicarse mediante los canales oficiales de contacto de Klicor. Última actualización: 18 de mayo de 2026.",
     ],
   },
 ];

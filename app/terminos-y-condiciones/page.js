@@ -99,9 +99,55 @@ const sections = [
     ],
   },
   {
-    title: "14. Legislación aplicable",
+    title: "14. Agenda y reservas",
     body: [
-      "Estos términos se rigen por las leyes de Colombia. Última actualización: 12 de mayo de 2026.",
+      "La funcionalidad de agenda y reservas permite a los usuarios finales solicitar citas, reservas o espacios con negocios registrados en Klicor.",
+      "Klicor actúa exclusivamente como proveedor tecnológico de la plataforma. Klicor no presta directamente servicios médicos, estéticos, turísticos, profesionales, comerciales ni de atención al cliente ofrecidos por los negocios registrados.",
+      "Cada negocio es independiente y responsable de la información publicada, la atención al cliente, la prestación de sus servicios, el cumplimiento de citas o reservas, sus horarios, precios, promociones, cancelaciones y cualquier relación comercial o contractual con el usuario final.",
+    ],
+  },
+  {
+    title: "15. Datos recopilados en agenda y reservas",
+    body: [
+      "Cuando un usuario realiza una solicitud, cita o reserva mediante Klicor, la plataforma podrá recopilar datos como nombre, número telefónico, correo electrónico, fecha y hora de reserva, observaciones o mensajes enviados por el usuario.",
+      "Estos datos son almacenados técnicamente por Klicor para permitir el funcionamiento de la plataforma y la gestión de solicitudes.",
+      "El usuario entiende y acepta que los datos enviados mediante formularios de agenda, reservas o contacto serán compartidos con el negocio correspondiente para gestionar la solicitud realizada.",
+    ],
+  },
+  {
+    title: "16. Responsabilidad del negocio sobre datos de agenda",
+    body: [
+      "El negocio que recibe información de agenda o reservas actúa bajo su propia responsabilidad respecto al uso, almacenamiento, tratamiento y protección de los datos personales recibidos.",
+      "Klicor no controla ni supervisa el uso interno que cada negocio haga de la información recibida fuera de la plataforma.",
+      "Cada negocio registrado es responsable de utilizar la información únicamente para fines relacionados con la atención del usuario, no compartir datos con terceros no autorizados, no usar la información para fines ilícitos, spam o actividades no autorizadas, y cumplir las normas de protección de datos aplicables en su país o jurisdicción.",
+      "El mal uso de datos personales por parte de un negocio registrado será responsabilidad exclusiva de dicho negocio.",
+    ],
+  },
+  {
+    title: "17. Consentimiento del usuario final en agenda",
+    body: [
+      "Al enviar una solicitud, cita o reserva mediante Klicor, el usuario autoriza el tratamiento de sus datos personales para gestionar solicitudes, coordinar reservas o citas, permitir contacto entre el negocio y el usuario, y enviar confirmaciones o información relacionada con la solicitud realizada.",
+      "Klicor podrá conservar evidencia técnica de la aceptación de estos términos y de la política de privacidad, incluyendo versión aceptada, fecha, origen, usuario autenticado y datos técnicos razonables para defensa legal, seguridad y auditoría.",
+    ],
+  },
+  {
+    title: "18. Limitación específica en agenda y reservas",
+    body: [
+      "Klicor no garantiza disponibilidad permanente de agendas, confirmación automática de reservas, cumplimiento de citas, calidad del servicio prestado por el negocio ni exactitud total de la información publicada por terceros.",
+      "Klicor no será responsable por cancelaciones, incumplimientos, pérdidas económicas, conflictos comerciales o daños derivados de la relación entre el usuario y el negocio.",
+    ],
+  },
+  {
+    title: "19. Suspensión o bloqueo",
+    body: [
+      "Klicor podrá suspender o eliminar cuentas de negocios que hagan uso indebido de datos personales, incumplan estas condiciones, utilicen la plataforma para fraude, spam o actividades ilegales, o afecten la seguridad o integridad de la plataforma.",
+    ],
+  },
+  {
+    title: "20. Modificaciones y legislación aplicable",
+    body: [
+      "Klicor podrá modificar estas condiciones en cualquier momento para adaptarlas a cambios legales, técnicos o comerciales. El uso continuado de la plataforma implica aceptación de las modificaciones realizadas.",
+      "Estos términos se rigen por las leyes de Colombia. Última actualización: 18 de mayo de 2026.",
     ],
   },
 ];

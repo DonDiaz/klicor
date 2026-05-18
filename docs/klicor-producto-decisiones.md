@@ -837,6 +837,7 @@ Estado MVP implementado en pruebas:
 - El cliente publico debe iniciar sesion con Google para enviar la cita y la cita guarda identidad autenticada cuando existe.
 - El cliente publico debe aceptar terminos y politica de privacidad antes de crear su primera cita si no tiene consentimiento vigente de Agenda.
 - La aceptacion de Agenda se guarda por `customerUid` en `publicBookingCustomers`, con version de terminos, version de privacidad, fecha servidor, origen, negocio asociado, user agent e IP hasheada. No se debe crear una cuenta Klicor de negocio solo por ser cliente final de Agenda.
+- Desde 18 de mayo de 2026, Agenda y futuras Reservas tienen version legal propia (`booking-terms-2026-05-18` y `booking-privacy-2026-05-18`) para pedir nueva aceptacion al cliente final sin forzar una nueva aceptacion general al dueno del negocio.
 - Si el cliente ya tiene consentimiento vigente, la vista publica no vuelve a mostrar la casilla. Solo se vuelve a pedir si cambia la version legal requerida.
 - La disponibilidad publica consulta el servicio y profesional seleccionados, aplica hora de Colombia y exige al menos 30 minutos de anticipacion.
 - El negocio recibe correo operativo cuando entra una solicitud o cita nueva, si `notifyBusinessOnRequest` esta activo.
