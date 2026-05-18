@@ -504,6 +504,7 @@ export function ProfileForm({
   const [darkModeEnabled, setDarkModeEnabled] = useState(false);
   const [openProfileSection, setOpenProfileSection] = useState("profile-identity");
   const [openDesignSection, setOpenDesignSection] = useState("design-themes");
+  const [showAgencyLinkedPopup, setShowAgencyLinkedPopup] = useState(false);
   useEffect(() => {
     setForm({
       businessName: profile?.businessName || "",
@@ -1342,6 +1343,16 @@ export function ProfileForm({
   const agencyRequests = Array.isArray(profile?.agencyRequests) ? profile.agencyRequests : [];
   const activeAgency = profile?.agencyAccess?.status === "active" ? profile.agencyAccess : null;
 
+  useEffect(() => {
+    if (!activeAgency || agencyMode) {
+      setShowAgencyLinkedPopup(false);
+      return undefined;
+    }
+    setShowAgencyLinkedPopup(true);
+    const timeout = window.setTimeout(() => setShowAgencyLinkedPopup(false), 4200);
+    return () => window.clearTimeout(timeout);
+  }, [activeAgency, agencyMode]);
+
   function handleWorkspaceSelect(workspaceId) {
     setActiveWorkspace(workspaceId);
     setMobileNavOpen(false);
@@ -1392,6 +1403,12 @@ export function ProfileForm({
           </div>
         </div>
       ) : null}
+      {showAgencyLinkedPopup ? (
+        <div className="agency-linked-toast" role="status" aria-live="polite">
+          <strong>Agencia vinculada</strong>
+          <span>{activeAgency?.agencyName || activeAgency?.agencyEmail} ya puede ayudarte a configurar tu Klicor.</span>
+        </div>
+      ) : null}
       {agencyRequests.length ? (
         <section className="agency-owner-notice">
           <div>
@@ -1409,12 +1426,12 @@ export function ProfileForm({
           </div>
         </section>
       ) : null}
-      {activeAgency ? (
+      {activeAgency && !agencyMode && activeWorkspace === "profile" ? (
         <section className="agency-owner-notice is-linked">
           <div>
             <strong>Agencia vinculada</strong>
-            <span>{activeAgency.agencyName || activeAgency.agencyEmail} puede ayudarte a configurar tu Klicor.</span>
-            <small>Puede editar enlaces, diseño, comercio, métodos de pago visibles y configuración de agenda. No puede ver seguridad, facturación privada ni citas de clientes.</small>
+            <span>Si quieres desvincular la agencia, puedes hacerlo desde esta sección de Perfil.</span>
+            <small>{activeAgency.agencyName || activeAgency.agencyEmail} puede editar enlaces, diseño, comercio, métodos de pago visibles y configuración de agenda. No puede ver seguridad, facturación privada ni citas de clientes.</small>
           </div>
           <div className="agency-owner-actions">
             <button className="btn btn-secondary" type="button" onClick={() => onAgencyRevoke?.()}>

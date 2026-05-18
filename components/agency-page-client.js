@@ -67,6 +67,7 @@ export function AgencyPageClient() {
   const [agencyData, setAgencyData] = useState(null);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
+  const [activeSection, setActiveSection] = useState("businesses");
   const [requestForm, setRequestForm] = useState({
     businessEmail: "",
     message: "Hola, queremos ayudarte a configurar tu Klicor.",
@@ -189,11 +190,19 @@ export function AgencyPageClient() {
           </div>
 
           <nav className="agency-nav" aria-label="Secciones de agencia">
-            <button className="agency-nav-item is-active" type="button">
+            <button
+              className={`agency-nav-item ${activeSection === "businesses" ? "is-active" : ""}`.trim()}
+              type="button"
+              onClick={() => setActiveSection("businesses")}
+            >
               <Building2 size={18} />
               <span>Negocios</span>
             </button>
-            <button className="agency-nav-item" type="button" disabled>
+            <button
+              className={`agency-nav-item ${activeSection === "requests" ? "is-active" : ""}`.trim()}
+              type="button"
+              onClick={() => setActiveSection("requests")}
+            >
               <MailPlus size={18} />
               <span>Solicitudes</span>
             </button>
@@ -243,6 +252,7 @@ export function AgencyPageClient() {
             <AgencyMetricCard label="Última actividad" value="Hoy" />
           </section>
 
+          {activeSection === "businesses" ? (
           <section className="agency-grid">
             <section className="agency-panel">
               <div className="agency-section-heading">
@@ -314,6 +324,61 @@ export function AgencyPageClient() {
               </section>
             </aside>
           </section>
+          ) : (
+            <section className="agency-grid">
+              <section className="agency-panel">
+                <div className="agency-section-heading">
+                  <div>
+                    <h2>Solicitudes</h2>
+                    <p>Revisa solicitudes enviadas, aceptadas, rechazadas o vencidas.</p>
+                  </div>
+                </div>
+                <div className="agency-request-list is-wide">
+                  {requests.length ? requests.map((request) => (
+                    <article key={request.id} className="agency-request-card">
+                      <Clock3 size={17} />
+                      <div>
+                        <strong>{request.businessEmail}</strong>
+                        <span>{request.status} · {request.expired ? "Vencida" : request.expiresAt ? new Date(request.expiresAt).toLocaleDateString("es-CO") : "Sin fecha"}</span>
+                      </div>
+                    </article>
+                  )) : <p className="muted">No hay solicitudes todavía.</p>}
+                </div>
+              </section>
+
+              <aside className="agency-side-stack">
+                <section className="agency-panel">
+                  <div className="agency-section-heading">
+                    <div>
+                      <h2>Nueva solicitud</h2>
+                      <p>Se enviará al correo exacto del negocio.</p>
+                    </div>
+                  </div>
+                  <form className="agency-request-form" onSubmit={submitAccessRequest}>
+                    <label className="label" htmlFor="agency-request-email">Correo del negocio</label>
+                    <input
+                      id="agency-request-email"
+                      className="input"
+                      type="email"
+                      value={requestForm.businessEmail}
+                      onChange={(event) => setRequestForm((current) => ({ ...current, businessEmail: event.target.value }))}
+                      placeholder="cliente@negocio.com"
+                      required
+                    />
+                    <textarea
+                      className="textarea"
+                      rows={4}
+                      value={requestForm.message}
+                      onChange={(event) => setRequestForm((current) => ({ ...current, message: event.target.value }))}
+                    />
+                    <button className="btn btn-primary" type="submit" disabled={sendingRequest}>
+                      {sendingRequest ? "Enviando..." : "Enviar solicitud"}
+                    </button>
+                  </form>
+                </section>
+              </aside>
+            </section>
+          )}
         </section>
       </section>
     </main>
