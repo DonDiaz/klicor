@@ -29,7 +29,7 @@ export async function GET(request, { params }) {
 
 export async function PATCH(request, { params }) {
   try {
-    const auth = await verifyRequest(request);
+    const auth = await verifyRequest(request, { checkRevoked: true });
     requireAdmin(auth);
     const baseUrl = getRequestAppUrl(request);
     const body = await request.json();

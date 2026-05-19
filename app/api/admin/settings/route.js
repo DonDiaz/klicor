@@ -17,7 +17,7 @@ export async function GET(request) {
 
 async function handleUpdate(request, isLegacy = false) {
   try {
-    const auth = await verifyRequest(request);
+    const auth = await verifyRequest(request, { checkRevoked: true });
     requireAdmin(auth);
     const body = await request.json();
     const parsed = isLegacy ? priceSchema.parse(body) : adminSettingsSchema.parse(body);

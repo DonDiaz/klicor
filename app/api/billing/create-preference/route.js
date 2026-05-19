@@ -12,7 +12,7 @@ import { toDate } from "@/lib/utils";
 
 export async function POST(request) {
   try {
-    const { decoded, user } = await verifyRequest(request);
+    const { decoded, user } = await verifyRequest(request, { checkRevoked: true });
     if (!decoded.email_verified) {
       return NextResponse.json({ error: "Debes verificar tu correo antes de pagar" }, { status: 403 });
     }

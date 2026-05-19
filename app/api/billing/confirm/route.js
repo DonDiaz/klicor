@@ -6,7 +6,7 @@ import { getPayment } from "@/lib/mercadopago";
 
 export async function POST(request) {
   try {
-    const { user } = await verifyRequest(request);
+    const { user } = await verifyRequest(request, { checkRevoked: true });
     const body = await request.json();
     const paymentId = String(body?.paymentId || "").trim();
 

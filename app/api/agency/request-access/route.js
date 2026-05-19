@@ -5,7 +5,7 @@ import { createAgencyAccessRequest } from "@/lib/agency";
 
 export async function POST(request) {
   try {
-    const { user } = await verifyRequest(request);
+    const { user } = await verifyRequest(request, { checkRevoked: true });
     const body = await request.json().catch(() => ({}));
     const accessRequest = await createAgencyAccessRequest({
       agencyUser: user,

@@ -5,6 +5,7 @@ import { createServerTiming } from "@/lib/server-timing";
 import { assertModuleAccess } from "@/lib/plans";
 import { assertAgencyCanEditBusiness, recordAgencyEdit } from "@/lib/agency";
 import { writeAuditLog } from "@/lib/audit-log";
+import { checkDurableRateLimit, durableRateLimitResponse } from "@/lib/durable-rate-limit";
 import {
   createCommerceCategory,
   createCommerceSubcategory,
@@ -68,7 +69,7 @@ export async function GET(request) {
 export async function POST(request) {
   const timing = createServerTiming();
   try {
-    const { user } = await timing.measure("auth", () => verifyRequest(request), "verify");
+    const { user } = await timing.measure("auth", () => verifyRequest(request, { checkRevoked: true }), "verify");
     const formData = await timing.measure("formdata", () => request.formData(), "parse");
     const targetUid = String(formData.get("targetUid") || "").trim();
     const agencyAccess = targetUid ? await timing.measure("agency", () => assertAgencyCanEditBusiness(user, targetUid, "commerce"), "agency") : null;
@@ -78,6 +79,20 @@ export async function POST(request) {
     const payload = parsePayload(formData);
     const image = formData.get("image");
     const images = formData.getAll("images").filter((item) => item && typeof item === "object" && "size" in item && item.size);
+    if (image?.size || images.length) {
+      const uploadRate = await timing.measure(
+        "upload-rate",
+        () => checkDurableRateLimit(request, {
+          key: `commerce-upload:${effectiveUser.uid}`,
+          limit: 80,
+          windowMs: 60 * 60_000,
+        }),
+        "upload-rate",
+      );
+      if (uploadRate.limited) {
+        return durableRateLimitResponse(uploadRate, "Demasiadas subidas de imagen. Intenta de nuevo mas tarde.");
+      }
+    }
 
     let result = null;
 

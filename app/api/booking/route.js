@@ -5,6 +5,7 @@ import { createServerTiming } from "@/lib/server-timing";
 import { assertModuleAccess } from "@/lib/plans";
 import { assertAgencyCanEditBusiness, recordAgencyEdit } from "@/lib/agency";
 import { writeAuditLog } from "@/lib/audit-log";
+import { checkDurableRateLimit, durableRateLimitResponse } from "@/lib/durable-rate-limit";
 import {
   createBookingAppointment,
   deleteBookingStaff,
@@ -106,7 +107,7 @@ export async function POST(request) {
   const timing = createServerTiming();
 
   try {
-    const { user } = await timing.measure("auth", () => verifyRequest(request), "verify");
+    const { user } = await timing.measure("auth", () => verifyRequest(request, { checkRevoked: true }), "verify");
     const formData = await timing.measure("formdata", () => request.formData(), "parse");
     const targetUid = String(formData.get("targetUid") || "").trim();
     const agencyAccess = targetUid ? await timing.measure("agency", () => assertAgencyCanEditBusiness(user, targetUid, "booking"), "agency") : null;
@@ -118,6 +119,20 @@ export async function POST(request) {
     }
     const payload = parsePayload(formData);
     const photo = formData.get("photo");
+    if (photo?.size) {
+      const uploadRate = await timing.measure(
+        "upload-rate",
+        () => checkDurableRateLimit(request, {
+          key: `booking-upload:${effectiveUser.uid}`,
+          limit: 60,
+          windowMs: 60 * 60_000,
+        }),
+        "upload-rate",
+      );
+      if (uploadRate.limited) {
+        return durableRateLimitResponse(uploadRate, "Demasiadas subidas de imagen. Intenta de nuevo mas tarde.");
+      }
+    }
 
     let result = null;
 

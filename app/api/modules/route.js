@@ -7,7 +7,7 @@ import { normalizeKlicorModule } from "@/lib/plans";
 
 export async function POST(request) {
   try {
-    const { user } = await verifyRequest(request);
+    const { user } = await verifyRequest(request, { checkRevoked: true });
     const body = await request.json().catch(() => ({}));
     const module = normalizeKlicorModule(body?.module);
     const targetUid = String(body?.targetUid || "").trim();

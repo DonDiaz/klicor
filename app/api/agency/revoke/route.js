@@ -5,7 +5,7 @@ import { revokeAgencyAccess } from "@/lib/agency";
 
 export async function POST(request) {
   try {
-    const { user } = await verifyRequest(request);
+    const { user } = await verifyRequest(request, { checkRevoked: true });
     const result = await revokeAgencyAccess({ businessUser: user });
     writeAuditLog({
       request,

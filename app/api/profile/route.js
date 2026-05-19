@@ -10,12 +10,13 @@ import { getAppearanceWarnings } from "@/lib/theme-system";
 import { isSystemProfileLink } from "@/lib/system-profile-links";
 import { toDate } from "@/lib/utils";
 import { getRequestAppUrl } from "@/lib/env";
+import { checkDurableRateLimit, durableRateLimitResponse } from "@/lib/durable-rate-limit";
 
 const SHARE_LINK_VERSION = "v1";
 
 export async function POST(request) {
   try {
-    const { user } = await verifyRequest(request);
+    const { user } = await verifyRequest(request, { checkRevoked: true });
     const formData = await request.formData();
     const targetUid = String(formData.get("targetUid") || "").trim();
     const agencyAccess = targetUid ? await assertAgencyCanEditBusiness(user, targetUid, "publicProfile") : null;
@@ -92,12 +93,27 @@ export async function POST(request) {
     await validateProfileLinksSafety(editableProfileLinks);
 
     const photo = formData.get("photo");
+    const dorikaCover = formData.get("dorikaCover");
+    const canEditPaymentMethods = !agencyAccess || agencyAccess.permissions.paymentMethods;
     const paymentQrImagesByMethod = {};
-    for (const [key, value] of formData.entries()) {
-      if (!key.startsWith("paymentQrImage:")) continue;
-      const methodId = key.slice("paymentQrImage:".length);
-      if (methodId && value?.size) {
-        paymentQrImagesByMethod[methodId] = value;
+    if (canEditPaymentMethods) {
+      for (const [key, value] of formData.entries()) {
+        if (!key.startsWith("paymentQrImage:")) continue;
+        const methodId = key.slice("paymentQrImage:".length);
+        if (methodId && value?.size) {
+          paymentQrImagesByMethod[methodId] = value;
+        }
+      }
+    }
+    const hasFileUpload = Boolean(photo?.size || dorikaCover?.size || Object.keys(paymentQrImagesByMethod).length);
+    if (hasFileUpload) {
+      const uploadRate = await checkDurableRateLimit(request, {
+        key: `profile-upload:${effectiveUser.uid}`,
+        limit: 40,
+        windowMs: 60 * 60_000,
+      });
+      if (uploadRate.limited) {
+        return durableRateLimitResponse(uploadRate, "Demasiadas subidas de imagen. Intenta de nuevo mas tarde.");
       }
     }
 
@@ -106,9 +122,9 @@ export async function POST(request) {
       profileLinks: editableProfileLinks,
     }, {
       photo: photo?.size ? photo : null,
-      dorikaCover: formData.get("dorikaCover")?.size ? formData.get("dorikaCover") : null,
+      dorikaCover: dorikaCover?.size ? dorikaCover : null,
       paymentQrImagesByMethod,
-      removePaymentQrIds: typeof removePaymentQrIdsJson === "string"
+      removePaymentQrIds: canEditPaymentMethods && typeof removePaymentQrIdsJson === "string"
         ? JSON.parse(removePaymentQrIdsJson)
         : [],
     });

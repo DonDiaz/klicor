@@ -2,7 +2,7 @@
 
 Estado: implementado en codigo para pruebas.
 
-Fecha: 2026-05-18.
+Fecha: 2026-05-19.
 
 ## Fuentes oficiales revisadas
 
@@ -51,10 +51,13 @@ No poner `enforce` antes de verificar, porque puede bloquear clientes legitimos.
 
 El rate limit viejo vive en memoria y sirve como primera defensa, pero en serverless no es suficiente.
 
-Se agrego rate limit durable en Firestore para acciones publicas abusables:
+Se agrego rate limit durable en Firestore para acciones publicas abusables y subidas de imagen autenticadas:
 
 - crear cita publica,
-- clicks/redirects de analytics.
+- clicks/redirects de analytics,
+- imagenes de perfil, portada Dorika y QR de pagos,
+- imagenes de productos de comercio,
+- fotos de servicios y profesionales de agenda.
 
 Archivo:
 
@@ -64,7 +67,25 @@ Decision de costo:
 
 No se aplico rate limit durable a todas las lecturas publicas porque cada lectura escribiria en Firestore y subiria costos. Para lecturas publicas normales se mantiene rate limit en memoria + App Check.
 
-### 3. Audit log minimo
+En rutas autenticadas solo se aplica rate limit durable cuando viene un archivo real. Guardar textos, configuraciones o cambios sin imagen no consume esta defensa durable.
+
+### 3. Verificacion de sesiones revocadas
+
+Firebase ID tokens son JWT y normalmente se validan sin consultar revocacion para mantener velocidad. Para acciones sensibles se activo `checkRevoked` en `verifyIdToken`.
+
+Acciones cubiertas:
+
+- perfil publico y metodos visibles,
+- comercio cuando guarda cambios,
+- agenda cuando guarda cambios,
+- activacion de modulos,
+- Mercado Pago preference/confirm,
+- solicitudes, aceptacion y revocacion de agencia,
+- mutaciones administrativas de usuarios, settings y agencias.
+
+No se activo en lecturas normales como `/api/me`, dashboard, paneles de consulta o vistas publicas, porque agregaria latencia sin aportar mucho control.
+
+### 4. Audit log minimo
 
 Se agrego bitacora para acciones sensibles.
 
@@ -108,6 +129,7 @@ No se guardan datos privados completos ni payloads grandes. Solo trazabilidad mi
 - No se cambiaron permisos de negocio.
 - No se bloqueo App Check por defecto.
 - No se puso rate limit durable en cada lectura publica para no aumentar costos.
+- No se activo `checkRevoked` en cada lectura para no volver lento el dashboard.
 - No se modificaron reglas Firestore/Storage porque ya estan cerradas para escritura cliente.
 
 ## Que probar en bioimpulso
@@ -131,4 +153,3 @@ Luego con `FIREBASE_APP_CHECK_MODE=monitor` y key App Check:
 Solo si no hay advertencias raras:
 
 - probar `FIREBASE_APP_CHECK_MODE=enforce`.
-

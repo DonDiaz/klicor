@@ -15,7 +15,7 @@ export async function GET(request) {
 
 export async function POST(request) {
   try {
-    const auth = await verifyRequest(request);
+    const auth = await verifyRequest(request, { checkRevoked: true });
     requireAdmin(auth);
     const body = await request.json().catch(() => ({}));
     const agency = await saveAgencyAccount(body, auth.user);
