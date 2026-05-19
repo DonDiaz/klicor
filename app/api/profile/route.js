@@ -3,7 +3,7 @@ import { buildShareProfileUrl, buildVanityProfileUrl } from "@/lib/public-profil
 import { validateProfileLinksSafety } from "@/lib/link-safety";
 import { profileSchema } from "@/lib/schemas";
 import { verifyRequest } from "@/lib/auth";
-import { assertAgencyCanEditBusiness } from "@/lib/agency";
+import { assertAgencyCanEditBusiness, recordAgencyEdit } from "@/lib/agency";
 import { getAccountView, updateUserProfile } from "@/lib/firestore";
 import { getAppearanceWarnings } from "@/lib/theme-system";
 import { isSystemProfileLink } from "@/lib/system-profile-links";
@@ -111,6 +111,9 @@ export async function POST(request) {
         ? JSON.parse(removePaymentQrIdsJson)
         : [],
     });
+    if (agencyAccess) {
+      await recordAgencyEdit(agencyAccess, "profile");
+    }
     const account = getAccountView(nextUser);
     const updatedAtMs = toDate(account.updatedAt)?.getTime() || 0;
     const appUrl = getRequestAppUrl(request);

@@ -1,6 +1,6 @@
 # Modelo de Agencias Klicor
 
-Estado: borrador tecnico aprobado para fase MVP.
+Estado: MVP funcional en pruebas.
 
 Este documento baja a estructura tecnica el flujo definido en `docs/klicor-producto-decisiones.md`.
 
@@ -196,6 +196,41 @@ Toda edicion realizada en modo agencia debe dejar trazabilidad:
 ```
 
 La bitacora detallada por accion puede implementarse despues sobre `adminLogs` o una coleccion nueva `agencyLogs`.
+
+Para el MVP queda implementada trazabilidad minima de ultima edicion sobre el documento del negocio:
+
+- `updatedBy`
+- `updatedByRole: "agency"`
+- `updatedByEmail`
+- `updatedByName`
+- `updatedForUid`
+- `agencyLastEdit.action`
+- `agencyLastEdit.editedAt`
+
+Esto no reemplaza una bitacora historica completa. Solo permite saber si la ultima edicion operativa vino desde agencia y con que correo autorizado.
+
+## Cierre MVP
+
+Para no inflar el modulo en esta fase, el MVP de agencia queda cerrado con:
+
+- autorizacion de correos de agencia desde admin,
+- solicitud por correo exacto del negocio,
+- aceptacion/rechazo por el dueno con confirmacion previa,
+- correo a la agencia cuando el negocio acepta o rechaza,
+- dashboard simple con filtros operativos,
+- acceso al dashboard del negocio en modo agencia,
+- permisos limitados en backend,
+- trazabilidad minima de cambios,
+- vista en Perfil para consultar agencia vinculada y desvincular.
+
+Queda fuera del MVP:
+
+- multiusuario por agencia,
+- analiticas avanzadas,
+- historial completo de auditoria,
+- acuerdos comerciales entre agencia y negocio,
+- Dorika para agencias,
+- arbitraje de pagos entre agencia y negocio.
 
 ## Rutas
 

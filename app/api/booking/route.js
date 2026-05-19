@@ -3,7 +3,7 @@ import { verifyRequest } from "@/lib/auth";
 import { formatApiError } from "@/lib/api-errors";
 import { createServerTiming } from "@/lib/server-timing";
 import { assertModuleAccess } from "@/lib/plans";
-import { assertAgencyCanEditBusiness } from "@/lib/agency";
+import { assertAgencyCanEditBusiness, recordAgencyEdit } from "@/lib/agency";
 import {
   createBookingAppointment,
   deleteBookingStaff,
@@ -154,6 +154,10 @@ export async function POST(request) {
         break;
       default:
         throw new Error("Acción de agenda no soportada.");
+    }
+
+    if (agencyAccess) {
+      await timing.measure("agency-trace", () => recordAgencyEdit(agencyAccess, `booking:${action}`), "agency-trace");
     }
 
     const payloadResponse = { ok: true, result };

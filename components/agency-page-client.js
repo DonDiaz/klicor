@@ -11,7 +11,6 @@ import {
   KeyRound,
   Loader2,
   MailPlus,
-  QrCode,
   ShieldCheck,
 } from "lucide-react";
 import { AuthForm } from "@/components/auth-form";
@@ -27,7 +26,7 @@ const FILTERS = {
   },
   pending: {
     title: "Solicitudes pendientes",
-    copy: "Solicitudes vigentes esperando respuesta del negocio.",
+    copy: "Solicitudes esperando respuesta del negocio, incluyendo vencidas para seguimiento.",
     empty: "No hay solicitudes pendientes.",
   },
   renewals: {
@@ -94,12 +93,18 @@ function AgencyBusinessCard({ business }) {
         <Link className="btn btn-secondary" href={`/agencia/negocios/${business.uid}`}>
           <ExternalLink size={16} /> Administrar
         </Link>
-        <button className="btn btn-secondary" type="button" disabled>
-          <QrCode size={16} /> QR
-        </button>
       </div>
     </article>
   );
+}
+
+function getRequestStatusLabel(request = {}) {
+  if (request.expired) return "Vencida";
+  if (request.status === "pending") return "Pendiente";
+  if (request.status === "accepted") return "Aceptada";
+  if (request.status === "rejected") return "Rechazada";
+  if (request.status === "revoked") return "Revocada";
+  return request.status || "Sin estado";
 }
 
 function AgencyRequestCard({ request }) {
@@ -107,8 +112,10 @@ function AgencyRequestCard({ request }) {
     <article className="agency-request-card">
       <Clock3 size={17} />
       <div>
-        <strong>{request.businessEmail}</strong>
-        <span>{request.status} · {request.expired ? "Vencida" : request.expiresAt ? new Date(request.expiresAt).toLocaleDateString("es-CO") : "Sin fecha"}</span>
+        <strong>{request.businessName || request.businessEmail}</strong>
+        <span>{request.businessEmail}</span>
+        <span>{getRequestStatusLabel(request)} · vence: {request.expiresAt ? new Date(request.expiresAt).toLocaleDateString("es-CO") : "Sin fecha"}</span>
+        {request.expired ? <small>Si ya pasaron 24 horas desde el vencimiento, puedes enviar una nueva solicitud.</small> : null}
       </div>
     </article>
   );
@@ -177,6 +184,7 @@ export function AgencyPageClient() {
   const businesses = agencyData?.businesses || [];
   const requests = agencyData?.requests || [];
   const pendingRequests = requests.filter((request) => request.status === "pending" && !request.expired);
+  const pendingAndExpiredRequests = requests.filter((request) => request.status === "pending");
   const renewalBusinesses = businesses.filter((business) => ["expired", "pending_payment", "suspended", "grace_period"].includes(business.status));
   const recentBusinesses = useMemo(() => (
     [...businesses].sort((left, right) => new Date(right.updatedAt || 0).getTime() - new Date(left.updatedAt || 0).getTime())
@@ -187,7 +195,7 @@ export function AgencyPageClient() {
     : activeFilter === "activity"
       ? recentBusinesses
       : businesses;
-  const visibleRequests = activeFilter === "pending" ? pendingRequests : [];
+  const visibleRequests = activeFilter === "pending" ? pendingAndExpiredRequests : [];
   const latestActivityLabel = getLatestActivityLabel(businesses);
 
   if (loading) {

@@ -436,6 +436,32 @@ function getSubscriptionMessage(status) {
   return "Revisa el estado de tu cuenta para mantener la operación del perfil.";
 }
 
+const AGENCY_PERMISSION_LABELS = {
+  links: "Enlaces",
+  design: "Diseno",
+  commerce: "Comercio",
+  booking: "Agenda",
+  publicProfile: "Perfil publico",
+  paymentMethods: "Metodos de pago visibles",
+  analytics: "Analiticas generales",
+  subscriptionRenewal: "Renovacion",
+};
+
+function formatAgencyDate(value) {
+  if (!value) return "Sin fecha";
+  if (typeof value?.toDate === "function") return value.toDate().toLocaleDateString("es-CO");
+  if (typeof value?.seconds === "number") return new Date(value.seconds * 1000).toLocaleDateString("es-CO");
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? "Sin fecha" : date.toLocaleDateString("es-CO");
+}
+
+function summarizeAgencyPermissions(permissions = {}) {
+  return Object.entries(AGENCY_PERMISSION_LABELS)
+    .filter(([key]) => permissions?.[key] === true)
+    .map(([, label]) => label)
+    .join(", ");
+}
+
 export function ProfileForm({
   token,
   profile,
@@ -505,6 +531,7 @@ export function ProfileForm({
   const [openProfileSection, setOpenProfileSection] = useState("profile-identity");
   const [openDesignSection, setOpenDesignSection] = useState("design-themes");
   const [showAgencyLinkedPopup, setShowAgencyLinkedPopup] = useState(false);
+  const [agencyConfirmRequest, setAgencyConfirmRequest] = useState(null);
   useEffect(() => {
     setForm({
       businessName: profile?.businessName || "",
@@ -1342,6 +1369,7 @@ export function ProfileForm({
       : subscriptionLabel;
   const agencyRequests = Array.isArray(profile?.agencyRequests) ? profile.agencyRequests : [];
   const activeAgency = profile?.agencyAccess?.status === "active" ? profile.agencyAccess : null;
+  const activeAgencyPermissions = summarizeAgencyPermissions(activeAgency?.permissions || {});
 
   useEffect(() => {
     if (!activeAgency || agencyMode) {
@@ -1356,6 +1384,12 @@ export function ProfileForm({
   function handleWorkspaceSelect(workspaceId) {
     setActiveWorkspace(workspaceId);
     setMobileNavOpen(false);
+  }
+
+  async function confirmAgencyRequest(action) {
+    if (!agencyConfirmRequest) return;
+    await onAgencyRequest?.(agencyConfirmRequest.id, action);
+    setAgencyConfirmRequest(null);
   }
 
   async function enableModule(module) {
@@ -1409,6 +1443,30 @@ export function ProfileForm({
           <span>{activeAgency?.agencyName || activeAgency?.agencyEmail} ya puede ayudarte a configurar tu Klicor.</span>
         </div>
       ) : null}
+      {agencyConfirmRequest ? (
+        <div className="dashboard-alert-backdrop" role="alertdialog" aria-modal="true" aria-label="Confirmar acceso de agencia">
+          <div className="dashboard-alert-card">
+            <div className="dashboard-alert-icon">
+              <ShieldCheck size={20} />
+            </div>
+            <div className="dashboard-alert-copy">
+              <strong>Autorizar agencia</strong>
+              <p>
+                Vas a permitir que {agencyConfirmRequest.agencyName || agencyConfirmRequest.agencyEmail} edite partes visibles de tu Klicor.
+                No podra ver seguridad, facturacion privada ni operar citas de clientes.
+              </p>
+            </div>
+            <div className="agency-owner-actions">
+              <button className="btn btn-primary" type="button" onClick={() => confirmAgencyRequest("accept")}>
+                Aceptar acceso
+              </button>
+              <button className="btn btn-secondary" type="button" onClick={() => setAgencyConfirmRequest(null)}>
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
       {agencyRequests.length ? (
         <section className="agency-owner-notice">
           <div>
@@ -1417,7 +1475,7 @@ export function ProfileForm({
             <small>Klicor facilita el acceso técnico. Al aceptar, el dueño del negocio asume responsabilidad sobre el acceso concedido. La agencia no podrá ver seguridad, facturación privada ni datos de clientes de citas.</small>
           </div>
           <div className="agency-owner-actions">
-            <button className="btn btn-primary" type="button" onClick={() => onAgencyRequest?.(agencyRequests[0].id, "accept")}>
+            <button className="btn btn-primary" type="button" onClick={() => setAgencyConfirmRequest(agencyRequests[0])}>
               Aceptar
             </button>
             <button className="btn btn-secondary" type="button" onClick={() => onAgencyRequest?.(agencyRequests[0].id, "reject")}>
@@ -1431,7 +1489,8 @@ export function ProfileForm({
           <div>
             <strong>Agencia vinculada</strong>
             <span>Si quieres desvincular la agencia, puedes hacerlo desde esta sección de Perfil.</span>
-            <small>{activeAgency.agencyName || activeAgency.agencyEmail} puede editar enlaces, diseño, comercio, métodos de pago visibles y configuración de agenda. No puede ver seguridad, facturación privada ni citas de clientes.</small>
+            <small>Agencia: {activeAgency.agencyName || activeAgency.agencyEmail}. Correo: {activeAgency.agencyEmail || "Sin correo"}. Aceptada: {formatAgencyDate(activeAgency.acceptedAt)}.</small>
+            <small>Permisos: {activeAgencyPermissions || "Permisos operativos limitados"}. No puede ver seguridad, facturación privada ni citas de clientes.</small>
           </div>
           <div className="agency-owner-actions">
             <button className="btn btn-secondary" type="button" onClick={() => onAgencyRevoke?.()}>
