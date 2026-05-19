@@ -12,6 +12,8 @@ import { hasAcceptedRequiredBookingLegal } from "@/lib/legal-consent";
 import { getPublicBookingBootstrapByUsername } from "@/lib/public-booking";
 import { checkRateLimit, rateLimitHeaders, rateLimitResponse } from "@/lib/rate-limit";
 import { createServerTiming } from "@/lib/server-timing";
+import { verifyAppCheckRequest, appCheckResponse } from "@/lib/app-check";
+import { checkDurableRateLimit, durableRateLimitResponse } from "@/lib/durable-rate-limit";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -50,6 +52,8 @@ export async function GET(request, { params }) {
     windowMs: 60_000,
   });
   if (rate.limited) return rateLimitResponse(rate);
+  const appCheck = await verifyAppCheckRequest(request, { label: "public-booking-read" });
+  if (!appCheck.ok) return appCheckResponse(appCheck);
 
   try {
     const { username } = await params;
@@ -142,6 +146,14 @@ export async function POST(request, { params }) {
     windowMs: 60_000,
   });
   if (rate.limited) return rateLimitResponse(rate, "Demasiados intentos de agenda. Intenta de nuevo en unos segundos.");
+  const durableRate = await checkDurableRateLimit(request, {
+    key: "public-booking-create",
+    limit: 20,
+    windowMs: 10 * 60_000,
+  });
+  if (durableRate.limited) return durableRateLimitResponse(durableRate, "Demasiados intentos de agenda. Intenta de nuevo en unos minutos.");
+  const appCheck = await verifyAppCheckRequest(request, { label: "public-booking-create" });
+  if (!appCheck.ok) return appCheckResponse(appCheck);
 
   try {
     const { username } = await params;

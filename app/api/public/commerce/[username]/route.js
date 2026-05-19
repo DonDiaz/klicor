@@ -7,6 +7,7 @@ import {
 import { normalizeCommerceMode } from "@/lib/commerce-config";
 import { checkRateLimit, rateLimitHeaders, rateLimitResponse } from "@/lib/rate-limit";
 import { createServerTiming } from "@/lib/server-timing";
+import { verifyAppCheckRequest, appCheckResponse } from "@/lib/app-check";
 
 export async function GET(request, { params }) {
   const timing = createServerTiming();
@@ -16,6 +17,8 @@ export async function GET(request, { params }) {
     windowMs: 60_000,
   });
   if (rate.limited) return rateLimitResponse(rate);
+  const appCheck = await verifyAppCheckRequest(request, { label: "public-commerce-read" });
+  if (!appCheck.ok) return appCheckResponse(appCheck);
 
   try {
     const { username } = await params;

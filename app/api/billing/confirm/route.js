@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { verifyRequest } from "@/lib/auth";
+import { writeAuditLog } from "@/lib/audit-log";
 import { activateUserSubscription, storePaymentAttempt } from "@/lib/firestore";
 import { getPayment } from "@/lib/mercadopago";
 
@@ -41,6 +42,15 @@ export async function POST(request) {
         raw: payment,
       });
     }
+    writeAuditLog({
+      request,
+      actor: user,
+      role: "owner",
+      action: "billing.confirm",
+      targetUid: uid,
+      status: payment.status === "approved" ? "approved" : "checked",
+      metadata: { paymentId: payment.id, paymentStatus: payment.status },
+    }).catch((error) => console.error("[audit-log]", error?.message || error));
 
     return NextResponse.json({
       paymentId: payment.id,

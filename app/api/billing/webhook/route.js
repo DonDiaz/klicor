@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { writeAuditLog } from "@/lib/audit-log";
 import { activateUserSubscription, storePaymentAttempt } from "@/lib/firestore";
 import { getPayment } from "@/lib/mercadopago";
 import { verifyMercadoPagoWebhook } from "@/lib/mercadopago-webhook";
@@ -69,6 +70,14 @@ export async function POST(request) {
     }
 
     if (payment.status !== "approved") {
+      writeAuditLog({
+        request,
+        role: "system",
+        action: "billing.webhook.payment",
+        targetUid: uid || "",
+        status: payment.status || "received",
+        metadata: { paymentId: payment.id, statusDetail: payment.status_detail || "" },
+      }).catch((error) => console.error("[audit-log]", error?.message || error));
       return NextResponse.json({
         received: true,
         status: payment.status,
@@ -89,6 +98,14 @@ export async function POST(request) {
       plan: payment.metadata?.plan || "",
       raw: payment,
     });
+    writeAuditLog({
+      request,
+      role: "system",
+      action: "billing.webhook.approved",
+      targetUid: uid,
+      status: "approved",
+      metadata: { paymentId: payment.id, amount: payment.transaction_amount, plan: payment.metadata?.plan || "" },
+    }).catch((error) => console.error("[audit-log]", error?.message || error));
 
     return NextResponse.json({
       received: true,

@@ -3,6 +3,7 @@ import { resolveContactCardData } from "@/lib/contact-card";
 import { trackClick } from "@/lib/firestore";
 import { getPublicProfileByUsername } from "@/lib/public-profiles";
 import { checkRateLimit, rateLimitHeaders } from "@/lib/rate-limit";
+import { checkDurableRateLimit, durableRateLimitResponse } from "@/lib/durable-rate-limit";
 import { sanitizeSlug } from "@/lib/utils";
 
 function resolveTrackedTarget(user, { button, linkId }) {
@@ -38,6 +39,12 @@ export async function GET(request) {
       headers: rateLimitHeaders(rate),
     });
   }
+  const durableRate = await checkDurableRateLimit(request, {
+    key: "analytics-click",
+    limit: 180,
+    windowMs: 10 * 60_000,
+  });
+  if (durableRate.limited) return durableRateLimitResponse(durableRate, "Too many requests");
 
   const username = sanitizeSlug(request.nextUrl.searchParams.get("username"));
   const button = String(request.nextUrl.searchParams.get("button") || "unknown").trim();

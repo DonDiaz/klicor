@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { verifyRequest, requireAdmin } from "@/lib/auth";
+import { writeAuditLog } from "@/lib/audit-log";
 import { saveAdminSettings } from "@/lib/admin-panel";
 import { getAdminSettings } from "@/lib/firestore";
 import { adminSettingsSchema, priceSchema } from "@/lib/schemas";
@@ -22,6 +23,13 @@ async function handleUpdate(request, isLegacy = false) {
     const parsed = isLegacy ? priceSchema.parse(body) : adminSettingsSchema.parse(body);
 
     await saveAdminSettings(isLegacy ? { annualPrice: parsed.annualPrice } : parsed, auth.user);
+    writeAuditLog({
+      request,
+      actor: auth.user,
+      role: "admin",
+      action: isLegacy ? "admin.settings.legacy_price_update" : "admin.settings.update",
+      status: "success",
+    }).catch((error) => console.error("[audit-log]", error?.message || error));
 
     return NextResponse.json({ settings: await getAdminSettings() });
   } catch (error) {

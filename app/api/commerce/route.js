@@ -4,6 +4,7 @@ import { formatApiError } from "@/lib/api-errors";
 import { createServerTiming } from "@/lib/server-timing";
 import { assertModuleAccess } from "@/lib/plans";
 import { assertAgencyCanEditBusiness, recordAgencyEdit } from "@/lib/agency";
+import { writeAuditLog } from "@/lib/audit-log";
 import {
   createCommerceCategory,
   createCommerceSubcategory,
@@ -128,6 +129,17 @@ export async function POST(request) {
 
     if (agencyAccess) {
       await timing.measure("agency-trace", () => recordAgencyEdit(agencyAccess, `commerce:${action}`), "agency-trace");
+    }
+    if (["save_config", "delete_category", "delete_subcategory", "delete_product", "toggle_product_visibility"].includes(action)) {
+      writeAuditLog({
+        request,
+        actor: user,
+        role: agencyAccess ? "agency" : user.role || "owner",
+        action: `commerce.${action}`,
+        targetUid: effectiveUser.uid,
+        status: "success",
+        metadata: { agencyMode: Boolean(agencyAccess) },
+      }).catch((error) => console.error("[audit-log]", error?.message || error));
     }
 
     const payloadResponse = { ok: true, result };

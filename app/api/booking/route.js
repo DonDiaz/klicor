@@ -4,6 +4,7 @@ import { formatApiError } from "@/lib/api-errors";
 import { createServerTiming } from "@/lib/server-timing";
 import { assertModuleAccess } from "@/lib/plans";
 import { assertAgencyCanEditBusiness, recordAgencyEdit } from "@/lib/agency";
+import { writeAuditLog } from "@/lib/audit-log";
 import {
   createBookingAppointment,
   deleteBookingStaff,
@@ -158,6 +159,17 @@ export async function POST(request) {
 
     if (agencyAccess) {
       await timing.measure("agency-trace", () => recordAgencyEdit(agencyAccess, `booking:${action}`), "agency-trace");
+    }
+    if (["create_appointment", "update_appointment_status", "reschedule_appointment", "delete_staff", "save_config"].includes(action)) {
+      writeAuditLog({
+        request,
+        actor: user,
+        role: agencyAccess ? "agency" : user.role || "owner",
+        action: `booking.${action}`,
+        targetUid: effectiveUser.uid,
+        status: "success",
+        metadata: { agencyMode: Boolean(agencyAccess) },
+      }).catch((error) => console.error("[audit-log]", error?.message || error));
     }
 
     const payloadResponse = { ok: true, result };

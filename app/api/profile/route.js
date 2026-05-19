@@ -4,6 +4,7 @@ import { validateProfileLinksSafety } from "@/lib/link-safety";
 import { profileSchema } from "@/lib/schemas";
 import { verifyRequest } from "@/lib/auth";
 import { assertAgencyCanEditBusiness, recordAgencyEdit } from "@/lib/agency";
+import { writeAuditLog } from "@/lib/audit-log";
 import { getAccountView, updateUserProfile } from "@/lib/firestore";
 import { getAppearanceWarnings } from "@/lib/theme-system";
 import { isSystemProfileLink } from "@/lib/system-profile-links";
@@ -114,6 +115,15 @@ export async function POST(request) {
     if (agencyAccess) {
       await recordAgencyEdit(agencyAccess, "profile");
     }
+    writeAuditLog({
+      request,
+      actor: user,
+      role: agencyAccess ? "agency" : user.role || "owner",
+      action: "profile.update",
+      targetUid: effectiveUser.uid,
+      status: "success",
+      metadata: { agencyMode: Boolean(agencyAccess) },
+    }).catch((error) => console.error("[audit-log]", error?.message || error));
     const account = getAccountView(nextUser);
     const updatedAtMs = toDate(account.updatedAt)?.getTime() || 0;
     const appUrl = getRequestAppUrl(request);

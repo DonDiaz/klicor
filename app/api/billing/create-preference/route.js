@@ -1,5 +1,6 @@
 ﻿import { NextResponse } from "next/server";
 import { verifyRequest } from "@/lib/auth";
+import { writeAuditLog } from "@/lib/audit-log";
 import { PLAN_SLUG } from "@/lib/constants";
 import { createPreference } from "@/lib/mercadopago";
 import { getAdminSettings } from "@/lib/firestore";
@@ -79,6 +80,15 @@ export async function POST(request) {
       metadata,
       titleSuffix,
     });
+    writeAuditLog({
+      request,
+      actor: user,
+      role: agencyAccess ? "agency" : "owner",
+      action: "billing.create_preference",
+      targetUid: effectiveUser.uid,
+      status: "success",
+      metadata: { plan, module: effectiveModule, paymentType, amountToCharge },
+    }).catch((error) => console.error("[audit-log]", error?.message || error));
     return NextResponse.json({
       preferenceId: preference.id,
       initPoint: preference.init_point || preference.sandbox_init_point || "",
