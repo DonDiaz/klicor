@@ -66,7 +66,7 @@ export function DashboardClient() {
       if (!user) return;
       const nextToken = await getFreshAuthToken();
       setToken(nextToken);
-      const payload = await apiFetch("/api/me", { token: nextToken });
+      const payload = await apiFetch("/api/me", { token: nextToken, cache: "no-store" });
       setData(payload);
       setRecovery({
         backupEmail: payload.user.backupEmail || "",
@@ -138,7 +138,7 @@ export function DashboardClient() {
       token,
       body: { requestId, action },
     });
-    const payload = await apiFetch("/api/me", { token });
+    const payload = await apiFetch("/api/me", { token, cache: "no-store" });
     setData(payload);
   }
 
@@ -148,7 +148,7 @@ export function DashboardClient() {
       method: "POST",
       token,
     });
-    const payload = await apiFetch("/api/me", { token });
+    const payload = await apiFetch("/api/me", { token, cache: "no-store" });
     setData(payload);
   }
 

@@ -8,19 +8,23 @@ import { createServerTiming } from "@/lib/server-timing";
 import { getRequestAppUrl } from "@/lib/env";
 
 const SHARE_LINK_VERSION = "v1";
+const NO_STORE_HEADERS = {
+  "Cache-Control": "no-store, no-cache, must-revalidate",
+};
 
 export async function GET(request) {
   const timing = createServerTiming();
   try {
     const auth = await timing.measure("auth", () => verifyRequest(request), "verify");
     const { decoded, user } = auth;
-    const settings = await timing.measure("settings", () => getAdminSettings(), "admin-settings");
-    const repairedUser = await timing.measure("dorika-cover", () => ensureDorikaCoverDownloadUrl(user.uid, user), "dorika-cover");
+    const [settings, repairedUser, agencyRequests] = await Promise.all([
+      timing.measure("settings", () => getAdminSettings(), "admin-settings"),
+      timing.measure("dorika-cover", () => ensureDorikaCoverDownloadUrl(user.uid, user), "dorika-cover"),
+      timing.measure("agency-requests", () => getPendingAgencyRequestsForBusiness(user.uid), "agency-requests"),
+    ]);
     const account = getAccountView(repairedUser);
     const updatedAtMs = toDate(account.updatedAt)?.getTime() || 0;
     const appUrl = getRequestAppUrl(request);
-
-    const agencyRequests = await timing.measure("agency-requests", () => getPendingAgencyRequestsForBusiness(user.uid), "agency-requests");
 
     const payload = {
       user: {
@@ -38,13 +42,13 @@ export async function GET(request) {
     };
 
     return NextResponse.json(payload, {
-      headers: timing.headers(payload),
+      headers: timing.headers(payload, NO_STORE_HEADERS),
     });
   } catch (error) {
     const payload = { error: error.message };
     return NextResponse.json(payload, {
       status: 401,
-      headers: timing.headers(payload),
+      headers: timing.headers(payload, NO_STORE_HEADERS),
     });
   }
 }
