@@ -128,18 +128,6 @@ function getStepValidationError(stepId, wizard) {
       return "El link público necesita un usuario de mínimo 3 caracteres.";
     }
 
-    if (!String(wizard.billingProfile?.department || "").trim()) {
-      return "Selecciona el departamento donde atiende tu negocio.";
-    }
-
-    if (!String(wizard.billingProfile?.city || "").trim()) {
-      return "Selecciona la ciudad o municipio donde atiende tu negocio.";
-    }
-
-    if (!hasMapPoint(wizard.dorikaProfile)) {
-      return "Selecciona el punto exacto del negocio en el mapa.";
-    }
-
     return "";
   }
 
@@ -284,6 +272,22 @@ export function DashboardOnboarding({ token, profile, onCompleted, onSkip }) {
       };
     });
     setLocationMapOpen(false);
+  }
+
+  function handleHidePublicLocation() {
+    setWizard((current) => ({
+      ...current,
+      dorikaProfile: {
+        ...(current.dorikaProfile || {}),
+        showLocation: false,
+        locationPrivacy: "contact_only",
+        address: "",
+        latitude: null,
+        longitude: null,
+        locationAccuracyMeters: null,
+        mapLocationUpdatedAt: "",
+      },
+    }));
   }
 
   async function validateUsernameAvailability({ quiet = false } = {}) {
@@ -711,7 +715,7 @@ export function DashboardOnboarding({ token, profile, onCompleted, onSkip }) {
               <div className="onboarding-location-card">
                 <div>
                   <strong>Ubicacion de tu negocio</strong>
-                  <p className="section-copy">Asi tus clientes saben desde el inicio donde estas.</p>
+                  <p className="section-copy">Opcional. Usala solo si quieres mostrar una direccion, ciudad o punto publico.</p>
                 </div>
                 <div className="profile-grid">
                   <div>
@@ -744,22 +748,33 @@ export function DashboardOnboarding({ token, profile, onCompleted, onSkip }) {
                 </div>
                 <div className="onboarding-map-capture">
                   <div>
-                    <strong>Ubicacion exacta</strong>
+                    <strong>Ubicacion publica</strong>
                     <span>
                       {hasMapPoint(wizard.dorikaProfile)
                         ? `${Number(wizard.dorikaProfile.latitude).toFixed(6)}, ${Number(wizard.dorikaProfile.longitude).toFixed(6)}`
-                        : "Abre el mapa y deja el pin sobre tu negocio."}
+                        : wizard.dorikaProfile?.locationPrivacy === "contact_only"
+                          ? "No se mostrara ubicacion publica."
+                          : "Puedes dejarla vacia o ubicar el negocio en el mapa."}
                     </span>
                   </div>
-                  <button
-                    className="btn btn-secondary"
-                    type="button"
-                    onClick={() => setLocationMapOpen(true)}
-                    disabled={!wizard.billingProfile?.city}
-                  >
-                    <LocateFixed size={16} />
-                    {hasMapPoint(wizard.dorikaProfile) ? "Ajustar punto" : "Ubicar en mapa"}
-                  </button>
+                  <div className="button-row">
+                    <button
+                      className="btn btn-secondary"
+                      type="button"
+                      onClick={() => setLocationMapOpen(true)}
+                      disabled={!wizard.billingProfile?.city}
+                    >
+                      <LocateFixed size={16} />
+                      {hasMapPoint(wizard.dorikaProfile) ? "Ajustar punto" : "Ubicar en mapa"}
+                    </button>
+                    <button
+                      className="btn btn-secondary"
+                      type="button"
+                      onClick={handleHidePublicLocation}
+                    >
+                      No mostrar ubicacion
+                    </button>
+                  </div>
                 </div>
               </div>
 
@@ -801,7 +816,7 @@ export function DashboardOnboarding({ token, profile, onCompleted, onSkip }) {
           {currentStep.id === "actions" ? (
             <div className="section-stack">
               <div className="notice">
-                <span>WhatsApp es el contacto principal. Pagina y redes son opcionales. La ubicacion ya quedo definida desde el mapa.</span>
+                <span>WhatsApp es el contacto principal. Pagina, redes y ubicacion son opcionales.</span>
               </div>
               {onboardingActionSlots.map((slot) => (
                 <div key={slot.id} className="link-row onboarding-link-row">

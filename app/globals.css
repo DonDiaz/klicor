@@ -4228,6 +4228,13 @@ html[data-theme="dark"] .admin-sidebar-note {
   overflow-wrap: anywhere;
 }
 
+.onboarding-map-capture .button-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
 .onboarding-social-card strong {
   color: var(--text-primary);
 }
