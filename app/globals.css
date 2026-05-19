@@ -2660,36 +2660,6 @@ html[data-theme="dark"] .editor-form-footer {
   border-radius: 8px;
 }
 
-.agency-nav {
-  display: grid;
-  gap: 0.45rem;
-}
-
-.agency-nav-item {
-  border: 1px solid transparent;
-  border-radius: 8px;
-  background: transparent;
-  color: inherit;
-  min-height: 44px;
-  padding: 0.7rem 0.85rem;
-  display: grid;
-  grid-template-columns: 20px minmax(0, 1fr);
-  gap: 0.7rem;
-  align-items: center;
-  text-align: left;
-}
-
-.agency-nav-item.is-active {
-  background: #eef6ff;
-  border-color: #cfe6ff;
-  color: #075985;
-}
-
-.agency-nav-item:disabled {
-  opacity: 0.65;
-  cursor: not-allowed;
-}
-
 .agency-sidebar-note {
   margin-top: auto;
   border: 1px solid #d8eadf;
@@ -2766,6 +2736,22 @@ html[data-theme="dark"] .editor-form-footer {
   padding: 1rem;
   display: grid;
   gap: 0.4rem;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.16s ease, box-shadow 0.16s ease, transform 0.16s ease;
+}
+
+.agency-metric-card:hover,
+.agency-metric-card.is-active {
+  border-color: #93c5fd;
+  box-shadow: 0 10px 24px rgba(37, 99, 235, 0.12);
+}
+
+.agency-metric-card.is-active {
+  background: #eff6ff;
+  color: #075985;
 }
 
 .agency-metric-card strong {
@@ -2951,10 +2937,6 @@ html[data-theme="dark"] .editor-form-footer {
     border-bottom: 1px solid var(--border);
   }
 
-  .agency-nav {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
   .agency-sidebar-note {
     margin-top: 0;
   }
@@ -2980,10 +2962,6 @@ html[data-theme="dark"] .editor-form-footer {
 
   .agency-metric-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .agency-nav {
-    grid-template-columns: 1fr;
   }
 
   .agency-business-card {
