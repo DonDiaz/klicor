@@ -370,7 +370,7 @@ const CHECKOUT_PLAN_OPTIONS = [
   { value: "basic", label: "Básico" },
   { value: "commercial", label: "Emprendedor" },
   { value: "plus", label: "Comercial Plus" },
-  { value: "pro", label: "Business 500" },
+  { value: "pro", label: "Business" },
 ];
 
 const CHECKOUT_MODULE_OPTIONS = [

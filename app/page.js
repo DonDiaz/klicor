@@ -296,7 +296,7 @@ export default function HomePage() {
                     ))}
                   </ul>
                 </div>
-                {plan.name === "Business 500" ? <p className="cloud-price-support">¿Manejas alto flujo? Te cotizamos un plan empresarial.</p> : null}
+                {plan.name === "Business" ? <p className="cloud-price-support">¿Manejas alto flujo? Te cotizamos un plan empresarial.</p> : null}
                 <div className="actions">
                   <LandingLoginModal
                     triggerLabel={plan.buttonLabel}
