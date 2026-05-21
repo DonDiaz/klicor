@@ -73,11 +73,17 @@ Categorias de tienda/menu/catalogo.
 
 API principal: `/api/commerce`.
 
+Campos relevantes: `name`, `iconKey`, `orderIndex`, `visible`, `productCount`, `visibleProductCount`, `subcategoryCount`, `firstSubcategoryId`.
+
 ### `users/{uid}/commerceSubcategories`
 
 Subcategorias comerciales.
 
 API principal: `/api/commerce`.
+
+Campos relevantes: `categoryId`, `name`, `orderIndex`, `visible`, `productCount`, `visibleProductCount`.
+
+Nota operativa: si cambia `categoryId`, los productos dentro de esa subcategoria deben actualizar tambien su `categoryId`.
 
 ### `users/{uid}/commerceProducts`
 
@@ -89,6 +95,10 @@ APIs principales:
 - `/api/public/commerce/[username]`
 
 Riesgo de costo: cargar productos visibles. Ya existen chunks/snapshots, mantener ese camino.
+
+Campos relevantes: `categoryId`, `subcategoryId`, `name`, `description`, `price`, `visible`, `available`, `images`, `orderIndex`.
+
+Regla publica: `visible=false` oculta el producto; `available=false` lo mantiene visible como agotado/no disponible, sin permitir carrito ni WhatsApp.
 
 ### `users/{uid}/commercePublicSections`
 

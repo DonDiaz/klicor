@@ -494,6 +494,15 @@ Reglas por modulo:
 - `mitienda`: grid de productos, cards compactas, precio, boton `+`, carrito fijo y pedido por WhatsApp.
 - `micatalogo`: feed visual, imagen dominante, nombre minimo, precio opcional, SIN carrito, SIN checkout, SIN totales, consulta por WhatsApp.
 
+Reglas de visibilidad comercial:
+
+- `visible=false` en producto significa ocultar de verdad; no debe aparecer en tienda, menu, catalogo, carrito, deep link publico ni snapshots publicos.
+- `available=false` en producto significa agotado/no disponible; el producto se sigue mostrando para que el cliente entienda que el negocio lo maneja, pero no permite agregar al pedido ni consultar por WhatsApp.
+- Categorias y subcategorias tambien pueden estar ocultas. Si una categoria esta oculta, no se muestra esa categoria ni sus subcategorias/productos. Si una subcategoria esta oculta, no se muestran sus productos en publico.
+- Mover una subcategoria a otra categoria debe mover tambien los productos que contiene para evitar productos huerfanos o inconsistencias entre `categoryId` y `subcategoryId`.
+- Al editar un producto existente debe poder cambiarse su categoria/subcategoria sin borrar fotos, precio ni descripcion.
+- Los precios en el dashboard deben mostrarse con separador de miles mientras se escriben, pero guardarse internamente como numero limpio.
+
 Temas base iniciales:
 
 - Comida: crema, naranja/rojo calido, producto protagonista, sensacion de apetito.

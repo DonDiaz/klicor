@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import {
+  Ban,
   ChevronLeft,
   ChevronRight,
   LoaderCircle,
@@ -455,6 +456,8 @@ function normalizePublicProducts(value = []) {
         imageThumbUrl: String(product.imageThumbUrl || product.imageCardUrl || product.imageUrl || ""),
         images: normalizePublicProductImages(product.images, product),
         price: product.price === null || product.price === undefined || product.price === "" ? null : Number(product.price || 0),
+        visible: product.visible !== false,
+        available: product.available !== false,
       }))
     : [];
 }
@@ -469,8 +472,9 @@ function normalizePublicSubcategories(value = []) {
         name: String(subcategory.name || "Subcategoría"),
         productCount: Number(subcategory.productCount || 0) || 0,
         visibleProductCount: Number(subcategory.visibleProductCount ?? subcategory.productCount ?? 0) || 0,
+        visible: subcategory.visible !== false,
       }))
-      .filter((subcategory) => subcategory.visibleProductCount > 0)
+      .filter((subcategory) => subcategory.visible !== false && subcategory.visibleProductCount > 0)
     : [];
 }
 
@@ -491,8 +495,9 @@ function normalizePublicCategories(value = []) {
         subcategoryCount: Number(category.subcategoryCount || 0) || 0,
         productCount: Number(category.productCount || 0) || 0,
         visibleProductCount: Number(category.visibleProductCount ?? category.productCount ?? 0) || 0,
+        visible: category.visible !== false,
       }))
-      .filter((category) => category.visibleProductCount > 0)
+      .filter((category) => category.visible !== false && category.visibleProductCount > 0)
     : [];
 }
 
@@ -531,9 +536,11 @@ function ProductCard({
   const hasPrice = product.price !== null && product.price !== undefined;
   const isCatalog = !supportsCart;
   const productImageUrl = product.imageCardUrl || product.imageThumbUrl || product.imageUrl || "";
+  const available = product.available !== false;
+  const actionDisabled = preview || !orderingEnabled || !available;
 
   return (
-    <article className={`commerce-product-card commerce-visual-product-card ${supportsCart ? "supports-cart" : "is-catalog-card"}`.trim()}>
+    <article className={`commerce-product-card commerce-visual-product-card ${supportsCart ? "supports-cart" : "is-catalog-card"} ${available ? "" : "is-unavailable"}`.trim()}>
       <div
         className="commerce-product-main"
         role="button"
@@ -564,6 +571,7 @@ function ProductCard({
           ) : (
             <span>{product.name.slice(0, 1)}</span>
           )}
+          {!available ? <em className="commerce-product-unavailable-badge">{supportsCart ? "Agotado" : "No disponible"}</em> : null}
         </div>
         <div className="commerce-product-copy">
           <strong>{product.name}</strong>
@@ -579,28 +587,28 @@ function ProductCard({
                 className="commerce-product-add-button"
                 type="button"
                 aria-label={orderingEnabled ? `Agregar ${product.name}` : "Tienda cerrada"}
-                title={orderingEnabled ? "Agregar" : "Cerrado"}
+                title={!available ? "Agotado" : orderingEnabled ? "Agregar" : "Cerrado"}
                 onClick={(event) => {
                   event.preventDefault();
                   event.stopPropagation();
-                  onAdd(product, 1);
+                  if (available) onAdd(product, 1);
                 }}
-                disabled={preview || !orderingEnabled}
+                disabled={actionDisabled}
               >
-                <Plus size={16} strokeWidth={2.5} />
+                {available ? <Plus size={16} strokeWidth={2.5} /> : <Ban size={16} strokeWidth={2.5} />}
               </button>
             ) : (
               <button
                 className="commerce-product-add-button is-whatsapp"
                 type="button"
-                aria-label={orderingEnabled && whatsappAvailable ? `Consultar ${product.name} por WhatsApp` : "Cerrado ahora"}
-                title={orderingEnabled && whatsappAvailable ? "WhatsApp" : "Cerrado"}
+                aria-label={available && orderingEnabled && whatsappAvailable ? `Consultar ${product.name} por WhatsApp` : "No disponible"}
+                title={!available ? "No disponible" : orderingEnabled && whatsappAvailable ? "WhatsApp" : "Cerrado"}
                 onClick={(event) => {
                   event.preventDefault();
                   event.stopPropagation();
-                  onWhatsapp(product);
+                  if (available) onWhatsapp(product);
                 }}
-                disabled={preview || !orderingEnabled || !whatsappAvailable}
+                disabled={actionDisabled || !whatsappAvailable}
               >
                 <WhatsappIcon size={18} />
               </button>
@@ -1148,7 +1156,7 @@ export function CommercePublicView({ bootstrap, preview = false }) {
   }
 
   function handleAddToCart(product, quantityOverride = null) {
-    if (!orderingEnabled) return;
+    if (!orderingEnabled || product?.available === false) return;
     const quantity = Math.max(1, Number(quantityOverride || getProductQuantity(product.id)));
     setCartItems((current) => {
       const exists = current.find((item) => item.id === product.id);
@@ -1243,13 +1251,13 @@ export function CommercePublicView({ bootstrap, preview = false }) {
   }
 
   function handleProductWhatsapp(product) {
-    if (preview || !safeBootstrap.orderWhatsapp || !orderingEnabled || !product) return;
+    if (preview || !safeBootstrap.orderWhatsapp || !orderingEnabled || !product || product.available === false) return;
     trackCommerceIntent("product_whatsapp", product);
     window.open(buildWhatsappLink(safeBootstrap.orderWhatsapp, buildProductWhatsappMessage(product)), "_blank", "noopener,noreferrer");
   }
 
   function handleDetailWhatsapp(product) {
-    if (preview || !safeBootstrap.orderWhatsapp || !orderingEnabled || !product) return;
+    if (preview || !safeBootstrap.orderWhatsapp || !orderingEnabled || !product || product.available === false) return;
     trackCommerceIntent("detail_whatsapp", product);
     window.open(buildWhatsappLink(safeBootstrap.orderWhatsapp, buildProductWhatsappMessage(product)), "_blank", "noopener,noreferrer");
   }
@@ -1543,6 +1551,9 @@ export function CommercePublicView({ bootstrap, preview = false }) {
                 <strong>{detailProduct.name}</strong>
                 {detailProduct.price !== null && detailProduct.price !== undefined ? <span>{formatCurrency(detailProduct.price, safeConfig.currency)}</span> : null}
               </div>
+              {detailProduct.available === false ? (
+                <span className="commerce-product-detail-unavailable">{safeBootstrap.supportsCart ? "Producto agotado por ahora." : "Producto no disponible por ahora."}</span>
+              ) : null}
               {detailProduct.description ? (
                 <p>{detailProduct.description}</p>
               ) : (
@@ -1554,11 +1565,11 @@ export function CommercePublicView({ bootstrap, preview = false }) {
               <div className="commerce-product-detail-actions">
                 <div className="commerce-product-detail-quantity-label">Cantidad</div>
                 <div className="commerce-quantity-stepper" aria-label={`Cantidad de ${detailProduct.name}`}>
-                  <button type="button" onClick={() => handleProductQuantityStep(detailProduct.id, -1)} disabled={preview || !orderingEnabled || getProductQuantity(detailProduct.id) <= 1} aria-label="Reducir cantidad">
+                  <button type="button" onClick={() => handleProductQuantityStep(detailProduct.id, -1)} disabled={preview || !orderingEnabled || detailProduct.available === false || getProductQuantity(detailProduct.id) <= 1} aria-label="Reducir cantidad">
                     <Minus size={16} />
                   </button>
                   <span>{getProductQuantity(detailProduct.id)}</span>
-                  <button type="button" onClick={() => handleProductQuantityStep(detailProduct.id, 1)} disabled={preview || !orderingEnabled} aria-label="Aumentar cantidad">
+                  <button type="button" onClick={() => handleProductQuantityStep(detailProduct.id, 1)} disabled={preview || !orderingEnabled || detailProduct.available === false} aria-label="Aumentar cantidad">
                     <Plus size={16} />
                   </button>
                 </div>
@@ -1569,10 +1580,10 @@ export function CommercePublicView({ bootstrap, preview = false }) {
                     handleAddToCart(detailProduct, getProductQuantity(detailProduct.id));
                     closeProductDetail();
                   }}
-                  disabled={preview || !orderingEnabled}
+                  disabled={preview || !orderingEnabled || detailProduct.available === false}
                 >
                   <ShoppingCart size={18} />
-                  <span>{orderingEnabled ? "Agregar al pedido" : "Cerrado ahora"}</span>
+                  <span>{detailProduct.available === false ? "Agotado" : orderingEnabled ? "Agregar al pedido" : "Cerrado ahora"}</span>
                   {detailProduct.price !== null && detailProduct.price !== undefined ? (
                     <strong>{formatCurrency(Number(detailProduct.price || 0) * getProductQuantity(detailProduct.id), safeConfig.currency)}</strong>
                   ) : null}
@@ -1589,8 +1600,8 @@ export function CommercePublicView({ bootstrap, preview = false }) {
               </div>
             ) : (
               <div className="commerce-product-detail-actions">
-                <button className="btn btn-primary commerce-product-detail-whatsapp" type="button" onClick={() => handleDetailWhatsapp(detailProduct)} disabled={!safeBootstrap.orderWhatsapp || preview || !orderingEnabled}>
-                  <WhatsappIcon size={20} /> {orderingEnabled ? "Pedir informacion" : "Cerrado ahora"}
+                <button className="btn btn-primary commerce-product-detail-whatsapp" type="button" onClick={() => handleDetailWhatsapp(detailProduct)} disabled={!safeBootstrap.orderWhatsapp || preview || !orderingEnabled || detailProduct.available === false}>
+                  <WhatsappIcon size={20} /> {detailProduct.available === false ? "No disponible" : orderingEnabled ? "Pedir informacion" : "Cerrado ahora"}
                 </button>
                 <button
                   className="btn btn-secondary commerce-product-detail-share"

@@ -37,6 +37,21 @@ function money(value) {
   return `$${Number(value || 0).toLocaleString("es-CO")}`;
 }
 
+function priceInputToDigits(value) {
+  return String(value ?? "").replace(/\D/g, "");
+}
+
+function formatPriceInput(value) {
+  const digits = priceInputToDigits(value);
+  if (!digits) return "";
+  return Number(digits).toLocaleString("es-CO");
+}
+
+function parsePriceInput(value) {
+  const digits = priceInputToDigits(value);
+  return digits ? Number(digits) : "";
+}
+
 function cleanName(value = "") {
   return String(value || "").trim().toLowerCase();
 }
@@ -104,9 +119,10 @@ function getCommerceModeOptionsForCategory(category = "") {
 
 function ProductRow({ product, sectionLabel, disabled, visibilityPending = false, onEdit, onToggleVisibility, onDelete }) {
   const visible = product.visible !== false;
+  const available = product.available !== false;
 
   return (
-    <article className={`commerce-board-product-row ${visible ? "" : "is-hidden"}`.trim()}>
+    <article className={`commerce-board-product-row ${visible ? "" : "is-hidden"} ${available ? "" : "is-unavailable"}`.trim()}>
       <div className="commerce-board-product-thumb">
         {product.imageThumbUrl || product.imageUrl ? (
           <img src={product.imageThumbUrl || product.imageUrl} alt={product.name} />
@@ -114,6 +130,7 @@ function ProductRow({ product, sectionLabel, disabled, visibilityPending = false
           <span>{product.name?.slice(0, 1) || "P"}</span>
         )}
         {!visible ? <span className="commerce-board-hidden-badge">OCULTO</span> : null}
+        {visible && !available ? <span className="commerce-board-hidden-badge is-unavailable">AGOTADO</span> : null}
       </div>
       <div className="commerce-board-product-copy">
         <div>
@@ -129,6 +146,9 @@ function ProductRow({ product, sectionLabel, disabled, visibilityPending = false
           ) : null}
           <span className={`commerce-board-status ${visible ? "is-visible" : "is-hidden"}`}>
             {visible ? "Visible" : "Oculto"}
+          </span>
+          <span className={`commerce-board-status ${available ? "is-visible" : "is-hidden"}`}>
+            {available ? "Disponible" : "Agotado"}
           </span>
         </div>
       </div>
@@ -167,8 +187,11 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
   const [editingCategoryName, setEditingCategoryName] = useState("");
   const [editingCategoryIcon, setEditingCategoryIcon] = useState("");
   const [editingCategoryColor, setEditingCategoryColor] = useState(COMMERCE_CATEGORY_COLORS[0]);
+  const [editingCategoryVisible, setEditingCategoryVisible] = useState(true);
   const [editingSubcategoryId, setEditingSubcategoryId] = useState("");
   const [editingSubcategoryName, setEditingSubcategoryName] = useState("");
+  const [editingSubcategoryCategoryId, setEditingSubcategoryCategoryId] = useState("");
+  const [editingSubcategoryVisible, setEditingSubcategoryVisible] = useState(true);
   const [productEditor, setProductEditor] = useState(null);
   const [productEditorError, setProductEditorError] = useState("");
   const [visibilityPendingProducts, setVisibilityPendingProducts] = useState({});
@@ -633,16 +656,20 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
     setEditingCategoryName(category.name);
     setEditingCategoryIcon(category.iconKey || "");
     setEditingCategoryColor(category.color || COMMERCE_CATEGORY_COLORS[0]);
+    setEditingCategoryVisible(category.visible !== false);
   }
 
   function stopEditCategory() {
     setEditingCategoryId("");
+    setEditingCategoryVisible(true);
     resetAssetPicker(editingCategoryId ? `edit-category-${editingCategoryId}` : "");
   }
 
   function stopEditSubcategory() {
     setEditingSubcategoryId("");
     setEditingSubcategoryName("");
+    setEditingSubcategoryCategoryId("");
+    setEditingSubcategoryVisible(true);
   }
 
   function resolveAssetGroups(name = "", { includeAll = false, pickerQuery = "" } = {}) {
@@ -806,6 +833,7 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
       description: product?.description || "",
       price: product?.price ?? "",
       visible: product?.visible !== false,
+      available: product?.available !== false,
       featuredInDorika: Boolean(product?.featuredInDorika),
       images: Array.isArray(product?.images) ? product.images : [],
       pendingImages: [],
@@ -966,6 +994,10 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
                         onIconChange: setEditingCategoryIcon,
                         showCurrent: true,
                       })}
+                      <label className="switch-row commerce-product-visible-toggle">
+                        <input type="checkbox" checked={editingCategoryVisible} onChange={(event) => setEditingCategoryVisible(event.target.checked)} />
+                        <span>{editingCategoryVisible ? "CategorÃ­a visible" : "CategorÃ­a oculta"}</span>
+                      </label>
                       <div className="commerce-board-inline-actions">
                         <button className="btn btn-primary" type="button" onClick={async () => {
                           const result = await runAction("update_category", {
@@ -973,6 +1005,7 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
                             name: editingCategoryName,
                             iconKey: editingCategoryIcon || category.iconKey,
                             color: editingCategoryColor || category.color,
+                            visible: editingCategoryVisible,
                           });
                           if (result) stopEditCategory();
                         }} disabled={!canEdit || !editingCategoryName.trim() || loading}>
@@ -997,6 +1030,7 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
                         <button type="button" onClick={() => runAction("move_category", { categoryId: category.id, direction: "up" })} disabled={!canEdit || loading} title="Mover arriba" aria-label={`Mover arriba categoría ${category.name || ""}`.trim()}><ChevronUp size={15} /></button>
                         <button type="button" onClick={() => runAction("move_category", { categoryId: category.id, direction: "down" })} disabled={!canEdit || loading} title="Mover abajo" aria-label={`Mover abajo categoría ${category.name || ""}`.trim()}><ChevronDown size={15} /></button>
                         <button type="button" onClick={() => startEditCategory(category)} disabled={!canEdit || loading} title="Editar categoría" aria-label={`Editar categoria ${category.name || ""}`.trim()}><Pencil size={15} /></button>
+                        <button type="button" onClick={() => runAction("update_category", { id: category.id, name: category.name, iconKey: category.iconKey, color: category.color, visible: category.visible === false })} disabled={!canEdit || loading} title={category.visible === false ? "Mostrar categoria" : "Ocultar categoria"} aria-label={`${category.visible === false ? "Mostrar" : "Ocultar"} categoria ${category.name || ""}`.trim()}>{category.visible === false ? <Eye size={15} /> : <EyeOff size={15} />}</button>
                         <button type="button" onClick={() => confirmAction("¿Eliminar esta categoría? Solo se puede eliminar si está vacía.", () => runAction("delete_category", { categoryId: category.id }))} disabled={!canEdit || loading} title="Eliminar categoría" aria-label={`Eliminar categoria ${category.name || ""}`.trim()}><Trash2 size={15} /></button>
                       </div>
                     </>
@@ -1069,11 +1103,21 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
                   {editing ? (
                     <div className="commerce-board-inline-edit">
                       <input className="input" value={editingSubcategoryName} onChange={(event) => setEditingSubcategoryName(event.target.value)} placeholder="Nombre de la subcategoría" disabled={!canEdit} />
+                      <select className="select" value={editingSubcategoryCategoryId || selectedCategory.id} onChange={(event) => setEditingSubcategoryCategoryId(event.target.value)} disabled={!canEdit}>
+                        {categories.map((categoryOption) => (
+                          <option key={categoryOption.id} value={categoryOption.id}>{categoryOption.name}</option>
+                        ))}
+                      </select>
+                      <label className="switch-row commerce-product-visible-toggle">
+                        <input type="checkbox" checked={editingSubcategoryVisible} onChange={(event) => setEditingSubcategoryVisible(event.target.checked)} />
+                        <span>{editingSubcategoryVisible ? "Subcategoria visible" : "Subcategoria oculta"}</span>
+                      </label>
                       <button className="btn btn-primary" type="button" onClick={async () => {
                         const result = await runAction("update_subcategory", {
                           id: subcategory.id,
-                          categoryId: selectedCategory.id,
+                          categoryId: editingSubcategoryCategoryId || selectedCategory.id,
                           name: editingSubcategoryName,
+                          visible: editingSubcategoryVisible,
                         });
                         if (result) {
                           setSubcategoryDrafts((current) => ({ ...current, [selectedCategory.id]: "" }));
@@ -1096,7 +1140,7 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
                       <div className="commerce-board-row-actions">
                         <button type="button" onClick={() => runAction("move_subcategory", { subcategoryId: subcategory.id, direction: "up" })} disabled={!canEdit || loading} title="Mover arriba" aria-label={`Mover arriba subcategoria ${subcategory.name || ""}`.trim()}><ChevronUp size={15} /></button>
                         <button type="button" onClick={() => runAction("move_subcategory", { subcategoryId: subcategory.id, direction: "down" })} disabled={!canEdit || loading} title="Mover abajo" aria-label={`Mover abajo subcategoria ${subcategory.name || ""}`.trim()}><ChevronDown size={15} /></button>
-                        <button type="button" onClick={() => { setEditingCategoryId(""); setEditingSubcategoryId(subcategory.id); setEditingSubcategoryName(subcategory.name); }} disabled={!canEdit || loading} title="Editar subcategoría" aria-label={`Editar subcategoria ${subcategory.name || ""}`.trim()}><Pencil size={15} /></button>
+                        <button type="button" onClick={() => { setEditingCategoryId(""); setEditingSubcategoryId(subcategory.id); setEditingSubcategoryName(subcategory.name); setEditingSubcategoryCategoryId(subcategory.categoryId || selectedCategory.id); setEditingSubcategoryVisible(subcategory.visible !== false); }} disabled={!canEdit || loading} title="Editar subcategoría" aria-label={`Editar subcategoria ${subcategory.name || ""}`.trim()}><Pencil size={15} /></button>
                         <button type="button" onClick={() => confirmAction("¿Eliminar esta subcategoría? Solo se puede eliminar si está vacía.", () => runAction("delete_subcategory", { subcategoryId: subcategory.id }))} disabled={!canEdit || loading} title="Eliminar subcategoría" aria-label={`Eliminar subcategoria ${subcategory.name || ""}`.trim()}><Trash2 size={15} /></button>
                       </div>
                     </>
@@ -1224,6 +1268,7 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
   function renderProductEditor() {
     if (!productEditor) return null;
     const editorCategory = categories.find((category) => category.id === productEditor.categoryId) || null;
+    const editorSubcategoryOptions = editorCategory ? subcats(editorCategory) : [];
     const editorSubcategory = editorCategory ? subcats(editorCategory).find((subcategory) => subcategory.id === productEditor.subcategoryId) : null;
     const existingImages = Array.isArray(productEditor.images) ? productEditor.images : [];
     const pendingImages = Array.isArray(productEditor.pendingImages) ? productEditor.pendingImages : [];
@@ -1232,7 +1277,7 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
     const remainingImages = Math.max(0, COMMERCE_PRODUCT_MAX_IMAGES - totalImages);
     const productName = String(productEditor.name || "").trim();
     const productPrice = String(productEditor.price ?? "").trim();
-    const productPriceNumber = Number(productEditor.price);
+    const productPriceNumber = Number(parsePriceInput(productEditor.price));
     const productEditorIsValid = Boolean(productName)
       && productName.length >= 2
       && (!priceIsRequired || (productPrice && Number.isFinite(productPriceNumber) && productPriceNumber > 0))
@@ -1256,9 +1301,33 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
               setProductEditorError("");
               setProductEditor((current) => ({ ...current, name: event.target.value }));
             }} />
-            <input className="input" placeholder={priceIsRequired ? "Precio" : "Precio opcional"} value={productEditor.price ?? ""} onChange={(event) => {
+            <select className="select" value={productEditor.categoryId} onChange={(event) => {
+              const nextCategory = categories.find((category) => category.id === event.target.value) || null;
+              const nextSubcategories = subcats(nextCategory);
               setProductEditorError("");
-              setProductEditor((current) => ({ ...current, price: event.target.value }));
+              setProductEditor((current) => ({
+                ...current,
+                categoryId: event.target.value,
+                subcategoryId: nextSubcategories.length ? nextSubcategories[0].id : "",
+              }));
+            }}>
+              {categories.map((categoryOption) => (
+                <option key={categoryOption.id} value={categoryOption.id}>{categoryOption.name}</option>
+              ))}
+            </select>
+            {editorSubcategoryOptions.length ? (
+              <select className="select" value={productEditor.subcategoryId} onChange={(event) => {
+                setProductEditorError("");
+                setProductEditor((current) => ({ ...current, subcategoryId: event.target.value }));
+              }}>
+                {editorSubcategoryOptions.map((subcategoryOption) => (
+                  <option key={subcategoryOption.id} value={subcategoryOption.id}>{subcategoryOption.name}</option>
+                ))}
+              </select>
+            ) : null}
+            <input className="input" placeholder={priceIsRequired ? "Precio" : "Precio opcional"} inputMode="numeric" value={formatPriceInput(productEditor.price)} onChange={(event) => {
+              setProductEditorError("");
+              setProductEditor((current) => ({ ...current, price: parsePriceInput(event.target.value) }));
             }} />
             <textarea className="textarea" rows={4} placeholder="Descripción del producto (opcional)" value={productEditor.description || ""} onChange={(event) => {
               setProductEditorError("");
@@ -1330,6 +1399,10 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
               <span>{productEditor.visible !== false ? "Producto visible" : "Producto oculto"}</span>
             </label>
             <label className="switch-row commerce-product-visible-toggle">
+              <input type="checkbox" checked={productEditor.available !== false} onChange={(event) => setProductEditor((current) => ({ ...current, available: event.target.checked }))} />
+              <span>{productEditor.available !== false ? "Disponible para pedir" : "Agotado / no disponible"}</span>
+            </label>
+            <label className="switch-row commerce-product-visible-toggle">
               <input type="checkbox" checked={Boolean(productEditor.featuredInDorika)} onChange={(event) => setProductEditor((current) => ({ ...current, featuredInDorika: event.target.checked }))} />
               <span>{productEditor.featuredInDorika ? "Destacado en Dorika" : "Destacar en Dorika"}</span>
             </label>
@@ -1341,9 +1414,9 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
                 ? "Agrega el nombre del producto."
                 : String(productEditor.name || "").trim().length < 2
                   ? "El nombre debe tener al menos 2 caracteres."
-                  : priceIsRequired && (!String(productEditor.price ?? "").trim() || !Number.isFinite(Number(productEditor.price)) || Number(productEditor.price) <= 0)
+                  : priceIsRequired && (!String(productEditor.price ?? "").trim() || !Number.isFinite(Number(parsePriceInput(productEditor.price))) || Number(parsePriceInput(productEditor.price)) <= 0)
                     ? "Agrega un precio válido mayor a cero."
-                    : String(productEditor.price ?? "").trim() && (!Number.isFinite(Number(productEditor.price)) || Number(productEditor.price) < 0)
+                    : String(productEditor.price ?? "").trim() && (!Number.isFinite(Number(parsePriceInput(productEditor.price))) || Number(parsePriceInput(productEditor.price)) < 0)
                       ? "El precio debe ser un número válido."
                   : !totalImages
                     ? "Agrega al menos una foto del producto."
@@ -1357,6 +1430,7 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
               }
 
               const { pendingImages: nextPendingImages, images, ...payload } = productEditor;
+              payload.price = parsePriceInput(payload.price);
               const result = await runAction("save_product", payload, (nextPendingImages || []).map((entry) => entry.file));
               if (result) closeProductEditor();
             }} disabled={!canEdit || loading || !productEditorIsValid}>
