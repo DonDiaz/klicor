@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   BarChart3,
   Building2,
@@ -52,9 +52,9 @@ const ADMIN_SECTIONS = [
   },
   {
     id: "partners",
-    label: "Convenios y alianzas",
+    label: "Agencias",
     icon: Building2,
-    description: "Base lista para Cámara de Comercio, agencias y convenios.",
+    description: "Correos autorizados para administrar negocios de terceros.",
   },
   {
     id: "settings",
@@ -68,39 +68,7 @@ function formatMetricValue(value) {
   return new Intl.NumberFormat("es-CO").format(Number(value || 0));
 }
 
-function sortUsers(users = [], sortKey = "created_desc") {
-  const list = [...users];
-
-  switch (sortKey) {
-    case "created_asc":
-      return list.sort((left, right) => Number(left.createdAtMs || 0) - Number(right.createdAtMs || 0));
-    case "expires_asc":
-      return list.sort((left, right) => {
-        const leftValue = Number(left.expiresAtMs || 0) || Number.POSITIVE_INFINITY;
-        const rightValue = Number(right.expiresAtMs || 0) || Number.POSITIVE_INFINITY;
-        return leftValue - rightValue;
-      });
-    case "expires_desc":
-      return list.sort((left, right) => Number(right.expiresAtMs || 0) - Number(left.expiresAtMs || 0));
-    case "status":
-      return list.sort((left, right) => String(left.accountStatusLabel || "").localeCompare(String(right.accountStatusLabel || "")));
-    case "name":
-      return list.sort((left, right) => String(left.businessName || "").localeCompare(String(right.businessName || "")));
-    case "created_desc":
-    default:
-      return list.sort((left, right) => Number(right.createdAtMs || 0) - Number(left.createdAtMs || 0));
-  }
-}
-
-function matchesRenewalFilter(user, filter) {
-  if (filter === "all") return true;
-  if (filter === "today") return user.daysToExpiry === 0;
-  if (filter === "soon") return Number.isFinite(user.daysToExpiry) && user.daysToExpiry > 0 && user.renewSoon;
-  if (filter === "overdue") return ["expired", "pending_payment", "suspended"].includes(user.accountStatus);
-  return true;
-}
-
-function buildDashboardCards(metrics = {}) {
+function buildDashboardCards(metrics = {}, highFlow = {}) {
   return [
     { label: "Usuarios registrados", value: metrics.totalUsers || 0 },
     { label: "En prueba", value: metrics.usersInTrial || 0 },
@@ -108,6 +76,7 @@ function buildDashboardCards(metrics = {}) {
     { label: "Vencidos", value: metrics.expiredUsers || 0 },
     { label: "Por renovar pronto", value: metrics.renewSoonUsers || 0 },
     { label: "Pendientes de pago", value: metrics.pendingPaymentUsers || 0 },
+    { label: "Alto movimiento", value: highFlow.totalToReview || 0 },
     { label: "Ingresos estimados", value: metrics.estimatedAnnualRevenueLabel || "$0" },
   ];
 }
@@ -303,10 +272,11 @@ export function AdminPanel({ token, initialData, adminUser }) {
   const filteredUsers = usersPage?.items || [];
   const currentPageNumber = cursorStack.length + 1;
 
-  const dashboardCards = buildDashboardCards(panelData?.metrics);
+  const dashboardCards = buildDashboardCards(panelData?.metrics, panelData?.highFlow);
   const dueToday = panelData?.renewalBuckets?.dueToday || [];
   const dueSoon = panelData?.renewalBuckets?.dueSoon || [];
   const overdue = panelData?.renewalBuckets?.overdue || [];
+  const highFlowItems = panelData?.highFlow?.items || [];
 
   return (
     <div className={`admin-layout${sidebarCollapsed ? " is-sidebar-collapsed" : ""}`}>
@@ -378,7 +348,7 @@ export function AdminPanel({ token, initialData, adminUser }) {
           <section className="section-stack">
             <div className="admin-metric-grid">
               {dashboardCards.map((card, index) => (
-                <AdminMetricCard key={card.label} label={card.label} value={card.value} emphasis={index === 6} />
+                <AdminMetricCard key={card.label} label={card.label} value={card.value} emphasis={index >= 6} />
               ))}
             </div>
 
@@ -436,6 +406,26 @@ export function AdminPanel({ token, initialData, adminUser }) {
                     <strong>{formatMetricValue(item.total)}</strong>
                   </div>
                 ))}
+              </div>
+            </section>
+
+            <section className="panel admin-analytics-card">
+              <div className="admin-section-heading">
+                <h3>Alto movimiento comercial</h3>
+                <p className="muted">Intenciones reales desde tienda, menu o catalogo. No cuenta el WhatsApp general del link in bio.</p>
+              </div>
+              <div className="admin-highflow-list">
+                {highFlowItems.length ? highFlowItems.map((item) => (
+                  <button key={item.id} className="admin-highflow-item" type="button" onClick={() => openUser(item.uid)}>
+                    <span>
+                      <strong>{item.businessName}</strong>
+                      <small>{item.planLabel} · {formatMetricValue(item.total)} de {formatMetricValue(item.threshold)} clicks comerciales</small>
+                    </span>
+                    <span className="status-badge warning">Revisar</span>
+                  </button>
+                )) : (
+                  <p className="muted">No hay negocios por revisar este mes.</p>
+                )}
               </div>
             </section>
           </section>
@@ -558,20 +548,11 @@ export function AdminPanel({ token, initialData, adminUser }) {
                   <thead>
                     <tr>
                       <th>Negocio</th>
-                      <th>Responsable</th>
-                      <th>Email</th>
-                      <th>Teléfono</th>
-                      <th>Ciudad</th>
-                      <th>Tipo</th>
-                      <th>Origen</th>
-                      <th>Convenio</th>
                       <th>Estado</th>
                       <th>Plan</th>
-                      <th>Registro</th>
-                      <th>Inicio</th>
                       <th>Vencimiento</th>
-                      <th>Último pago</th>
-                      <th>Valor pagado</th>
+                      <th>Origen</th>
+                      <th>Ciudad</th>
                       <th />
                     </tr>
                   </thead>
@@ -584,25 +565,19 @@ export function AdminPanel({ token, initialData, adminUser }) {
                               {user.photo ? <img src={user.photo} alt={user.businessName} /> : <span>{user.businessName?.slice(0, 1) || "K"}</span>}
                             </div>
                             <div>
-                              <strong>{user.businessName}</strong>
+                              <strong>
+                                {user.businessName}
+                                {user.highFlow ? <span className="status-badge warning admin-inline-badge">Alto flujo</span> : null}
+                              </strong>
                               <small className="admin-table-link" title={user.publicUrl}>{user.publicUrl}</small>
                             </div>
                           </div>
                         </td>
-                        <td>{user.ownerName || "-"}</td>
-                        <td>{user.email}</td>
-                        <td>{user.phone || "-"}</td>
-                        <td>{user.city || "-"}</td>
-                        <td>{user.businessTypeLabel}</td>
-                        <td>{user.originLabel}</td>
-                        <td>{user.partnerId || "-"}</td>
                         <td><span className={`status-badge ${user.accountStatusTone || ""}`}>{user.accountStatusLabel}</span></td>
                         <td>{user.planLabel}</td>
-                        <td>{user.createdAtLabel}</td>
-                        <td>{user.startsAtLabel}</td>
                         <td>{user.expiresAtLabel}</td>
-                        <td>{user.lastPaymentAtLabel}</td>
-                        <td>{user.amountPaidLabel}</td>
+                        <td>{user.originLabel}</td>
+                        <td>{user.city || "-"}</td>
                         <td>
                           <button className="btn btn-secondary" type="button" onClick={() => openUser(user.uid)}>
                             Gestionar
@@ -647,23 +622,8 @@ export function AdminPanel({ token, initialData, adminUser }) {
                   <input className="input" type="number" min={0} value={settingsForm.renewalAlertDays || 0} onChange={(event) => setSettingsForm((current) => ({ ...current, renewalAlertDays: Number(event.target.value) }))} />
                 </div>
                 <div>
-                  <label className="label">Modo de renovación</label>
-                  <select className="select" value={settingsForm.renewalMode || "manual"} onChange={(event) => setSettingsForm((current) => ({ ...current, renewalMode: event.target.value }))}>
-                    <option value="manual">Manual</option>
-                    <option value="automatic">Automática</option>
-                  </select>
-                </div>
-                <div>
                   <label className="label">Días por convenio institucional</label>
                   <input className="input" type="number" min={1} value={settingsForm.convenioDefaultDays || 365} onChange={(event) => setSettingsForm((current) => ({ ...current, convenioDefaultDays: Number(event.target.value) }))} />
-                </div>
-                <div>
-                  <label className="label">Precio especial para agencias</label>
-                  <input className="input" type="number" min={0} value={settingsForm.agencyAnnualPrice || 0} onChange={(event) => setSettingsForm((current) => ({ ...current, agencyAnnualPrice: Number(event.target.value) }))} />
-                </div>
-                <div>
-                  <label className="label">Valor por defecto convenios</label>
-                  <input className="input" type="number" min={0} value={settingsForm.partnerDefaultPrice || 0} onChange={(event) => setSettingsForm((current) => ({ ...current, partnerDefaultPrice: Number(event.target.value) }))} />
                 </div>
               </div>
 
@@ -744,8 +704,8 @@ export function AdminPanel({ token, initialData, adminUser }) {
           <section className="section-stack">
             <section className="panel admin-placeholder-card">
               <div className="admin-section-heading">
-                <h3>Convenios y alianzas</h3>
-                <p className="muted">La estructura base ya quedó lista en usuarios con `origin` y `partnerId`.</p>
+                <h3>Agencias autorizadas</h3>
+                <p className="muted">Habilita los correos que pueden entrar al portal de agencias de Klicor.</p>
               </div>
               <form className="admin-agency-form" onSubmit={saveAgency}>
                 <div>
@@ -794,20 +754,6 @@ export function AdminPanel({ token, initialData, adminUser }) {
                     </button>
                   </article>
                 )) : <p className="muted">Todavía no hay agencias habilitadas.</p>}
-              </div>
-              <div className="admin-placeholder-grid">
-                <article className="admin-placeholder-item">
-                  <strong>Aliados preparados</strong>
-                  <p className="muted">Agencias, Cámara de Comercio, Secretaría TIC y convenios institucionales.</p>
-                </article>
-                <article className="admin-placeholder-item">
-                  <strong>Base operativa actual</strong>
-                  <p className="muted">Ya puedes filtrar usuarios por origen y asignar convenio desde el detalle individual.</p>
-                </article>
-                <article className="admin-placeholder-item">
-                  <strong>Siguiente fase</strong>
-                  <p className="muted">Creación de convenios, precios negociados, cupos e importación masiva desde CSV o Excel.</p>
-                </article>
               </div>
             </section>
           </section>
