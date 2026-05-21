@@ -368,8 +368,9 @@ const PRIORITY_OPTIONS = [
 
 const CHECKOUT_PLAN_OPTIONS = [
   { value: "basic", label: "Básico" },
-  { value: "commercial", label: "Comercial" },
-  { value: "plus", label: "Plus" },
+  { value: "commercial", label: "Emprendedor" },
+  { value: "plus", label: "Comercial Plus" },
+  { value: "pro", label: "Business 500" },
 ];
 
 const CHECKOUT_MODULE_OPTIONS = [
@@ -381,11 +382,13 @@ const CHECKOUT_PLAN_RANK = {
   basic: 1,
   commercial: 2,
   plus: 3,
+  pro: 4,
 };
 
 function getPlanPriceFromSettings(plan, settings = {}) {
   if (plan === "basic") return Number(settings?.basicAnnualPrice || 59900);
   if (plan === "plus") return Number(settings?.plusAnnualPrice || 169900);
+  if (plan === "pro") return Number(settings?.proAnnualPrice || 219900);
   return Number(settings?.commercialAnnualPrice ?? settings?.annualPrice ?? 109900);
 }
 
@@ -393,6 +396,12 @@ function isLowerCheckoutPlan(currentPlan = "", nextPlan = "") {
   const currentRank = CHECKOUT_PLAN_RANK[currentPlan] || 0;
   const nextRank = CHECKOUT_PLAN_RANK[nextPlan] || 0;
   return Boolean(currentRank && nextRank && nextRank < currentRank);
+}
+
+function isHigherCheckoutPlan(currentPlan = "", nextPlan = "") {
+  const currentRank = CHECKOUT_PLAN_RANK[currentPlan] || 0;
+  const nextRank = CHECKOUT_PLAN_RANK[nextPlan] || 0;
+  return Boolean(currentRank && nextRank && nextRank > currentRank);
 }
 
 function getDefaultCheckoutModule(profile = {}) {
@@ -521,7 +530,7 @@ export function ProfileForm({
   const [loading, setLoading] = useState(false);
   const [selectedType, setSelectedType] = useState("");
   const [selectedLinkValue, setSelectedLinkValue] = useState("");
-  const [checkoutPlan, setCheckoutPlan] = useState(() => profile?.plan === "plus" ? "plus" : "commercial");
+  const [checkoutPlan, setCheckoutPlan] = useState(() => CHECKOUT_PLAN_RANK[profile?.plan] ? profile.plan : "commercial");
   const [checkoutModule, setCheckoutModule] = useState(() => getDefaultCheckoutModule(profile));
   const [moduleBusy, setModuleBusy] = useState("");
   const [activeWorkspace, setActiveWorkspace] = useState(() => (agencyMode && !canEdit ? "subscription" : getPrimaryWorkspaceForBusinessCategory(profile?.businessCategory)));
@@ -558,7 +567,7 @@ export function ProfileForm({
     setDorikaMapOpen(false);
     setSelectedType("");
     setSelectedLinkValue("");
-    setCheckoutPlan(profile?.plan === "plus" ? "plus" : "commercial");
+    setCheckoutPlan(CHECKOUT_PLAN_RANK[profile?.plan] ? profile.plan : "commercial");
     setCheckoutModule(getDefaultCheckoutModule(profile));
     setModuleBusy("");
     setAlertMessage("");
@@ -1014,7 +1023,7 @@ export function ProfileForm({
       const previousModule = nextPrimaryModule ? getOppositeModule(nextPrimaryModule) : "booking";
       const previousModuleWasActive = savedModuleAccess[previousModule];
       const nextModuleLabel = nextPrimaryModule ? getModuleLabel(nextPrimaryModule) : "solo link in bio";
-      if (previousModuleWasActive && !window.confirm(`Al cambiar el perfil, Klicor cambiará tu módulo principal a ${nextModuleLabel}. Lo que hiciste en ${getModuleLabel(previousModule)} no se pierde, pero su enlace público dejará de funcionar. Para mantener ambos módulos activos necesitas el plan Plus y una categoría compatible. ¿Quieres continuar?`)) {
+      if (previousModuleWasActive && !window.confirm(`Al cambiar el perfil, Klicor cambiará tu módulo principal a ${nextModuleLabel}. Lo que hiciste en ${getModuleLabel(previousModule)} no se pierde, pero su enlace público dejará de funcionar. Para mantener ambos módulos activos necesitas el plan Comercial Plus y una categoría compatible. ¿Quieres continuar?`)) {
         return;
       }
     }
@@ -1356,7 +1365,9 @@ export function ProfileForm({
   }).format(checkoutPlanPrice);
   const subscriptionActionLabel = paying
     ? "Abriendo pago..."
-    : profile?.status === "active"
+    : hasActivePaidPlan && isHigherCheckoutPlan(currentPlan, checkoutPlan)
+      ? "Subir plan"
+      : profile?.status === "active"
       ? "Renovar plan"
       : "Activar plan";
   const dashboardLogoSrc = photoPreviewUrl || profile?.photoThumb || profile?.photo || "/klicor-icon.png";
@@ -2315,14 +2326,14 @@ export function ProfileForm({
                           onClick={() => setCheckoutPlan("plus")}
                           disabled={paying}
                         >
-                          Actualiza a Plus para usar {getModuleLabel(module)}
+                          Actualiza a Comercial Plus para usar {getModuleLabel(module)}
                         </button>
                       ) : null
                     ))}
                   </div>
                 ) : null}
                 {currentPlan === "commercial" && missingModules.length ? (
-                  <p className="muted" style={{ marginTop: ".75rem" }}>El plan Comercial permite un solo módulo. Para usar Comercio y Agenda juntos, cambia a Plus.</p>
+                  <p className="muted" style={{ marginTop: ".75rem" }}>El plan Emprendedor permite un solo módulo. Para usar Comercio y Agenda juntos, cambia a Comercial Plus.</p>
                 ) : null}
               </div>
 

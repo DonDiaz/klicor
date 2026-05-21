@@ -14,6 +14,25 @@ import { checkDurableRateLimit, durableRateLimitResponse } from "@/lib/durable-r
 
 const SHARE_LINK_VERSION = "v1";
 
+function buildBlockedLinkAuditMetadata(error, agencyAccess) {
+  let hostname = "";
+  try {
+    hostname = new URL(error?.linkSafety?.url || "").hostname;
+  } catch {
+    hostname = "";
+  }
+
+  return {
+    agencyMode: Boolean(agencyAccess),
+    reason: error?.linkSafety?.reason || "unknown",
+    linkId: error?.linkSafety?.linkId || "",
+    linkType: error?.linkSafety?.linkType || "",
+    linkLabel: error?.linkSafety?.linkLabel || "",
+    linkHost: hostname,
+    urlPreview: error?.linkSafety?.url || "",
+  };
+}
+
 export async function POST(request) {
   try {
     const { user } = await verifyRequest(request, { checkRevoked: true });
@@ -90,7 +109,22 @@ export async function POST(request) {
     }
 
     const editableProfileLinks = parsed.profileLinks.filter((link) => !isSystemProfileLink(link));
-    await validateProfileLinksSafety(editableProfileLinks);
+    try {
+      await validateProfileLinksSafety(editableProfileLinks);
+    } catch (error) {
+      if (error?.code === "PROFILE_LINK_BLOCKED") {
+        writeAuditLog({
+          request,
+          actor: user,
+          role: agencyAccess ? "agency" : user.role || "owner",
+          action: "profile.link_blocked",
+          targetUid: effectiveUser.uid,
+          status: "blocked",
+          metadata: buildBlockedLinkAuditMetadata(error, agencyAccess),
+        }).catch((auditError) => console.error("[audit-log]", auditError?.message || auditError));
+      }
+      throw error;
+    }
 
     const photo = formData.get("photo");
     const dorikaCover = formData.get("dorikaCover");

@@ -5,9 +5,9 @@ import { PLAN_SLUG } from "@/lib/constants";
 import { createPreference } from "@/lib/mercadopago";
 import { getAdminSettings } from "@/lib/firestore";
 import { assertAgencyBusinessAccess } from "@/lib/agency";
-import { assertNoActivePlanDowngrade, calculateCommercialToPlusUpgrade } from "@/lib/billing-rules";
+import { assertNoActivePlanDowngrade, calculatePlanUpgrade, isActivePaidPlan, isPlanUpgrade } from "@/lib/billing-rules";
 import { isBusinessModuleEligible } from "@/lib/business-categories";
-import { BILLABLE_PLAN_VALUES, getPlanAnnualPrice, normalizeKlicorModule, normalizeKlicorPlan, resolvePrimaryModuleForBusinessCategory } from "@/lib/plans";
+import { BILLABLE_PLAN_VALUES, getPlanAnnualPrice, getPlanDefinition, normalizeKlicorModule, normalizeKlicorPlan, resolvePrimaryModuleForBusinessCategory } from "@/lib/plans";
 import { toDate } from "@/lib/utils";
 
 export async function POST(request) {
@@ -44,7 +44,13 @@ export async function POST(request) {
       currentExpiresAt: currentExpiry,
       now,
     });
-    const paymentType = currentPlan === "commercial" && plan === "plus" ? "upgrade" : "subscription";
+    const isUpgrade = isActivePaidPlan({
+      status: effectiveUser.status,
+      currentPlan,
+      currentExpiresAt: currentExpiry,
+      now,
+    }) && isPlanUpgrade({ currentPlan, requestedPlan: plan });
+    const paymentType = isUpgrade ? "upgrade" : "subscription";
     const metadata = {
       payment_type: paymentType,
       module: effectiveModule,
@@ -56,21 +62,23 @@ export async function POST(request) {
     let titleSuffix = "pago anual";
 
     if (paymentType === "upgrade") {
-      const commercialPrice = getPlanAnnualPrice("commercial", settings);
-      const upgrade = calculateCommercialToPlusUpgrade({
+      const currentAnnualPrice = getPlanAnnualPrice(currentPlan, settings);
+      const upgrade = calculatePlanUpgrade({
         now,
         currentExpiresAt: currentExpiry,
-        commercialAnnualPrice: commercialPrice,
-        plusAnnualPrice: annualPrice,
+        currentAnnualPrice,
+        requestedAnnualPrice: annualPrice,
       });
       amountToCharge = upgrade.amountToCharge;
       Object.assign(metadata, {
         credit_amount: upgrade.creditAmount,
         amount_charged: amountToCharge,
+        current_annual_price: currentAnnualPrice,
+        requested_annual_price: annualPrice,
         previous_expires_at: currentExpiry?.toISOString?.() || "",
         new_expires_at: upgrade.newExpiresAt.toISOString(),
       });
-      titleSuffix = "upgrade a Plus";
+      titleSuffix = `upgrade a ${getPlanDefinition(plan).publicName}`;
     }
 
     const preference = await createPreference({
