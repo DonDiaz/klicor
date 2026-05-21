@@ -278,13 +278,13 @@ export default function HomePage() {
             <span className="pill">Precios</span>
             <h2 className="landing-section-title">Planes simples para vender mejor</h2>
             <p className="section-copy">
-              Pago anual. Sin enredos mensuales.
+              Planes anuales para uso normal del negocio. Si tu operación maneja alto flujo, lo revisamos contigo antes de proponer un plan empresarial.
             </p>
           </div>
 
           <div className="cloud-pricing-stack">
             {pricingPlans.map((plan) => (
-              <div key={plan.name} className={`cloud-price-box ${plan.name === "Comercial" ? "is-featured" : ""}`.trim()}>
+              <div key={plan.name} className={`cloud-price-box ${plan.name === "Emprendedor" ? "is-featured" : ""}`.trim()}>
                 <div className="cloud-price-content">
                   {plan.badge ? <div className="pill cloud-price-badge">{plan.badge}</div> : null}
                   <strong>{plan.name}</strong>
@@ -296,7 +296,7 @@ export default function HomePage() {
                     ))}
                   </ul>
                 </div>
-                {plan.name === "Plus" ? <p className="cloud-price-support">¿Necesitas más capacidad?</p> : null}
+                {plan.name === "Business 500" ? <p className="cloud-price-support">¿Manejas alto flujo? Te cotizamos un plan empresarial.</p> : null}
                 <div className="actions">
                   <LandingLoginModal
                     triggerLabel={plan.buttonLabel}

@@ -9,7 +9,7 @@ import {
   resolveUserModuleAccess,
   shouldRestrictToPrimaryModuleOnProfileChange,
 } from "../lib/plans.js";
-import { assertNoActivePlanDowngrade, calculateCommercialToPlusUpgrade } from "../lib/billing-rules.js";
+import { assertNoActivePlanDowngrade, calculatePlanUpgrade, isActivePaidPlan, isPlanUpgrade } from "../lib/billing-rules.js";
 
 function assertAccess(actual, expected, label) {
   assert.deepEqual(actual, expected, label);
@@ -34,8 +34,9 @@ assert.equal(resolvePrimaryModuleForBusinessCategory("health_wellness"), "bookin
 assert.equal(resolvePrimaryModuleForBusinessCategory("services"), "booking", "servicios debe priorizar agenda");
 
 assert.equal(getPlanLimit("trial", "commerceProducts"), 50, "trial debe permitir 50 productos");
-assert.equal(getPlanLimit("commercial", "commerceProducts"), 50, "comercial debe permitir 50 productos");
-assert.equal(getPlanLimit("plus", "commerceProducts"), 300, "plus debe permitir 300 productos");
+assert.equal(getPlanLimit("commercial", "commerceProducts"), 50, "emprendedor debe permitir 50 productos");
+assert.equal(getPlanLimit("plus", "commerceProducts"), 300, "comercial plus debe permitir 300 productos");
+assert.equal(getPlanLimit("pro", "commerceProducts"), 500, "business debe permitir 500 productos");
 assert.equal(getPlanLimit("basic", "commerceProducts"), 0, "basico no debe permitir productos");
 
 assertAccess(resolveDefaultModuleAccess({ plan: "trial", businessCategory: "services" }), { commerce: false, booking: true }, "trial debe iniciar con el modulo principal");
@@ -70,17 +71,32 @@ assert.equal(shouldRestrictToPrimaryModuleOnProfileChange({ plan: "basic" }), fa
 
 const now = new Date("2026-05-11T00:00:00.000Z");
 const currentExpiresAt = new Date("2026-11-10T00:00:00.000Z");
-const upgrade = calculateCommercialToPlusUpgrade({
+const upgrade = calculatePlanUpgrade({
   now,
   currentExpiresAt,
-  commercialAnnualPrice: 109900,
-  plusAnnualPrice: 169900,
+  currentAnnualPrice: 109900,
+  requestedAnnualPrice: 169900,
 });
 
 assert.equal(upgrade.remainingDays, 183, "upgrade debe contar dias restantes");
-assert.equal(upgrade.creditAmount, Math.round((109900 * 183) / 365), "upgrade debe descontar credito de comercial no usado");
-assert.equal(upgrade.amountToCharge, 169900 - upgrade.creditAmount, "upgrade debe cobrar plus menos credito");
+assert.equal(upgrade.creditAmount, Math.round((109900 * 183) / 365), "upgrade debe descontar credito del plan no usado");
+assert.equal(upgrade.amountToCharge, 169900 - upgrade.creditAmount, "upgrade debe cobrar plan superior menos credito");
 assert.equal(upgrade.newExpiresAt.toISOString(), "2027-05-11T00:00:00.000Z", "upgrade debe reiniciar vencimiento a un ano");
+
+[
+  ["basic", "commercial"],
+  ["basic", "plus"],
+  ["basic", "pro"],
+  ["commercial", "plus"],
+  ["commercial", "pro"],
+  ["plus", "pro"],
+].forEach(([currentPlan, requestedPlan]) => {
+  assert.equal(isPlanUpgrade({ currentPlan, requestedPlan }), true, `${currentPlan} debe poder subir a ${requestedPlan}`);
+});
+
+assert.equal(isPlanUpgrade({ currentPlan: "plus", requestedPlan: "plus" }), false, "mismo plan no debe ser upgrade");
+assert.equal(isPlanUpgrade({ currentPlan: "pro", requestedPlan: "plus" }), false, "bajar de plan no debe ser upgrade");
+assert.equal(isActivePaidPlan({ status: "active", currentPlan: "basic", currentExpiresAt, now }), true, "basico activo vigente debe contar como plan pagado");
 
 assert.doesNotThrow(() => assertNoActivePlanDowngrade({
   status: "active",

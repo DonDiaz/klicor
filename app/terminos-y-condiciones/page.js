@@ -40,6 +40,8 @@ const sections = [
       "Los precios, límites y funcionalidades actuales pueden corresponder a una etapa de lanzamiento, validación o evolución del producto.",
       "Klicor podrá modificar precios, límites, funcionalidades, características, planes y condiciones comerciales en cualquier momento. Los cambios aplicarán para nuevas contrataciones o desde la siguiente renovación del usuario.",
       "Los precios de lanzamiento, promociones o condiciones especiales pueden ser temporales y no obligan a Klicor a mantenerlos indefinidamente.",
+      "Los planes públicos incluyen uso normal y razonable de la plataforma. Si una cuenta presenta alto volumen de visitas, productos, consultas, clics a WhatsApp, carga operativa, automatizaciones, consumo técnico o uso intensivo superior al promedio, Klicor podrá solicitar migración a un plan empresarial o de alto flujo con aviso previo.",
+      "Klicor no cobra comisión automática por pedido. Los planes de alto flujo, cuando apliquen, corresponden al uso intensivo de infraestructura, disponibilidad, soporte y capacidad operativa, no a la confirmación de ventas entregadas por el negocio.",
     ],
   },
   {

@@ -26,6 +26,8 @@ const sections = [
     body: [
       "El acceso a funcionalidades depende del plan activo, del estado de la cuenta y de los límites vigentes. Algunos planes pueden incluir solo link público y QR, mientras otros pueden habilitar comercio, agenda, tienda, menú, catálogo o módulos adicionales.",
       "La activación del plan ocurre cuando el pago es confirmado por la pasarela correspondiente o validado administrativamente por Klicor.",
+      "Los planes públicos cubren uso normal y razonable. Negocios con alto volumen de visitas, productos, consultas, pedidos por WhatsApp, carga operativa o consumo técnico pueden requerir un plan empresarial, mensualidad de alto flujo o cotización personalizada.",
+      "Cualquier ajuste por alto flujo será informado antes de aplicarse. Klicor no cobra comisiones por venta ni por pedido; el cargo de alto flujo corresponde al uso intensivo de infraestructura y soporte.",
     ],
   },
   {
@@ -39,7 +41,7 @@ const sections = [
     title: "5. Cambios de plan",
     body: [
       "Cuando un usuario cambia de plan, Klicor puede aplicar reglas proporcionales, créditos comerciales o cobros desde la fecha del cambio según la política vigente.",
-      "Para pasar de Comercial a Plus, Klicor puede cobrar el año de Plus desde la fecha del cambio y descontar el valor proporcional no usado del plan Comercial, si esa regla está disponible al momento de la actualización.",
+      "Para subir de un plan activo a uno superior, Klicor puede cobrar el año del nuevo plan desde la fecha del cambio y descontar el valor proporcional no usado del plan anterior, si esa regla está disponible al momento de la actualización.",
     ],
   },
   {
