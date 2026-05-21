@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   BarChart3,
   Building2,
@@ -123,6 +123,12 @@ function AdminMetricCard({ label, value, emphasis = false }) {
 
 export function AdminPanel({ token, initialData, adminUser }) {
   const [panelData, setPanelData] = useState(initialData);
+  const [usersPage, setUsersPage] = useState(initialData?.usersPage || {
+    items: initialData?.users || [],
+    pageSize: 25,
+    nextCursor: "",
+    hasNextPage: false,
+  });
   const [section, setSection] = useState("dashboard");
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [filters, setFilters] = useState({
@@ -134,6 +140,9 @@ export function AdminPanel({ token, initialData, adminUser }) {
     sort: "created_desc",
   });
   const [selectedDetail, setSelectedDetail] = useState(null);
+  const [pageSize, setPageSize] = useState(initialData?.usersPage?.pageSize || 25);
+  const [cursorStack, setCursorStack] = useState([]);
+  const [usersLoading, setUsersLoading] = useState(false);
   const [drawerLoading, setDrawerLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [settingsForm, setSettingsForm] = useState(initialData?.settings || {});
@@ -144,17 +153,46 @@ export function AdminPanel({ token, initialData, adminUser }) {
   const [agencyMessage, setAgencyMessage] = useState("");
   const [agencyError, setAgencyError] = useState("");
   const [savingAgency, setSavingAgency] = useState(false);
+  const filtersReadyRef = useRef(false);
 
   useEffect(() => {
     setPanelData(initialData);
+    setUsersPage(initialData?.usersPage || {
+      items: initialData?.users || [],
+      pageSize: 25,
+      nextCursor: "",
+      hasNextPage: false,
+    });
+    setPageSize(initialData?.usersPage?.pageSize || 25);
+    setCursorStack([]);
     setSettingsForm(initialData?.settings || {});
   }, [initialData]);
 
-  async function refreshPanel(keepUserUid = selectedDetail?.user?.uid || "") {
+  function buildPanelUrl(cursor = "") {
+    const params = new URLSearchParams({
+      pageSize: String(pageSize),
+      search: filters.search,
+      origin: filters.origin,
+      accountStatus: filters.accountStatus,
+      plan: filters.plan,
+      renewal: filters.renewal,
+      sort: filters.sort,
+    });
+    if (cursor) params.set("cursor", cursor);
+    return `/api/admin/panel?${params.toString()}`;
+  }
+
+  async function refreshPanel(keepUserUid = selectedDetail?.user?.uid || "", cursor = cursorStack[cursorStack.length - 1] || "") {
     try {
       setRefreshing(true);
-      const nextPanel = await apiFetch("/api/admin/panel", { token });
+      const nextPanel = await apiFetch(buildPanelUrl(cursor), { token });
       setPanelData(nextPanel);
+      setUsersPage(nextPanel.usersPage || {
+        items: nextPanel.users || [],
+        pageSize,
+        nextCursor: "",
+        hasNextPage: false,
+      });
       setSettingsForm(nextPanel.settings);
 
       if (keepUserUid) {
@@ -165,6 +203,38 @@ export function AdminPanel({ token, initialData, adminUser }) {
       setRefreshing(false);
     }
   }
+
+  async function loadUsersPage(cursor = "", nextCursorStack = cursorStack) {
+    try {
+      setUsersLoading(true);
+      const nextPanel = await apiFetch(buildPanelUrl(cursor), { token });
+      setPanelData(nextPanel);
+      setUsersPage(nextPanel.usersPage || {
+        items: nextPanel.users || [],
+        pageSize,
+        nextCursor: "",
+        hasNextPage: false,
+      });
+      setSettingsForm(nextPanel.settings);
+      setCursorStack(nextCursorStack);
+    } finally {
+      setUsersLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    if (!filtersReadyRef.current) {
+      filtersReadyRef.current = true;
+      return undefined;
+    }
+
+    const timeout = window.setTimeout(() => {
+      setCursorStack([]);
+      loadUsersPage("", []);
+    }, 250);
+
+    return () => window.clearTimeout(timeout);
+  }, [filters, pageSize]);
 
   async function openUser(uid) {
     try {
@@ -230,27 +300,8 @@ export function AdminPanel({ token, initialData, adminUser }) {
     }));
   }
 
-  const filteredUsers = useMemo(() => {
-    const search = String(filters.search || "").trim().toLowerCase();
-
-    const list = (panelData?.users || []).filter((user) => {
-      const matchesSearch = !search || [
-        user.businessName,
-        user.ownerName,
-        user.email,
-        user.phone,
-      ].some((value) => String(value || "").toLowerCase().includes(search));
-
-      const matchesOrigin = filters.origin === "all" || user.origin === filters.origin;
-      const matchesStatus = filters.accountStatus === "all" || user.accountStatus === filters.accountStatus;
-      const matchesPlan = filters.plan === "all" || user.plan === filters.plan;
-      const matchesRenewal = matchesRenewalFilter(user, filters.renewal);
-
-      return matchesSearch && matchesOrigin && matchesStatus && matchesPlan && matchesRenewal;
-    });
-
-    return sortUsers(list, filters.sort);
-  }, [filters, panelData?.users]);
+  const filteredUsers = usersPage?.items || [];
+  const currentPageNumber = cursorStack.length + 1;
 
   const dashboardCards = buildDashboardCards(panelData?.metrics);
   const dueToday = panelData?.renewalBuckets?.dueToday || [];
@@ -451,15 +502,56 @@ export function AdminPanel({ token, initialData, adminUser }) {
                       <option value="name">Nombre del negocio</option>
                     </select>
                   </div>
+                  <div>
+                    <label className="label">Filas</label>
+                    <select className="select" value={pageSize} onChange={(event) => setPageSize(Number(event.target.value))}>
+                      <option value={10}>10</option>
+                      <option value={25}>25</option>
+                      <option value={50}>50</option>
+                      <option value={100}>100</option>
+                    </select>
+                  </div>
                 </div>
               </div>
             </section>
 
             <section className="panel admin-table-panel">
-              <div className="admin-section-heading">
-                <h3>Usuarios y negocios</h3>
-                <p className="muted">Tabla administrativa completa con filtros y detalle por usuario.</p>
+              <div className="admin-section-heading admin-table-heading">
+                <div>
+                  <h3>Usuarios y negocios</h3>
+                  <p className="muted">
+                    Página {currentPageNumber} · {filteredUsers.length} de {usersPage?.pageSize || pageSize} filas cargadas.
+                  </p>
+                </div>
+                <div className="actions">
+                  <button
+                    className="btn btn-secondary"
+                    type="button"
+                    disabled={usersLoading || !cursorStack.length}
+                    onClick={() => {
+                      const nextStack = cursorStack.slice(0, -1);
+                      const previousCursor = nextStack[nextStack.length - 1] || "";
+                      loadUsersPage(previousCursor, nextStack);
+                    }}
+                  >
+                    Anterior
+                  </button>
+                  <button
+                    className="btn btn-secondary"
+                    type="button"
+                    disabled={usersLoading || !usersPage?.hasNextPage}
+                    onClick={() => {
+                      const nextCursor = usersPage?.nextCursor || "";
+                      if (!nextCursor) return;
+                      loadUsersPage(nextCursor, [...cursorStack, nextCursor]);
+                    }}
+                  >
+                    Siguiente
+                  </button>
+                </div>
               </div>
+
+              {usersLoading ? <p className="notice">Cargando negocios...</p> : null}
 
               <div className="admin-table-wrap">
                 <table className="admin-table">
