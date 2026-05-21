@@ -1214,13 +1214,43 @@ export function CommercePublicView({ bootstrap, preview = false }) {
     return lines.filter(Boolean).join("\n");
   }
 
+  function trackCommerceIntent(action, product = {}) {
+    if (preview || typeof window === "undefined" || !safeBusiness.username) return;
+    const payload = {
+      username: safeBusiness.username,
+      action,
+      mode: safeMode,
+      productId: product?.id || "",
+      productName: product?.name || "",
+    };
+
+    try {
+      const body = JSON.stringify(payload);
+      if (navigator.sendBeacon) {
+        const blob = new Blob([body], { type: "application/json" });
+        navigator.sendBeacon("/api/analytics/commerce-intent", blob);
+        return;
+      }
+      fetch("/api/analytics/commerce-intent", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body,
+        keepalive: true,
+      }).catch(() => {});
+    } catch {
+      // La medicion comercial no debe bloquear la venta por WhatsApp.
+    }
+  }
+
   function handleProductWhatsapp(product) {
     if (preview || !safeBootstrap.orderWhatsapp || !orderingEnabled || !product) return;
+    trackCommerceIntent("product_whatsapp", product);
     window.open(buildWhatsappLink(safeBootstrap.orderWhatsapp, buildProductWhatsappMessage(product)), "_blank", "noopener,noreferrer");
   }
 
   function handleDetailWhatsapp(product) {
     if (preview || !safeBootstrap.orderWhatsapp || !orderingEnabled || !product) return;
+    trackCommerceIntent("detail_whatsapp", product);
     window.open(buildWhatsappLink(safeBootstrap.orderWhatsapp, buildProductWhatsappMessage(product)), "_blank", "noopener,noreferrer");
   }
 
@@ -1281,6 +1311,7 @@ export function CommercePublicView({ bootstrap, preview = false }) {
       payment,
       currency: safeConfig.currency,
     });
+    trackCommerceIntent("cart_whatsapp", { id: "cart", name: `${cartItems.length} productos` });
     window.open(buildWhatsappLink(safeBootstrap.orderWhatsapp, message), "_blank", "noopener,noreferrer");
   }
 
