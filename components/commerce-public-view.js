@@ -1208,7 +1208,7 @@ export function CommercePublicView({ bootstrap, preview = false }) {
 
   function buildProductWhatsappMessage(product = {}) {
     const lines = [
-      "Hola, quiero informacion de este producto:",
+      "Hola, quiero información de este producto:",
       "",
       product.name || "Producto",
     ];
@@ -1601,7 +1601,7 @@ export function CommercePublicView({ bootstrap, preview = false }) {
             ) : (
               <div className="commerce-product-detail-actions">
                 <button className="btn btn-primary commerce-product-detail-whatsapp" type="button" onClick={() => handleDetailWhatsapp(detailProduct)} disabled={!safeBootstrap.orderWhatsapp || preview || !orderingEnabled || detailProduct.available === false}>
-                  <WhatsappIcon size={20} /> {detailProduct.available === false ? "No disponible" : orderingEnabled ? "Pedir informacion" : "Cerrado ahora"}
+                  <WhatsappIcon size={20} /> {detailProduct.available === false ? "No disponible" : orderingEnabled ? "Pedir información" : "Cerrado ahora"}
                 </button>
                 <button
                   className="btn btn-secondary commerce-product-detail-share"

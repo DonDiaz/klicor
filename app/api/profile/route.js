@@ -147,7 +147,7 @@ export async function POST(request) {
         windowMs: 60 * 60_000,
       });
       if (uploadRate.limited) {
-        return durableRateLimitResponse(uploadRate, "Demasiadas subidas de imagen. Intenta de nuevo mas tarde.");
+        return durableRateLimitResponse(uploadRate, "Demasiadas subidas de imagen. Intenta de nuevo más tarde.");
       }
     }
 

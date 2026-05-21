@@ -714,7 +714,7 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
     const selectedAliasAsset = resolveCommerceCategoryAsset(selectedIconAlias, profile?.businessCategory);
 
     return (
-      <div className="commerce-icon-picker" aria-label="Selector visual de asset de categoria">
+      <div className="commerce-icon-picker" aria-label="Selector visual de asset de categoría">
         <input
           className="input commerce-icon-search"
           value={pickerQuery}
@@ -725,7 +725,7 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
           type="search"
         />
         {!searchText && !showAll ? (
-          <small className="commerce-board-note">Escribe el nombre de la categoria para ver recomendaciones.</small>
+          <small className="commerce-board-note">Escribe el nombre de la categoría para ver recomendaciones.</small>
         ) : null}
         {showCurrent ? (
           <section className="commerce-icon-current" aria-label="Asset actual">
@@ -772,7 +772,7 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
           ))}
         </div>
         <button className="btn btn-secondary commerce-icon-picker-more" type="button" onClick={() => updateIconPickerState(pickerId, { showAll: !showAll })}>
-          {showAll ? "Ver solo recomendados" : "Ver mas opciones"}
+          {showAll ? "Ver solo recomendados" : "Ver más opciones"}
         </button>
       </div>
     );
@@ -1029,9 +1029,9 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
                       <div className="commerce-board-row-actions">
                         <button type="button" onClick={() => runAction("move_category", { categoryId: category.id, direction: "up" })} disabled={!canEdit || loading} title="Mover arriba" aria-label={`Mover arriba categoría ${category.name || ""}`.trim()}><ChevronUp size={15} /></button>
                         <button type="button" onClick={() => runAction("move_category", { categoryId: category.id, direction: "down" })} disabled={!canEdit || loading} title="Mover abajo" aria-label={`Mover abajo categoría ${category.name || ""}`.trim()}><ChevronDown size={15} /></button>
-                        <button type="button" onClick={() => startEditCategory(category)} disabled={!canEdit || loading} title="Editar categoría" aria-label={`Editar categoria ${category.name || ""}`.trim()}><Pencil size={15} /></button>
-                        <button type="button" onClick={() => runAction("update_category", { id: category.id, name: category.name, iconKey: category.iconKey, color: category.color, visible: category.visible === false })} disabled={!canEdit || loading} title={category.visible === false ? "Mostrar categoria" : "Ocultar categoria"} aria-label={`${category.visible === false ? "Mostrar" : "Ocultar"} categoria ${category.name || ""}`.trim()}>{category.visible === false ? <Eye size={15} /> : <EyeOff size={15} />}</button>
-                        <button type="button" onClick={() => confirmAction("¿Eliminar esta categoría? Solo se puede eliminar si está vacía.", () => runAction("delete_category", { categoryId: category.id }))} disabled={!canEdit || loading} title="Eliminar categoría" aria-label={`Eliminar categoria ${category.name || ""}`.trim()}><Trash2 size={15} /></button>
+                        <button type="button" onClick={() => startEditCategory(category)} disabled={!canEdit || loading} title="Editar categoría" aria-label={`Editar categoría ${category.name || ""}`.trim()}><Pencil size={15} /></button>
+                        <button type="button" onClick={() => runAction("update_category", { id: category.id, name: category.name, iconKey: category.iconKey, color: category.color, visible: category.visible === false })} disabled={!canEdit || loading} title={category.visible === false ? "Mostrar categoría" : "Ocultar categoría"} aria-label={`${category.visible === false ? "Mostrar" : "Ocultar"} categoría ${category.name || ""}`.trim()}>{category.visible === false ? <Eye size={15} /> : <EyeOff size={15} />}</button>
+                        <button type="button" onClick={() => confirmAction("¿Eliminar esta categoría? Solo se puede eliminar si está vacía.", () => runAction("delete_category", { categoryId: category.id }))} disabled={!canEdit || loading} title="Eliminar categoría" aria-label={`Eliminar categoría ${category.name || ""}`.trim()}><Trash2 size={15} /></button>
                       </div>
                     </>
                   )}
@@ -1110,7 +1110,7 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
                       </select>
                       <label className="switch-row commerce-product-visible-toggle">
                         <input type="checkbox" checked={editingSubcategoryVisible} onChange={(event) => setEditingSubcategoryVisible(event.target.checked)} />
-                        <span>{editingSubcategoryVisible ? "Subcategoria visible" : "Subcategoria oculta"}</span>
+                        <span>{editingSubcategoryVisible ? "Subcategoría visible" : "Subcategoría oculta"}</span>
                       </label>
                       <button className="btn btn-primary" type="button" onClick={async () => {
                         const result = await runAction("update_subcategory", {
@@ -1138,10 +1138,10 @@ export function CommerceWorkspace({ token, profile, active = false, canEdit = tr
                         <ChevronRight size={16} />
                       </button>
                       <div className="commerce-board-row-actions">
-                        <button type="button" onClick={() => runAction("move_subcategory", { subcategoryId: subcategory.id, direction: "up" })} disabled={!canEdit || loading} title="Mover arriba" aria-label={`Mover arriba subcategoria ${subcategory.name || ""}`.trim()}><ChevronUp size={15} /></button>
-                        <button type="button" onClick={() => runAction("move_subcategory", { subcategoryId: subcategory.id, direction: "down" })} disabled={!canEdit || loading} title="Mover abajo" aria-label={`Mover abajo subcategoria ${subcategory.name || ""}`.trim()}><ChevronDown size={15} /></button>
-                        <button type="button" onClick={() => { setEditingCategoryId(""); setEditingSubcategoryId(subcategory.id); setEditingSubcategoryName(subcategory.name); setEditingSubcategoryCategoryId(subcategory.categoryId || selectedCategory.id); setEditingSubcategoryVisible(subcategory.visible !== false); }} disabled={!canEdit || loading} title="Editar subcategoría" aria-label={`Editar subcategoria ${subcategory.name || ""}`.trim()}><Pencil size={15} /></button>
-                        <button type="button" onClick={() => confirmAction("¿Eliminar esta subcategoría? Solo se puede eliminar si está vacía.", () => runAction("delete_subcategory", { subcategoryId: subcategory.id }))} disabled={!canEdit || loading} title="Eliminar subcategoría" aria-label={`Eliminar subcategoria ${subcategory.name || ""}`.trim()}><Trash2 size={15} /></button>
+                        <button type="button" onClick={() => runAction("move_subcategory", { subcategoryId: subcategory.id, direction: "up" })} disabled={!canEdit || loading} title="Mover arriba" aria-label={`Mover arriba subcategoría ${subcategory.name || ""}`.trim()}><ChevronUp size={15} /></button>
+                        <button type="button" onClick={() => runAction("move_subcategory", { subcategoryId: subcategory.id, direction: "down" })} disabled={!canEdit || loading} title="Mover abajo" aria-label={`Mover abajo subcategoría ${subcategory.name || ""}`.trim()}><ChevronDown size={15} /></button>
+                        <button type="button" onClick={() => { setEditingCategoryId(""); setEditingSubcategoryId(subcategory.id); setEditingSubcategoryName(subcategory.name); setEditingSubcategoryCategoryId(subcategory.categoryId || selectedCategory.id); setEditingSubcategoryVisible(subcategory.visible !== false); }} disabled={!canEdit || loading} title="Editar subcategoría" aria-label={`Editar subcategoría ${subcategory.name || ""}`.trim()}><Pencil size={15} /></button>
+                        <button type="button" onClick={() => confirmAction("¿Eliminar esta subcategoría? Solo se puede eliminar si está vacía.", () => runAction("delete_subcategory", { subcategoryId: subcategory.id }))} disabled={!canEdit || loading} title="Eliminar subcategoría" aria-label={`Eliminar subcategoría ${subcategory.name || ""}`.trim()}><Trash2 size={15} /></button>
                       </div>
                     </>
                   )}

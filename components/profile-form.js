@@ -447,13 +447,13 @@ function getSubscriptionMessage(status) {
 
 const AGENCY_PERMISSION_LABELS = {
   links: "Enlaces",
-  design: "Diseno",
+  design: "Diseño",
   commerce: "Comercio",
   booking: "Agenda",
-  publicProfile: "Perfil publico",
-  paymentMethods: "Metodos de pago visibles",
-  analytics: "Analiticas generales",
-  subscriptionRenewal: "Renovacion",
+  publicProfile: "Perfil público",
+  paymentMethods: "Métodos de pago visibles",
+  analytics: "Analíticas generales",
+  subscriptionRenewal: "Renovación",
 };
 
 function formatAgencyDate(value) {
@@ -1464,7 +1464,7 @@ export function ProfileForm({
               <strong>Autorizar agencia</strong>
               <p>
                 Vas a permitir que {agencyConfirmRequest.agencyName || agencyConfirmRequest.agencyEmail} edite partes visibles de tu Klicor.
-                No podra ver seguridad, facturacion privada ni operar citas de clientes.
+                No podrá ver seguridad, facturación privada ni operar citas de clientes.
               </p>
             </div>
             <div className="agency-owner-actions">
@@ -1769,7 +1769,7 @@ export function ProfileForm({
                     onChange={(e) => setForm({ ...form, businessType: e.target.value })}
                     disabled={!canEdit}
                   >
-                    <option value="">Selecciona una opcion</option>
+                    <option value="">Selecciona una opción</option>
                     {businessTypeOptions.map((option) => (
                       <option key={option.value} value={option.value}>
                         {option.label}
@@ -2614,7 +2614,7 @@ export function ProfileForm({
                       <span className="dashboard-link-label">Actividad del negocio</span>
                       <div className="dorika-category-note">
                         <strong>{businessTypeLabel}</strong>
-                        <small>Se toma de tu perfil de Klicor. Cambialo en Identidad si necesitas ajustar filtros, mapa y secciones.</small>
+                        <small>Se toma de tu perfil de Klicor. Cámbialo en Identidad si necesitas ajustar filtros, mapa y secciones.</small>
                       </div>
                     </div>
                   </div>

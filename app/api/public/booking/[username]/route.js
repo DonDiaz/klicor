@@ -26,7 +26,7 @@ async function readCustomerAuth(request) {
   const authHeader = request.headers.get("authorization") || "";
   const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : "";
   if (!token) {
-    throw new Error("Inicia sesion con Google para enviar la cita.");
+    throw new Error("Inicia sesión con Google para enviar la cita.");
   }
 
   const decoded = await getAdminAuth().verifyIdToken(token);
@@ -177,7 +177,7 @@ export async function POST(request, { params }) {
 
     if (!consentStatus.hasCurrentConsent) {
       if (!hasAcceptedRequiredBookingLegal(body.legalAcceptance)) {
-        throw new Error("Debes aceptar los terminos y la politica de privacidad para agendar.");
+        throw new Error("Debes aceptar los términos y la política de privacidad para agendar.");
       }
 
       legalConsent = await timing.measure(

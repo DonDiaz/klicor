@@ -65,13 +65,13 @@ const CATEGORY_OPTIONS = [
   {
     value: "food_drink",
     label: "Comida y bebidas",
-    copy: "Pedidos, menu y ubicacion en un solo lugar.",
+    copy: "Pedidos, menú y ubicación en un solo lugar.",
     icon: Utensils,
   },
   {
     value: "retail_sales",
     label: "Tiendas y ventas",
-    copy: "Catalogo, compra y contacto para vender por redes.",
+    copy: "Catálogo, compra y contacto para vender por redes.",
     icon: ShoppingBag,
   },
   {
@@ -83,13 +83,13 @@ const CATEGORY_OPTIONS = [
   {
     value: "health_wellness",
     label: "Salud y bienestar",
-    copy: "Reservas, servicios y contacto para atender rapido.",
+    copy: "Reservas, servicios y contacto para atender rápido.",
     icon: HeartPulse,
   },
   {
     value: "tourism_experiences",
     label: "Turismo y experiencias",
-    copy: "Planes, reservas y ubicacion para compartir facil.",
+    copy: "Planes, reservas y ubicación para compartir fácil.",
     icon: MapPin,
   },
 ];
@@ -115,7 +115,7 @@ function hasMapPoint(dorikaProfile = {}) {
 function getStepValidationError(stepId, wizard) {
   if (stepId === "category") {
     if (!wizard.businessCategory) return "Selecciona el tipo de negocio para continuar.";
-    if (!wizard.businessType) return "Selecciona que hace o vende tu negocio.";
+    if (!wizard.businessType) return "Selecciona qué hace o vende tu negocio.";
     return "";
   }
 
@@ -662,7 +662,7 @@ export function DashboardOnboarding({ token, profile, onCompleted, onSkip }) {
                 <div className="onboarding-type-panel">
                   <div>
                     <strong>Que hace o vende tu negocio</strong>
-                    <p className="section-copy">Esto nos ayuda a sugerir modulo, tema, iconos y experiencia comercial.</p>
+                    <p className="section-copy">Esto nos ayuda a sugerir módulo, tema, íconos y experiencia comercial.</p>
                   </div>
                   <div className="onboarding-type-grid">
                     {businessTypeOptions.map((option) => (
@@ -714,8 +714,8 @@ export function DashboardOnboarding({ token, profile, onCompleted, onSkip }) {
 
               <div className="onboarding-location-card">
                 <div>
-                  <strong>Ubicacion de tu negocio</strong>
-                  <p className="section-copy">Opcional. Usala solo si quieres mostrar una direccion, ciudad o punto publico.</p>
+                  <strong>Ubicación de tu negocio</strong>
+                  <p className="section-copy">Opcional. Úsala solo si quieres mostrar una dirección, ciudad o punto público.</p>
                 </div>
                 <div className="profile-grid">
                   <div>
@@ -748,12 +748,12 @@ export function DashboardOnboarding({ token, profile, onCompleted, onSkip }) {
                 </div>
                 <div className="onboarding-map-capture">
                   <div>
-                    <strong>Ubicacion publica</strong>
+                    <strong>Ubicación pública</strong>
                     <span>
                       {hasMapPoint(wizard.dorikaProfile)
                         ? `${Number(wizard.dorikaProfile.latitude).toFixed(6)}, ${Number(wizard.dorikaProfile.longitude).toFixed(6)}`
                         : wizard.dorikaProfile?.locationPrivacy === "contact_only"
-                          ? "No se mostrara ubicacion publica."
+                          ? "No se mostrará ubicación pública."
                           : "Puedes dejarla vacia o ubicar el negocio en el mapa."}
                     </span>
                   </div>
@@ -772,7 +772,7 @@ export function DashboardOnboarding({ token, profile, onCompleted, onSkip }) {
                       type="button"
                       onClick={handleHidePublicLocation}
                     >
-                      No mostrar ubicacion
+                      No mostrar ubicación
                     </button>
                   </div>
                 </div>
@@ -816,7 +816,7 @@ export function DashboardOnboarding({ token, profile, onCompleted, onSkip }) {
           {currentStep.id === "actions" ? (
             <div className="section-stack">
               <div className="notice">
-                <span>WhatsApp es el contacto principal. Pagina, redes y ubicacion son opcionales.</span>
+                <span>WhatsApp es el contacto principal. Página, redes y ubicación son opcionales.</span>
               </div>
               {onboardingActionSlots.map((slot) => (
                 <div key={slot.id} className="link-row onboarding-link-row">
@@ -1044,10 +1044,10 @@ export function DashboardOnboarding({ token, profile, onCompleted, onSkip }) {
         initialCity={wizard.billingProfile?.city || wizard.dorikaProfile?.city}
         initialZone={wizard.dorikaProfile?.zone}
         initialAddress={wizard.dorikaProfile?.address}
-        eyebrow="Ubicacion del negocio"
+        eyebrow="Ubicación del negocio"
         title="Ubica tu negocio en el mapa"
-        copy="Busca la direccion, usa tu ubicacion actual o mueve el mapa hasta dejar el pin sobre el local."
-        saveLabel="Usar esta ubicacion"
+        copy="Busca la dirección, usa tu ubicación actual o mueve el mapa hasta dejar el pin sobre el local."
+        saveLabel="Usar esta ubicación"
         savedMessage="Punto ajustado. Guarda para usarlo en tu Klicor."
         onClose={() => setLocationMapOpen(false)}
         onSave={handleSaveMapLocation}

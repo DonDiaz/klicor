@@ -22,7 +22,7 @@ const FILTERS = {
   businesses: {
     title: "Negocios vinculados",
     copy: "Negocios que aceptaron el acceso de agencia.",
-    empty: "Aun no tienes negocios vinculados.",
+    empty: "Aún no tienes negocios vinculados.",
   },
   pending: {
     title: "Solicitudes pendientes",
@@ -35,7 +35,7 @@ const FILTERS = {
     empty: "No hay negocios por renovar.",
   },
   activity: {
-    title: "Ultima actividad",
+    title: "Última actividad",
     copy: "Negocios modificados recientemente.",
     empty: "No hay actividad reciente.",
   },
@@ -214,7 +214,7 @@ export function AgencyPageClient() {
         <AuthForm
           allowRegister={false}
           title="Acceso para agencias"
-          description="Inicia sesion con el correo autorizado por Klicor para administrar negocios vinculados."
+          description="Inicia sesión con el correo autorizado por Klicor para administrar negocios vinculados."
           googleLabel="Entrar con Google"
           submitLabel="Entrar con correo"
           onSuccess={() => window.location.assign("/agencia")}
@@ -232,7 +232,7 @@ export function AgencyPageClient() {
           <p className="muted">{error}</p>
           <div className="actions">
             <Link className="btn btn-secondary" href="/dashboard">Volver al dashboard</Link>
-            <button className="btn btn-secondary" type="button" onClick={handleLogout}>Cerrar sesion</button>
+            <button className="btn btn-secondary" type="button" onClick={handleLogout}>Cerrar sesión</button>
           </div>
         </section>
       </main>
@@ -267,7 +267,7 @@ export function AgencyPageClient() {
             <ShieldCheck size={18} />
             <div>
               <strong>Control del negocio</strong>
-              <span>El dueno puede revocar el acceso cuando quiera.</span>
+              <span>El dueño puede revocar el acceso cuando quiera.</span>
             </div>
           </div>
         </aside>
@@ -281,7 +281,7 @@ export function AgencyPageClient() {
             </div>
             <div className="agency-hero-actions">
               <Link className="btn btn-secondary" href="/dashboard">Mi dashboard</Link>
-              <button className="btn btn-secondary" type="button" onClick={handleLogout}>Cerrar sesion</button>
+              <button className="btn btn-secondary" type="button" onClick={handleLogout}>Cerrar sesión</button>
             </div>
           </header>
 
@@ -289,7 +289,7 @@ export function AgencyPageClient() {
             <ShieldCheck size={18} />
             <div>
               <strong>Agencia autorizada</strong>
-              <span>Tu correo esta habilitado por Klicor. Los negocios pueden revocar el acceso cuando quieran.</span>
+              <span>Tu correo está habilitado por Klicor. Los negocios pueden revocar el acceso cuando quieran.</span>
             </div>
           </section>
 
@@ -300,7 +300,7 @@ export function AgencyPageClient() {
             <AgencyMetricCard label="Negocios vinculados" value={businesses.length} active={activeFilter === "businesses"} onClick={() => setActiveFilter("businesses")} />
             <AgencyMetricCard label="Solicitudes pendientes" value={pendingRequests.length} active={activeFilter === "pending"} onClick={() => setActiveFilter("pending")} />
             <AgencyMetricCard label="Por renovar" value={renewalBusinesses.length} active={activeFilter === "renewals"} onClick={() => setActiveFilter("renewals")} />
-            <AgencyMetricCard label="Ultima actividad" value={latestActivityLabel} active={activeFilter === "activity"} onClick={() => setActiveFilter("activity")} />
+            <AgencyMetricCard label="Última actividad" value={latestActivityLabel} active={activeFilter === "activity"} onClick={() => setActiveFilter("activity")} />
           </section>
 
           <section className="agency-grid">
@@ -331,8 +331,8 @@ export function AgencyPageClient() {
               <section className="agency-panel">
                 <div className="agency-section-heading">
                   <div>
-                    <h2>Solicitud rapida</h2>
-                    <p>Se solicitara por correo exacto del negocio.</p>
+                    <h2>Solicitud rápida</h2>
+                    <p>Se solicitará por correo exacto del negocio.</p>
                   </div>
                 </div>
                 <form className="agency-request-form" onSubmit={submitAccessRequest}>
@@ -363,7 +363,7 @@ export function AgencyPageClient() {
                   <div className="agency-section-heading">
                     <div>
                       <h2>Solicitudes pendientes</h2>
-                      <p>Vencen a los 7 dias.</p>
+                      <p>Vencen a los 7 días.</p>
                     </div>
                   </div>
                   <div className="agency-request-list">

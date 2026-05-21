@@ -396,7 +396,7 @@ export function BookingWorkspace({ token, active = false, canEdit = true, agency
         setStaffDeleteReview({ member, appointments: blockers });
         return;
       }
-      if (window.confirm(`Eliminar a ${member.name}? Esta accion no se puede deshacer.`)) {
+      if (window.confirm(`¿Eliminar a ${member.name}? Esta acción no se puede deshacer.`)) {
         await runAction("delete_staff", { staffId: member.id });
       }
     } catch (nextError) {
@@ -597,7 +597,7 @@ export function BookingWorkspace({ token, active = false, canEdit = true, agency
           <div className="booking-close-reminder-inline">
             <div>
               <strong>{appointmentsToClose.length} {appointmentsToClose.length === 1 ? "cita requiere cierre" : "citas requieren cierre"}</strong>
-              <span>Marca si el cliente asistio, no asistio o reprograma para mantener la agenda limpia.</span>
+              <span>Marca si el cliente asistió, no asistió o reprograma para mantener la agenda limpia.</span>
             </div>
             <button className="btn btn-secondary" type="button" onClick={reopenCloseReminder}>
               <AlertTriangle size={16} /> Ver alerta
@@ -893,7 +893,7 @@ export function BookingWorkspace({ token, active = false, canEdit = true, agency
           <div className="commerce-modal-head booking-close-reminder-head">
             <span><AlertTriangle size={16} /> Citas por cerrar</span>
             <strong>Tienes {appointmentsToClose.length} {appointmentsToClose.length === 1 ? "cita pendiente" : "citas pendientes"} de cerrar</strong>
-            <p>Marca si el cliente asistio, no asistio o reprograma para mantener tu agenda al dia.</p>
+            <p>Marca si el cliente asistió, no asistió o reprograma para mantener tu agenda al día.</p>
           </div>
 
           <div className="booking-close-reminder-list">
@@ -920,7 +920,7 @@ export function BookingWorkspace({ token, active = false, canEdit = true, agency
           </div>
 
           {appointmentsToClose.length > visibleAppointments.length ? (
-            <p className="muted">Hay {appointmentsToClose.length - visibleAppointments.length} cita(s) mas por cerrar en la agenda.</p>
+            <p className="muted">Hay {appointmentsToClose.length - visibleAppointments.length} cita(s) más por cerrar en la agenda.</p>
           ) : null}
 
           <div className="commerce-modal-actions">
@@ -1132,7 +1132,7 @@ export function BookingWorkspace({ token, active = false, canEdit = true, agency
                     No asistio
                   </button>
                   <button className="booking-status-action is-cancel" type="button" onClick={async () => {
-                    if (!window.confirm("Cancelar esta cita para poder eliminar el profesional?")) return;
+                    if (!window.confirm("¿Cancelar esta cita para poder eliminar el profesional?")) return;
                     await runAction("update_appointment_status", { id: appointment.id, status: "cancelled_by_business" }, null, { refresh: false });
                     await refreshStaffDeleteReview();
                   }}>

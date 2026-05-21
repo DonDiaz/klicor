@@ -58,7 +58,7 @@ export async function GET(request) {
       headers: timing.headers(payload),
     });
   } catch (error) {
-    const payload = { error: formatApiError(error, "No pudimos cargar el modulo comercial.") };
+    const payload = { error: formatApiError(error, "No pudimos cargar el módulo comercial.") };
     return NextResponse.json(payload, {
       status: 400,
       headers: timing.headers(payload),
@@ -90,7 +90,7 @@ export async function POST(request) {
         "upload-rate",
       );
       if (uploadRate.limited) {
-        return durableRateLimitResponse(uploadRate, "Demasiadas subidas de imagen. Intenta de nuevo mas tarde.");
+        return durableRateLimitResponse(uploadRate, "Demasiadas subidas de imagen. Intenta de nuevo más tarde.");
       }
     }
 
@@ -162,7 +162,7 @@ export async function POST(request) {
       headers: timing.headers(payloadResponse),
     });
   } catch (error) {
-    const payloadResponse = { error: formatApiError(error, "No pudimos guardar los cambios del modulo comercial.") };
+    const payloadResponse = { error: formatApiError(error, "No pudimos guardar los cambios del módulo comercial.") };
     return NextResponse.json(payloadResponse, {
       status: 400,
       headers: timing.headers(payloadResponse),

@@ -106,7 +106,7 @@ export function BookingStatusBadge({ statusMeta }) {
 function rejectAppointment(appointment, onStatusChange) {
   const customerName = appointment.customerName || "este cliente";
   const confirmed = window.confirm(
-    `Vas a rechazar la solicitud de ${customerName}. Esta accion no reserva el horario. Continuar?`
+    `Vas a rechazar la solicitud de ${customerName}. Esta acción no reserva el horario. ¿Continuar?`
   );
 
   if (!confirmed) return;

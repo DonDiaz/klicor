@@ -412,7 +412,7 @@ export function AdminPanel({ token, initialData, adminUser }) {
             <section className="panel admin-analytics-card">
               <div className="admin-section-heading">
                 <h3>Alto movimiento comercial</h3>
-                <p className="muted">Intenciones reales desde tienda, menu o catalogo. No cuenta el WhatsApp general del link in bio.</p>
+                <p className="muted">Intenciones reales desde tienda, menú o catálogo. No cuenta el WhatsApp general del link in bio.</p>
               </div>
               <div className="admin-highflow-list">
                 {highFlowItems.length ? highFlowItems.map((item) => (

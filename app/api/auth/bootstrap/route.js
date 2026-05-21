@@ -13,7 +13,7 @@ function getRequestIp(request) {
 
 function isLegalAcceptanceError(error) {
   const message = String(error?.message || "").toLowerCase();
-  return message.includes("terminos") || message.includes("tÃ©rminos") || message.includes("crear tu cuenta") || message.includes("vigentes");
+  return message.includes("terminos") || message.includes("términos") || message.includes("crear tu cuenta") || message.includes("vigentes");
 }
 
 export async function POST(request) {

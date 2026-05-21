@@ -94,7 +94,7 @@ export async function GET(request, { params }) {
     });
   } catch (error) {
     console.error("[public-commerce]", error?.message || error);
-    const payload = { error: "No pudimos cargar el comercio publico." };
+    const payload = { error: "No pudimos cargar el comercio público." };
     return NextResponse.json(payload, {
       status: 400,
       headers: timing.headers(payload, rateLimitHeaders(rate)),

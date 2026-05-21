@@ -148,7 +148,7 @@ function money(value, currency = "COP") {
 
 function validateBookingDetails(selection, { requiresLegalConsent = false, legalAccepted = false } = {}) {
   if (!selection.customerUid) {
-    return "Inicia sesion con Google para enviar la cita.";
+    return "Inicia sesión con Google para enviar la cita.";
   }
 
   if (!String(selection.customerName || "").trim() || String(selection.customerName || "").trim().length < 2) {
@@ -161,7 +161,7 @@ function validateBookingDetails(selection, { requiresLegalConsent = false, legal
   }
 
   if (requiresLegalConsent && !legalAccepted) {
-    return "Acepta los terminos y la politica de privacidad para agendar.";
+    return "Acepta los términos y la política de privacidad para agendar.";
   }
 
   return "";
@@ -526,7 +526,7 @@ export function BookingPublicView({ bootstrap }) {
   async function handleGoogleSignIn() {
     const auth = getClientAuth();
     if (!auth) {
-      setError("No pudimos iniciar sesion en este navegador.");
+      setError("No pudimos iniciar sesión en este navegador.");
       return;
     }
 
@@ -545,7 +545,7 @@ export function BookingPublicView({ bootstrap }) {
         throw popupError;
       }
     } catch (nextError) {
-      setError(nextError.message || "No pudimos iniciar sesion con Google.");
+      setError(nextError.message || "No pudimos iniciar sesión con Google.");
     } finally {
       setAuthSubmitting(false);
     }
@@ -809,7 +809,7 @@ export function BookingPublicView({ bootstrap }) {
                   />
                   <div className="booking-customer-auth-card">
                     {authLoading ? (
-                      <span><LoaderCircle size={16} className="spin" /> Revisando tu sesion...</span>
+                      <span><LoaderCircle size={16} className="spin" /> Revisando tu sesión...</span>
                     ) : customerAuth ? (
                       <div className="booking-customer-auth-user">
                         {customerAuth.photoURL ? <img src={customerAuth.photoURL} alt="" /> : null}
@@ -822,11 +822,11 @@ export function BookingPublicView({ bootstrap }) {
                       <>
                         <span>
                           <strong>Continua con Google</strong>
-                          <small>Asi podemos enviarte confirmaciones y cambios de tu cita.</small>
+                          <small>Así podemos enviarte confirmaciones y cambios de tu cita.</small>
                         </span>
                         <button className="btn btn-secondary" type="button" onClick={handleGoogleSignIn} disabled={authSubmitting}>
                           {authSubmitting ? <LoaderCircle size={16} className="spin" /> : null}
-                          {authSubmitting ? "Conectando..." : "Iniciar sesion"}
+                          {authSubmitting ? "Conectando..." : "Iniciar sesión"}
                         </button>
                       </>
                     )}
@@ -848,7 +848,7 @@ export function BookingPublicView({ bootstrap }) {
                   {customerAuth && (legalConsentLoading || requiresLegalConsent) ? (
                     <div className="booking-legal-consent-card">
                       {legalConsentLoading ? (
-                        <span><LoaderCircle size={16} className="spin" /> Revisando aceptacion legal...</span>
+                        <span><LoaderCircle size={16} className="spin" /> Revisando aceptación legal...</span>
                       ) : (
                         <label className="booking-legal-consent-check">
                           <input
@@ -857,7 +857,7 @@ export function BookingPublicView({ bootstrap }) {
                             onChange={(event) => setLegalAccepted(event.target.checked)}
                           />
                           <span>
-                            Acepto los <a href="/terminos-y-condiciones" target="_blank" rel="noreferrer">Terminos y condiciones</a> y autorizo el tratamiento de mis datos personales segun la <a href="/politica-de-privacidad" target="_blank" rel="noreferrer">Politica de privacidad</a> para gestionar esta cita.
+                            Acepto los <a href="/terminos-y-condiciones" target="_blank" rel="noreferrer">Términos y condiciones</a> y autorizo el tratamiento de mis datos personales según la <a href="/politica-de-privacidad" target="_blank" rel="noreferrer">Política de privacidad</a> para gestionar esta cita.
                           </span>
                         </label>
                       )}

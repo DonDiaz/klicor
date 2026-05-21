@@ -126,14 +126,14 @@ export function AuthForm({
 
   function isLegalAcceptanceError(error) {
     const text = String(error?.message || "").toLowerCase();
-    return text.includes("terminos") || text.includes("tÃ©rminos") || text.includes("crear tu cuenta") || text.includes("vigentes");
+    return text.includes("terminos") || text.includes("términos") || text.includes("crear tu cuenta") || text.includes("vigentes");
   }
 
   function requestLegalAcceptance(user, source = "auth") {
     setLegalGateUser(user || null);
     setLegalGateSource(source);
     setAcceptedTerms(false);
-    setFeedback("Para continuar debes aceptar los terminos y condiciones vigentes.", "danger");
+    setFeedback("Para continuar debes aceptar los términos y condiciones vigentes.", "danger");
   }
 
   function ensureTermsAccepted() {
@@ -424,7 +424,7 @@ export function AuthForm({
               </Link>
               , la{" "}
               <Link className="terms-link" href="/politica-de-pagos" target="_blank" rel="noreferrer">
-                Politica de pagos
+                Política de pagos
               </Link>{" "}
               y el{" "}
               <Link className="terms-link" href="/uso-permitido" target="_blank" rel="noreferrer">
