@@ -26,7 +26,22 @@ service firebase.storage {
       allow write: if false;
     }
 
+    match /demo-products-clean/{uid}/{allPaths=**} {
+      allow read: if true;
+      allow write: if false;
+    }
+
     match /demo-assets/{uid}/{allPaths=**} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    match /demo-assets-clean/{uid}/{allPaths=**} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    match /demo-linkbio-assets/{uid}/{allPaths=**} {
       allow read: if true;
       allow write: if false;
     }
