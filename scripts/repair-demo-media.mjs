@@ -7,6 +7,7 @@ import sharp from "sharp";
 
 const WRITE = process.argv.includes("--write");
 const FORCE = process.argv.includes("--force");
+const AUDIT_IMAGES = process.argv.includes("--audit-images");
 const ONLY_UID = readArg("--uid");
 const LIMIT = Number(readArg("--limit") || 0) || 0;
 const DELAY_MS = Number(readArg("--delay-ms") || 900) || 0;
@@ -196,13 +197,37 @@ function isRemotePlaceholder(url = "") {
   return /loremflickr|placehold|placeholder|picsum|ui-avatars|images\.unsplash/i.test(String(url || ""));
 }
 
-function shouldReplaceProduct(product = {}) {
+function hasLegacyDemoProductPath(product = {}) {
+  const paths = [product.imagePath, product.imageCardPath, product.imageThumbPath].filter(Boolean).join(" ");
+  return /demo-products\//.test(paths);
+}
+
+async function isSuspiciousDemoImage(product = {}) {
+  const imageUrl = product.imageCardUrl || product.imageUrl || product.imageThumbUrl || "";
+  const paths = [product.imagePath, product.imageCardPath, product.imageThumbPath].filter(Boolean).join(" ");
+  if (!/demo-products(?:-clean)?\//.test(paths) || !imageUrl) return false;
+
+  try {
+    const input = await fetchImageBuffer(imageUrl);
+    const average = await sharp(input)
+      .resize(1, 1, { fit: "fill" })
+      .removeAlpha()
+      .raw()
+      .toBuffer();
+    const [red = 0, green = 0, blue = 0] = average;
+    return red > 180 && green < 105 && blue < 105;
+  } catch {
+    return true;
+  }
+}
+
+async function shouldReplaceProduct(product = {}) {
   if (FORCE) return true;
   const urls = [product.imageUrl, product.imageCardUrl, product.imageThumbUrl].filter(Boolean).join(" ");
-  const paths = [product.imagePath, product.imageCardPath, product.imageThumbPath].filter(Boolean).join(" ");
-  if (!paths) return true;
+  if (![product.imagePath, product.imageCardPath, product.imageThumbPath].some(Boolean)) return true;
   if (isRemotePlaceholder(urls)) return true;
-  if (/demo-products\//.test(paths)) return true;
+  if (hasLegacyDemoProductPath(product)) return true;
+  if (AUDIT_IMAGES && await isSuspiciousDemoImage(product)) return true;
   return false;
 }
 
@@ -321,7 +346,6 @@ async function buildProductMedia(bucket, uid, productId, productName, source) {
         height: config.size,
         fit: config.fit || "cover",
         position: "centre",
-        withoutEnlargement: true,
         background: "#ffffff",
       })
       .webp({ quality: config.quality })
@@ -551,7 +575,7 @@ async function repairBusiness(userDoc, bucket, keywordMap) {
   for (const productDoc of productsSnap.docs) {
     if (LIMIT && processed >= LIMIT) break;
     const product = productDoc.data();
-    if (!shouldReplaceProduct(product)) continue;
+    if (!(await shouldReplaceProduct(product))) continue;
     processed += 1;
     const keyword = keywordMap.get(slugify(product.name)) || product.name;
     const source = unsplashSource(resolveCuratedKey(product, keyword, businessType), keyword)
