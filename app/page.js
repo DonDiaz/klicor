@@ -338,6 +338,7 @@ export default function HomePage() {
           <div className="landing-footer-links">
             <Link href="/terminos-y-condiciones">Términos y condiciones</Link>
             <Link href="/politica-de-privacidad">Política de privacidad</Link>
+            <Link href="/habeas-data">Habeas Data</Link>
             <Link href="/politica-de-pagos">Política de pagos</Link>
             <Link href="/uso-permitido">Uso permitido</Link>
           </div>

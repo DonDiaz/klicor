@@ -339,6 +339,7 @@ export function HomeComparePrevious() {
           <div className="landing-footer-links">
             <Link href="/terminos-y-condiciones">Términos y condiciones</Link>
             <Link href="/politica-de-privacidad">Política de privacidad</Link>
+            <Link href="/habeas-data">Habeas Data</Link>
           </div>
         </div>
       </footer>
