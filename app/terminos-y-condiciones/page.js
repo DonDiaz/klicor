@@ -5,151 +5,120 @@ export const metadata = {
   description: "Condiciones de uso de Klicor, planes, módulos, pagos, responsabilidades y reglas de la plataforma.",
 };
 
+const UPDATED_AT = "22 de mayo de 2026";
+const CONTACT_EMAIL = "donjhonnathan@gmail.com";
+
 const sections = [
   {
-    title: "1. Identificación del servicio",
+    title: "1. Identificación de la plataforma",
     body: [
-      "Klicor es un servicio digital operado en Colombia. Para asuntos relacionados con soporte, cuenta, pagos o estos documentos, puedes escribir a donjhonnathan@gmail.com.",
-      "Al crear una cuenta, iniciar sesión, pagar un plan o usar Klicor, aceptas estos términos, la Política de privacidad, la Política de pagos y la Política de uso permitido.",
+      `Klicor es una plataforma tecnológica operada por BACKFRONT, orientada a facilitar la presencia y operación digital de negocios mediante herramientas en línea. Sitio web: https://klicor.com. Correo de contacto: ${CONTACT_EMAIL}.`,
+      "Al registrarse, acceder, utilizar la plataforma o realizar un pago, el usuario declara haber leído, entendido y aceptado estos términos y las políticas relacionadas. La aceptación electrónica constituye un acuerdo válido entre el usuario y Klicor.",
     ],
   },
   {
-    title: "2. Qué es Klicor",
+    title: "2. Naturaleza del servicio",
     body: [
-      "Klicor es una plataforma tecnológica SaaS para presencia y operación digital de negocios. Permite crear páginas públicas, organizar enlaces, mostrar productos o servicios, publicar QR, recibir pedidos por WhatsApp y gestionar funciones de agenda o comercio según el plan activo.",
-      "Klicor no es un marketplace, banco, pasarela de pagos, operador turístico, proveedor médico, transportador, restaurante, comercio, representante comercial ni intermediario responsable de las ventas, reservas o servicios ofrecidos por cada negocio.",
+      "Klicor es una plataforma SaaS diseñada para permitir que negocios gestionen presencia digital, enlaces públicos, códigos QR, tiendas, menús, catálogos, agendas, reservas, productos, métodos de contacto y herramientas relacionadas.",
+      "Klicor actúa exclusivamente como proveedor tecnológico de infraestructura digital. No es entidad financiera, pasarela de pago, operador logístico, operador turístico, agencia de viajes ni responsable directo de los productos o servicios ofrecidos por los negocios registrados.",
     ],
   },
   {
-    title: "3. Servicios incluidos",
+    title: "3. Registro y cuentas",
     body: [
-      "Según el plan y la configuración del usuario, Klicor puede incluir link público, QR, tienda, menú, catálogo, agenda, enlaces externos, métodos de pago visibles, datos de contacto, personalización visual, página pública de negocio y funcionalidades relacionadas.",
-      "Klicor también puede integrar o mostrar información pública en Dorika u otros espacios de descubrimiento, directorio o promoción que formen parte de la evolución del producto.",
+      "El usuario se compromete a proporcionar información veraz, mantenerla actualizada, proteger sus credenciales y asumir responsabilidad por las actividades realizadas desde su cuenta.",
+      "Klicor podrá suspender o cancelar cuentas que incumplan estos términos, representen riesgos técnicos o legales, hagan uso indebido de la plataforma, presenten información falsa o afecten la seguridad del servicio.",
     ],
   },
   {
-    title: "4. Registro y cuentas",
+    title: "4. Planes, precios y condiciones comerciales",
     body: [
-      "El usuario debe suministrar información veraz, actualizada y suficiente para operar su cuenta y su negocio. También debe mantener control sobre su correo, proveedores de autenticación, sesiones, dispositivos y credenciales.",
-      "Klicor puede suspender, limitar o bloquear cuentas cuando detecte fraude, abuso, suplantación, riesgo de seguridad, uso indebido, falta de pago, información falsa o incumplimiento de estos documentos.",
+      "Klicor podrá ofrecer planes gratuitos, planes promocionales, precios de lanzamiento, suscripciones o condiciones comerciales especiales. Los valores actuales podrán corresponder a una etapa inicial o promocional del producto.",
+      "Klicor podrá modificar precios, límites, funcionalidades, almacenamiento, módulos, capacidades o condiciones comerciales en cualquier momento. Salvo disposición diferente, los cambios aplicarán desde nuevas contrataciones, nuevas activaciones o la siguiente renovación del usuario.",
+      "La permanencia de un precio, beneficio o funcionalidad no constituye obligación permanente de mantenerlo indefinidamente.",
     ],
   },
   {
-    title: "5. Planes, precios y etapa de lanzamiento",
+    title: "5. Uso intensivo y alto flujo",
     body: [
-      "Los precios, límites y funcionalidades actuales pueden corresponder a una etapa de lanzamiento, validación o evolución del producto.",
-      "Klicor podrá modificar precios, límites, funcionalidades, características, planes y condiciones comerciales en cualquier momento. Los cambios aplicarán para nuevas contrataciones o desde la siguiente renovación del usuario.",
-      "Los precios de lanzamiento, promociones o condiciones especiales pueden ser temporales y no obligan a Klicor a mantenerlos indefinidamente.",
-      "Los planes públicos incluyen uso normal y razonable de la plataforma. Si una cuenta presenta alto volumen de visitas, productos, consultas, clics a WhatsApp, carga operativa, automatizaciones, consumo técnico o uso intensivo superior al promedio, Klicor podrá solicitar migración a un plan empresarial o de alto flujo con aviso previo.",
-      "Klicor no cobra comisión automática por pedido. Los planes de alto flujo, cuando apliquen, corresponden al uso intensivo de infraestructura, disponibilidad, soporte y capacidad operativa, no a la confirmación de ventas entregadas por el negocio.",
+      "Los planes estándar de Klicor están orientados inicialmente a pequeños y medianos negocios con niveles razonables de operación.",
+      "Algunos negocios podrán requerir alto tráfico, almacenamiento elevado, grandes cantidades de productos, sincronización intensiva, reservas masivas, automatizaciones, múltiples sucursales, integraciones especiales o consumo técnico superior al promedio.",
+      "En dichos casos, Klicor podrá aplicar límites razonables, solicitar migración a planes especializados, negociar condiciones empresariales o establecer cobros adicionales relacionados con infraestructura, almacenamiento, procesamiento, tráfico o consumo operativo.",
+      "El uso intensivo no autorizado podrá requerir ajuste de plan, suspensión preventiva o revisión comercial antes de continuar prestando el servicio.",
     ],
   },
   {
-    title: "6. Renovaciones y vencimiento",
+    title: "6. Renovaciones, vencimientos y no reembolsos",
     body: [
-      "Los planes de Klicor se manejan principalmente de forma anual. La renovación puede ser manual o automática según el método de pago, la pasarela disponible y la configuración vigente.",
-      "Si el plan vence, el pago no se confirma o la cuenta queda en mora, Klicor puede limitar la edición, ocultar parcial o totalmente módulos, suspender el link público, desactivar agenda/comercio o restringir funciones hasta que se regularice el acceso.",
+      "Las suscripciones podrán tener periodicidad mensual, anual o la definida comercialmente por Klicor.",
+      "El vencimiento o falta de pago podrá ocasionar limitación de funcionalidades, suspensión de módulos, ocultamiento parcial de perfiles públicos o cancelación del acceso.",
+      "Debido a la naturaleza digital del servicio y su activación inmediata, Klicor no realiza devoluciones ni reembolsos una vez activado el servicio, salvo obligación legal aplicable.",
     ],
   },
   {
-    title: "7. No reembolsos",
+    title: "7. Uso permitido",
     body: [
-      "Klicor es un servicio digital con activación inmediata. Salvo obligación legal aplicable o decisión expresa de Klicor, los pagos realizados no son reembolsables.",
-      "El usuario acepta que el acceso al servicio, la activación de módulos, la generación de QR, la publicación de páginas y el uso de herramientas digitales pueden iniciar inmediatamente después del pago o registro.",
+      "El usuario se compromete a no utilizar la plataforma para fraude, phishing, spam, malware, suplantación, actividades ilegales, QR maliciosos, distribución de contenido ilícito o actividades que afecten la estabilidad de la plataforma.",
+      "Klicor podrá suspender inmediatamente cuentas que representen riesgo técnico, legal o reputacional.",
     ],
   },
   {
     title: "8. Responsabilidad del negocio",
     body: [
-      "Cada negocio es responsable por sus productos, servicios, precios, imágenes, disponibilidad, promociones, entregas, reservas, garantías, impuestos, facturación, permisos, atención al cliente y cumplimiento comercial frente a sus compradores o usuarios finales.",
-      "Klicor no responde por errores del negocio, incumplimientos, cancelaciones, reclamos de consumidores, entregas, calidad de productos o servicios, ni por decisiones comerciales tomadas por el usuario.",
+      "Cada negocio registrado es responsable exclusivamente de sus productos, servicios, precios, promociones, reservas, horarios, publicaciones, entregas, atención al cliente, facturación, permisos y cumplimiento comercial.",
+      "Klicor no garantiza ventas, posicionamiento, tráfico, reservas ni resultados comerciales.",
     ],
   },
   {
-    title: "9. Links externos, WhatsApp y pagos visibles",
+    title: "9. Agenda, reservas y datos personales",
     body: [
-      "Klicor puede permitir mostrar enlaces externos, WhatsApp, redes sociales, bancos, Nequi, Daviplata, llaves Bre-B, Mercado Pago u otros métodos de pago visibles. Klicor no controla ni responde por esas plataformas externas.",
-      "Klicor no procesa pagos directamente dentro del link público salvo que una integración específica lo indique. Las transacciones, confirmaciones, errores, reversos o disputas de terceros se rigen por las condiciones de cada proveedor externo.",
+      "Klicor podrá almacenar técnicamente información enviada mediante formularios de agenda, reservas, contacto, solicitudes o citas. La información podrá incluir nombres, teléfonos, correos, fechas, horarios y mensajes enviados por el usuario.",
+      "El usuario entiende y acepta que dicha información será compartida con el negocio correspondiente para gestionar la solicitud realizada.",
+      "Klicor actúa como plataforma tecnológica de almacenamiento y transmisión de información. Cada negocio registrado es responsable del uso adecuado, tratamiento y protección de los datos personales recibidos mediante la plataforma.",
+      "Klicor no será responsable por el uso indebido que un negocio haga de la información recibida fuera del entorno controlado de la plataforma.",
     ],
   },
   {
-    title: "10. Disponibilidad y evolución del producto",
+    title: "10. Servicios externos",
     body: [
-      "Klicor busca mantener el servicio disponible, pero puede presentar interrupciones por mantenimiento, actualizaciones, fallas técnicas, proveedores externos, cambios de infraestructura, fuerza mayor o eventos fuera de control razonable.",
-      "Klicor puede agregar, eliminar, reorganizar o cambiar funcionalidades, módulos, límites, diseño, flujos, estructura comercial y experiencia de usuario para mejorar seguridad, rendimiento, cumplimiento legal o viabilidad del producto.",
+      "Klicor podrá integrarse o enlazar servicios de terceros como WhatsApp, redes sociales, pasarelas de pago, bancos, servicios de mapas, plataformas externas o herramientas de terceros.",
+      "Klicor no controla ni garantiza la disponibilidad, decisiones, tiempos, costos, errores, reversos o funcionamiento de dichos servicios externos.",
     ],
   },
   {
-    title: "11. Dorika",
+    title: "11. Disponibilidad y evolución del producto",
     body: [
-      "Dorika puede mostrar información pública de negocios, perfiles, productos, ubicaciones aproximadas, imágenes o enlaces configurados por el usuario. Publicar o habilitar información en Klicor puede permitir su uso en experiencias de descubrimiento o directorio.",
-      "Dorika no garantiza visibilidad, ranking, tráfico, ventas, reservas ni resultados comerciales. Klicor puede ocultar, moderar, pausar o limitar perfiles cuando exista riesgo legal, técnico, reputacional, de privacidad o de calidad.",
+      "Klicor podrá realizar mantenimientos, actualizaciones, mejoras, cambios técnicos, migraciones o modificaciones de infraestructura. La plataforma no garantiza disponibilidad continua e ininterrumpida.",
+      "Klicor podrá agregar, modificar, reorganizar, limitar, eliminar, reemplazar o rediseñar funcionalidades, módulos o características de la plataforma en cualquier momento. La evolución técnica y comercial del producto hace parte natural del servicio.",
     ],
   },
   {
-    title: "12. Propiedad intelectual",
+    title: "12. Dorika y plataformas relacionadas",
     body: [
-      "Klicor, su marca, interfaz, código, diseño, estructura, textos del producto y elementos propios de la plataforma pertenecen a sus titulares o licenciantes.",
-      "El contenido del negocio sigue siendo del negocio o de quien tenga sus derechos, pero el usuario autoriza a Klicor a alojarlo, procesarlo, publicarlo y mostrarlo en la medida necesaria para prestar el servicio.",
+      "Klicor podrá integrar o sincronizar información pública con plataformas relacionadas como Dorika.",
+      "La aparición de negocios o productos en dichas plataformas no garantiza visibilidad, posicionamiento, tráfico, reservas, ventas ni resultados comerciales.",
+      "Klicor podrá moderar, limitar, ocultar o eliminar perfiles públicos cuando lo considere necesario por razones técnicas, legales, reputacionales, de seguridad o de calidad.",
     ],
   },
   {
     title: "13. Limitación de responsabilidad",
     body: [
-      "En la medida permitida por la ley, Klicor no será responsable por daños indirectos, lucro cesante, pérdida de ventas, pérdida de oportunidades, fallos de terceros, interrupciones de internet, decisiones de consumidores, pérdida de datos por causas externas o uso indebido de la cuenta.",
-      "La responsabilidad máxima de Klicor frente al usuario se limita al valor efectivamente pagado por el período vigente del servicio afectado, salvo que la ley aplicable disponga algo distinto.",
+      "Klicor no será responsable por pérdidas económicas, lucro cesante, pérdida de datos, interrupciones, errores de terceros, fallas externas, daños indirectos ni conflictos entre negocios y usuarios finales.",
+      "En la medida permitida por la ley, la responsabilidad máxima de Klicor frente al usuario se limita al valor efectivamente pagado por el período vigente del servicio afectado, salvo que la ley aplicable disponga algo distinto.",
     ],
   },
   {
-    title: "14. Agenda y reservas",
+    title: "14. Propiedad intelectual",
     body: [
-      "La funcionalidad de agenda y reservas permite a los usuarios finales solicitar citas, reservas o espacios con negocios registrados en Klicor.",
-      "Klicor actúa exclusivamente como proveedor tecnológico de la plataforma. Klicor no presta directamente servicios médicos, estéticos, turísticos, profesionales, comerciales ni de atención al cliente ofrecidos por los negocios registrados.",
-      "Cada negocio es independiente y responsable de la información publicada, la atención al cliente, la prestación de sus servicios, el cumplimiento de citas o reservas, sus horarios, precios, promociones, cancelaciones y cualquier relación comercial o contractual con el usuario final.",
+      "Todos los derechos sobre software, diseño, marca, estructura, código, contenido propio y elementos de Klicor pertenecen a Klicor o sus respectivos titulares.",
+      "El usuario conserva derechos sobre el contenido propio publicado en la plataforma, pero autoriza a Klicor a alojarlo, procesarlo, publicarlo y mostrarlo en la medida necesaria para prestar el servicio.",
     ],
   },
   {
-    title: "15. Datos recopilados en agenda y reservas",
+    title: "15. Modificaciones y legislación aplicable",
     body: [
-      "Cuando un usuario realiza una solicitud, cita o reserva mediante Klicor, la plataforma podrá recopilar datos como nombre, número telefónico, correo electrónico, fecha y hora de reserva, observaciones o mensajes enviados por el usuario.",
-      "Estos datos son almacenados técnicamente por Klicor para permitir el funcionamiento de la plataforma y la gestión de solicitudes.",
-      "El usuario entiende y acepta que los datos enviados mediante formularios de agenda, reservas o contacto serán compartidos con el negocio correspondiente para gestionar la solicitud realizada.",
-    ],
-  },
-  {
-    title: "16. Responsabilidad del negocio sobre datos de agenda",
-    body: [
-      "El negocio que recibe información de agenda o reservas actúa bajo su propia responsabilidad respecto al uso, almacenamiento, tratamiento y protección de los datos personales recibidos.",
-      "Klicor no controla ni supervisa el uso interno que cada negocio haga de la información recibida fuera de la plataforma.",
-      "Cada negocio registrado es responsable de utilizar la información únicamente para fines relacionados con la atención del usuario, no compartir datos con terceros no autorizados, no usar la información para fines ilícitos, spam o actividades no autorizadas, y cumplir las normas de protección de datos aplicables en su país o jurisdicción.",
-      "El mal uso de datos personales por parte de un negocio registrado será responsabilidad exclusiva de dicho negocio.",
-    ],
-  },
-  {
-    title: "17. Consentimiento del usuario final en agenda",
-    body: [
-      "Al enviar una solicitud, cita o reserva mediante Klicor, el usuario autoriza el tratamiento de sus datos personales para gestionar solicitudes, coordinar reservas o citas, permitir contacto entre el negocio y el usuario, y enviar confirmaciones o información relacionada con la solicitud realizada.",
-      "Klicor podrá conservar evidencia técnica de la aceptación de estos términos y de la política de privacidad, incluyendo versión aceptada, fecha, origen, usuario autenticado y datos técnicos razonables para defensa legal, seguridad y auditoría.",
-    ],
-  },
-  {
-    title: "18. Limitación específica en agenda y reservas",
-    body: [
-      "Klicor no garantiza disponibilidad permanente de agendas, confirmación automática de reservas, cumplimiento de citas, calidad del servicio prestado por el negocio ni exactitud total de la información publicada por terceros.",
-      "Klicor no será responsable por cancelaciones, incumplimientos, pérdidas económicas, conflictos comerciales o daños derivados de la relación entre el usuario y el negocio.",
-    ],
-  },
-  {
-    title: "19. Suspensión o bloqueo",
-    body: [
-      "Klicor podrá suspender o eliminar cuentas de negocios que hagan uso indebido de datos personales, incumplan estas condiciones, utilicen la plataforma para fraude, spam o actividades ilegales, o afecten la seguridad o integridad de la plataforma.",
-    ],
-  },
-  {
-    title: "20. Modificaciones y legislación aplicable",
-    body: [
-      "Klicor podrá modificar estas condiciones en cualquier momento para adaptarlas a cambios legales, técnicos o comerciales. El uso continuado de la plataforma implica aceptación de las modificaciones realizadas.",
-      "Estos términos se rigen por las leyes de Colombia. Última actualización: 18 de mayo de 2026.",
+      "Klicor podrá modificar estos términos en cualquier momento. El uso continuado de la plataforma implica aceptación de las modificaciones vigentes.",
+      `Estos términos se rigen por las leyes de la República de Colombia. Última actualización: ${UPDATED_AT}.`,
     ],
   },
 ];
@@ -159,10 +128,11 @@ export default function TermsPage() {
     <LegalDocument
       badge="Legal"
       title="Términos y condiciones"
-      intro="Reglas principales para usar Klicor como plataforma SaaS de presencia, comercio, agenda, QR y operación digital para pequeños negocios."
+      intro="Reglas principales para usar Klicor como plataforma SaaS de presencia, comercio, agenda, QR y operación digital para negocios."
       sections={sections}
       actions={[
         { href: "/politica-de-privacidad", label: "Política de privacidad" },
+        { href: "/habeas-data", label: "Habeas Data" },
         { href: "/politica-de-pagos", label: "Política de pagos" },
         { href: "/uso-permitido", label: "Uso permitido" },
       ]}

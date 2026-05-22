@@ -423,6 +423,10 @@ export function AuthForm({
                 Política de privacidad
               </Link>
               , la{" "}
+              <Link className="terms-link" href="/habeas-data" target="_blank" rel="noreferrer">
+                Política Habeas Data
+              </Link>
+              , la{" "}
               <Link className="terms-link" href="/politica-de-pagos" target="_blank" rel="noreferrer">
                 Politica de pagos
               </Link>{" "}

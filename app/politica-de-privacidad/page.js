@@ -5,94 +5,83 @@ export const metadata = {
   description: "Política de privacidad y tratamiento de datos personales de Klicor.",
 };
 
+const UPDATED_AT = "22 de mayo de 2026";
+const CONTACT_EMAIL = "donjhonnathan@gmail.com";
+
 const sections = [
   {
-    title: "1. Alcance",
+    title: "1. Responsable del tratamiento",
     body: [
-      "Esta política explica cómo Klicor trata datos personales cuando una persona crea una cuenta, administra un negocio, usa el panel, paga un plan, publica un link, agenda una cita o interactúa con páginas públicas creadas en la plataforma.",
-      "Klicor trata datos personales conforme a las reglas aplicables en Colombia, incluyendo la Ley 1581 de 2012 y normas relacionadas sobre protección de datos personales.",
+      `Klicor, operado por BACKFRONT, es responsable del tratamiento de los datos personales recopilados mediante la plataforma. Para solicitudes relacionadas con privacidad o tratamiento de datos puedes escribir a ${CONTACT_EMAIL}.`,
     ],
   },
   {
-    title: "2. Datos que recopilamos",
+    title: "2. Información recopilada",
     body: [
-      "Podemos tratar datos de identificación y contacto como nombre, correo electrónico, teléfono, foto, negocio, ciudad, datos de facturación, métodos de recuperación, información de autenticación y datos necesarios para administrar la cuenta.",
-      "También podemos tratar información operativa del negocio, como enlaces, horarios, productos, servicios, precios, imágenes, métodos de pago visibles, configuración de agenda, citas, personal, preferencias de diseño, QR, actividad básica del panel y métricas de uso del link.",
-      "En funciones de agenda, clientes finales pueden entregar datos de contacto y detalles de reserva. El negocio que recibe la cita debe usar esa información solo para gestionar su relación con el cliente y cumplir sus obligaciones.",
+      "Klicor podrá recopilar nombres, teléfonos, correos electrónicos, información de reservas, datos de negocio, información de contacto, registros técnicos, direcciones IP y datos de navegación.",
+      "También podrá tratar información operativa del negocio, como enlaces, horarios, productos, servicios, precios, imágenes, métodos de pago visibles, configuración de agenda, citas, personal, preferencias de diseño, QR, actividad básica del panel y métricas de uso.",
     ],
   },
   {
-    title: "3. Finalidades",
+    title: "3. Finalidad del tratamiento",
     body: [
-      "Usamos los datos para crear y administrar cuentas, autenticar usuarios, operar el link público, mostrar productos o servicios, gestionar agenda, generar QR, procesar pagos, enviar comunicaciones esenciales, brindar soporte, prevenir abuso, mejorar seguridad y cumplir obligaciones legales o contractuales.",
-      "También podemos usar datos técnicos y métricas agregadas para diagnosticar fallas, mejorar rendimiento, entender uso de funciones, priorizar mejoras y proteger la estabilidad de Klicor y Dorika.",
-      "La información recopilada podrá utilizarse para gestionar reservas y solicitudes, facilitar la comunicación entre usuarios y negocios, mejorar el funcionamiento de la plataforma, mantener seguridad y estabilidad del sistema, prevenir fraude o abuso y brindar soporte técnico.",
+      "Los datos podrán utilizarse para gestionar cuentas, reservas y solicitudes, facilitar comunicación entre usuarios y negocios, operar funcionalidades de la plataforma, brindar soporte, mejorar estabilidad y seguridad, prevenir fraude y cumplir obligaciones legales.",
+      "Klicor podrá conservar evidencia técnica de aceptaciones legales, pagos, actividad de seguridad, intentos de abuso, auditorías y eventos necesarios para defensa legal o estabilidad del servicio.",
     ],
   },
   {
-    title: "4. Autorización y responsabilidad del negocio",
+    title: "4. Compartición de información",
     body: [
-      "Al registrarte, aceptar estos documentos, usar la plataforma o entregar información voluntariamente, autorizas el tratamiento de tus datos para las finalidades descritas.",
-      "Cuando un negocio carga datos de terceros, publica información de clientes, recibe citas o administra datos de consumidores finales, debe contar con la autorización o base legal correspondiente.",
+      "La información enviada mediante formularios de agenda, contacto o reservas será compartida con el negocio correspondiente para gestionar la solicitud realizada por el usuario.",
+      "El negocio es responsable del tratamiento y uso adecuado de la información recibida. Klicor no vende datos personales a terceros.",
     ],
   },
   {
-    title: "5. Información pública",
+    title: "5. Proveedores y servicios externos",
     body: [
-      "La información que el usuario decide publicar en Klicor, como nombre del negocio, logo, enlaces, productos, servicios, precios, horarios, redes, WhatsApp, ubicación o métodos de pago visibles, puede ser consultada por cualquier persona con acceso al link público, QR, catálogo, menú, tienda, agenda o Dorika.",
-      "El usuario debe revisar cuidadosamente que la información publicada sea correcta, autorizada y adecuada para mostrarse públicamente.",
-    ],
-  },
-  {
-    title: "6. Terceros y proveedores tecnológicos",
-    body: [
-      "Klicor puede apoyarse en proveedores de autenticación, hosting, base de datos, almacenamiento, correo transaccional, analítica técnica, pagos y servicios relacionados, incluyendo tecnologías como Firebase, proveedores de hosting, pasarelas de pago y servicios de correo.",
+      "Klicor puede apoyarse en proveedores de autenticación, hosting, base de datos, almacenamiento, correo transaccional, analítica técnica, pagos, mapas, seguridad y servicios relacionados.",
       "Los pagos pueden ser procesados por pasarelas externas como Mercado Pago. Klicor no almacena datos completos de tarjetas ni credenciales financieras sensibles.",
     ],
   },
   {
-    title: "7. Compartición de información de agenda, contacto y reservas",
+    title: "6. Seguridad",
     body: [
-      "La información enviada mediante formularios de agenda, contacto o reservas será compartida con el negocio correspondiente para gestionar la solicitud realizada por el usuario.",
-      "El negocio es responsable del tratamiento y uso adecuado de la información recibida.",
-      "Klicor no vende datos personales a terceros.",
+      "Klicor implementa medidas razonables de seguridad técnicas y organizativas para proteger la información almacenada.",
+      "Sin embargo, ningún sistema puede garantizar seguridad absoluta. El usuario y cada negocio deben mantener buenas prácticas de acceso, autenticación, permisos y manejo de información.",
     ],
   },
   {
-    title: "8. Seguridad y uso indebido por terceros",
+    title: "7. Conservación de datos",
     body: [
-      "Klicor implementa medidas razonables de seguridad técnicas y organizativas para proteger la información almacenada en la plataforma.",
-      "No obstante, ningún sistema es completamente infalible y no puede garantizarse seguridad absoluta.",
-      "Klicor no es responsable por el uso indebido que un negocio registrado haga de la información recibida mediante la plataforma fuera del entorno controlado de Klicor. Cada negocio es responsable de cumplir las normas aplicables sobre privacidad y protección de datos.",
+      "Klicor podrá conservar información mientras exista relación activa, sea necesaria para operación, cumplimiento legal, seguridad, soporte, prevención de fraude o defensa ante reclamaciones.",
+      "Algunas copias, registros de pago, auditoría, seguridad o cumplimiento pueden conservarse cuando exista una obligación o interés legítimo aplicable.",
     ],
   },
   {
-    title: "9. Cookies y almacenamiento local",
+    title: "8. Derechos del titular",
     body: [
-      "Klicor puede usar cookies técnicas, almacenamiento local o tecnologías similares para mantener sesiones, recordar preferencias, operar autenticación, mejorar seguridad y permitir funciones necesarias de la plataforma.",
+      "El usuario podrá solicitar acceso, actualización, corrección, eliminación o revocatoria de autorización mediante los canales oficiales de contacto.",
+      `Para ejercer estos derechos, escribe a ${CONTACT_EMAIL} indicando tu nombre, correo asociado, solicitud concreta y datos necesarios para verificar tu identidad.`,
+    ],
+  },
+  {
+    title: "9. Uso indebido por terceros",
+    body: [
+      "Klicor no será responsable por el uso indebido que un negocio haga de la información recibida fuera del entorno controlado de la plataforma.",
+      "Cada negocio es responsable de cumplir las normas aplicables sobre privacidad y protección de datos frente a sus clientes, usuarios finales y terceros.",
+    ],
+  },
+  {
+    title: "10. Cookies y tecnologías similares",
+    body: [
+      "Klicor podrá utilizar cookies, almacenamiento local o tecnologías similares para autenticación, preferencias, seguridad, estadísticas y mejora de experiencia.",
       "Si en el futuro se incorporan cookies no esenciales de publicidad, medición avanzada o seguimiento de terceros, Klicor deberá informarlo y habilitar los mecanismos de consentimiento que correspondan.",
     ],
   },
   {
-    title: "10. Conservación y eliminación",
+    title: "11. Modificaciones",
     body: [
-      "Conservamos los datos mientras la cuenta esté activa, mientras sean necesarios para prestar el servicio, atender soporte, cumplir obligaciones legales, resolver disputas, prevenir fraude o mantener registros administrativos razonables.",
-      "Klicor podrá conservar información mientras exista relación activa con la plataforma o mientras sea necesaria para operación técnica, cumplimiento legal, seguridad, prevención de fraude o soporte administrativo.",
-      "El usuario puede solicitar eliminación o actualización de su cuenta escribiendo a donjhonnathan@gmail.com. Algunas copias, registros de pago, auditoría, seguridad o cumplimiento pueden conservarse cuando exista una obligación o interés legítimo aplicable.",
-    ],
-  },
-  {
-    title: "11. Derechos del titular",
-    body: [
-      "Como titular puedes solicitar acceso, actualización, rectificación, prueba de autorización, información sobre el uso de tus datos, revocatoria de autorización o supresión cuando proceda legalmente.",
-      "Para ejercer estos derechos, escribe a donjhonnathan@gmail.com indicando tu nombre, correo asociado a la cuenta, solicitud concreta y datos necesarios para verificar tu identidad.",
-    ],
-  },
-  {
-    title: "12. Cambios y contacto",
-    body: [
-      "Esta política puede actualizarse para reflejar cambios legales, técnicos u operativos. La versión vigente será la publicada en esta página.",
-      "Para solicitudes relacionadas con privacidad o tratamiento de datos, el usuario podrá comunicarse mediante los canales oficiales de contacto de Klicor. Última actualización: 18 de mayo de 2026.",
+      `Klicor podrá modificar esta política en cualquier momento para adaptarla a cambios legales, técnicos u operativos. Última actualización: ${UPDATED_AT}.`,
     ],
   },
 ];
@@ -102,10 +91,11 @@ export default function PrivacyPage() {
     <LegalDocument
       badge="Privacidad"
       title="Política de privacidad"
-      intro="Tratamiento de datos personales en Klicor, sus páginas públicas, QR, módulos de comercio, agenda, pagos visibles y futuras experiencias como Dorika."
+      intro="Tratamiento de datos personales en Klicor, sus páginas públicas, QR, módulos de comercio, agenda, pagos visibles y experiencias relacionadas como Dorika."
       sections={sections}
       actions={[
         { href: "/terminos-y-condiciones", label: "Términos y condiciones" },
+        { href: "/habeas-data", label: "Habeas Data" },
         { href: "/politica-de-pagos", label: "Política de pagos" },
         { href: "/uso-permitido", label: "Uso permitido" },
       ]}
