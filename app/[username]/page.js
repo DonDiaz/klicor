@@ -1,4 +1,3 @@
-import { headers } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 import { buildPublicProfileDescription, getPublicProfileByUsername } from "@/lib/public-profiles";
 import { buildVanityProfileUrl } from "@/lib/public-profile-links";
@@ -9,12 +8,7 @@ import { buildLocalBusinessJsonLd, buildSeoMetadata } from "@/lib/seo";
 
 const SHARE_IMAGE_VERSION = "v3";
 
-async function getCurrentOrigin() {
-  const requestHeaders = await headers();
-  const host = requestHeaders.get("x-forwarded-host") || requestHeaders.get("host") || "";
-  const protocol = requestHeaders.get("x-forwarded-proto") || "https";
-  return host ? `${protocol}://${host}` : undefined;
-}
+export const revalidate = 300;
 
 export async function generateMetadata({ params }) {
   const { username } = await params;
@@ -25,7 +19,7 @@ export async function generateMetadata({ params }) {
 
   const description = buildPublicProfileDescription(user);
   const canonicalUsername = user.usernameLower || username.toLowerCase();
-  const canonicalUrl = buildVanityProfileUrl(canonicalUsername, await getCurrentOrigin());
+  const canonicalUrl = buildVanityProfileUrl(canonicalUsername);
   const imageUrl = `${canonicalUrl}/opengraph-image?cache=${SHARE_IMAGE_VERSION}-${user.updatedAtMs || 0}`;
   const title = user.businessName;
 
@@ -69,7 +63,7 @@ export default async function PublicPage({ params, searchParams }) {
     );
   }
 
-  const canonicalUrl = buildVanityProfileUrl(canonicalUsername, await getCurrentOrigin());
+  const canonicalUrl = buildVanityProfileUrl(canonicalUsername);
   const description = buildPublicProfileDescription(data);
 
   return (

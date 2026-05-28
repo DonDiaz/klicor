@@ -1,6 +1,5 @@
 ﻿"use client";
 
-import Image from "next/image";
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import {
   Ban,
@@ -16,6 +15,7 @@ import {
 } from "lucide-react";
 import { FONT_FAMILY_STYLE_MAP } from "@/app/fonts";
 import { CommerceCategoryAsset } from "@/components/commerce-category-asset";
+import { PublicAssetImage } from "@/components/public-asset-image";
 import { getBusinessOpenStatus } from "@/lib/business-hours";
 import { apiFetch } from "@/lib/client-api";
 import { buildCommerceProductPublicUrl, resolveCommerceModeMeta } from "@/lib/commerce-config";
@@ -535,7 +535,7 @@ function ProductCard({
   const hasDescription = Boolean(String(product.description || "").trim());
   const hasPrice = product.price !== null && product.price !== undefined;
   const isCatalog = !supportsCart;
-  const productImageUrl = product.imageCardUrl || product.imageThumbUrl || product.imageUrl || "";
+  const productImageUrl = product.imageThumbUrl || product.imageCardUrl || product.imageUrl || "";
   const available = product.available !== false;
   const actionDisabled = preview || !orderingEnabled || !available;
 
@@ -559,7 +559,7 @@ function ProductCard({
       >
         <div className="commerce-product-image-shell" aria-hidden="true">
           {productImageUrl && !imageFailed ? (
-            <Image
+            <PublicAssetImage
               className="commerce-product-image"
               src={productImageUrl}
               alt={product.name}
@@ -809,7 +809,7 @@ export function CommercePublicView({ bootstrap, preview = false }) {
   const isSectionLoading = Boolean(pendingSelection);
   const detailImages = normalizePublicProductImages(detailProduct?.images, detailProduct || {});
   const activeDetailImage = detailImages[detailImageIndex] || detailImages[0] || null;
-  const activeDetailImageUrl = activeDetailImage?.imageUrl || activeDetailImage?.imageCardUrl || activeDetailImage?.imageThumbUrl || "";
+  const activeDetailImageUrl = activeDetailImage?.imageCardUrl || activeDetailImage?.imageUrl || activeDetailImage?.imageThumbUrl || "";
   const commercePalette = resolveCommercePalette(safeExperience, appearance);
   const pageBackground = commercePalette.background;
 
@@ -1329,7 +1329,7 @@ export function CommercePublicView({ bootstrap, preview = false }) {
         <header className="commerce-header commerce-public-summary">
           <div className="commerce-hero-brand">
             {safeBusiness.photo ? (
-              <Image
+              <PublicAssetImage
                 className="commerce-avatar"
                 src={safeBusiness.photoThumb || safeBusiness.photo}
                 alt={safeBusiness.businessName}
@@ -1483,7 +1483,7 @@ export function CommercePublicView({ bootstrap, preview = false }) {
             <div className="commerce-product-detail-gallery">
               <div className="commerce-product-detail-main-image">
                 {activeDetailImageUrl ? (
-                  <Image
+                  <PublicAssetImage
                     src={activeDetailImageUrl}
                     alt={detailProduct.name}
                     fill
@@ -1532,7 +1532,7 @@ export function CommercePublicView({ bootstrap, preview = false }) {
                       onClick={() => setDetailImageIndex(index)}
                     >
                       {image.imageThumbUrl || image.imageCardUrl || image.imageUrl ? (
-                        <Image
+                        <PublicAssetImage
                           src={image.imageThumbUrl || image.imageCardUrl || image.imageUrl}
                           alt=""
                           fill
@@ -1649,7 +1649,7 @@ export function CommercePublicView({ bootstrap, preview = false }) {
                     <article className="commerce-cart-item" key={item.id}>
                       <div className="commerce-cart-thumb" aria-hidden="true">
                         {item.imageThumbUrl || item.imageCardUrl || item.imageUrl ? (
-                          <Image
+                          <PublicAssetImage
                             src={item.imageThumbUrl || item.imageCardUrl || item.imageUrl}
                             alt=""
                             fill

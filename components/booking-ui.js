@@ -1,8 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import Image from "next/image";
 import { CalendarClock, Check, CheckCircle2, ChevronRight, Clock3, MessageCircle, UserRound, XCircle } from "lucide-react";
+import { PublicAssetImage } from "@/components/public-asset-image";
 import { BOOKING_DAY_OPTIONS, formatTimeLabel } from "@/lib/booking-config";
 
 function money(value, currency = "COP") {
@@ -39,7 +39,7 @@ export function BookingServiceCard({ service, selected = false, onClick, currenc
     <button className={`booking-choice-card booking-service-card ${selected ? "is-selected" : ""}`.trim()} type="button" onClick={onClick}>
       <div className="booking-service-thumb">
         {imageUrl ? (
-          <Image src={imageUrl} alt={service.name} fill sizes="72px" onError={() => setImageError(true)} />
+          <PublicAssetImage src={imageUrl} alt={service.name} fill onError={() => setImageError(true)} />
         ) : (
           <Clock3 size={18} />
         )}
@@ -72,7 +72,7 @@ export function BookingStaffCard({ staff, selected = false, onClick, highlight =
     <button className={`booking-choice-card booking-staff-card ${selected ? "is-selected" : ""} ${highlight ? "is-highlight" : ""}`.trim()} type="button" onClick={onClick}>
       <div className="booking-staff-avatar">
         {imageUrl ? (
-          <Image src={imageUrl} alt={staff.name} fill sizes="64px" onError={() => setImageError(true)} />
+          <PublicAssetImage src={imageUrl} alt={staff.name} fill onError={() => setImageError(true)} />
         ) : (
           <span className="booking-staff-avatar-fallback" aria-hidden="true">
             {highlight ? <UserRound size={18} /> : initials}

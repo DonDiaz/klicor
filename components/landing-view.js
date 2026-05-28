@@ -1,10 +1,10 @@
-import Image from "next/image";
 import { Globe, Save, Share2 } from "lucide-react";
 import { buildLandingLayout } from "@/lib/landing-layout";
 import { resolveContactCardData } from "@/lib/contact-card";
 import { getContrastRatio, hexToRgba, normalizeAppearance } from "@/lib/theme-system";
 import { PaymentMethodsCard } from "@/components/payment-methods-card";
 import { PublicFloatingActions } from "@/components/public-floating-actions";
+import { PublicAssetImage } from "@/components/public-asset-image";
 import { FONT_FAMILY_STYLE_MAP } from "@/app/fonts";
 
 const NAME_SIZE_MAP = {
@@ -231,14 +231,15 @@ export function LandingView({ user, preview = false }) {
           <div className="public-accent-bar" style={{ background: appearance.primaryColor }} />
           {user.photo ? (
             <span className="avatar-shell" style={{ borderRadius: AVATAR_RADIUS_MAP[appearance.avatarShape] }}>
-              <Image
+              <PublicAssetImage
                 className="avatar-image"
                 src={user.photoThumb || user.photo}
                 alt={user.businessName}
                 width={128}
                 height={128}
                 sizes="128px"
-                priority={!preview}
+                loading={preview ? "lazy" : "eager"}
+                fetchPriority={preview ? undefined : "high"}
               />
             </span>
           ) : (

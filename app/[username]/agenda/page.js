@@ -1,4 +1,3 @@
-import { headers } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 import { BookingPublicView } from "@/components/booking-public-view";
 import { JsonLd } from "@/components/json-ld";
@@ -6,12 +5,7 @@ import { buildBookingPublicUrl } from "@/lib/booking-config";
 import { getPublicBookingBootstrapByUsername } from "@/lib/public-booking";
 import { buildBookingSeoMetadata, buildLocalBusinessJsonLd, toAbsoluteUrl } from "@/lib/seo";
 
-async function getCurrentOrigin() {
-  const requestHeaders = await headers();
-  const host = requestHeaders.get("x-forwarded-host") || requestHeaders.get("host") || "";
-  const protocol = requestHeaders.get("x-forwarded-proto") || "https";
-  return host ? `${protocol}://${host}` : undefined;
-}
+export const revalidate = 300;
 
 export async function generateMetadata({ params }) {
   const { username } = await params;
@@ -22,7 +16,6 @@ export async function generateMetadata({ params }) {
 
   const canonicalUrl = toAbsoluteUrl(
     buildBookingPublicUrl(data.business.usernameLower || username),
-    await getCurrentOrigin(),
   );
 
   return buildBookingSeoMetadata(data, canonicalUrl);
@@ -42,7 +35,6 @@ export default async function BookingPublicPage({ params }) {
 
   const canonicalUrl = toAbsoluteUrl(
     buildBookingPublicUrl(data.business.usernameLower || username),
-    await getCurrentOrigin(),
   );
   const seo = buildBookingSeoMetadata(data, canonicalUrl);
 
