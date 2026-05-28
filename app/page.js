@@ -14,9 +14,19 @@ import {
   Zap,
 } from "lucide-react";
 import { BrandLogo } from "@/components/brand-logo";
+import { JsonLd } from "@/components/json-ld";
 import { LandingLoginModal } from "@/components/landing-login-modal";
 import { MarketingPreview } from "@/components/marketing-preview";
 import { getLandingPricingPlans } from "@/lib/plans";
+import { buildSeoMetadata, KLICOR_HOME_DESCRIPTION, KLICOR_HOME_TITLE } from "@/lib/seo";
+
+export const metadata = buildSeoMetadata({
+  title: KLICOR_HOME_TITLE,
+  description: KLICOR_HOME_DESCRIPTION,
+  url: "/",
+  image: "/klicor-icon.png",
+  imageAlt: "Klicor, plataforma digital para negocios",
+});
 
 const platformFlow = [
   {
@@ -84,6 +94,21 @@ const businessCategories = [
 
 const pricingPlans = getLandingPricingPlans();
 
+const homeJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  name: "Klicor",
+  applicationCategory: "BusinessApplication",
+  operatingSystem: "Web",
+  url: "https://klicor.com",
+  description: KLICOR_HOME_DESCRIPTION,
+  offers: {
+    "@type": "Offer",
+    priceCurrency: "COP",
+    availability: "https://schema.org/InStock",
+  },
+};
+
 const registerModalProps = {
   allowRegister: true,
   align: "start",
@@ -94,6 +119,7 @@ const registerModalProps = {
 export default function HomePage() {
   return (
     <main className="landing-root cloud-home-root">
+      <JsonLd data={homeJsonLd} />
       <header className="landing-header cloud-home-header">
         <div className="shell landing-nav">
           <BrandLogo />

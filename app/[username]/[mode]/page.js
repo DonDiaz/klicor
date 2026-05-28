@@ -1,7 +1,17 @@
+import { headers } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 import { CommercePublicView } from "@/components/commerce-public-view";
+import { JsonLd } from "@/components/json-ld";
 import { buildCommercePublicUrl, normalizeCommerceMode } from "@/lib/commerce-config";
 import { getPublicCommerceBootstrapByUsername } from "@/lib/public-commerce";
+import { buildCommerceSeoMetadata, buildLocalBusinessJsonLd, toAbsoluteUrl } from "@/lib/seo";
+
+async function getCurrentOrigin() {
+  const requestHeaders = await headers();
+  const host = requestHeaders.get("x-forwarded-host") || requestHeaders.get("host") || "";
+  const protocol = requestHeaders.get("x-forwarded-proto") || "https";
+  return host ? `${protocol}://${host}` : undefined;
+}
 
 export async function generateMetadata({ params }) {
   const { username, mode } = await params;
@@ -11,16 +21,12 @@ export async function generateMetadata({ params }) {
     return { title: "No encontrado" };
   }
 
-  const title = `${data.business.businessName} | ${data.modeMeta.label}`;
-  const description = data.business.businessHeadline || data.modeMeta.publicHeadlineFallback;
+  const canonicalUrl = toAbsoluteUrl(
+    buildCommercePublicUrl(data.business.usernameLower || username, normalizedMode),
+    await getCurrentOrigin(),
+  );
 
-  return {
-    title,
-    description,
-    alternates: {
-      canonical: buildCommercePublicUrl(data.business.usernameLower || username, normalizedMode),
-    },
-  };
+  return buildCommerceSeoMetadata(data, canonicalUrl);
 }
 
 export default async function CommercePublicPage({ params }) {
@@ -36,5 +42,21 @@ export default async function CommercePublicPage({ params }) {
     redirect(buildCommercePublicUrl(data.business.usernameLower, normalizedMode));
   }
 
-  return <CommercePublicView bootstrap={data} />;
+  const canonicalUrl = toAbsoluteUrl(
+    buildCommercePublicUrl(data.business.usernameLower || username, normalizedMode),
+    await getCurrentOrigin(),
+  );
+  const seo = buildCommerceSeoMetadata(data, canonicalUrl);
+
+  return (
+    <>
+      <JsonLd data={buildLocalBusinessJsonLd({
+        business: data.business,
+        url: canonicalUrl,
+        description: seo.description,
+        image: data.business.photoThumb || data.business.photo,
+      })} />
+      <CommercePublicView bootstrap={data} />
+    </>
+  );
 }

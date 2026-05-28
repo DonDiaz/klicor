@@ -6,7 +6,6 @@ export const metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://klicor.com"),
   title: "Klicor",
   description: "Klicor - todos tus enlaces en un solo lugar.",
-  manifest: "/site.webmanifest",
   icons: {
     icon: [
       { url: "/favicon-16x16.png", type: "image/png", sizes: "16x16" },

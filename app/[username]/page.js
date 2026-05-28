@@ -4,6 +4,8 @@ import { buildPublicProfileDescription, getPublicProfileByUsername } from "@/lib
 import { buildVanityProfileUrl } from "@/lib/public-profile-links";
 import { buildCommercePublicUrl, normalizeCommerceMode } from "@/lib/commerce-config";
 import { LandingView } from "@/components/landing-view";
+import { JsonLd } from "@/components/json-ld";
+import { buildLocalBusinessJsonLd, buildSeoMetadata } from "@/lib/seo";
 
 const SHARE_IMAGE_VERSION = "v3";
 
@@ -27,33 +29,13 @@ export async function generateMetadata({ params }) {
   const imageUrl = `${canonicalUrl}/opengraph-image?cache=${SHARE_IMAGE_VERSION}-${user.updatedAtMs || 0}`;
   const title = user.businessName;
 
-  return {
+  return buildSeoMetadata({
     title,
     description,
-    alternates: {
-      canonical: canonicalUrl,
-    },
-    openGraph: {
-      title,
-      description,
-      url: canonicalUrl,
-      type: "website",
-      images: [
-        {
-          url: imageUrl,
-          width: 1200,
-          height: 630,
-          alt: `Vista previa de ${user.businessName}`,
-        },
-      ],
-    },
-    twitter: {
-      card: "summary_large_image",
-      title,
-      description,
-      images: [imageUrl],
-    },
-  };
+    url: canonicalUrl,
+    image: imageUrl,
+    imageAlt: `Vista previa de ${user.businessName}`,
+  });
 }
 
 export default async function PublicPage({ params, searchParams }) {
@@ -87,5 +69,18 @@ export default async function PublicPage({ params, searchParams }) {
     );
   }
 
-  return <LandingView user={data} />;
+  const canonicalUrl = buildVanityProfileUrl(canonicalUsername, await getCurrentOrigin());
+  const description = buildPublicProfileDescription(data);
+
+  return (
+    <>
+      <JsonLd data={buildLocalBusinessJsonLd({
+        business: data,
+        url: canonicalUrl,
+        description,
+        image: data.photoThumb || data.photo,
+      })} />
+      <LandingView user={data} />
+    </>
+  );
 }

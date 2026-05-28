@@ -4,6 +4,8 @@ Estado: implementado en codigo para pruebas.
 
 Fecha: 2026-05-19.
 
+Actualizacion pendiente: 2026-05-27.
+
 ## Fuentes oficiales revisadas
 
 - Firebase App Check para backend propio: https://firebase.google.com/docs/app-check/custom-resource-backend
@@ -153,3 +155,74 @@ Luego con `FIREBASE_APP_CHECK_MODE=monitor` y key App Check:
 Solo si no hay advertencias raras:
 
 - probar `FIREBASE_APP_CHECK_MODE=enforce`.
+
+## Revision externa pendiente: Claude, 2026-05-27
+
+Claude reviso el codigo de Klicor y no reporto vulnerabilidades criticas directamente explotables. La lectura general fue positiva:
+
+- la autoridad principal esta en el servidor,
+- Firestore y Storage no permiten escrituras directas desde cliente,
+- las mutaciones pasan por APIs autenticadas,
+- admin esta protegido,
+- Mercado Pago valida firma HMAC y reconsulta el pago,
+- no se detecto uso de `dangerouslySetInnerHTML`, `eval`, `new Function` ni `document.write`,
+- React escapa textos de usuario,
+- correos y vCard tienen escape especifico,
+- los links de usuario bloquean esquemas peligrosos, IPs privadas, localhost, credenciales y puertos no estandar.
+
+Conclusion simple: la base esta bien, pero faltan defensas de segunda capa para crecer con menos riesgo.
+
+### Pendientes priorizados
+
+1. Cabeceras de seguridad globales.
+   - Agregar `Content-Security-Policy`, `X-Frame-Options` o `frame-ancestors`, `Strict-Transport-Security`, `X-Content-Type-Options`, `Referrer-Policy` y `Permissions-Policy`.
+   - Empezar CSP en modo `Report-Only` si se decide una politica estricta, porque Next.js y scripts externos pueden requerir ajustes finos.
+   - No aplicar a ciegas: revisar si alguna pagina publica necesita poder incrustarse en iframe antes de bloquear todo con `frame-ancestors`.
+
+2. Confirmar App Check en produccion.
+   - La infraestructura ya existe.
+   - Revisar variables de Vercel en pruebas y produccion.
+   - Confirmar si esta en `monitor` o `enforce`.
+   - No cambiar modo sin probar dashboard, link publico, comercio publico y agenda publica.
+
+3. Cron secret con comparacion de tiempo constante.
+   - Revisar `/api/billing/cron`.
+   - Revisar `/api/booking/reminders/cron`.
+   - Cambiar comparacion `!==` por `crypto.timingSafeEqual`, siguiendo el patron ya usado en Mercado Pago.
+
+4. Respuestas de error mas seguras.
+   - Unificar APIs para usar `formatApiError()` o equivalente.
+   - Errores esperados pueden seguir mostrando mensajes claros.
+   - Errores internos de SDK, Firestore o stack deben responder mensaje generico y registrar detalle solo en servidor.
+
+5. Storage publico.
+   - Confirmar que bajo prefijos publicos solo existan assets pensados para mostrarse: logos, productos, QR visibles, imagenes de agenda o demos.
+   - No guardar cedulas, documentos privados, soportes internos de facturacion ni datos sensibles en rutas de lectura publica.
+   - Si algo requiere control, servirlo por API autenticada o URL firmada.
+
+6. Rate limit.
+   - Mantener la decision de no escribir en Firestore por cada lectura publica para evitar costos.
+   - Usar rate limit durable solo en endpoints abusables o sensibles.
+   - El rate limit en memoria queda como defensa rapida, no como barrera principal.
+
+7. IP de rate limit.
+   - En Vercel, preferir cabeceras confiables de la plataforma como `x-vercel-forwarded-for` antes de `x-forwarded-for`.
+   - Evitar depender de una cabecera que el cliente pueda falsificar.
+
+8. Token de correo de respaldo.
+   - Opcional: usar `crypto.timingSafeEqual` al comparar hashes, por consistencia.
+   - Riesgo bajo porque el token ya es aleatorio y se guarda hasheado.
+
+9. Dependencias.
+   - Ejecutar `npm audit` periodicamente.
+   - Mantener actualizados `next`, `firebase` y `firebase-admin`.
+
+### Decision de producto
+
+No trabajar esto ahora. Queda documentado como pendiente tecnico para una fase de endurecimiento de seguridad posterior.
+
+Cuando se retome, atacar primero:
+
+1. cabeceras de seguridad,
+2. App Check en produccion,
+3. comparacion segura del secreto de cron.
