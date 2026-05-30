@@ -104,6 +104,8 @@ const activityItems = [
   "Redes en un link",
 ];
 
+const activityLoopItems = Array.from({ length: 4 }, () => activityItems).flat();
+
 const homeJsonLd = {
   "@context": "https://schema.org",
   "@type": "SoftwareApplication",
@@ -204,7 +206,7 @@ export default function HomePage() {
 
       <section className="cloud-motion-strip" aria-label="Funciones de Klicor">
         <div className="cloud-motion-track">
-          {[...activityItems, ...activityItems].map((item, index) => (
+          {activityLoopItems.map((item, index) => (
             <span key={`${item}-${index}`}>{item}</span>
           ))}
         </div>
