@@ -338,7 +338,7 @@ export default function HomePage() {
 
           <div className="cloud-pricing-stack">
             {pricingPlans.map((plan) => (
-              <div key={plan.name} className={`cloud-price-box ${plan.name === "Emprendedor" ? "is-featured" : ""}`.trim()}>
+              <div key={plan.name} className={`cloud-price-box ${plan.name === "Comercial Plus" ? "is-featured" : ""}`.trim()}>
                 <div className="cloud-price-content">
                   {plan.badge ? <div className="pill cloud-price-badge">{plan.badge}</div> : null}
                   <strong>{plan.name}</strong>
