@@ -892,6 +892,10 @@ img { max-width: 100%; display: block; }
   background: rgba(248, 250, 252, 0.72);
 }
 
+.cloud-reveal {
+  animation: cloudReveal 0.72s ease both;
+}
+
 .cloud-home-hero {
   display: grid;
   grid-template-columns: minmax(0, 0.92fr) minmax(420px, 1.08fr);
@@ -987,6 +991,7 @@ img { max-width: 100%; display: block; }
   justify-items: center;
   min-width: 0;
   padding: 0.25rem 0;
+  position: relative;
 }
 
 .cloud-console-preview {
@@ -1014,6 +1019,7 @@ img { max-width: 100%; display: block; }
   min-height: 100%;
   padding: 0.45rem 4.4rem 0.75rem 0.3rem;
   overflow: visible;
+  animation: cloudFloat 7s ease-in-out infinite;
 }
 
 .cloud-console-preview .marketing-demo-surface {
@@ -1025,6 +1031,7 @@ img { max-width: 100%; display: block; }
   aspect-ratio: 345 / 746;
   width: min(312px, 100%);
   box-shadow: 0 28px 70px rgba(11, 16, 32, 0.22);
+  transition: transform 0.22s ease, box-shadow 0.22s ease;
 }
 
 .cloud-console-preview .marketing-demo-image {
@@ -1044,6 +1051,82 @@ img { max-width: 100%; display: block; }
   border-radius: 28px;
   box-shadow: 0 24px 56px rgba(11, 16, 32, 0.16);
   opacity: 1;
+  animation: cloudQrDrift 8s ease-in-out infinite;
+}
+
+.cloud-console-preview:hover .marketing-demo-surface {
+  transform: translateY(-4px);
+  box-shadow: 0 34px 78px rgba(11, 16, 32, 0.24);
+}
+
+.cloud-activity-chip {
+  position: absolute;
+  z-index: 4;
+  display: grid;
+  gap: 0.15rem;
+  max-width: 190px;
+  padding: 0.75rem 0.85rem;
+  border-radius: 16px;
+  border: 1px solid rgba(124, 58, 237, 0.14);
+  background: rgba(255, 255, 255, 0.86);
+  color: #0f172a;
+  box-shadow: 0 18px 42px rgba(79, 70, 229, 0.14);
+  backdrop-filter: blur(14px);
+  pointer-events: none;
+  animation: cloudChipFloat 6.8s ease-in-out infinite;
+}
+
+.cloud-activity-chip span {
+  color: #6d28d9;
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.cloud-activity-chip strong {
+  font-size: 0.9rem;
+  line-height: 1.18;
+  letter-spacing: -0.02em;
+}
+
+.cloud-activity-chip-top {
+  top: 13%;
+  right: 2%;
+}
+
+.cloud-activity-chip-bottom {
+  left: 2%;
+  bottom: 13%;
+  animation-delay: -2.8s;
+}
+
+.cloud-motion-strip {
+  overflow: hidden;
+  border-block: 1px solid rgba(148, 163, 184, 0.12);
+  background: rgba(255, 255, 255, 0.42);
+  mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+}
+
+.cloud-motion-track {
+  display: flex;
+  width: max-content;
+  gap: 0.75rem;
+  padding: 0.8rem 0;
+  animation: cloudMarquee 34s linear infinite;
+}
+
+.cloud-motion-track span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 0 0.9rem;
+  border-radius: 999px;
+  border: 1px solid rgba(91, 33, 182, 0.14);
+  background: rgba(255, 255, 255, 0.78);
+  color: #4b436d;
+  font-size: 0.9rem;
+  font-weight: 700;
 }
 
 .cloud-capability-card,
@@ -1143,6 +1226,7 @@ main.cloud-home-root .cloud-final-card {
   padding: 1.2rem;
   background: rgba(255, 255, 255, 0.86);
   box-shadow: var(--shadow-sm);
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .cloud-capability-card p {
@@ -1193,6 +1277,7 @@ main.cloud-home-root .cloud-final-card {
 .cloud-architecture-card {
   padding: 1.2rem 1.25rem;
   background: rgba(255, 255, 255, 0.86);
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .cloud-architecture-card strong {
@@ -1216,6 +1301,7 @@ main.cloud-home-root .cloud-final-card {
   padding: 1.3rem;
   background: rgba(255, 255, 255, 0.9);
   box-shadow: var(--shadow-sm);
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .cloud-flow-index {
@@ -1263,6 +1349,7 @@ main.cloud-home-root .cloud-final-card {
   align-items: flex-start;
   padding: 0.95rem 0;
   border-bottom: 1px solid rgba(226, 232, 240, 0.88);
+  transition: transform 0.2s ease, color 0.2s ease;
 }
 
 .cloud-case-copy {
@@ -1291,7 +1378,7 @@ main.cloud-home-root .cloud-final-card {
 }
 
 .cloud-pricing-section {
-  padding: 4.3rem 0 5.5rem;
+  padding: 4rem 0 4.5rem;
   background:
     radial-gradient(circle at 90% 30%, rgba(124, 58, 237, 0.18), transparent 32%),
     radial-gradient(circle at 8% 12%, rgba(34, 211, 238, 0.08), transparent 28%),
@@ -1340,7 +1427,7 @@ main.cloud-home-root .cloud-final-card {
 
 .cloud-pricing-stack {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   align-items: stretch;
   gap: 0.8rem;
 }
@@ -1351,7 +1438,7 @@ main.cloud-home-root .cloud-final-card {
   gap: 1.15rem;
   align-items: start;
   min-height: 100%;
-  padding: 2.15rem 1.9rem;
+  padding: 1.55rem 1.2rem;
   border-radius: 18px;
   border: 1px solid rgba(226, 232, 240, 0.88);
   background: rgba(255, 255, 255, 0.9);
@@ -1359,6 +1446,7 @@ main.cloud-home-root .cloud-final-card {
   box-shadow: 0 22px 64px rgba(79, 70, 229, 0.12);
   position: relative;
   overflow: hidden;
+  transition: transform 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease;
 }
 
 .cloud-price-box.is-featured {
@@ -1372,9 +1460,9 @@ main.cloud-home-root .cloud-final-card {
 }
 
 .cloud-price-badge {
-  width: calc(100% + 3.8rem);
+  width: calc(100% + 2.4rem);
   justify-content: center;
-  margin: -2.15rem -1.9rem 0.3rem;
+  margin: -1.55rem -1.2rem 0.3rem;
   border-radius: 18px 18px 0 0;
   border: 0;
   background: linear-gradient(135deg, #6d28d9, #7c3aed);
@@ -1391,7 +1479,7 @@ main.cloud-home-root .cloud-final-card {
   display: block;
   margin: 0;
   color: #20183d;
-  font-size: clamp(1.45rem, 2.4vw, 1.75rem);
+  font-size: clamp(1.25rem, 1.7vw, 1.58rem);
   line-height: 1.05;
   letter-spacing: -0.04em;
   text-align: center;
@@ -1399,7 +1487,7 @@ main.cloud-home-root .cloud-final-card {
 
 .cloud-price-value {
   color: #5b21b6;
-  font-size: clamp(2.2rem, 4.4vw, 3rem);
+  font-size: clamp(1.95rem, 2.8vw, 2.65rem);
   font-weight: 800;
   line-height: 0.95;
   letter-spacing: -0.08em;
@@ -1409,7 +1497,7 @@ main.cloud-home-root .cloud-final-card {
 .cloud-price-value::after {
   content: " / año";
   color: #7b7493;
-  font-size: 1rem;
+  font-size: 0.9rem;
   font-weight: 600;
   letter-spacing: -0.02em;
 }
@@ -1420,13 +1508,14 @@ main.cloud-home-root .cloud-final-card {
 
 .cloud-price-features {
   display: grid;
-  gap: 0.82rem;
+  gap: 0.72rem;
   margin: 1rem 0 0;
   padding: 1rem 0 0;
   border-top: 1px solid rgba(226, 232, 240, 0.88);
   list-style: none;
   color: #4b436d;
   line-height: 1.45;
+  font-size: 0.96rem;
 }
 
 .cloud-price-features li {
@@ -1479,6 +1568,94 @@ main.cloud-home-root .cloud-final-card {
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(248, 250, 252, 0.92)),
     radial-gradient(circle at top right, rgba(34, 211, 238, 0.12), transparent 40%);
+}
+
+.cloud-capability-card:hover,
+.cloud-architecture-card:hover,
+.cloud-flow-card:hover,
+.cloud-price-box:hover {
+  transform: translateY(-4px);
+  border-color: rgba(91, 33, 182, 0.22);
+  box-shadow: 0 26px 70px rgba(79, 70, 229, 0.14);
+}
+
+.cloud-case-item:hover {
+  transform: translateX(4px);
+}
+
+.landing-login-trigger {
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.landing-login-trigger:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 20px 42px rgba(91, 33, 182, 0.24);
+}
+
+@keyframes cloudReveal {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes cloudFloat {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes cloudQrDrift {
+  0%, 100% {
+    transform: rotate(12deg) translateY(0);
+  }
+  50% {
+    transform: rotate(10deg) translateY(8px);
+  }
+}
+
+@keyframes cloudChipFloat {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-7px);
+  }
+}
+
+@keyframes cloudMarquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cloud-reveal,
+  .cloud-console-preview .marketing-demo-stage,
+  .cloud-console-preview .marketing-demo-qr,
+  .cloud-activity-chip,
+  .cloud-motion-track {
+    animation: none;
+  }
+
+  .cloud-capability-card,
+  .cloud-architecture-card,
+  .cloud-flow-card,
+  .cloud-price-box,
+  .landing-login-trigger,
+  .cloud-case-item {
+    transition: none;
+  }
 }
 
 .landing-header {
@@ -6046,6 +6223,10 @@ html[data-theme="dark"] .admin-sidebar-note {
 }
 
 @media (max-width: 1180px) {
+  .cloud-pricing-stack {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .editor-panel .link-row,
   .editor-panel .link-row:has(.link-row-message) {
     grid-template-columns: 1fr;
@@ -6455,7 +6636,7 @@ html[data-theme="dark"] .admin-sidebar-note {
   }
 
   .cloud-pricing-stack {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .business-hours-shift {
@@ -6795,6 +6976,10 @@ html[data-theme="dark"] .admin-sidebar-note {
     transform: rotate(11deg);
   }
 
+  .cloud-activity-chip {
+    display: none;
+  }
+
   .cloud-final-card {
     align-items: flex-start;
   }
@@ -6857,6 +7042,18 @@ html[data-theme="dark"] .admin-sidebar-note {
 }
 
 @media (max-width: 760px) {
+  .cloud-pricing-stack {
+    grid-template-columns: 1fr;
+  }
+
+  .cloud-motion-strip {
+    mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  }
+
+  .cloud-motion-track {
+    animation-duration: 28s;
+  }
+
   .editor-topbar {
     min-height: 72px;
     gap: 0.75rem;
