@@ -94,6 +94,16 @@ const businessCategories = [
 
 const pricingPlans = getLandingPricingPlans();
 
+const activityItems = [
+  "Menú digital",
+  "Tienda por WhatsApp",
+  "Agenda online",
+  "Catálogo",
+  "Código QR",
+  "Pagos visibles",
+  "Redes en un link",
+];
+
 const homeJsonLd = {
   "@context": "https://schema.org",
   "@type": "SoftwareApplication",
@@ -145,7 +155,7 @@ export default function HomePage() {
       </header>
 
       <section className="shell cloud-home-hero">
-        <div className="cloud-home-copy">
+        <div className="cloud-home-copy cloud-reveal">
           <span className="pill cloud-home-kicker">
             <Sparkles size={16} />
             Diseñado para negocios reales
@@ -178,13 +188,29 @@ export default function HomePage() {
         </div>
 
         <div className="cloud-home-console cloud-home-console-media">
+          <div className="cloud-activity-chip cloud-activity-chip-top">
+            <span>Activo ahora</span>
+            <strong>QR listo para compartir</strong>
+          </div>
           <div className="cloud-console-preview">
             <MarketingPreview />
+          </div>
+          <div className="cloud-activity-chip cloud-activity-chip-bottom">
+            <span>Pedido claro</span>
+            <strong>Cliente directo a WhatsApp</strong>
           </div>
         </div>
       </section>
 
-      <section className="landing-section cloud-home-band" id="plataforma">
+      <section className="cloud-motion-strip" aria-label="Funciones de Klicor">
+        <div className="cloud-motion-track">
+          {[...activityItems, ...activityItems].map((item, index) => (
+            <span key={`${item}-${index}`}>{item}</span>
+          ))}
+        </div>
+      </section>
+
+      <section className="landing-section cloud-home-band cloud-reveal" id="plataforma">
         <div className="shell cloud-platform-shell">
           <div className="cloud-platform-copy">
             <span className="pill cloud-home-soft-pill">Plataforma</span>
@@ -213,7 +239,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="landing-section cloud-architecture-section">
+      <section className="landing-section cloud-architecture-section cloud-reveal">
         <div className="shell cloud-architecture-grid">
           <article className="cloud-architecture-lead">
             <span className="cloud-architecture-label">No es falta de clientes</span>
@@ -244,7 +270,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section id="flujo" className="landing-section landing-section-soft">
+      <section id="flujo" className="landing-section landing-section-soft cloud-reveal">
         <div className="shell">
           <div className="section-heading landing-centered-heading">
             <span className="pill">Flujo</span>
@@ -264,7 +290,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section id="casos" className="landing-section">
+      <section id="casos" className="landing-section cloud-reveal">
         <div className="shell cloud-cases-grid">
           <div className="cloud-cases-copy">
             <span className="pill cloud-home-soft-pill">Categorías</span>
@@ -298,7 +324,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section id="precios" className="landing-section cloud-pricing-section">
+      <section id="precios" className="landing-section cloud-pricing-section cloud-reveal">
         <div className="shell cloud-pricing-card">
           <div className="cloud-pricing-copy">
             <span className="pill">Precios</span>
@@ -336,7 +362,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="landing-section">
+      <section className="landing-section cloud-final-section cloud-reveal">
         <div className="shell cloud-final-card">
           <div className="cloud-final-copy">
             <span className="pill">Empieza ahora</span>
